@@ -1,0 +1,4 @@
+@echo off
+
+gmake -s clean PROFILE=80252AA-flash SUBMODULE="IO_EX1 TIMER_CORE TIMER_EX1"
+

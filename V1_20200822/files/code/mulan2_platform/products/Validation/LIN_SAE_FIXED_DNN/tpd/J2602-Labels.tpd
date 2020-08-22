@@ -1,0 +1,386 @@
+; LIN Test Suite (c) ihr GmbH
+; Property Template for generic J2602-2 Slave DUT
+; 28.10.2008, 10:31 VN
+;=========================================================================
+[DUT Type]
+SLAVE=1 ;         Set either MASTER or SLAVE to 1;
+MASTER=0 ;        Set either MASTER or SLAVE to 1;
+;=========================================================================
+;=========================================================================
+[Baudrate and Timing]
+RESP_TOL=1.35;    Response tolerance = 1+ response_safety_factor/100 (see response_safety_factor at ncf file. it shall be <=40 procent);
+BR_NOSYNC=0;      Master Synchronization capability: Set either BR_NOSYNC or BR_SYNC to (1);
+BR_SYNC=1;        Master Synchronization capability: Set either BR_NOSYNC or BR_SYNC to (1);
+BR_DEF=10417;     Default Baudrate: Set the highest supported Lin Baudrate to be used as default;
+DEL_DEF=20;       Default Scheduler Delay (ms) (20@10417);
+DEL_EXP=50;       Default "Expect" Timeout (ms): Time to expect back a transmitted frame;
+DEL_RESP=60;      Delay (ms) between MasterReq and SlaveResp Frames (P2_min);
+DEL_MaxGotoSleep=50;   Max time to go to Sleep Mode after GotoSleep command (ms);
+DEL_MaxBusIdle=60000; Max time to go to Sleep Mode after network idle (ms);
+DEL_PowerUp=100;      Delay for power up until first frame to send;
+DEL_MaxWakeUp=100;	  Max time for DUT wake up;
+DEL_WakeUp1=300;  Max interval between Wakeup pulse;
+DEL_WakeUp2=3000; Max interval between Wakeup pulse after send 3 Wakeups;
+
+;
+;=========================================================================
+; add the message processing time to the default scheduler delay
+; DEL_EXP  = DEL_DEF + 10
+; DEL_RESP = DEL_DEF + P2_min  
+;=========================================================================
+
+;=========================================================================;
+[Other Settings]
+HIGHSIDE_DRIVER=0;	          Highside Driver available for test;
+;=========================================================================
+
+;=========================================================================
+[Default Message Identifier Assignment] 
+CMD_NUM=1;              Number of Command Messages;
+CMD_MID1=0x15;             Command Message Identifier (NAD=0x65);
+CMD_MSG1=0x01, 0x13;   Message Identifier subscriber(Lowbyte, Highbyte). Only used if no frames are assigned after power on;
+CMD_DTA1={0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};;
+REQ_NUM=1;              Number of Request Messages;
+REQ_MID1=0x14;             Request Message Identifier(NAD=0x65);
+REQ_MSG1=0x00, 0x13;   Message Identifier publisher(Lowbyte, Highbyte). Only used if no frames are assigned after power on;
+REQ_LEN1=3;             Data length + 1 checksum byte;
+
+;CMD_MID1=1;             Command Message Identifier (NAD=0x60);
+
+
+;REQ_MID1=0;             Request Message Identifier (NAD=0x60); 
+
+;
+;=========================================================================
+;=========================================================================
+[Lin Slave Identification]
+IDW_SUP=0xfe, 0x5a;		Supplier ID (Lowbyte, Highbyte);
+IDW_FUNC=0xed, 0xfe;		Function ID (Lowbyte, Highbyte);
+IDB_VAR=0x01;			Variant;
+NAD_INI=0x6F;            Initial NAD (for Assign NAD service);
+NAD_DEF=0x65;			Default Node Adress on Power Up;
+NAD_NEW=0x60;;
+TR_POS=1;                   The DUT sends a positive(1)or negative(0)response to the Targeted Reset command;
+AssignFID=1;               The DUT supports the optional service Assign FrameID (0/1);
+AssignFID_POS=1;          The DUT can answer to AssignFrameID with a positive response (0/1);
+FID_NOT_assigned=0;        Default Frame Identifier are not assigned after power on (0/1);
+NAD_NOT_assigned=1;   NAD is not assigned after power on (0/1) NOTE : FIDs are assigned automatically by DUT based on NAD ;
+
+
+;
+;=========================================================================
+;=========================================================================
+[Lin Slave Network Management properties]
+WakeUp_Local=0;		The DUT can be triggered to start locally and generate a bus wakeup (0/1);
+WakeUp_Retry=0;     The DUT will send retries on wake up when the Master does not respond (0/1);
+GotoSleep=0;		The DUT goes in Sleep Mode after GotoSleep command (0/1);
+BusIdle=0;        The DUT goes in Sleep Mode after network idle (0/1);
+CurrentMax_Sleeping=10; Max current in Sleep Mode (Bit) (Current{61.1mA} * Shunt{10Ohm} / 4,88mV/Bit);
+CurrentMin_Running=30;  Min current after Wakeup in Running Mode (Bit) (Current{63.8mA} * Shunt{10Ohm} / 4,88mV/Bit);
+
+
+;
+;=========================================================================
+;=========================================================================
+[DNN_TEST]
+DNN_HARD=0;      The DUT supports Hardware Selectable DNN (0/1);
+DNN_FIX=1;       The DUT supports Fixed DNN (0/1);
+DNN_SOFT=0;      The DUT supports Software programmable DNN (0/1);
+
+;TestCase 5.7.2.1
+;
+DNN_96=IO3=GND, IO2=GND, IO1=GND, IO0=GND;;
+DNN_97=IO3=GND, IO2=GND, IO1=GND, IO0=+5V;;
+DNN_98=IO3=GND, IO2=GND, IO1=+5V, IO0=GND;;
+DNN_99=IO3=GND, IO2=GND, IO1=+5V, IO0=+5V;;
+DNN_100=IO3=GND, IO2=+5V, IO1=GND, IO0=GND;;
+DNN_101=IO3=GND, IO2=+5V, IO1=GND, IO0=+5V;;
+DNN_102=IO3=GND, IO2=+5V, IO1=+5V, IO0=GND;;
+DNN_103=IO3=GND, IO2=+5V, IO1=+5V, IO0=+5V;;
+DNN_104=IO3=+5V, IO2=GND, IO1=GND, IO0=GND;;
+DNN_105=IO3=+5V, IO2=GND, IO1=GND, IO0=+5V;;
+DNN_106=IO3=+5V, IO2=GND, IO1=+5V, IO0=GND;;
+DNN_107=IO3=+5V, IO2=GND, IO1=+5V, IO0=+5V;;
+DNN_108=IO3=+5V, IO2=+5V, IO1=GND, IO0=GND;;
+DNN_109=IO3=+5V, IO2=+5V, IO1=GND, IO0=+5V;;
+
+
+
+;=========================================================================
+;=========================================================================
+[MAX_SAMPLEPOINT] 
+;Apply in TestCase 7.5.1.1.1 and 7.5.1.2.1 (Sample Point) 
+;For Labels only
+;
+MAX_BITTIMEPHASE1_0=70;;
+MAX_BITTIMEPHASE1_1=69;;
+MAX_BITTIMEPHASE1_2=68;;
+MAX_BITTIMEPHASE1_3=67;;
+MAX_BITTIMEPHASE1_4=66;;
+MAX_BITTIMEPHASE1_5=65;;
+MAX_BITTIMEPHASE1_6=64;;
+MAX_BITTIMEPHASE1_7=63;;
+MAX_BITTIMEPHASE1_8=62;;
+MAX_BITTIMEPHASE1_9=61;;
+MAX_BITTIMEPHASE1_10=60;;
+MAX_BITTIMEPHASE1_11=59;;
+MAX_BITTIMEPHASE1_12=58;;
+MAX_BITTIMEPHASE1_13=57;;
+MAX_BITTIMEPHASE1_14=56;;
+MAX_BITTIMEPHASE1_15=55;;
+MAX_BITTIMEPHASE1_16=54;;
+MAX_BITTIMEPHASE1_17=53;;
+MAX_BITTIMEPHASE1_18=52;;
+MAX_BITTIMEPHASE1_19=51;;
+MAX_BITTIMEPHASE1_20=50;;
+MAX_BITTIMEPHASE1_21=49;;
+MAX_BITTIMEPHASE1_22=48;;
+MAX_BITTIMEPHASE1_23=47;;
+MAX_BITTIMEPHASE1_24=46;;
+MAX_BITTIMEPHASE1_25=45;;
+MAX_BITTIMEPHASE1_26=44;;
+MAX_BITTIMEPHASE1_27=43;;
+MAX_BITTIMEPHASE1_28=42;;
+MAX_BITTIMEPHASE1_29=41;;
+MAX_BITTIMEPHASE1_30=40;;
+MAX_BITTIMEPHASE2_0=122;;
+MAX_BITTIMEPHASE2_1=123;;
+MAX_BITTIMEPHASE2_2=124;;
+MAX_BITTIMEPHASE2_3=125;;
+MAX_BITTIMEPHASE2_4=126;;
+MAX_BITTIMEPHASE2_5=127;;
+MAX_BITTIMEPHASE2_6=128;;
+MAX_BITTIMEPHASE2_7=129;;
+MAX_BITTIMEPHASE2_8=130;;
+MAX_BITTIMEPHASE2_9=131;;
+MAX_BITTIMEPHASE2_10=132;;
+MAX_BITTIMEPHASE2_11=133;;
+MAX_BITTIMEPHASE2_12=134;;
+MAX_BITTIMEPHASE2_13=135;;
+MAX_BITTIMEPHASE2_14=136;;
+MAX_BITTIMEPHASE2_15=137;;
+MAX_BITTIMEPHASE2_16=138;;
+MAX_BITTIMEPHASE2_17=138;;
+MAX_BITTIMEPHASE2_18=140;;
+MAX_BITTIMEPHASE2_19=141;;
+MAX_BITTIMEPHASE2_20=142;;
+MAX_BITTIMEPHASE2_21=143;;
+MAX_BITTIMEPHASE2_22=144;;
+MAX_BITTIMEPHASE2_23=145;;
+MAX_BITTIMEPHASE2_24=146;;
+MAX_BITTIMEPHASE2_25=147;;
+MAX_BITTIMEPHASE2_26=148;;
+MAX_BITTIMEPHASE2_27=149;;
+MAX_BITTIMEPHASE2_28=150;;
+MAX_BITTIMEPHASE2_29=151;;
+MAX_BITTIMEPHASE2_30=152;;
+
+;------------------ (dominant level) = 탎
+
+
+;------------------ (recessive level) = 탎
+
+;=========================================================================
+;=========================================================================
+[MIN_SAMPLEPOINT]
+;Apply in TestCase 7.5.1.1.2 and 7.5.1.2.2 (Sample Point) 
+;For Labels only
+;
+MIN_BITTIMEPHASE1_0=125;;
+MIN_BITTIMEPHASE1_1=126;;
+MIN_BITTIMEPHASE1_2=127;;
+MIN_BITTIMEPHASE1_3=128;;
+MIN_BITTIMEPHASE1_4=129;;
+MIN_BITTIMEPHASE1_5=130;;
+MIN_BITTIMEPHASE1_6=131;;
+MIN_BITTIMEPHASE1_7=132;;
+MIN_BITTIMEPHASE1_8=133;;
+MIN_BITTIMEPHASE1_9=134;;
+MIN_BITTIMEPHASE1_10=135;;
+MIN_BITTIMEPHASE1_11=136;;
+MIN_BITTIMEPHASE1_12=137;;
+MIN_BITTIMEPHASE1_13=138;;
+MIN_BITTIMEPHASE1_14=139;;
+MIN_BITTIMEPHASE1_15=140;;
+MIN_BITTIMEPHASE1_16=141;;
+MIN_BITTIMEPHASE1_17=142;;
+MIN_BITTIMEPHASE1_18=143;;
+MIN_BITTIMEPHASE1_19=144;;
+MIN_BITTIMEPHASE1_20=145;;
+MIN_BITTIMEPHASE1_21=146;;
+MIN_BITTIMEPHASE1_22=147;;
+MIN_BITTIMEPHASE1_23=148;;
+MIN_BITTIMEPHASE1_24=149;;
+MIN_BITTIMEPHASE1_25=150;;
+MIN_BITTIMEPHASE1_26=151;;
+MIN_BITTIMEPHASE1_27=152;;
+MIN_BITTIMEPHASE1_28=153;;
+MIN_BITTIMEPHASE1_29=154;;
+MIN_BITTIMEPHASE1_30=155;;
+MIN_BITTIMEPHASE2_0=67;;
+MIN_BITTIMEPHASE2_1=66;;
+MIN_BITTIMEPHASE2_2=65;;
+MIN_BITTIMEPHASE2_3=64;;
+MIN_BITTIMEPHASE2_4=63;;
+MIN_BITTIMEPHASE2_5=62;;
+MIN_BITTIMEPHASE2_6=61;;
+MIN_BITTIMEPHASE2_7=60;;
+MIN_BITTIMEPHASE2_8=59;;
+MIN_BITTIMEPHASE2_9=58;;
+MIN_BITTIMEPHASE2_10=57;;
+MIN_BITTIMEPHASE2_11=56;;
+MIN_BITTIMEPHASE2_12=55;;
+MIN_BITTIMEPHASE2_13=54;;
+MIN_BITTIMEPHASE2_14=53;;
+MIN_BITTIMEPHASE2_15=52;;
+MIN_BITTIMEPHASE2_16=51;;
+MIN_BITTIMEPHASE2_17=50;;
+MIN_BITTIMEPHASE2_18=49;;
+MIN_BITTIMEPHASE2_19=48;;
+MIN_BITTIMEPHASE2_20=47;;
+MIN_BITTIMEPHASE2_21=46;;
+MIN_BITTIMEPHASE2_22=45;;
+MIN_BITTIMEPHASE2_23=44;;
+MIN_BITTIMEPHASE2_24=43;;
+MIN_BITTIMEPHASE2_25=42;;
+MIN_BITTIMEPHASE2_26=41;;
+MIN_BITTIMEPHASE2_27=40;;
+MIN_BITTIMEPHASE2_28=39;;
+MIN_BITTIMEPHASE2_29=38;;
+MIN_BITTIMEPHASE2_30=37;;
+
+;------------------ (dominant level) = 탎
+
+
+;------------------ (recessive level) = 탎
+;=========================================================================
+;=========================================================================
+[FRAME_TYPE]  
+;Apply in TestCase 5.7.2.2.1 and 5.7.2.2.2 (Slave Message ID Assignment);
+;
+UNKNOWN_FRAME=0;;
+REQUEST_FRAME=1;;
+COMMAND_FRAME=2;;
+FRAME_TYPE0=0;;
+FRAME_TYPE1=0;;
+FRAME_TYPE2=0;;
+FRAME_TYPE3=0;;
+FRAME_TYPE4=0;;
+FRAME_TYPE5=0;;
+FRAME_TYPE6=0;;
+FRAME_TYPE7=0;;
+FRAME_TYPE8=0;;
+FRAME_TYPE9=0;;
+FRAME_TYPE10=0;;
+FRAME_TYPE11=0;;
+FRAME_TYPE12=0;;
+FRAME_TYPE13=0;;
+FRAME_TYPE14=0;;
+FRAME_TYPE15=0;;
+FRAME_TYPE16=0;;
+FRAME_TYPE17=0;;
+FRAME_TYPE18=0;;
+FRAME_TYPE19=0;;
+FRAME_TYPE20=1; NAD = 0x65;
+FRAME_TYPE21=2; NAD = 0x65;
+FRAME_TYPE22=0;;
+FRAME_TYPE23=0;;
+FRAME_TYPE24=0;;
+FRAME_TYPE25=0;;
+FRAME_TYPE26=0;;
+FRAME_TYPE27=0;;
+FRAME_TYPE28=0;;
+FRAME_TYPE29=0;;
+FRAME_TYPE30=0;;
+FRAME_TYPE31=0;;
+FRAME_TYPE32=0;;
+FRAME_TYPE33=0;;
+FRAME_TYPE34=0;2;
+FRAME_TYPE35=0;;
+FRAME_TYPE36=0;;
+FRAME_TYPE37=0;;
+FRAME_TYPE38=0;2;
+FRAME_TYPE39=0;;
+FRAME_TYPE40=0;0;
+FRAME_TYPE41=0;0;
+FRAME_TYPE42=0;0;
+FRAME_TYPE43=0;0;
+FRAME_TYPE44=0;0;
+FRAME_TYPE45=0;0;
+FRAME_TYPE46=0;0;
+FRAME_TYPE47=0;0;
+FRAME_TYPE48=0;;
+FRAME_TYPE49=0;;
+FRAME_TYPE50=0;;
+FRAME_TYPE51=0;;
+FRAME_TYPE52=0;;
+FRAME_TYPE53=0;;
+FRAME_TYPE54=0;;
+FRAME_TYPE55=0;;
+FRAME_TYPE56=0;;
+FRAME_TYPE57=0;0;
+FRAME_TYPE58=0;0;
+FRAME_TYPE59=0;0;
+    
+;=========================================================================
+;=========================================================================
+[IHR extension]
+BC_BYTE_SM=4;     Byte number according to SYS:LIN_BitcrushByteNr;
+BC_BIT_SM=1;      Bit number according to SYS:LIN_BitcrushBitNr;
+BC_BYTE_SUB=5;    Byte number according to SYS:LIN_BitcrushByteNr;
+BC_BIT_SUB=2;     Bit number according to SYS:LIN_BitcrushBitNr;
+BC_POLARITY=0;    Polarity (0=dominant, 1=recessive);
+;
+;=========================================================================
+;=========================================================================
+[Tester Control]
+POWER_SWITCH=HIO:Key08 ; remotely switch the DUT power supply;
+CURRENT_IN=HIO:AnalogIn5V_01  ; current sensing input;
+;
+;=========================================================================
+;=========================================================================
+[PATTERNGEN]
+PATTERN_INIT=0xF20;       Initialize player;
+PATTERN_DOMBITS=0xF21;    Output n bit periods. Starts with dominant bit;
+PATTERN_RECBITS=0xF22;    Output n bit periods. Starts with recessive bit;
+PATTERN_DOMTICKS=0xF23;   Output n ticks periods. Starts with dominant tick;
+PATTERN_RECTICKS=0xF24;   Output n ticks periods. Starts with recessive tick;
+PATTERN_DOM10THS=0xF25;   Output n 1/10 bit periods. Starts with dominant;
+PATTERN_REC10THS=0xF26;   Output n 1/10 bit periods. Starts with recessive;
+PATTERN_DOM16THS=0xF27;   Output n 1/16 bit periods. Starts with dominant;
+PATTERN_REC16THS=0xF28;   Output n 1/16 bit periods. Starts with recessive;
+PATTERN_BITS=0xF29;       Output a sequence of up to 8 (0,1) bits;
+PATTERN_BYTE=0xF2A;       Output a byte with start and stopbit;
+PATTERN_BYTE_CS=0xF2B;    Output a byte with start and stopbit, add to checksum;
+PATTERN_RBYTE=0xF2C;      Output a byte (bits only);
+PATTERN_RBYTE_CS=0xF2D;   Output a byte (bits only), add to checksum;
+PATTERN_CHECKSUM=0xF2E;   Modify or output checksum byte;
+PATTERN_TRIGGER=0xF2F;    Output trigger signal (0, 1) on DigOut1;
+CHECK_INIT=0;             Initialize checksum;
+PATTERN_DOMTICKSW=0xF30;  Output n ticks periods with max. 4 word parameters Starts with dominant;
+PATTERN_RECTICKSW=0xF31;  Output n ticks periods with max. 4 word parameters Starts with recessive;
+CHECK_BYTE=1;             Put byteframe in buffer;
+CHECK_RAWBYTE=2;          Put bits without start/stop;
+CHECK_XOR=3;              Xor with const;
+CHECK_ADD=4;              Add to checksum;
+;
+;=========================================================================
+;=========================================================================
+; Constant Labels --- do not modify
+;=========================================================================
+;=========================================================================
+;=========================================================================
+[CONST]
+#ALLFRAMES=66  ; RxRequestFrame and TestFrame;
+#NOFRAME=65;;
+ERR_NONE=0;;
+ERR_SYNC=1;;
+ERR_BYTE=2;;
+ERR_PARITY=3;;
+ERR_NORESPONSE=4;;
+ERR_TIMEOUT=5;;
+ERR_CHECKSUM=6;;
+ERR_BUSHI=7;;
+ERR_BUSLO=8;;
+ERR_COLLISION=9;;
+ERR_MASTER_TO=10;;

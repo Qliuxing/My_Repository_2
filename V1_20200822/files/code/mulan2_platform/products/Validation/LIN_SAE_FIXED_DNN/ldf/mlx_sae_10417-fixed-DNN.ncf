@@ -1,0 +1,55 @@
+/*
+ * SAE J2602 test application
+ */
+
+node_capability_file;
+LIN_language_version = "J2602_3_1.0";
+
+node MLX {
+    general {
+        LIN_protocol_version = "J2602_1_1.0";
+        supplier = 0x5AFE;
+        function = 0xFEED;
+        variant = 1;
+        bitrate = 10417;
+    }
+
+    diagnostic {
+        NAD = 0x65;
+        P2_min = 20 ms;  /* TBD */
+        ST_min = 20 ms;  /* TBD */
+        support_sid {0xB1, 0xB2, 0xB5};
+    }
+
+    frames {
+        publish PUB1 {
+            message_ID = 0x1300;
+            length = 2;
+            signals {
+                PUB1_B0  {init_value = 0; size = 7; offset = 0;}
+                RESP_ERR {init_value = 0; size = 1; offset = 7;}
+                PUB1_B1  {init_value = 0; size = 8; offset = 8;}
+            }
+        }
+
+        subscribe SUB1 {
+            message_ID = 0x1301;
+            length = 8;
+            signals {
+                SUB1_B0  {init_value = 0; size =  8; offset =  0;}
+                SUB1_B1  {init_value = 0; size =  8; offset =  8;}
+                SUB1_B2  {init_value = 0; size =  8; offset = 16;}
+                SUB1_B3  {init_value = 0; size =  8; offset = 24;}
+                SUB1_B4  {init_value = 0; size =  8; offset = 32;}
+                SUB1_B5  {init_value = 0; size =  8; offset = 40;}
+                SUB1_B6  {init_value = 0; size =  8; offset = 48;}
+                SUB1_B7  {init_value = 0; size =  8; offset = 56;}
+            }
+        }
+
+    }
+
+    status_management { error_response = RESP_ERR; }
+
+}
+

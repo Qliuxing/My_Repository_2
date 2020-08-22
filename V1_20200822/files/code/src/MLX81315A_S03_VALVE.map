@@ -1,0 +1,1510 @@
+Archive member included because of file (symbol)
+
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_srv.o)
+                              (mlx_pltf_version)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+                              obj/vectors-lin.o (__prestart)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_mlx16.o)
+                              obj/main.o (_MLX16_RESET)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lib_mlx813xx_bist.o)
+                              obj/fatal.o (_bistHeader)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(nvram.o)
+                              obj/main.o (_NVRAM_LoadAll)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(div32_32by16.o)
+                              obj/MotorDriver.o (_divU32_U32byU16)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mul32_16by16_copr.o)
+                              obj/ADC.o (_mulI32_I16byU16)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mul32hi_32by16.o)
+                              obj/PID_Control.o (_mulU32hi_U32byU16)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx4_prog.o)
+                              (mlx4_prog)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(api.o)
+                              obj/LIN_SAE_J2602.o (_LinProtectedID)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+                              obj/premain.o (_ml_GetLinEventData)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInterruptHandler.o)
+                              obj/vectors-lin.o (_ml_LinInterruptHandler)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_InitLinModule.o)
+                              obj/LIN_Communication.o (_ml_InitLinModule)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+                              /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o) (_ldr_isReadByIdMessage)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInit.o)
+                              obj/premain.o (_ml_LinInit)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_state.o)
+                              /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o) (_loader_flags)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_get_state.o)
+                              obj/premain.o (_LDR_GetState)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+                              /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o) (_Flash_InitDriver)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_SetFastBaudRate.o)
+                              /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o) (_ml_SetFastBaudRate)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
+                              /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o) (_start)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_section_init.o)
+                              /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o) (__ram_section_init)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_test.o)
+                              /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o) (_RAM_Test)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(low_level_init.o)
+                              /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o) (__low_level_init)
+/cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx_ispowerok.o)
+                              /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o) (_mlx_isPowerOk)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+shared_ram       0x00000000         0x00000010         rw !x
+ram_lin_fixed    0x00000010         0x00000008         rw
+ram              0x00000018         0x00000728         xrw
+dynram           0x00000740         0x00000080         xrw
+mlx4_ram         0x000007c0         0x00000040         rw !x
+eeprom           0x00001000         0x00000100         xrw
+eeprom2          0x00001100         0x00000100         xrw
+system_io        0x00002000         0x00000100         rw !x
+user_io          0x00002800         0x00000100         rw !x
+mlx4_flash       0x00004000         0x00001540         xr
+mlx4_table       0x00005540         0x00000088         r
+rom              0x000055c8         0x000068b8         xr
+loader_flags     0x0000be80         0x00000080         r
+protection_key   0x0000bf46         0x00000008         r
+flash_crc        0x0000bf4e         0x00000002         r
+product_no       0x0000bf50         0x00000008         r
+app_version      0x0000bf58         0x00000004         r
+pltf_version     0x0000bf5c         0x00000004         r
+system_services  0x0000bf60         0x00000006         xr
+loader_rst_state 0x0000bf66         0x00000002         r
+vectors          0x0000bf68         0x00000098         xr
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD obj/muldiv16_16by16by16.o
+LOAD obj/lin2b_romtbl.o
+LOAD obj/vectors-lin.o
+LOAD obj/main.o
+LOAD obj/app_version.o
+LOAD obj/LIN_Communication.o
+LOAD obj/LIN_2x.o
+LOAD obj/LIN_SAE_J2602.o
+LOAD obj/LIN_Diagnostics.o
+LOAD obj/ADC.o
+LOAD obj/Diagnostic.o
+LOAD obj/ErrorCodes.o
+LOAD obj/MotorDriver.o
+LOAD obj/MotorDriverTables.o
+LOAD obj/MotorStall.o
+LOAD obj/NVRAM_UserPage.o
+LOAD obj/PID_Control.o
+LOAD obj/Timer.o
+LOAD obj/SPI_Debug.o
+LOAD obj/fatal.o
+LOAD obj/premain.o
+LOAD /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a
+LOAD /cygdrive/c/Program Files (x86)/Melexis/mlx16-gcc_1_12_3/bin/../lib/gcc/mlx16/3.4.3/mlx16-x8/libgcc.a
+LOAD /cygdrive/c/Program Files (x86)/Melexis/mlx16-gcc_1_12_3/bin/../lib/gcc/mlx16/3.4.3/../../../../mlx16/lib/mlx16-x8/libc.a
+LOAD /cygdrive/c/Program Files (x86)/Melexis/mlx16-gcc_1_12_3/bin/../lib/gcc/mlx16/3.4.3/mlx16-x8/libgcc.a
+START GROUP
+LOAD /cygdrive/c/Program Files (x86)/Melexis/mlx16-gcc_1_12_3/bin/../lib/gcc/mlx16/3.4.3/../../../../mlx16/lib/mlx16-x8/libc.a
+LOAD /cygdrive/c/Program Files (x86)/Melexis/mlx16-gcc_1_12_3/bin/../lib/gcc/mlx16/3.4.3/mlx16-x8/libgcc.a
+END GROUP
+                0x00000000                __dp__ = 0x0
+                0x00002800                __io__ = 0x2800
+                0x00001000                __ep__ = 0x1000
+                0x0000bf00                __fp0__ = 0xbf00
+                0x0000be00                __fp1__ = 0xbe00
+                0x0000bd00                __fp2__ = 0xbd00
+                0x0000bc00                __fp3__ = 0xbc00
+                0x0000bb00                __fp4__ = 0xbb00
+                0x0000ba00                __fp5__ = 0xba00
+                0x0000b900                __fp6__ = 0xb900
+                0x00001000                __fp7__ = 0x1000
+
+.mlx4_flash     0x00004000     0x14f0
+                0x00004000                __mlx4_flash_start = .
+ *(.mlx4_prog)
+ .mlx4_prog     0x00004000     0x14f0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx4_prog.o)
+                0x00004000                mlx4_prog
+                0x000054f0                __mlx4_flash_end = .
+
+.mlx4_table     0x00005540       0x88
+                0x00005540                __mlx4_table_start = .
+ *(.mlx4_table)
+ .mlx4_table    0x00005540       0x88 obj/lin2b_romtbl.o
+                0x00005540                _INDXtbl
+                0x000055c0                _AUTOADDtbl
+                0x000055c8                __mlx4_table_end = .
+
+.mlx16_vectors  0x0000bf68       0x98
+ *(.vectors)
+ .vectors       0x0000bf68       0x98 obj/vectors-lin.o
+                0x0000bf68                __vectors
+
+.loader_flags   0x0000be80       0x80
+ *(.loader_flags)
+ .loader_flags  0x0000be80       0x80 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_state.o)
+                0x0000be80                _loader_flags
+
+.loader_rst_state
+                0x0000bf66        0x2
+ *(.loader_rst_state)
+ .loader_rst_state
+                0x0000bf66        0x2 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_state.o)
+                0x0000bf66                _loader_rst_state
+
+.system_services
+                0x0000bf60        0x6
+ *(.system_services)
+ .system_services
+                0x0000bf60        0x6 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_srv.o)
+                0x0000bf60                mlx_enter_protected_mode
+
+.protection_key
+                0x0000bf46        0x8
+ *(.protection_key)
+ .protection_key
+                0x0000bf46        0x8 obj/app_version.o
+                0x0000bf46                _Flash_Key
+
+.flash_crc      0x0000bf4e        0x2
+ *(.flash_crc)
+ .flash_crc     0x0000bf4e        0x2 obj/app_version.o
+                0x0000bf4e                _Flash_CRC
+
+.product_no     0x0000bf50        0x8
+ *(.product_no)
+ .product_no    0x0000bf50        0x8 obj/app_version.o
+                0x0000bf50                _product_id
+
+.app_version    0x0000bf58        0x4
+ *(.app_version)
+ .app_version   0x0000bf58        0x4 obj/app_version.o
+                0x0000bf58                _application_version
+
+.pltf_version   0x0000bf5c        0x4
+ *(.pltf_version)
+ .pltf_version  0x0000bf5c        0x4 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_srv.o)
+                0x0000bf5c                mlx_pltf_version
+
+.ramfunc        0x00000740       0x1e load address 0x000055c8
+                0x00000740                . = ALIGN (0x2)
+                0x00000740                __ramfunc_start = .
+ *(.ramfunc)
+ .ramfunc       0x00000740       0x1e /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+                0x00000740                _WriteTMTR
+                0x0000075e                . = ALIGN (0x2)
+                0x0000075e                __ramfunc_end = .
+                0x0000001e                __ramfunc_size = (__ramfunc_end - __ramfunc_start)
+                0x000055c8                __ramfunc_load_start = LOADADDR (.ramfunc)
+
+.text           0x000055e8     0x4cb6
+                0x000055e8                _stext = .
+ *(.text.start)
+ .text.start    0x000055e8       0x20 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
+                0x000055e8                _start
+ *(.text._low_level_init)
+ *(.text._ram_section_init)
+ .text._ram_section_init
+                0x00005608       0x42 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_section_init.o)
+                0x00005608                __ram_section_init
+ *(.text._premain)
+ *(.text._fatal)
+ *(.mlx_text)
+ .mlx_text      0x0000564a      0x102 obj/fatal.o
+                0x0000564a                _STACK_IT
+                0x0000568c                __fatal
+ .mlx_text      0x0000574c       0x96 obj/premain.o
+                0x0000574c                __premain
+ .mlx_text      0x000057e2      0x1fa /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+                0x000057e2                __prestart
+ .mlx_text      0x000059dc       0x7a /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_mlx16.o)
+                0x000059dc                _MLX16_RESET
+ .mlx_text      0x00005a56       0xfc /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(nvram.o)
+                0x00005a56                _NVRAM_LoadAll
+                0x00005abc                _NVRAM_SavePage
+                0x00005b1a                _NVRAM_BufferFill
+                0x00005b44                _NVRAM_SaveAll
+ .mlx_text      0x00005b52      0x128 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(api.o)
+                0x00005b52                _ml_ReleaseBuffer
+                0x00005b56                _ml_ReleaseBufferProg
+                0x00005b60                _ml_DataReady
+                0x00005b76                _ml_AssignFrameToMessageID
+                0x00005b7c                _ml_DisableMessage
+                0x00005b80                _ml_EnableMessage
+                0x00005b8c                _ml_AutoAddressingConfig
+                0x00005b94                _ml_SetSlewRate
+                0x00005b9c                _ml_SetOptions
+                0x00005bb2                _ml_DiscardFrame
+                0x00005bb6                _ml_ContFrame
+                0x00005bf6                _ml_LinModuleVersion
+                0x00005c24                _ml_GetState
+                0x00005c4a                _ml_SetBaudRate
+                0x00005c56                _ml_SetAutoBaudRateMode
+                0x00005c5e                _ml_Connect
+                0x00005c62                _ml_Disconnect
+                0x00005c66                _ml_SwitchToFast
+                0x00005c6a                _ml_WakeUp
+                0x00005c6e                _ml_GotoSleep
+ .mlx_text      0x00005c7a      0x202 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+                0x00005c7a                _ml_GetLinEventData
+                0x00005caa                _ml_ProccessLinEvent
+                0x00005e5c                _ml_SetLoaderNAD
+                0x00005e76                _ml_GetLoaderNAD
+ .mlx_text      0x00005e7c       0x1a /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInterruptHandler.o)
+                0x00005e7c                _ml_LinInterruptHandler
+                0x00005e7c                _linit
+ .mlx_text      0x00005e96       0x62 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_InitLinModule.o)
+                0x00005e96                _ml_InitLinModule
+ .mlx_text      0x00005ef8      0x7d6 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+                0x00005ef8                _ldr_isReadByIdMessage
+                0x000060b0                _ml_ldr_ErrorDetected
+                0x0000614e                _ml_ldr_SwitchToProgMode
+                0x000061de                _ml_ldr_ReadByIdMessage
+                0x00006216                _ml_DiagRequest
+                0x0000627a                _ml_DiagReceived
+ .mlx_text      0x000066ce       0x20 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInit.o)
+                0x000066ce                _ml_LinInit
+ .mlx_text      0x000066ee       0x16 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_get_state.o)
+                0x000066ee                _LDR_GetState
+ .mlx_text      0x00006704      0x232 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+                0x00006704                _Flash_InitDriver
+                0x00006734                _Flash_GetWriteTime
+                0x00006754                _Flash_PageRead
+                0x00006772                _Flash_PageBufferFill
+                0x00006780                _Flash_PageVerifyBuffer
+                0x000067a2                _Flash_PageWrite
+                0x000068ca                _Flash_IREF_Offset
+                0x00006912                _Flash_PageWriteFiltered
+ .mlx_text      0x00006936       0x52 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_SetFastBaudRate.o)
+                0x00006936                _ml_SetFastBaudRate
+ .mlx_text      0x00006988       0x5a /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_test.o)
+                0x00006992                _RAM_Test
+ .mlx_text      0x000069e2      0x152 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(low_level_init.o)
+                0x000069e2                __low_level_init
+ .mlx_text      0x00006b34       0x9a /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx_ispowerok.o)
+                0x00006b34                _mlx_isPowerOk
+ *(.rodata)
+ *fill*         0x00006bce        0x2 
+ .rodata        0x00006bd0        0xc /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+ *(.rodata._mlx_*)
+ .rodata._mlx_loader_info
+                0x00006bdc        0x1 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+                0x00006bde                . = ALIGN (0x2)
+ *fill*         0x00006bdd        0x1 
+ *(.text)
+ .text          0x00006bde       0x1a obj/muldiv16_16by16by16.o
+                0x00006bde                _muldivI16_I16byI16byI16
+                0x00006bec                _muldivU16_U16byU16byU16
+ .text          0x00006bf8        0x0 obj/lin2b_romtbl.o
+ .text          0x00006bf8        0x0 obj/vectors-lin.o
+ .text          0x00006bf8        0x0 obj/main.o
+ .text          0x00006bf8        0x0 obj/app_version.o
+ .text          0x00006bf8        0x0 obj/LIN_Communication.o
+ .text          0x00006bf8        0x0 obj/LIN_2x.o
+ .text          0x00006bf8        0x0 obj/LIN_SAE_J2602.o
+ .text          0x00006bf8        0x0 obj/LIN_Diagnostics.o
+ .text          0x00006bf8        0x0 obj/ADC.o
+ .text          0x00006bf8        0x0 obj/Diagnostic.o
+ .text          0x00006bf8        0x0 obj/ErrorCodes.o
+ .text          0x00006bf8        0x0 obj/MotorDriver.o
+ .text          0x00006bf8        0x0 obj/MotorDriverTables.o
+ .text          0x00006bf8        0x0 obj/MotorStall.o
+ .text          0x00006bf8        0x0 obj/NVRAM_UserPage.o
+ .text          0x00006bf8        0x0 obj/PID_Control.o
+ .text          0x00006bf8        0x0 obj/Timer.o
+ .text          0x00006bf8        0x0 obj/SPI_Debug.o
+ .text          0x00006bf8        0x0 obj/fatal.o
+ .text          0x00006bf8        0x0 obj/premain.o
+ .text          0x00006bf8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_srv.o)
+ .text          0x00006bf8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+ .text          0x00006bf8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_mlx16.o)
+ .text          0x00006bf8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lib_mlx813xx_bist.o)
+ .text          0x00006bf8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(nvram.o)
+ .text          0x00006bf8       0x4a /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(div32_32by16.o)
+                0x00006bf8                _divI32_I32byI16
+                0x00006c08                _divI32_I32byU16
+                0x00006c2a                _divU32_U32byU16
+ .text          0x00006c42       0x14 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mul32_16by16_copr.o)
+                0x00006c42                _mulI32_I16byU16
+                0x00006c50                _mulU32_U16byU16
+ .text          0x00006c56       0x58 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mul32hi_32by16.o)
+                0x00006c56                _mulI32hi_I32byI16
+                0x00006c80                _mulI32hi_I32byU16
+                0x00006ca0                _mulU32hi_U32byU16
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx4_prog.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(api.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInterruptHandler.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_InitLinModule.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInit.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_state.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_get_state.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_SetFastBaudRate.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_section_init.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_test.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(low_level_init.o)
+ .text          0x00006cae        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx_ispowerok.o)
+ *(.text.*)
+ .text.RamBackgroundTest
+                0x00006cae       0x2a obj/main.o
+                0x00006cae                _RamBackgroundTest
+ .text.FlashBackgroundTest
+                0x00006cd8       0xce obj/main.o
+                0x00006cd8                _FlashBackgroundTest
+ .text.noinit_section_init
+                0x00006da6       0x26 obj/main.o
+                0x00006da6                _noinit_section_init
+ .text.main     0x00006dcc      0x980 obj/main.o
+                0x00006dcc                _main
+ .text.LIN_Init
+                0x0000774c       0x42 obj/LIN_Communication.o
+                0x0000774c                _LIN_Init
+ .text.mlu_ApplicationStop
+                0x0000778e       0x34 obj/LIN_Communication.o
+                0x0000778e                _mlu_ApplicationStop
+ .text.mlu_DataRequest
+                0x000077c2       0x50 obj/LIN_Communication.o
+                0x000077c2                _mlu_DataRequest
+ .text.mlu_DataTransmitted
+                0x00007812        0xe obj/LIN_Communication.o
+                0x00007812                _mlu_DataTransmitted
+ .text.mlu_ErrorDetected
+                0x00007820       0x16 obj/LIN_Communication.o
+                0x00007820                _mlu_ErrorDetected
+ .text.mlu_LinSleepMode
+                0x00007836       0x18 obj/LIN_Communication.o
+                0x00007836                _mlu_LinSleepMode
+ .text.mlu_MessageReceived
+                0x0000784e       0x2c obj/LIN_Communication.o
+                0x0000784e                _mlu_MessageReceived
+ .text.HandleLinInMsg
+                0x0000787a       0x3e obj/LIN_Communication.o
+                0x0000787a                _HandleLinInMsg
+ .text.mlu_AutoAddressingStep
+                0x000078b8        0x2 obj/LIN_Communication.o
+                0x000078b8                _mlu_AutoAddressingStep
+ .text.CalcProtectionBits
+                0x000078ba       0x62 obj/LIN_SAE_J2602.o
+                0x000078ba                _CalcProtectionBits
+ .text.LIN_SAE_J2602_Init
+                0x0000791c       0xe8 obj/LIN_SAE_J2602.o
+                0x0000791c                _LIN_SAE_J2602_Init
+ .text.ConvertMicroStepPosToPct
+                0x00007a04       0x50 obj/LIN_SAE_J2602.o
+                0x00007a04                _ConvertMicroStepPosToPct
+ .text.LIN_SAE_J2602_Store
+                0x00007a54       0xaa obj/LIN_SAE_J2602.o
+                0x00007a54                _LIN_SAE_J2602_Store
+ .text.HandleActCfrCtrl
+                0x00007afe      0x100 obj/LIN_SAE_J2602.o
+                0x00007afe                _HandleActCfrCtrl
+ .text.HandleActRfrSta
+                0x00007bfe       0xea obj/LIN_SAE_J2602.o
+                0x00007bfe                _HandleActRfrSta
+ .text.HandleBusTimeout
+                0x00007ce8       0x30 obj/LIN_SAE_J2602.o
+                0x00007ce8                _HandleBusTimeout
+ .text.LIN2J_ErrorHandling
+                0x00007d18       0x70 obj/LIN_SAE_J2602.o
+                0x00007d18                _LIN2J_ErrorHandling
+ .text.SetupDiagResponse
+                0x00007d88       0x36 obj/LIN_Diagnostics.o
+                0x00007d88                _SetupDiagResponse
+ .text.CheckSupplier
+                0x00007dbe       0x14 obj/LIN_Diagnostics.o
+                0x00007dbe                _CheckSupplier
+ .text.ValidSupplierFunctionID
+                0x00007dd2       0x20 obj/LIN_Diagnostics.o
+                0x00007dd2                _ValidSupplierFunctionID
+ .text.HandleDfrDiag
+                0x00007df2      0x5ba obj/LIN_Diagnostics.o
+                0x00007df2                _HandleDfrDiag
+ .text.RfrDiagReset
+                0x000083ac       0x2e obj/LIN_Diagnostics.o
+                0x000083ac                _RfrDiagReset
+ .text.ADC_StartSoftTrig
+                0x000083da       0x32 obj/ADC.o
+                0x000083da                _ADC_StartSoftTrig
+ .text.ADC_Stop
+                0x0000840c       0x38 obj/ADC.o
+                0x0000840c                _ADC_Stop
+ .text.ADC_Init
+                0x00008444      0x174 obj/ADC.o
+                0x00008444                _ADC_Init
+ .text.ADC_Start
+                0x000085b8       0x30 obj/ADC.o
+                0x000085b8                _ADC_Start
+ .text.ADC_PowerOff
+                0x000085e8       0x24 obj/ADC.o
+                0x000085e8                _ADC_PowerOff
+ .text.ADC_IT   0x0000860c        0x6 obj/ADC.o
+                0x0000860c                _ADC_IT
+ .text.GetVsupply
+                0x00008612       0x36 obj/ADC.o
+                0x00008612                _GetVsupply
+ .text.GetRawChipSupply
+                0x00008648        0x6 obj/ADC.o
+                0x00008648                _GetRawChipSupply
+ .text.GetVsupplyMotor
+                0x0000864e       0x3a obj/ADC.o
+                0x0000864e                _GetVsupplyMotor
+ .text.ResetChipTemperature
+                0x00008688        0xa obj/ADC.o
+                0x00008688                _ResetChipTemperature
+ .text.GetChipTemperature
+                0x00008692       0x84 obj/ADC.o
+                0x00008692                _GetChipTemperature
+ .text.GetRawTemperature
+                0x00008716        0x8 obj/ADC.o
+                0x00008716                _GetRawTemperature
+ .text.GetRawMotorDriverCurrent
+                0x0000871e       0x30 obj/ADC.o
+                0x0000871e                _GetRawMotorDriverCurrent
+ .text.GetMotorDriverCurrent
+                0x0000874e       0x14 obj/ADC.o
+                0x0000874e                _GetMotorDriverCurrent
+ .text.MeasureVsupplyAndTemperature
+                0x00008762       0x2e obj/ADC.o
+                0x00008762                _MeasureVsupplyAndTemperature
+ .text.MeasureMotorCurrent
+                0x00008790       0x38 obj/ADC.o
+                0x00008790                _MeasureMotorCurrent
+ .text.MeasurePhaseVoltage
+                0x000087c8       0x30 obj/ADC.o
+                0x000087c8                _MeasurePhaseVoltage
+ .text.HandleDiagnosticEvent
+                0x000087f8      0x118 obj/Diagnostic.o
+                0x000087f8                _HandleDiagnosticEvent
+ .text.DiagnosticsInit
+                0x00008910       0x6e obj/Diagnostic.o
+                0x00008910                _DiagnosticsInit
+ .text.EXT4_IT  0x0000897e       0x40 obj/Diagnostic.o
+                0x0000897e                _EXT4_IT
+ .text.ErrorLogInit
+                0x000089be       0x28 obj/ErrorCodes.o
+                0x000089be                _ErrorLogInit
+ .text.SetLastError
+                0x000089e6       0x36 obj/ErrorCodes.o
+                0x000089e6                _SetLastError
+ .text.GetLastError
+                0x00008a1c       0x5e obj/ErrorCodes.o
+                0x00008a1c                _GetLastError
+ .text.MotorDriverInit
+                0x00008a7a      0x232 obj/MotorDriver.o
+                0x00008a7a                _MotorDriverInit
+ .text.MotorDriverSelfTest
+                0x00008cac      0x242 obj/MotorDriver.o
+                0x00008cac                _MotorDriverSelfTest
+ .text.MotorDriverCurrentMeasureInit
+                0x00008eee       0x54 obj/MotorDriver.o
+                0x00008eee                _MotorDriverCurrentMeasureInit
+ .text.MotorDriverCurrentMeasure
+                0x00008f42       0x96 obj/MotorDriver.o
+                0x00008f42                _MotorDriverCurrentMeasure
+ .text.MotorDriver_InitialPwmDutyCycle
+                0x00008fd8       0xa2 obj/MotorDriver.o
+                0x00008fd8                _MotorDriver_InitialPwmDutyCycle
+ .text.MotorDriver_4PhaseStepper
+                0x0000907a       0xc6 obj/MotorDriver.o
+                0x0000907a                _MotorDriver_4PhaseStepper
+ .text.MotorDriverStart
+                0x00009140      0x156 obj/MotorDriver.o
+                0x00009140                _MotorDriverStart
+ .text.MotorDriverStop
+                0x00009296      0x222 obj/MotorDriver.o
+                0x00009296                _MotorDriverStop
+ .text.EXT0_IT  0x000094b8      0x230 obj/MotorDriver.o
+                0x000094b8                _EXT0_IT
+ .text.MotorStallInitA
+                0x000096e8        0x8 obj/MotorStall.o
+                0x000096e8                _MotorStallInitA
+ .text.MotorStallCheckA
+                0x000096f0       0x6a obj/MotorStall.o
+                0x000096f0                _MotorStallCheckA
+ .text.MotorStallInitO
+                0x0000975a        0xc obj/MotorStall.o
+                0x0000975a                _MotorStallInitO
+ .text.MotorStallCheckO
+                0x00009766      0x102 obj/MotorStall.o
+                0x00009766                _MotorStallCheckO
+ .text.NVRAM_CRC8
+                0x00009868       0x32 obj/NVRAM_UserPage.o
+                0x00009868                _NVRAM_CRC8
+ .text.NVRAM_CountCRC8
+                0x0000989a       0x44 obj/NVRAM_UserPage.o
+                0x0000989a                _NVRAM_CountCRC8
+ .text.NVRAM_PageVerify
+                0x000098de       0x1a obj/NVRAM_UserPage.o
+                0x000098de                _NVRAM_PageVerify
+ .text.NVRAM_Store
+                0x000098f8      0x10a obj/NVRAM_UserPage.o
+                0x000098f8                _NVRAM_Store
+ .text.NVRAM_LoadUserPage
+                0x00009a02      0x14c obj/NVRAM_UserPage.o
+                0x00009a02                _NVRAM_LoadUserPage
+ .text.NVRAM_StorePatch
+                0x00009b4e        0xa obj/NVRAM_UserPage.o
+                0x00009b4e                _NVRAM_StorePatch
+ .text.NVRAM_MlxCalibrationAreaCheck
+                0x00009b58       0x36 obj/NVRAM_UserPage.o
+                0x00009b58                _NVRAM_MlxCalibrationAreaCheck
+ .text.PID_Init
+                0x00009b8e       0x9a obj/PID_Control.o
+                0x00009b8e                _PID_Init
+ .text.VoltageCorrection
+                0x00009c28       0x50 obj/PID_Control.o
+                0x00009c28                _VoltageCorrection
+ .text.PID_Control
+                0x00009c78      0x13a obj/PID_Control.o
+                0x00009c78                _PID_Control
+ .text.ThresholdControl
+                0x00009db2      0x13e obj/PID_Control.o
+                0x00009db2                _ThresholdControl
+ .text.SelfHeatCompensation
+                0x00009ef0       0x64 obj/PID_Control.o
+                0x00009ef0                _SelfHeatCompensation
+ .text.Timer_Init
+                0x00009f54       0x22 obj/Timer.o
+                0x00009f54                _Timer_Init
+ .text.Timer_SleepCompensation
+                0x00009f76       0xa0 obj/Timer.o
+                0x00009f76                _Timer_SleepCompensation
+ .text.TIMER_IT
+                0x0000a016       0x72 obj/Timer.o
+                0x0000a016                _TIMER_IT
+ .text.SpiDebugInit
+                0x0000a088       0x32 obj/SPI_Debug.o
+                0x0000a088                _SpiDebugInit
+ *(.rodata.*)
+ *fill*         0x0000a0ba        0x2 
+ .rodata.au16HaltZero
+                0x0000a0bc        0x4 obj/main.o
+                0x0000a0bc                _au16HaltZero
+ .rodata.tMlxDbgSupport
+                0x0000a0c0       0x20 obj/LIN_Diagnostics.o
+                0x0000a0c0                _tMlxDbgSupport
+ .rodata.au16AnaOutRegs
+                0x0000a0e0       0x10 obj/LIN_Diagnostics.o
+                0x0000a0e0                _au16AnaOutRegs
+ .rodata.tAdcSelfTest4B
+                0x0000a0f0       0x18 obj/ADC.o
+                0x0000a0f0                _tAdcSelfTest4B
+ .rodata.tAdcSelfTest4A
+                0x0000a108       0x18 obj/ADC.o
+                0x0000a108                _tAdcSelfTest4A
+ .rodata.SBASE_INIT_4PH
+                0x0000a120        0xc obj/ADC.o
+                0x0000a120                _SBASE_INIT_4PH
+ .rodata.SBASE_CURRENT
+                0x0000a12c        0x4 obj/ADC.o
+                0x0000a12c                _SBASE_CURRENT
+ .rodata.SBASE_MOTORVOLT
+                0x0000a130        0x4 obj/ADC.o
+                0x0000a130                _SBASE_MOTORVOLT
+ .rodata.SBASE_SUPPLYVOLT
+                0x0000a134        0x4 obj/ADC.o
+                0x0000a134                _SBASE_SUPPLYVOLT
+ .rodata.SBASE_TEMP
+                0x0000a138        0x4 obj/ADC.o
+                0x0000a138                _SBASE_TEMP
+ .rodata.SBASE_VIO
+                0x0000a13c       0x18 obj/ADC.o
+                0x0000a13c                _SBASE_VIO
+ .rodata.SBASE_VDDD
+                0x0000a154        0x4 obj/ADC.o
+                0x0000a154                _SBASE_VDDD
+ .rodata.SBASE_VDDA
+                0x0000a158        0x4 obj/ADC.o
+                0x0000a158                _SBASE_VDDA
+ .rodata.SBASE_CURROFF
+                0x0000a15c        0x4 obj/ADC.o
+                0x0000a15c                _SBASE_CURROFF
+ .rodata.SBASE_VREF_OFF
+                0x0000a160        0x4 obj/ADC.o
+                0x0000a160                _SBASE_VREF_OFF
+ .rodata.c_ai16MicroStepVector4PH
+                0x0000a164       0xa0 obj/MotorDriverTables.o
+                0x0000a164                _c_ai16MicroStepVector4PH
+ .rodata.c_au8DrvCfgSelfTestB4
+                0x0000a204        0xa obj/MotorDriverTables.o
+                0x0000a204                _c_au8DrvCfgSelfTestB4
+ .rodata.c_au16DrvAdcSelfTestA
+                0x0000a20e       0x10 obj/MotorDriverTables.o
+                0x0000a20e                _c_au16DrvAdcSelfTestA
+ .rodata.c_au8DrvCfgSelfTestA
+                0x0000a21e        0x8 obj/MotorDriverTables.o
+                0x0000a21e                _c_au8DrvCfgSelfTestA
+ .rodata.defNvramUser
+                0x0000a226       0x70 obj/NVRAM_UserPage.o
+                0x0000a226                _defNvramUser
+ .rodata.READ_BY_ID_BC
+                0x0000a296        0x8 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+                0x0000a29e                . = ALIGN (0x2)
+                0x0000a29e                _etext = .
+
+.shared_ram     0x00000000       0x10
+ *(.special)
+ .special       0x00000000       0x10 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(api.o)
+                0x00000000                _LinResp
+                0x00000002                _LinCmnd
+                0x00000004                _LinMess
+                0x00000006                _LinMess2
+                0x00000007                _LinProtectedID
+                0x00000008                _LinFrame
+
+.ram_lin_fixed  0x00000010        0x6
+ *(.ram_lin_fixed)
+ .ram_lin_fixed
+                0x00000010        0x6 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+                0x00000010                _stFixedRamNAD
+
+.dp.data        0x00000018       0x20 load address 0x0000a29e
+                0x00000018                . = ALIGN (0x2)
+                0x00000018                __data_dp_start = .
+ *(.dp.data)
+ .dp.data       0x00000018       0x14 obj/main.o
+                0x00000018                _g_e8CalibrationStep
+                0x00000019                _g_u8MotorStatusSpeed
+                0x0000001a                _g_u8StallTypeComm
+                0x0000001c                _g_i16MotorVoltage
+                0x0000001e                _g_i16AmbjTemperature
+                0x00000020                _g_i16ChipTemperature
+                0x00000022                _g_u8RewindFlags
+                0x00000023                _g_e8DegradedMotorRequest
+                0x00000024                _g_e8ErrorOverTemperature
+                0x00000025                _g_u8EmergencyRunOcc
+                0x00000026                _g_u8StallOcc
+                0x00000027                _g_u8ChipResetOcc
+                0x00000028                _g_e8MotorDirectionCCW
+                0x00000029                _g_e8ErrorVoltage
+                0x0000002a                _g_e8ErrorElectric
+                0x0000002b                _g_e8MotorRequest
+ .dp.data       0x0000002c        0x1 obj/LIN_Communication.o
+                0x0000002c                _g_u8BufferOutID
+ .dp.data       0x0000002d        0x3 obj/LIN_SAE_J2602.o
+                0x0000002d                _l_u8ActDirection
+                0x0000002e                _g_u8SAE_SendErrorState
+                0x0000002f                _g_u8NAD
+ .dp.data       0x00000030        0x6 obj/MotorDriver.o
+                0x00000030                _l_u16VTIdx
+                0x00000032                _g_u8MotorStopDelay
+                0x00000034                _g_u16StartupDelay
+ .dp.data       0x00000036        0x2 obj/MotorStall.o
+                0x00000036                _l_u8StallCountO
+                0x00000037                _l_u8StallCountA
+                0x00000038                . = ALIGN (0x2)
+                0x00000038                __data_dp_end = .
+                0x00000020                __data_dp_size = (__data_dp_end - __data_dp_start)
+                0x0000a29e                __data_load_start = LOADADDR (.dp.data)
+
+.dp             0x00000038       0xb0 load address 0x0000a2be
+                0x00000038                . = ALIGN (0x2)
+                0x00000038                __bss_dp_start = .
+ *(.dp)
+ .dp            0x00000038       0x12 obj/LIN_Communication.o
+                0x00000038                _g_LinCmdFrameBuffer
+                0x00000040                _g_DiagResponse
+                0x00000048                _l_u8LinInFrameMsgID
+ .dp            0x0000004a        0xc obj/MotorDriver.o
+                0x0000004a                _g_u16CorrectionRatio
+                0x0000004c                _g_u16MicroStepIdx
+                0x0000004e                _g_u16CommutTimerPeriod
+                0x00000050                _g_u16TargetCommutTimerPeriod
+                0x00000052                _g_u16MotorCurrentMovAvgxN
+                0x00000054                _g_u16MotorCurrentLPFx64
+ .dp            0x00000056       0x70 obj/NVRAM_UserPage.o
+                0x00000056                _g_NvramUser
+ .dp            0x000000c6        0x2 obj/PID_Control.o
+                0x000000c6                _g_u16PID_I
+ .dp            0x000000c8        0xc /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+                0x000000c8                _LinFrameDataBuffer
+                0x000000d0                _LIN_nad
+                0x000000d2                _LinMessage
+ .dp            0x000000d4       0x14 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+                0x000000d4                _ml_driver_mode
+                0x000000e8                . = ALIGN (0x2)
+                0x000000e8                __bss_dp_end = .
+                0x000000b0                __bss_dp_size = (__bss_dp_end - __bss_dp_start)
+
+.dp.noinit      0x000000e8       0x10 load address 0x0000a2be
+                0x000000e8                . = ALIGN (0x2)
+                0x000000e8                __dp_noinit_start = .
+ *(.dp.noinit)
+ .dp.noinit     0x000000e8        0xc obj/main.o
+                0x000000e8                _g_e8MotorStatusMode
+                0x000000e9                _g_e8StallDetectorEna
+                0x000000ea                _g_u8MotorHoldingCurrEna
+                0x000000ec                _g_u16ActualPosition
+                0x000000ee                _g_u16TargetPosition
+                0x000000f0                _g_u8MotorCtrlSpeed
+                0x000000f2                _g_u16CalibTravel
+ .dp.noinit     0x000000f4        0x4 obj/MotorDriver.o
+                0x000000f4                _g_u16ActuatorActPos
+                0x000000f6                _g_u16ActuatorTgtPos
+                0x000000f8                . = ALIGN (0x2)
+                0x000000f8                __dp_noinit_end = .
+                0x00000010                __dp_noinit_size = (__dp_noinit_end - __dp_noinit_start)
+
+.data           0x000000f8       0x50 load address 0x0000a2be
+                0x000000f8                . = ALIGN (0x2)
+                0x000000f8                __data_start = .
+ *(.data)
+ .data          0x000000f8        0x0 obj/muldiv16_16by16by16.o
+ .data          0x000000f8        0x0 obj/lin2b_romtbl.o
+ .data          0x000000f8        0x0 obj/vectors-lin.o
+ .data          0x000000f8        0x0 obj/main.o
+ .data          0x000000f8        0x0 obj/app_version.o
+ .data          0x000000f8        0x0 obj/LIN_Communication.o
+ .data          0x000000f8        0x0 obj/LIN_2x.o
+ .data          0x000000f8        0x0 obj/LIN_SAE_J2602.o
+ .data          0x000000f8        0x0 obj/LIN_Diagnostics.o
+ .data          0x000000f8        0x0 obj/ADC.o
+ .data          0x000000f8        0x0 obj/Diagnostic.o
+ .data          0x000000f8        0x0 obj/ErrorCodes.o
+ .data          0x000000f8        0x0 obj/MotorDriver.o
+ .data          0x000000f8        0x0 obj/MotorDriverTables.o
+ .data          0x000000f8        0x0 obj/MotorStall.o
+ .data          0x000000f8        0x0 obj/NVRAM_UserPage.o
+ .data          0x000000f8        0x0 obj/PID_Control.o
+ .data          0x000000f8        0x0 obj/Timer.o
+ .data          0x000000f8        0x0 obj/SPI_Debug.o
+ .data          0x000000f8        0x0 obj/fatal.o
+ .data          0x000000f8        0x0 obj/premain.o
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_srv.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_mlx16.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lib_mlx813xx_bist.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(nvram.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(div32_32by16.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mul32_16by16_copr.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mul32hi_32by16.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx4_prog.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(api.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInterruptHandler.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_InitLinModule.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInit.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_state.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_get_state.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_SetFastBaudRate.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_section_init.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_test.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(low_level_init.o)
+ .data          0x000000f8        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx_ispowerok.o)
+ *(.data.*)
+ .data.g_u8MechError
+                0x000000f8        0x1 obj/main.o
+                0x000000f8                _g_u8MechError
+ .data.l_u8RamPreError
+                0x000000f9        0x1 obj/main.o
+                0x000000f9                _l_u8RamPreError
+ .data.l_e8ErrorDebounceFilter
+                0x000000fa        0x1 obj/main.o
+                0x000000fa                _l_e8ErrorDebounceFilter
+ .data.g_u8TorqueBoostRequest
+                0x000000fb        0x1 obj/main.o
+                0x000000fb                _g_u8TorqueBoostRequest
+ .data.g_u8MotorStartDelay
+                0x000000fc        0x1 obj/main.o
+                0x000000fc                _g_u8MotorStartDelay
+ .data.g_u8Mlx4ErrorState
+                0x000000fd        0x1 obj/main.o
+                0x000000fd                _g_u8Mlx4ErrorState
+ .data.g_u16Mlx4StateCheckCounter
+                0x000000fe        0x2 obj/main.o
+                0x000000fe                _g_u16Mlx4StateCheckCounter
+ .data.l_i16ChipTemperatureInt
+                0x00000100        0x2 obj/main.o
+                0x00000100                _l_i16ChipTemperatureInt
+ .data.l_i16ChipTemperaturePrev
+                0x00000102        0x2 obj/main.o
+                0x00000102                _l_i16ChipTemperaturePrev
+ .data.g_u16TemperatureStabilityCounter
+                0x00000104        0x2 obj/main.o
+                0x00000104                _g_u16TemperatureStabilityCounter
+ .data.g_i16Current
+                0x00000106        0x2 obj/main.o
+                0x00000106                _g_i16Current
+ .data.g_i16PhaseVoltage
+                0x00000108        0x2 obj/main.o
+                0x00000108                _g_i16PhaseVoltage
+ .data.g_i16SupplyVoltage
+                0x0000010a        0x2 obj/main.o
+                0x0000010a                _g_i16SupplyVoltage
+ .data.__pu16Segment_0
+                0x0000010c        0x2 obj/main.o
+ .data.__u16FlashCRC_1
+                0x0000010e        0x2 obj/main.o
+ .data.g_u8ErrorCommBusTimeout
+                0x00000110        0x1 obj/LIN_Communication.o
+                0x00000110                _g_u8ErrorCommBusTimeout
+ .data.g_u8ErrorCommunication
+                0x00000111        0x1 obj/LIN_Communication.o
+                0x00000111                _g_u8ErrorCommunication
+ .data.g_u8LinInFrameBufState
+                0x00000112        0x1 obj/LIN_Communication.o
+                0x00000112                _g_u8LinInFrameBufState
+ .data.l_u8StaCounter
+                0x00000113        0x1 obj/LIN_SAE_J2602.o
+                0x00000113                _l_u8StaCounter
+ .data.l_e8PositionType
+                0x00000114        0x1 obj/LIN_SAE_J2602.o
+                0x00000114                _l_e8PositionType
+ .data.l_u8ActualPositionValid
+                0x00000115        0x1 obj/LIN_SAE_J2602.o
+                0x00000115                _l_u8ActualPositionValid
+ .data.g_u16DiagResponseTimeoutCount
+                0x00000116        0x2 obj/LIN_Diagnostics.o
+                0x00000116                _g_u16DiagResponseTimeoutCount
+ .data.g_u16CurrentMotorCoilB
+                0x00000118        0x2 obj/ADC.o
+                0x00000118                _g_u16CurrentMotorCoilB
+ .data.g_u16CurrentMotorCoilA
+                0x0000011a        0x2 obj/ADC.o
+                0x0000011a                _g_u16CurrentMotorCoilA
+ .data.l_u8AdcPowerOff
+                0x0000011c        0x1 obj/ADC.o
+                0x0000011c                _l_u8AdcPowerOff
+ *fill*         0x0000011d        0x1 
+ .data.g_u16MCurrgain
+                0x0000011e        0x2 obj/ADC.o
+                0x0000011e                _g_u16MCurrgain
+ .data.l_u16CurrentZeroOffset
+                0x00000120        0x2 obj/ADC.o
+                0x00000120                _l_u16CurrentZeroOffset
+ .data.l_u8ErrorLogIdx
+                0x00000122        0x1 obj/ErrorCodes.o
+                0x00000122                _l_u8ErrorLogIdx
+ *fill*         0x00000123        0x1 
+ .data.l_u16CoilZeroCurrCountB
+                0x00000124        0x2 obj/MotorDriver.o
+                0x00000124                _l_u16CoilZeroCurrCountB
+ .data.l_u16CoilZeroCurrCountA
+                0x00000126        0x2 obj/MotorDriver.o
+                0x00000126                _l_u16CoilZeroCurrCountA
+ .data.l_u16StartupDelayInit
+                0x00000128        0x2 obj/MotorDriver.o
+                0x00000128                _l_u16StartupDelayInit
+ .data.g_i16VoltStepIdx
+                0x0000012a        0x2 obj/MotorDriver.o
+                0x0000012a                _g_i16VoltStepIdx
+ .data.g_u8MotorHoldingCurrState
+                0x0000012c        0x1 obj/MotorDriver.o
+                0x0000012c                _g_u8MotorHoldingCurrState
+ .data.g_u8MotorStartupMode
+                0x0000012d        0x1 obj/MotorDriver.o
+                0x0000012d                _g_u8MotorStartupMode
+ .data.g_u16CurrStallO
+                0x0000012e        0x2 obj/MotorStall.o
+                0x0000012e                _g_u16CurrStallO
+ .data.l_i8StallIgnoreCount
+                0x00000130        0x1 obj/MotorStall.o
+                0x00000130                _l_i8StallIgnoreCount
+ *fill*         0x00000131        0x1 
+ .data.l_u16MotorRefVoltageADC
+                0x00000132        0x2 obj/PID_Control.o
+                0x00000132                _l_u16MotorRefVoltageADC
+ .data.l_u32SelfHeatingIntegrator
+                0x00000134        0x4 obj/PID_Control.o
+                0x00000134                _l_u32SelfHeatingIntegrator
+ .data.g_u16SelfHeatingCounter
+                0x00000138        0x2 obj/PID_Control.o
+                0x00000138                _g_u16SelfHeatingCounter
+ .data.g_u16PID_ThrshldCtrlCounter
+                0x0000013a        0x2 obj/PID_Control.o
+                0x0000013a                _g_u16PID_ThrshldCtrlCounter
+ .data.g_u16PID_CtrlCounter
+                0x0000013c        0x2 obj/PID_Control.o
+                0x0000013c                _g_u16PID_CtrlCounter
+ .data.g_i16PID_E
+                0x0000013e        0x2 obj/PID_Control.o
+                0x0000013e                _g_i16PID_E
+ .data.g_i16PID_D
+                0x00000140        0x2 obj/PID_Control.o
+                0x00000140                _g_i16PID_D
+ .data.g_u16LinUVTimeCounter
+                0x00000142        0x2 obj/Timer.o
+                0x00000142                _g_u16LinUVTimeCounter
+ .data.LINPresc
+                0x00000144        0x2 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+                0x00000144                _LINPresc
+ .data.LINBaud  0x00000146        0x1 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+                0x00000146                _LINBaud
+                0x00000148                . = ALIGN (0x2)
+ *fill*         0x00000147        0x1 
+                0x00000148                __data_end = .
+                0x00000050                __data_size = (__data_end - __data_start)
+
+.bss            0x00000148      0x162 load address 0x0000a30e
+                0x00000148                . = ALIGN (0x2)
+                0x00000148                __bss_start = .
+ *(.bss)
+ .bss           0x00000148        0x0 obj/muldiv16_16by16by16.o
+ .bss           0x00000148        0x0 obj/lin2b_romtbl.o
+ .bss           0x00000148        0x0 obj/vectors-lin.o
+ .bss           0x00000148        0x0 obj/main.o
+ .bss           0x00000148        0x0 obj/app_version.o
+ .bss           0x00000148        0x0 obj/LIN_Communication.o
+ .bss           0x00000148        0x0 obj/LIN_2x.o
+ .bss           0x00000148        0x0 obj/LIN_SAE_J2602.o
+ .bss           0x00000148        0x0 obj/LIN_Diagnostics.o
+ .bss           0x00000148        0x0 obj/ADC.o
+ .bss           0x00000148        0x0 obj/Diagnostic.o
+ .bss           0x00000148        0x0 obj/ErrorCodes.o
+ .bss           0x00000148        0x0 obj/MotorDriver.o
+ .bss           0x00000148        0x0 obj/MotorDriverTables.o
+ .bss           0x00000148        0x0 obj/MotorStall.o
+ .bss           0x00000148        0x0 obj/NVRAM_UserPage.o
+ .bss           0x00000148        0x0 obj/PID_Control.o
+ .bss           0x00000148        0x0 obj/Timer.o
+ .bss           0x00000148        0x0 obj/SPI_Debug.o
+ .bss           0x00000148        0x0 obj/fatal.o
+ .bss           0x00000148        0x0 obj/premain.o
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_srv.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_mlx16.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lib_mlx813xx_bist.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(nvram.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(div32_32by16.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mul32_16by16_copr.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mul32hi_32by16.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx4_prog.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(api.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInterruptHandler.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_InitLinModule.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInit.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_state.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_get_state.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_SetFastBaudRate.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_section_init.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_test.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(low_level_init.o)
+ .bss           0x00000148        0x0 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx_ispowerok.o)
+ *(.bss.*)
+ .bss.g_u16TargetPositionRewind
+                0x00000148        0x2 obj/main.o
+                0x00000148                _g_u16TargetPositionRewind
+ .bss.l_u8LastMsgIndex
+                0x0000014a        0x1 obj/LIN_Communication.o
+                0x0000014a                _l_u8LastMsgIndex
+ *fill*         0x0000014b        0x1 
+ .bss.g_AdcMotorRunStepper4
+                0x0000014c        0xa obj/ADC.o
+                0x0000014c                _g_AdcMotorRunStepper4
+ .bss.l_au8FiFoErrorLog
+                0x00000156        0xa obj/ErrorCodes.o
+                0x00000156                _l_au8FiFoErrorLog
+ .bss.g_u16MotorSpeedRPS
+                0x00000160        0x2 obj/MotorDriver.o
+                0x00000160                _g_u16MotorSpeedRPS
+ .bss.g_u16MotorMicroStepsPerElecRotation
+                0x00000162        0x2 obj/MotorDriver.o
+                0x00000162                _g_u16MotorMicroStepsPerElecRotation
+ .bss.g_u16MotorMicroStepsPerMechRotation
+                0x00000164        0x2 obj/MotorDriver.o
+                0x00000164                _g_u16MotorMicroStepsPerMechRotation
+ .bss.g_u16MotorRewindSteps
+                0x00000166        0x2 obj/MotorDriver.o
+                0x00000166                _g_u16MotorRewindSteps
+ .bss.g_au16MotorSpeedCommutTimerPeriod
+                0x00000168       0x10 obj/MotorDriver.o
+                0x00000168                _g_au16MotorSpeedCommutTimerPeriod
+ .bss.g_au16MotorSpeedRPS
+                0x00000178       0x10 obj/MotorDriver.o
+                0x00000178                _g_au16MotorSpeedRPS
+ .bss.l_u16MotorCurrentRawIdx
+                0x00000188        0x2 obj/MotorDriver.o
+                0x00000188                _l_u16MotorCurrentRawIdx
+ .bss.l_au16MotorCurrentRaw
+                0x0000018a       0x80 obj/MotorDriver.o
+                0x0000018a                _l_au16MotorCurrentRaw
+ .bss.l_u16SpeedRPM
+                0x0000020a        0x2 obj/MotorDriver.o
+                0x0000020a                _l_u16SpeedRPM
+ .bss.l_u32Temp
+                0x0000020c        0x4 obj/MotorDriver.o
+                0x0000020c                _l_u32Temp
+ .bss.l_u16LowSpeedPeriod
+                0x00000210        0x2 obj/MotorDriver.o
+                0x00000210                _l_u16LowSpeedPeriod
+ .bss.l_u16MotorCurrentStallThrshldxN
+                0x00000212        0x2 obj/MotorStall.o
+                0x00000212                _l_u16MotorCurrentStallThrshldxN
+ .bss.l_au16CurrentCoilA
+                0x00000214       0x40 obj/MotorStall.o
+                0x00000214                _l_au16CurrentCoilA
+ .bss.l_au16CurrentCoilB
+                0x00000254       0x40 obj/MotorStall.o
+                0x00000254                _l_au16CurrentCoilB
+ .bss.g_u16PidCtrlRatio
+                0x00000294        0x2 obj/PID_Control.o
+                0x00000294                _g_u16PidCtrlRatio
+ .bss.g_u16PidRunningThreshold
+                0x00000296        0x2 obj/PID_Control.o
+                0x00000296                _g_u16PidRunningThreshold
+ .bss.g_u16PidRunningThresholdADC
+                0x00000298        0x2 obj/PID_Control.o
+                0x00000298                _g_u16PidRunningThresholdADC
+ .bss.g_u16PidHoldingThreshold
+                0x0000029a        0x2 obj/PID_Control.o
+                0x0000029a                _g_u16PidHoldingThreshold
+ .bss.l_u16MaxPidCtrlRatio
+                0x0000029c        0x2 obj/PID_Control.o
+                0x0000029c                _l_u16MaxPidCtrlRatio
+ .bss.g_u16PidHoldingThresholdADC
+                0x0000029e        0x2 obj/PID_Control.o
+                0x0000029e                _g_u16PidHoldingThresholdADC
+ .bss.l_u16MinCorrectionRatio
+                0x000002a0        0x2 obj/PID_Control.o
+                0x000002a0                _l_u16MinCorrectionRatio
+ .bss.l_u16MaxCorrectionRatio
+                0x000002a2        0x2 obj/PID_Control.o
+                0x000002a2                _l_u16MaxCorrectionRatio
+ .bss.LinStatus
+                0x000002a4        0x1 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+                0x000002a4                _LinStatus
+ *fill*         0x000002a5        0x1 
+ .bss.page_buffer
+                0x000002a6        0x2 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+                0x000002a6                _page_buffer
+ .bss.erase_sectors_bitmap
+                0x000002a8        0x2 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+ *(COMMON)
+                0x000002aa                . = ALIGN (0x2)
+                0x000002aa                __bss_end = .
+                0x00000162                __bss_size = (__bss_end - __bss_start)
+
+.noinit         0x000002aa        0x0 load address 0x0000a30e
+                0x000002aa                . = ALIGN (0x2)
+                0x000002aa                __noinit_start = .
+ *(.noinit)
+                0x000002aa                . = ALIGN (0x2)
+                0x000002aa                __noinit_end = .
+                0x00000000                __noinit_size = (__noinit_end - __noinit_start)
+
+.bist_stat      0x000002aa        0x8 load address 0x0000a30e
+                0x000002aa                . = ALIGN (0x2)
+                0x000002aa                __bist_stat_start = .
+ *(.bist_stat)
+ .bist_stat     0x000002aa        0x8 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lib_mlx813xx_bist.o)
+                0x000002aa                _bistHeader
+                0x000002ac                _bistResetInfo
+                0x000002ae                _bistError
+                0x000002b0                _bistErrorInfo
+                0x000002b2                . = ALIGN (0x2)
+                0x000002b2                __bist_stat_end = .
+                0x00000008                __bist_stat_size = (__bist_stat_end - __bist_stat_start)
+                0x000002b2                PROVIDE (_stack, .)
+                0x00000800                PROVIDE (__end, 0x800)
+
+.ep             0x00001000        0x0
+                0x00001000                . = ALIGN (0x2)
+                0x00001000                __bss_ep_start = .
+ *(.ep)
+                0x00001000                . = ALIGN (0x2)
+                0x00001000                __bss_ep_end = .
+
+.ep.data        0x00001000        0x0
+                0x00001000                . = ALIGN (0x2)
+                0x00001000                __data_ep_start = .
+ *(.ep.data)
+                0x00001000                . = ALIGN (0x2)
+                0x00001000                __data_ep_end = .
+OUTPUT(MLX81315A_S03_VALVE.elf elf32-mlx16-x8)
+
+.debug_abbrev   0x00000000     0x277e
+ .debug_abbrev  0x00000000      0x20b obj/main.o
+ .debug_abbrev  0x0000020b       0x61 obj/app_version.o
+ .debug_abbrev  0x0000026c      0x188 obj/LIN_Communication.o
+ .debug_abbrev  0x000003f4       0x2a obj/LIN_2x.o
+ .debug_abbrev  0x0000041e      0x239 obj/LIN_SAE_J2602.o
+ .debug_abbrev  0x00000657      0x1f7 obj/LIN_Diagnostics.o
+ .debug_abbrev  0x0000084e      0x1b5 obj/ADC.o
+ .debug_abbrev  0x00000a03      0x114 obj/Diagnostic.o
+ .debug_abbrev  0x00000b17      0x168 obj/ErrorCodes.o
+ .debug_abbrev  0x00000c7f      0x207 obj/MotorDriver.o
+ .debug_abbrev  0x00000e86       0x8a obj/MotorDriverTables.o
+ .debug_abbrev  0x00000f10      0x169 obj/MotorStall.o
+ .debug_abbrev  0x00001079      0x19a obj/NVRAM_UserPage.o
+ .debug_abbrev  0x00001213      0x1b8 obj/PID_Control.o
+ .debug_abbrev  0x000013cb      0x13d obj/Timer.o
+ .debug_abbrev  0x00001508       0x92 obj/SPI_Debug.o
+ .debug_abbrev  0x0000159a       0x71 obj/fatal.o
+ .debug_abbrev  0x0000160b      0x126 obj/premain.o
+ .debug_abbrev  0x00001731      0x16c /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+ .debug_abbrev  0x0000189d      0x10a /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_mlx16.o)
+ .debug_abbrev  0x000019a7       0x60 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lib_mlx813xx_bist.o)
+ .debug_abbrev  0x00001a07      0x115 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(nvram.o)
+ .debug_abbrev  0x00001b1c      0x170 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+ .debug_abbrev  0x00001c8c       0x3b /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInterruptHandler.o)
+ .debug_abbrev  0x00001cc7       0xf3 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_InitLinModule.o)
+ .debug_abbrev  0x00001dba      0x258 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+ .debug_abbrev  0x00002012       0x3b /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInit.o)
+ .debug_abbrev  0x0000204d       0x84 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_state.o)
+ .debug_abbrev  0x000020d1       0xa8 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_get_state.o)
+ .debug_abbrev  0x00002179      0x237 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+ .debug_abbrev  0x000023b0       0xde /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_SetFastBaudRate.o)
+ .debug_abbrev  0x0000248e       0x7c /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
+ .debug_abbrev  0x0000250a       0x73 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_section_init.o)
+ .debug_abbrev  0x0000257d       0xe1 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(low_level_init.o)
+ .debug_abbrev  0x0000265e      0x120 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx_ispowerok.o)
+
+.debug_info     0x00000000     0xd461
+ .debug_info    0x00000000      0xf8f obj/main.o
+ .debug_info    0x00000f8f       0xfb obj/app_version.o
+ .debug_info    0x0000108a      0x62c obj/LIN_Communication.o
+ .debug_info    0x000016b6       0x5a obj/LIN_2x.o
+ .debug_info    0x00001710     0x137e obj/LIN_SAE_J2602.o
+ .debug_info    0x00002a8e     0x1693 obj/LIN_Diagnostics.o
+ .debug_info    0x00004121      0xc67 obj/ADC.o
+ .debug_info    0x00004d88      0x9e8 obj/Diagnostic.o
+ .debug_info    0x00005770      0x269 obj/ErrorCodes.o
+ .debug_info    0x000059d9     0x1c1d obj/MotorDriver.o
+ .debug_info    0x000075f6      0x1c7 obj/MotorDriverTables.o
+ .debug_info    0x000077bd      0xa03 obj/MotorStall.o
+ .debug_info    0x000081c0      0xe62 obj/NVRAM_UserPage.o
+ .debug_info    0x00009022     0x1221 obj/PID_Control.o
+ .debug_info    0x0000a243      0x361 obj/Timer.o
+ .debug_info    0x0000a5a4       0xf8 obj/SPI_Debug.o
+ .debug_info    0x0000a69c      0x1d5 obj/fatal.o
+ .debug_info    0x0000a871      0x23f obj/premain.o
+ .debug_info    0x0000aab0      0x423 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+ .debug_info    0x0000aed3      0x1f2 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_mlx16.o)
+ .debug_info    0x0000b0c5       0xd4 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lib_mlx813xx_bist.o)
+ .debug_info    0x0000b199      0x2bf /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(nvram.o)
+ .debug_info    0x0000b458      0x421 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+ .debug_info    0x0000b879       0x65 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInterruptHandler.o)
+ .debug_info    0x0000b8de      0x22e /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_InitLinModule.o)
+ .debug_info    0x0000bb0c      0x878 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+ .debug_info    0x0000c384       0x65 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInit.o)
+ .debug_info    0x0000c3e9      0x125 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_state.o)
+ .debug_info    0x0000c50e      0x14b /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_get_state.o)
+ .debug_info    0x0000c659      0x5a1 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+ .debug_info    0x0000cbfa      0x191 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_SetFastBaudRate.o)
+ .debug_info    0x0000cd8b       0xa6 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
+ .debug_info    0x0000ce31      0x106 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_section_init.o)
+ .debug_info    0x0000cf37      0x2ab /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(low_level_init.o)
+ .debug_info    0x0000d1e2      0x27f /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx_ispowerok.o)
+
+.debug_line     0x00000000     0x7c36
+ .debug_line    0x00000000      0xbd3 obj/main.o
+ .debug_line    0x00000bd3       0x8b obj/app_version.o
+ .debug_line    0x00000c5e      0x438 obj/LIN_Communication.o
+ .debug_line    0x00001096       0x7a obj/LIN_2x.o
+ .debug_line    0x00001110      0x690 obj/LIN_SAE_J2602.o
+ .debug_line    0x000017a0      0x905 obj/LIN_Diagnostics.o
+ .debug_line    0x000020a5      0x73e obj/ADC.o
+ .debug_line    0x000027e3      0x3bd obj/Diagnostic.o
+ .debug_line    0x00002ba0      0x205 obj/ErrorCodes.o
+ .debug_line    0x00002da5      0xdeb obj/MotorDriver.o
+ .debug_line    0x00003b90      0x179 obj/MotorDriverTables.o
+ .debug_line    0x00003d09      0x3a8 obj/MotorStall.o
+ .debug_line    0x000040b1      0x4aa obj/NVRAM_UserPage.o
+ .debug_line    0x0000455b      0x53f obj/PID_Control.o
+ .debug_line    0x00004a9a      0x300 obj/Timer.o
+ .debug_line    0x00004d9a      0x135 obj/SPI_Debug.o
+ .debug_line    0x00004ecf      0x335 obj/fatal.o
+ .debug_line    0x00005204      0x2af obj/premain.o
+ .debug_line    0x000054b3      0x374 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+ .debug_line    0x00005827      0x183 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_mlx16.o)
+ .debug_line    0x000059aa      0x10d /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lib_mlx813xx_bist.o)
+ .debug_line    0x00005ab7      0x305 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(nvram.o)
+ .debug_line    0x00005dbc      0x309 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+ .debug_line    0x000060c5       0xbb /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInterruptHandler.o)
+ .debug_line    0x00006180      0x21e /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_InitLinModule.o)
+ .debug_line    0x0000639e      0xa12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+ .debug_line    0x00006db0       0xb5 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInit.o)
+ .debug_line    0x00006e65       0xa7 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_state.o)
+ .debug_line    0x00006f0c       0xc7 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_get_state.o)
+ .debug_line    0x00006fd3      0x4e8 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+ .debug_line    0x000074bb      0x121 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_SetFastBaudRate.o)
+ .debug_line    0x000075dc       0xef /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
+ .debug_line    0x000076cb       0xd6 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_section_init.o)
+ .debug_line    0x000077a1      0x24d /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(low_level_init.o)
+ .debug_line    0x000079ee      0x248 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx_ispowerok.o)
+
+.debug_frame    0x00000000     0x106c
+ .debug_frame   0x00000000       0x5e obj/main.o
+ .debug_frame   0x0000005e       0xf2 obj/LIN_Communication.o
+ .debug_frame   0x00000150       0xf2 obj/LIN_SAE_J2602.o
+ .debug_frame   0x00000242      0x16a obj/LIN_Diagnostics.o
+ .debug_frame   0x000003ac      0x144 obj/ADC.o
+ .debug_frame   0x000004f0       0x46 obj/Diagnostic.o
+ .debug_frame   0x00000536       0x5e obj/ErrorCodes.o
+ .debug_frame   0x00000594      0x152 obj/MotorDriver.o
+ .debug_frame   0x000006e6       0x5e obj/MotorStall.o
+ .debug_frame   0x00000744      0x136 obj/NVRAM_UserPage.o
+ .debug_frame   0x0000087a       0xbc obj/PID_Control.o
+ .debug_frame   0x00000936       0x46 obj/Timer.o
+ .debug_frame   0x0000097c       0x22 obj/SPI_Debug.o
+ .debug_frame   0x0000099e       0x2e obj/fatal.o
+ .debug_frame   0x000009cc       0x2e obj/premain.o
+ .debug_frame   0x000009fa       0x3a /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+ .debug_frame   0x00000a34       0x22 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_mlx16.o)
+ .debug_frame   0x00000a56       0x46 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(nvram.o)
+ .debug_frame   0x00000a9c       0x86 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+ .debug_frame   0x00000b22       0x22 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInterruptHandler.o)
+ .debug_frame   0x00000b44       0x22 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_InitLinModule.o)
+ .debug_frame   0x00000b66      0x2e2 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+ .debug_frame   0x00000e48       0x5c /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInit.o)
+ .debug_frame   0x00000ea4       0x22 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_get_state.o)
+ .debug_frame   0x00000ec6       0xbe /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+ .debug_frame   0x00000f84       0x48 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_SetFastBaudRate.o)
+ .debug_frame   0x00000fcc       0x22 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
+ .debug_frame   0x00000fee       0x22 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_section_init.o)
+ .debug_frame   0x00001010       0x2e /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(low_level_init.o)
+ .debug_frame   0x0000103e       0x2e /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx_ispowerok.o)
+
+.debug_pubnames
+                0x00000000     0x196a
+ .debug_pubnames
+                0x00000000      0x3f5 obj/main.o
+ .debug_pubnames
+                0x000003f5       0x55 obj/app_version.o
+ .debug_pubnames
+                0x0000044a      0x192 obj/LIN_Communication.o
+ .debug_pubnames
+                0x000005dc      0x14b obj/LIN_SAE_J2602.o
+ .debug_pubnames
+                0x00000727       0xc1 obj/LIN_Diagnostics.o
+ .debug_pubnames
+                0x000007e8      0x2d8 obj/ADC.o
+ .debug_pubnames
+                0x00000ac0       0x4c obj/Diagnostic.o
+ .debug_pubnames
+                0x00000b0c       0x6f obj/ErrorCodes.o
+ .debug_pubnames
+                0x00000b7b      0x3d1 obj/MotorDriver.o
+ .debug_pubnames
+                0x00000f4c       0x7c obj/MotorDriverTables.o
+ .debug_pubnames
+                0x00000fc8      0x10b obj/MotorStall.o
+ .debug_pubnames
+                0x000010d3       0xc9 obj/NVRAM_UserPage.o
+ .debug_pubnames
+                0x0000119c      0x211 obj/PID_Control.o
+ .debug_pubnames
+                0x000013ad       0x64 obj/Timer.o
+ .debug_pubnames
+                0x00001411       0x23 obj/SPI_Debug.o
+ .debug_pubnames
+                0x00001434       0x2a obj/fatal.o
+ .debug_pubnames
+                0x0000145e       0x1f obj/premain.o
+ .debug_pubnames
+                0x0000147d       0x2e /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+ .debug_pubnames
+                0x000014ab       0x22 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_mlx16.o)
+ .debug_pubnames
+                0x000014cd       0x53 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lib_mlx813xx_bist.o)
+ .debug_pubnames
+                0x00001520       0x5e /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(nvram.o)
+ .debug_pubnames
+                0x0000157e       0xd4 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+ .debug_pubnames
+                0x00001652       0x2d /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInterruptHandler.o)
+ .debug_pubnames
+                0x0000167f       0x27 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_InitLinModule.o)
+ .debug_pubnames
+                0x000016a6       0xb6 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+ .debug_pubnames
+                0x0000175c       0x21 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInit.o)
+ .debug_pubnames
+                0x0000177d       0x38 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_state.o)
+ .debug_pubnames
+                0x000017b5       0x23 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_get_state.o)
+ .debug_pubnames
+                0x000017d8       0xdb /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+ .debug_pubnames
+                0x000018b3       0x29 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_SetFastBaudRate.o)
+ .debug_pubnames
+                0x000018dc       0x1c /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
+ .debug_pubnames
+                0x000018f8       0x28 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_section_init.o)
+ .debug_pubnames
+                0x00001920       0x26 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(low_level_init.o)
+ .debug_pubnames
+                0x00001946       0x24 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx_ispowerok.o)
+
+.debug_aranges  0x00000000      0x444
+ .debug_aranges
+                0x00000000       0x24 obj/main.o
+ .debug_aranges
+                0x00000024       0x38 obj/LIN_Communication.o
+ .debug_aranges
+                0x0000005c       0x34 obj/LIN_SAE_J2602.o
+ .debug_aranges
+                0x00000090       0x28 obj/LIN_Diagnostics.o
+ .debug_aranges
+                0x000000b8       0x58 obj/ADC.o
+ .debug_aranges
+                0x00000110       0x20 obj/Diagnostic.o
+ .debug_aranges
+                0x00000130       0x20 obj/ErrorCodes.o
+ .debug_aranges
+                0x00000150       0x38 obj/MotorDriver.o
+ .debug_aranges
+                0x00000188       0x24 obj/MotorStall.o
+ .debug_aranges
+                0x000001ac       0x30 obj/NVRAM_UserPage.o
+ .debug_aranges
+                0x000001dc       0x28 obj/PID_Control.o
+ .debug_aranges
+                0x00000204       0x20 obj/Timer.o
+ .debug_aranges
+                0x00000224       0x18 obj/SPI_Debug.o
+ .debug_aranges
+                0x0000023c       0x1c obj/fatal.o
+ .debug_aranges
+                0x00000258       0x18 obj/premain.o
+ .debug_aranges
+                0x00000270       0x1c /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+ .debug_aranges
+                0x0000028c       0x18 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_mlx16.o)
+ .debug_aranges
+                0x000002a4       0x24 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(nvram.o)
+ .debug_aranges
+                0x000002c8       0x24 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+ .debug_aranges
+                0x000002ec       0x18 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInterruptHandler.o)
+ .debug_aranges
+                0x00000304       0x18 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_InitLinModule.o)
+ .debug_aranges
+                0x0000031c       0x44 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+ .debug_aranges
+                0x00000360       0x18 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInit.o)
+ .debug_aranges
+                0x00000378       0x18 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_get_state.o)
+ .debug_aranges
+                0x00000390       0x3c /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+ .debug_aranges
+                0x000003cc       0x18 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_SetFastBaudRate.o)
+ .debug_aranges
+                0x000003e4       0x18 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
+ .debug_aranges
+                0x000003fc       0x18 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_section_init.o)
+ .debug_aranges
+                0x00000414       0x18 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(low_level_init.o)
+ .debug_aranges
+                0x0000042c       0x18 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx_ispowerok.o)
+
+.debug_str      0x00000000     0x356c
+ .debug_str     0x00000000      0xcc3 obj/main.o
+                                0xdae (size before relaxing)
+ .debug_str     0x00000cc3       0x41 obj/app_version.o
+                                 0xff (size before relaxing)
+ .debug_str     0x00000d04      0x414 obj/LIN_Communication.o
+                                0x5e5 (size before relaxing)
+ .debug_str     0x00001118        0x9 obj/LIN_2x.o
+                                 0xb3 (size before relaxing)
+ .debug_str     0x00001121      0x570 obj/LIN_SAE_J2602.o
+                               0x104a (size before relaxing)
+ .debug_str     0x00001691      0x20e obj/LIN_Diagnostics.o
+                                0xf3f (size before relaxing)
+ .debug_str     0x0000189f      0x3ca obj/ADC.o
+                                0x97e (size before relaxing)
+ .debug_str     0x00001c69       0x81 obj/Diagnostic.o
+                                0x8bb (size before relaxing)
+ .debug_str     0x00001cea       0xaf obj/ErrorCodes.o
+                                0x1d5 (size before relaxing)
+ .debug_str     0x00001d99      0x611 obj/MotorDriver.o
+                               0x14ea (size before relaxing)
+ .debug_str     0x000023aa       0x14 obj/MotorDriverTables.o
+                                0x19a (size before relaxing)
+ .debug_str     0x000023be       0xe1 obj/MotorStall.o
+                                0x8e2 (size before relaxing)
+ .debug_str     0x0000249f      0x178 obj/NVRAM_UserPage.o
+                                0xc0d (size before relaxing)
+ .debug_str     0x00002617      0x22f obj/PID_Control.o
+                                0xf37 (size before relaxing)
+ .debug_str     0x00002846       0x43 obj/Timer.o
+                                0x2f8 (size before relaxing)
+ .debug_str     0x00002889       0x5a obj/SPI_Debug.o
+                                0x119 (size before relaxing)
+ .debug_str     0x000028e3       0x2b obj/fatal.o
+                                0x1d3 (size before relaxing)
+ .debug_str     0x0000290e       0x76 obj/premain.o
+                                0x1dd (size before relaxing)
+ .debug_str     0x00002984      0x198 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+                                0x318 (size before relaxing)
+ .debug_str     0x00002b1c       0x3c /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_mlx16.o)
+                                0x1cf (size before relaxing)
+ .debug_str     0x00002b58       0x22 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lib_mlx813xx_bist.o)
+                                0x12c (size before relaxing)
+ .debug_str     0x00002b7a       0xa6 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(nvram.o)
+                                0x1d1 (size before relaxing)
+ .debug_str     0x00002c20      0x143 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+                                0x40c (size before relaxing)
+ .debug_str     0x00002d63       0x30 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInterruptHandler.o)
+                                 0xf1 (size before relaxing)
+ .debug_str     0x00002d93       0x24 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_InitLinModule.o)
+                                0x207 (size before relaxing)
+ .debug_str     0x00002db7      0x411 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+                                0x6ef (size before relaxing)
+ .debug_str     0x000031c8       0x18 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInit.o)
+                                 0xd9 (size before relaxing)
+ .debug_str     0x000031e0       0x20 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_state.o)
+                                0x15c (size before relaxing)
+ .debug_str     0x00003200       0x2d /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_get_state.o)
+                                0x183 (size before relaxing)
+ .debug_str     0x0000322d      0x15a /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+                                0x36c (size before relaxing)
+ .debug_str     0x00003387       0x65 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_SetFastBaudRate.o)
+                                0x171 (size before relaxing)
+ .debug_str     0x000033ec       0x5c /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
+                                 0xfa (size before relaxing)
+ .debug_str     0x00003448       0x96 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_section_init.o)
+                                0x162 (size before relaxing)
+ .debug_str     0x000034de       0x34 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(low_level_init.o)
+                                0x1e4 (size before relaxing)
+ .debug_str     0x00003512       0x5a /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx_ispowerok.o)
+                                0x1eb (size before relaxing)
+
+.comment        0x00000000       0x11
+ .comment       0x00000000       0x11 obj/main.o
+                                 0x12 (size before relaxing)
+ .comment       0x00000000       0x12 obj/app_version.o
+ .comment       0x00000000       0x12 obj/LIN_Communication.o
+ .comment       0x00000000       0x12 obj/LIN_2x.o
+ .comment       0x00000000       0x12 obj/LIN_SAE_J2602.o
+ .comment       0x00000000       0x12 obj/LIN_Diagnostics.o
+ .comment       0x00000000       0x12 obj/ADC.o
+ .comment       0x00000000       0x12 obj/Diagnostic.o
+ .comment       0x00000000       0x12 obj/ErrorCodes.o
+ .comment       0x00000000       0x12 obj/MotorDriver.o
+ .comment       0x00000000       0x12 obj/MotorDriverTables.o
+ .comment       0x00000000       0x12 obj/MotorStall.o
+ .comment       0x00000000       0x12 obj/NVRAM_UserPage.o
+ .comment       0x00000000       0x12 obj/PID_Control.o
+ .comment       0x00000000       0x12 obj/Timer.o
+ .comment       0x00000000       0x12 obj/SPI_Debug.o
+ .comment       0x00000000       0x12 obj/fatal.o
+ .comment       0x00000000       0x12 obj/premain.o
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(prestart.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(sys_mlx16.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lib_mlx813xx_bist.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(nvram.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInterruptHandler.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_InitLinModule.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_LinInit.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_state.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(loader_get_state.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashfunctions_c_cmp.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ml_SetFastBaudRate.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(ram_section_init.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(low_level_init.o)
+ .comment       0x00000000       0x12 /cygdrive/g/MyGitRepository/V1_20200822/files/code/mulan2_platform/lib/lib81315-sae-loader.a(mlx_ispowerok.o)
+
+.debug_ranges   0x00000000        0xc
+ .debug_ranges  0x00000000        0xc obj/MotorDriver.o

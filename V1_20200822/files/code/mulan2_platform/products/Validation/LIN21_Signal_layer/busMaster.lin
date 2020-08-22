@@ -1,0 +1,271 @@
+*
+* LIN_Signal_layer (bus master)
+* 
+
+LINBAUDRATE=9600
+
+wake-up                  : WKU;
+
+*
+* Assign_FrameIDs
+*
+FID_30_33_to_idx_0     : M2S, $3C, $7F, $06, $B7, $00, $F0, $B1, $32, $73, CK13; S2M, $3D, $08, CK13;
+FID_34_37_to_idx_4     : M2S, $3C, $7F, $06, $B7, $04, $B4, $F5, $76, $37, CK13; S2M, $3D, $08, CK13;
+FID_38_39_to_idx_8     : M2S, $3C, $7F, $06, $B7, $06, $FF, $FF, $78, $39, CK13; S2M, $3D, $08, CK13;
+*
+* SaveConfig             : M2S, $3C, $7F, $01, $B6, $FF, $FF, $FF, $FF, $FF, CK13; S2M, $3D, $08, ck13;
+*
+
+*
+* ReadByIdCallout checks
+*
+
+*
+* id = 0x20 (32) - positive response expected: AA, BB, CC, DD, EE
+*
+ReadByID(32)_PositiveResp    : M2S, $3C, $7F, $06, $B2, $20, $FF, $7F, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+
+*
+* id = 0x25 (37) - negative response expected: B2, 12, FF, FF, FF
+*
+ReadByID(37)_NegativeResp    : M2S, $3C, $7F, $06, $B2, $25, $FF, $7F, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+
+
+*
+* Get_default_o1_o10
+* Expected default values:
+* FF,01,F8,0F,F0,07,3E,9C <72>
+*
+Get_default_o1_o10       : S2M, $31, $08, CK20;
+
+*
+* Get_default_o11_o14
+* Expected default values:
+* FF,3F,00,F0,FF,01,E0,FF <7A>
+*
+Get_default_o11_o14      : S2M, $33, $08, CK20;
+
+*
+* Get_default_o15_o16
+* Expected default values:
+* FF,FF,FF,FF,01,00,FE,FF <0A>
+*
+Get_default_o15_o16      : S2M, $35, $08, CK20;
+
+*
+* Write_i1
+* Expected response:
+* FF,01,00,00,00,00,00,80 <CC>
+*
+Write_i1=0x01            : M2S, $30, $01, $00, $00, $00, $00, $00, $80, $FF, CK20;
+Expect_o1                : S2M, $31, $08, CK20;
+
+*
+* Write_i2
+* Expected response:
+* FF,01,00,00,00,00,00,60 <EC>
+*
+Write_i2=0x3             : M2S, $30, $06, $00, $00, $00, $00, $00, $80, $FF, CK20;
+Expect_o2                : S2M, $31, $08, CK20;
+
+*
+* Write_i3
+* Expected response:
+* FF,01,00,00,00,00,00,1C <31>
+*
+Write_i3=0x07            : M2S, $30, $38, $00, $00, $00, $00, $00, $80, $FF, CK20;
+Expect_o3                : S2M, $31, $08, CK20;
+
+*
+* Write_i4
+* Expected response:
+* FF,01,00,00,00,00,C0,03 <89>
+*
+Write_i4=0x0F            : M2S, $30, $C0, $03, $00, $00, $00, $00, $80, $FF, CK20;
+Expect_o4                : S2M, $31, $08, CK20;
+
+*
+* Write_i5
+* Expected response:
+* FF,01,00,00,00,00,3E,00 <0F>
+*
+Write_i5=0x1F            : M2S, $30, $00, $7C, $00, $00, $00, $00, $80, $FF, CK20;
+Expect_o5                : S2M, $31, $08, CK20;
+
+*
+* Write_i6
+* Expected response:
+* FF,01,00,00,00,F8,01,00 <53>
+*
+Write_i6=0x3F            : M2S, $30, $00, $80, $1F, $00, $00, $00, $80, $FF, CK20;
+Expect_o6                : S2M, $31, $08, CK20;
+
+*
+* Write_i7
+* Expected response:
+* FF,01,00,00,F0,07,00,00 <55>
+*
+Write_i7=0x7F             : M2S, $30, $00, $00, $E0, $0F, $00, $00, $80, $FF, CK20;
+Expect_o7                 : S2M, $31, $08, CK20;
+
+*
+* Write_i8
+* Expected response:
+* FF,01,00,F0,0F,00,00,00 <4D>
+*
+Write_i8=0xFF             : M2S, $30, $00, $00, $00, $F0, $0F, $00, $80, $FF, CK20;
+Expect_o8                 : S2M, $31, $08, CK20;
+
+*
+* Write_i9
+* Expected response:
+* FF,01,F8,0F,00,00,00,00 <45>
+*
+Write_i9=0x1FF            : M2S, $30, $00, $00, $00, $00, $F0, $1F, $80, $FF, CK20;
+Expect_o9                 : S2M, $31, $08, CK20;
+
+*
+* Write_i10
+* Expected response:
+* FF,FF,07,00,00,00,00,00 <47>
+*
+Write_i10=0x3FF           : M2S, $30, $00, $00, $00, $00, $00, $E0, $FF, $FF, CK20;
+Expect_o10                : S2M, $31, $08, CK20;
+
+*
+* Write_i11
+* Expected response:
+* FF,3F,00,00,00,00,E0,FF <6C>
+*
+Write_i11=0x7FF           : M2S, $32, $FF, $07, $00, $00, $00, $00, $FC, $FF, CK20;
+Expect_o11                : S2M, $33, $08, CK20;
+
+*
+* Write_i12
+* Expected response:
+* FF,3F,00,00,00,FE,1F,00 <2F>
+*
+Write_i12=0xFFF           : M2S, $32, $00, $F8, $7F, $00, $00, $00, $FC, $FF, CK20;
+Expect_o12                : S2M, $33, $08, CK20;
+
+*
+* Write_i13
+* Expected response:
+* FF,3F,00,F0,FF,01,00,00 <5B>
+* 
+Write_i13=0x1FFF          : M2S, $32, $00, $00, $80, $FF, $0F, $00, $FC, $FF, CK20;
+Expect_o13                : S2M, $33, $08, CK20;
+
+*
+* Write_i14
+* Expected response:
+* FF,FF,FF,0F,00,00,00,00 <7D>
+*
+Write_i14=0x3FFF          : M2S, $32, $00, $00, $00, $00, $F0, $FF, $FF, $FF, CK20;
+Expect_o14                : S2M, $33, $08, CK20;
+
+*
+* Write_i15
+* Expected response:
+* FF,FF,FF,FF,01,00,FE,FF <0A>
+*
+Write_i15=0x7FFF          : M2S, $34, $FF, $7F, $00, $80, $FF, $FF, $FF, $FF, CK20;
+Expect_o15                : S2M, $35, $08, CK20;
+
+*
+* Write_i16
+* Expected response:
+* FF,FF,FF,FF,FF,FF,01,00 <09>
+*
+Write_i16=0xFFFF          : M2S, $34, $00, $80, $FF, $FF, $FF, $FF, $FF, $FF, CK20;
+Expect_o16                : S2M, $35, $08, CK20;
+
+*
+* PutByteArray_as_is
+* Expected response:
+* FF,11,12,13,14,15,16,17 <3C>
+*
+PutByteArray_as_is        : M2S, $36, $11, $12, $13, $14, $15, $16, $17, $00, CK20;
+GetByteArray              : S2M, $37, $08, CK20;
+
+*
+* PutByteArray_reverse
+* Expected response:
+* FF,27,26,25,24,23,22,21 <CB>
+*
+PutByteArray_reverse      : M2S, $36, $21, $22, $23, $24, $25, $26, $27, $01, CK20;
+GetByteArray              : S2M, $37, $08, CK20;
+
+*
+* PutByteArray_swap
+* Expected response:
+* FF,34,35,36,37,31,32,33 <5B>
+*
+PutByteArray_swap         : M2S, $36, $31, $32, $33, $34, $35, $36, $37, $02, CK20;
+GetByteArray              : S2M, $37, $08, CK20;
+
+*
+* GetIfcStatusWord
+* Expected response:
+* st, pid
+* 01 Error_in_Response
+* 02 Successfull_transfer
+* 04 Overrun
+* 08 Goto_Sleep
+*
+GetIfcStatusWord         : S2M, $38, $02, CK20;
+
+*
+* GotoSleep followed by GetIfcStatusWord
+* Expected response:
+* 0A,3C <41>
+*
+GotoSleep                : M2S, $3C, $00, $FF, $FF, $FF, $FF, $FF, $FF, $FF, CK13;
+wake-up                  : WKU;
+GetIfcStatusWord         : S2M, $38, $02, CK20;
+
+*
+* Error_in_Response followed by GetIfcStatusWord
+* Expect_Error_bit
+* 01, 76 <10>
+*
+Error_in_Response        : M2S, $36, $01, $02, $03, $04, $05, $06, CK20;
+GetIfcStatusWord         : S2M, $38, $02, CK20;
+
+*
+* GetCounter
+* bit0_in_Byte0_is_Response_Error
+*
+GetCounter               : S2M, $39, $02, CK20;
+GetCounter               : S2M, $39, $02, CK20;
+GetCounter               : S2M, $39, $02, CK20;
+GetCounter               : S2M, $39, $02, CK20;
+GetCounter               : S2M, $39, $02, CK20;
+GetCounter               : S2M, $39, $02, CK20;
+GetCounter               : S2M, $39, $02, CK20;
+GetCounter               : S2M, $39, $02, CK20;
+GetCounter               : S2M, $39, $02, CK20;
+GetCounter               : S2M, $39, $02, CK20;
+
+Unassign_idc_5_6     : M2S, $3C, $7F, $06, $B7, $04, $FF, $00, $00, $FF, CK13; S2M, $3D, $08, CK13;
+
+*
+* Get_default_o15_o16
+* Expected no response
+*
+Get_default_o15_o16      : S2M, $35, $08, CK20;
+
+
+*
+* Diagnostic frames wildcards
+*
+ReadByID(0)_ProductId    : M2S, $3C, $7F, $06, $B2, $00, $FF, $7F, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+ReadByID(1)_SerialNumber : M2S, $3C, $7F, $06, $B2, $01, $FF, $7F, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+
+*
+* Diagnostic frames NAD addressed
+*
+ReadByID(0)_ProductId    : M2S, $3C, $0B, $06, $B2, $00, $FE, $5A, $AF, $BE, CK13; S2M, $3D, $08, CK13;
+ReadByID(1)_SerialNumber : M2S, $3C, $0B, $06, $B2, $01, $FE, $5A, $AF, $BE, CK13; S2M, $3D, $08, CK13;
+
+END

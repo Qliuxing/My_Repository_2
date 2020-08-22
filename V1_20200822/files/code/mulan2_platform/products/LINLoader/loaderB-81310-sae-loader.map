@@ -1,0 +1,710 @@
+Archive member included because of file (symbol)
+
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_srv.o)
+                              (mlx_pltf_version)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+                              obj/vectors.o (__prestart)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lib_mlx813xx_bist.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o) (_bistHeader)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(nvram.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o) (_NVRAM_LoadAll)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx4_prog.o)
+                              (mlx4_prog)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(api.o)
+                              obj/mlu30.o (_ml_DiscardFrame)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(api.o) (_LinFrameDataBuffer)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o) (_ldr_isReadByIdMessage)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(loader_get_state.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o) (_LDR_GetState)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o) (_Flash_InitDriver)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_SetFastBaudRate.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o) (_ml_SetFastBaudRate)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o) (_start)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_section_init.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o) (__ram_section_init)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_test.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o) (_RAM_Test)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(fatal.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o) (__fatal)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(low_level_init.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o) (__low_level_init)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o) (__premain)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_mlx16.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o) (_MLX16_RESET)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx_ispowerok.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o) (_mlx_isPowerOk)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o) (_ml_LinInit)
+/cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_InitLinModule.o)
+                              /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o) (_ml_InitLinModule)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+shared_ram       0x00000000         0x00000010         rw !x
+ram_lin_fixed    0x00000010         0x00000008         rw
+ram              0x00000018         0x00000728         xrw
+dynram           0x00000740         0x00000080         xrw
+mlx4_ram         0x000007c0         0x00000040         rw !x
+eeprom           0x00001000         0x00000100         xrw
+eeprom2          0x00001100         0x00000100         xrw
+system_io        0x00002000         0x00000100         rw !x
+user_io          0x00002800         0x00000100         rw !x
+mlx4_flash       0x00008000         0x00001540         xr
+mlx4_table       0x00009540         0x00000088         r
+rom              0x000095c8         0x00002238         xr
+loader_flags     0x0000be80         0x00000080         r
+protection_key   0x0000bf46         0x00000008         r
+flash_crc        0x0000bf4e         0x00000002         r
+product_no       0x0000bf50         0x00000008         r
+app_version      0x0000bf58         0x00000004         r
+pltf_version     0x0000bf5c         0x00000004         r
+system_services  0x0000bf60         0x00000006         xr
+loader_rst_state 0x0000bf66         0x00000002         r
+vectors          0x0000bf68         0x00000098         xr
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD obj/vectors.o
+LOAD obj/lin2b_romtbl.o
+LOAD obj/loader.o
+LOAD obj/mlu30.o
+LOAD obj/loader_state.o
+LOAD /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a
+LOAD /cygdrive/c/Melexis/mlx16-gcc/bin/../lib/gcc/mlx16/3.4.3/mlx16-x8/libgcc.a
+LOAD /cygdrive/c/Melexis/mlx16-gcc/bin/../lib/gcc/mlx16/3.4.3/../../../../mlx16/lib/mlx16-x8/libc.a
+LOAD /cygdrive/c/Melexis/mlx16-gcc/bin/../lib/gcc/mlx16/3.4.3/mlx16-x8/libgcc.a
+START GROUP
+LOAD /cygdrive/c/Melexis/mlx16-gcc/bin/../lib/gcc/mlx16/3.4.3/../../../../mlx16/lib/mlx16-x8/libc.a
+LOAD /cygdrive/c/Melexis/mlx16-gcc/bin/../lib/gcc/mlx16/3.4.3/mlx16-x8/libgcc.a
+END GROUP
+                0x00000000                __dp__ = 0x0
+                0x00002800                __io__ = 0x2800
+                0x00001000                __ep__ = 0x1000
+                0x0000bf00                __fp0__ = 0xbf00
+                0x0000be00                __fp1__ = 0xbe00
+                0x0000bd00                __fp2__ = 0xbd00
+                0x0000bc00                __fp3__ = 0xbc00
+                0x0000bb00                __fp4__ = 0xbb00
+                0x0000ba00                __fp5__ = 0xba00
+                0x0000b900                __fp6__ = 0xb900
+                0x00001000                __fp7__ = 0x1000
+
+.mlx4_flash     0x00008000     0x14f0
+                0x00008000                __mlx4_flash_start = .
+ *(.mlx4_prog)
+ .mlx4_prog     0x00008000     0x14f0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx4_prog.o)
+                0x00008000                mlx4_prog
+                0x000094f0                __mlx4_flash_end = .
+
+.mlx4_table     0x00009540       0x88
+                0x00009540                __mlx4_table_start = .
+ *(.mlx4_table)
+ .mlx4_table    0x00009540       0x88 obj/lin2b_romtbl.o
+                0x00009540                _INDXtbl
+                0x00009580                _PARAMtbl
+                0x000095c0                _AUTOADDtbl
+                0x000095c8                __mlx4_table_end = .
+
+.mlx16_vectors  0x0000bf68       0x16
+ *(.vectors)
+ .vectors       0x0000bf68       0x16 obj/vectors.o
+                0x0000bf68                __vectors
+
+.loader_flags   0x0000be80       0x80
+ *(.loader_flags)
+ .loader_flags  0x0000be80       0x80 obj/loader_state.o
+                0x0000be80                _loader_flags
+
+.loader_rst_state
+                0x0000bf66        0x2
+ *(.loader_rst_state)
+ .loader_rst_state
+                0x0000bf66        0x2 obj/loader_state.o
+                0x0000bf66                _loader_rst_state
+
+.system_services
+                0x0000bf60        0x6
+ *(.system_services)
+ .system_services
+                0x0000bf60        0x6 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_srv.o)
+                0x0000bf60                mlx_enter_protected_mode
+
+.protection_key
+ *(.protection_key)
+
+.flash_crc
+ *(.flash_crc)
+
+.product_no
+ *(.product_no)
+
+.app_version    0x0000bf58        0x4
+ *(.app_version)
+ .app_version   0x0000bf58        0x4 obj/loader.o
+                0x0000bf58                _ml_ldr_version
+
+.pltf_version   0x0000bf5c        0x4
+ *(.pltf_version)
+ .pltf_version  0x0000bf5c        0x4 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_srv.o)
+                0x0000bf5c                mlx_pltf_version
+
+.ramfunc        0x00000740       0x1e load address 0x000095c8
+                0x00000740                . = ALIGN (0x2)
+                0x00000740                __ramfunc_start = .
+ *(.ramfunc)
+ .ramfunc       0x00000740       0x1e /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+                0x00000740                _WriteTMTR
+                0x0000075e                . = ALIGN (0x2)
+                0x0000075e                __ramfunc_end = .
+                0x0000001e                __ramfunc_size = (__ramfunc_end - __ramfunc_start)
+                0x000095c8                __ramfunc_load_start = LOADADDR (.ramfunc)
+
+.text           0x000095e8     0x14f6
+                0x000095e8                _stext = .
+ *(.text)
+ .text          0x000095e8       0x10 obj/vectors.o
+ .text          0x000095f8        0x0 obj/lin2b_romtbl.o
+ .text          0x000095f8        0x0 obj/loader.o
+ .text          0x000095f8        0x0 obj/mlu30.o
+ .text          0x000095f8        0x0 obj/loader_state.o
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_srv.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lib_mlx813xx_bist.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(nvram.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx4_prog.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(api.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(loader_get_state.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_SetFastBaudRate.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_section_init.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_test.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(fatal.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(low_level_init.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_mlx16.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx_ispowerok.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o)
+ .text          0x000095f8        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_InitLinModule.o)
+ *(.text.*)
+ .text.main     0x000095f8        0x4 obj/loader.o
+                0x000095f8                _main
+ .text.mlu_ApplicationStop
+                0x000095fc        0x4 obj/mlu30.o
+                0x000095fc                _mlu_ApplicationStop
+ .text.mlu_AutoAddressingStep
+                0x00009600        0x2 obj/mlu30.o
+                0x00009600                _mlu_AutoAddressingStep
+ .text.mlu_DataRequest
+                0x00009602        0x4 obj/mlu30.o
+                0x00009602                _mlu_DataRequest
+ .text.mlu_DataTransmitted
+                0x00009606        0x2 obj/mlu30.o
+                0x00009606                _mlu_DataTransmitted
+ .text.mlu_ErrorDetected
+                0x00009608        0x2 obj/mlu30.o
+                0x00009608                _mlu_ErrorDetected
+ .text.mlu_LinSleepMode
+                0x0000960a        0x2 obj/mlu30.o
+                0x0000960a                _mlu_LinSleepMode
+ .text.mlu_MessageReceived
+                0x0000960c        0x2 obj/mlu30.o
+                0x0000960c                _mlu_MessageReceived
+ .text.start    0x0000960e       0x22 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o)
+                0x0000960e                _start
+ .text._ram_section_init
+                0x00009630       0x42 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_section_init.o)
+                0x00009630                __ram_section_init
+ *(.mlx_text)
+ .mlx_text      0x00009672      0x1fc /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+                0x00009672                __prestart
+ .mlx_text      0x0000986e       0xfc /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(nvram.o)
+                0x0000986e                _NVRAM_LoadAll
+                0x000098d4                _NVRAM_SavePage
+                0x00009932                _NVRAM_BufferFill
+                0x0000995c                _NVRAM_SaveAll
+ .mlx_text      0x0000996a      0x128 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(api.o)
+                0x0000996a                _ml_ReleaseBuffer
+                0x0000996e                _ml_ReleaseBufferProg
+                0x00009978                _ml_DataReady
+                0x0000998e                _ml_AssignFrameToMessageID
+                0x00009994                _ml_DisableMessage
+                0x00009998                _ml_EnableMessage
+                0x000099a4                _ml_AutoAddressingConfig
+                0x000099ac                _ml_SetSlewRate
+                0x000099b4                _ml_SetOptions
+                0x000099ca                _ml_DiscardFrame
+                0x000099ce                _ml_ContFrame
+                0x00009a0e                _ml_LinModuleVersion
+                0x00009a3c                _ml_GetState
+                0x00009a62                _ml_SetBaudRate
+                0x00009a6e                _ml_SetAutoBaudRateMode
+                0x00009a76                _ml_Connect
+                0x00009a7a                _ml_Disconnect
+                0x00009a7e                _ml_SwitchToFast
+                0x00009a82                _ml_WakeUp
+                0x00009a86                _ml_GotoSleep
+ .mlx_text      0x00009a92      0x1f6 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+                0x00009a92                _ml_GetLinEventData
+                0x00009ac2                _ml_ProccessLinEvent
+                0x00009c68                _ml_SetLoaderNAD
+                0x00009c82                _ml_GetLoaderNAD
+ .mlx_text      0x00009c88      0x7ce /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+                0x00009c88                _ldr_isReadByIdMessage
+                0x00009e40                _ml_ldr_ErrorDetected
+                0x00009ede                _ml_ldr_SwitchToProgMode
+                0x00009f70                _ml_ldr_ReadByIdMessage
+                0x00009fa8                _ml_DiagRequest
+                0x0000a00c                _ml_DiagReceived
+ .mlx_text      0x0000a456       0x16 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(loader_get_state.o)
+                0x0000a456                _LDR_GetState
+ .mlx_text      0x0000a46c      0x232 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+                0x0000a46c                _Flash_InitDriver
+                0x0000a49c                _Flash_GetWriteTime
+                0x0000a4bc                _Flash_PageRead
+                0x0000a4da                _Flash_PageBufferFill
+                0x0000a4e8                _Flash_PageVerifyBuffer
+                0x0000a50a                _Flash_PageWrite
+                0x0000a632                _Flash_IREF_Offset
+                0x0000a67a                _Flash_PageWriteFiltered
+ .mlx_text      0x0000a69e       0x52 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_SetFastBaudRate.o)
+                0x0000a69e                _ml_SetFastBaudRate
+ .mlx_text      0x0000a6f0       0x58 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_test.o)
+                0x0000a6fa                _RAM_Test
+ .mlx_text      0x0000a748        0xc /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(fatal.o)
+                0x0000a748                __fatal
+ .mlx_text      0x0000a754      0x14a /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(low_level_init.o)
+                0x0000a754                __low_level_init
+ .mlx_text      0x0000a89e       0x98 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o)
+                0x0000a89e                __premain
+ .mlx_text      0x0000a936       0x7a /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_mlx16.o)
+                0x0000a936                _MLX16_RESET
+ .mlx_text      0x0000a9b0       0x9a /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx_ispowerok.o)
+                0x0000a9b0                _mlx_isPowerOk
+ .mlx_text      0x0000aa4a       0x1e /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o)
+                0x0000aa4a                _ml_LinInit
+ .mlx_text      0x0000aa68       0x60 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_InitLinModule.o)
+                0x0000aa68                _ml_InitLinModule
+ *(.rodata)
+ *fill*         0x0000aac8        0x0 
+ .rodata        0x0000aac8        0xc /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+ *(.rodata.*)
+ .rodata._mlx_loader_info
+                0x0000aad4        0x1 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+ *fill*         0x0000aad5        0x1 
+ .rodata.READ_BY_ID_BC
+                0x0000aad6        0x8 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+                0x0000aade                . = ALIGN (0x2)
+                0x0000aade                _etext = .
+
+.shared_ram     0x00000000       0x10
+ *(.special)
+ .special       0x00000000       0x10 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(api.o)
+                0x00000000                _LinResp
+                0x00000002                _LinCmnd
+                0x00000004                _LinMess
+                0x00000006                _LinMess2
+                0x00000007                _LinProtectedID
+                0x00000008                _LinFrame
+
+.ram_lin_fixed  0x00000010        0x6
+ *(.ram_lin_fixed)
+ .ram_lin_fixed
+                0x00000010        0x6 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+                0x00000010                _stFixedRamNAD
+
+.dp.data        0x00000018        0x0 load address 0x0000aade
+                0x00000018                . = ALIGN (0x2)
+                0x00000018                __data_dp_start = .
+ *(.dp.data)
+                0x00000018                . = ALIGN (0x2)
+                0x00000018                __data_dp_end = .
+                0x00000000                __data_dp_size = (__data_dp_end - __data_dp_start)
+                0x0000aade                __data_load_start = LOADADDR (.dp.data)
+
+.dp             0x00000018       0x20 load address 0x0000aade
+                0x00000018                . = ALIGN (0x2)
+                0x00000018                __bss_dp_start = .
+ *(.dp)
+ .dp            0x00000018        0xc /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+                0x00000018                _LinFrameDataBuffer
+                0x00000020                _LIN_nad
+                0x00000022                _LinMessage
+ .dp            0x00000024       0x14 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+                0x00000024                _ml_driver_mode
+                0x00000038                . = ALIGN (0x2)
+                0x00000038                __bss_dp_end = .
+                0x00000020                __bss_dp_size = (__bss_dp_end - __bss_dp_start)
+
+.dp.noinit      0x00000038        0x0 load address 0x0000aade
+                0x00000038                . = ALIGN (0x2)
+                0x00000038                __dp_noinit_start = .
+ *(.dp.noinit)
+                0x00000038                . = ALIGN (0x2)
+                0x00000038                __dp_noinit_end = .
+                0x00000000                __dp_noinit_size = (__dp_noinit_end - __dp_noinit_start)
+
+.data           0x00000038        0x4 load address 0x0000aade
+                0x00000038                . = ALIGN (0x2)
+                0x00000038                __data_start = .
+ *(.data)
+ .data          0x00000038        0x0 obj/vectors.o
+ .data          0x00000038        0x0 obj/lin2b_romtbl.o
+ .data          0x00000038        0x0 obj/loader.o
+ .data          0x00000038        0x0 obj/mlu30.o
+ .data          0x00000038        0x0 obj/loader_state.o
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_srv.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lib_mlx813xx_bist.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(nvram.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx4_prog.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(api.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(loader_get_state.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_SetFastBaudRate.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_section_init.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_test.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(fatal.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(low_level_init.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_mlx16.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx_ispowerok.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o)
+ .data          0x00000038        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_InitLinModule.o)
+ *(.data.*)
+ .data.LINPresc
+                0x00000038        0x2 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+                0x00000038                _LINPresc
+ .data.LINBaud  0x0000003a        0x1 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+                0x0000003a                _LINBaud
+                0x0000003c                . = ALIGN (0x2)
+ *fill*         0x0000003b        0x1 
+                0x0000003c                __data_end = .
+                0x00000004                __data_size = (__data_end - __data_start)
+
+.bss            0x0000003c        0x6 load address 0x0000aae2
+                0x0000003c                . = ALIGN (0x2)
+                0x0000003c                __bss_start = .
+ *(.bss)
+ .bss           0x0000003c        0x0 obj/vectors.o
+ .bss           0x0000003c        0x0 obj/lin2b_romtbl.o
+ .bss           0x0000003c        0x0 obj/loader.o
+ .bss           0x0000003c        0x0 obj/mlu30.o
+ .bss           0x0000003c        0x0 obj/loader_state.o
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_srv.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lib_mlx813xx_bist.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(nvram.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx4_prog.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(api.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(loader_get_state.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_SetFastBaudRate.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_section_init.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_test.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(fatal.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(low_level_init.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_mlx16.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx_ispowerok.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o)
+ .bss           0x0000003c        0x0 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_InitLinModule.o)
+ *(.bss.*)
+ .bss.LinStatus
+                0x0000003c        0x1 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+                0x0000003c                _LinStatus
+ *fill*         0x0000003d        0x1 
+ .bss.page_buffer
+                0x0000003e        0x2 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+                0x0000003e                _page_buffer
+ .bss.erase_sectors_bitmap
+                0x00000040        0x2 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+ *(COMMON)
+                0x00000042                . = ALIGN (0x2)
+                0x00000042                __bss_end = .
+                0x00000006                __bss_size = (__bss_end - __bss_start)
+
+.noinit         0x00000042        0x0 load address 0x0000aae2
+                0x00000042                . = ALIGN (0x2)
+                0x00000042                __noinit_start = .
+ *(.noinit)
+                0x00000042                . = ALIGN (0x2)
+                0x00000042                __noinit_end = .
+                0x00000000                __noinit_size = (__noinit_end - __noinit_start)
+
+.bist_stat      0x00000042        0x8 load address 0x0000aae2
+                0x00000042                . = ALIGN (0x2)
+                0x00000042                __bist_stat_start = .
+ *(.bist_stat)
+ .bist_stat     0x00000042        0x8 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lib_mlx813xx_bist.o)
+                0x00000042                _bistHeader
+                0x00000044                _bistResetInfo
+                0x00000046                _bistError
+                0x00000048                _bistErrorInfo
+                0x0000004a                . = ALIGN (0x2)
+                0x0000004a                __bist_stat_end = .
+                0x00000008                __bist_stat_size = (__bist_stat_end - __bist_stat_start)
+                0x0000004a                PROVIDE (_stack, .)
+                0x00000800                PROVIDE (__end, 0x800)
+
+.ep             0x00001000        0x0
+                0x00001000                . = ALIGN (0x2)
+                0x00001000                __bss_ep_start = .
+ *(.ep)
+                0x00001000                . = ALIGN (0x2)
+                0x00001000                __bss_ep_end = .
+
+.ep.data        0x00001000        0x0
+                0x00001000                . = ALIGN (0x2)
+                0x00001000                __data_ep_start = .
+ *(.ep.data)
+                0x00001000                . = ALIGN (0x2)
+                0x00001000                __data_ep_end = .
+OUTPUT(loaderB-81310-sae-loader.elf elf32-mlx16-x8)
+
+.debug_abbrev   0x00000000     0x12bb
+ .debug_abbrev  0x00000000       0x62 obj/loader.o
+ .debug_abbrev  0x00000062       0xb0 obj/mlu30.o
+ .debug_abbrev  0x00000112       0x84 obj/loader_state.o
+ .debug_abbrev  0x00000196      0x16c /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+ .debug_abbrev  0x00000302       0x60 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lib_mlx813xx_bist.o)
+ .debug_abbrev  0x00000362      0x115 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(nvram.o)
+ .debug_abbrev  0x00000477      0x170 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+ .debug_abbrev  0x000005e7      0x258 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+ .debug_abbrev  0x0000083f       0xa8 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(loader_get_state.o)
+ .debug_abbrev  0x000008e7      0x237 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+ .debug_abbrev  0x00000b1e       0xde /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_SetFastBaudRate.o)
+ .debug_abbrev  0x00000bfc       0x7c /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o)
+ .debug_abbrev  0x00000c78       0x73 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_section_init.o)
+ .debug_abbrev  0x00000ceb       0x71 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(fatal.o)
+ .debug_abbrev  0x00000d5c       0xe1 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(low_level_init.o)
+ .debug_abbrev  0x00000e3d      0x126 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o)
+ .debug_abbrev  0x00000f63      0x10a /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_mlx16.o)
+ .debug_abbrev  0x0000106d      0x120 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx_ispowerok.o)
+ .debug_abbrev  0x0000118d       0x3b /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o)
+ .debug_abbrev  0x000011c8       0xf3 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_InitLinModule.o)
+
+.debug_info     0x00000000     0x2f2b
+ .debug_info    0x00000000       0x89 obj/loader.o
+ .debug_info    0x00000089      0x1e6 obj/mlu30.o
+ .debug_info    0x0000026f      0x125 obj/loader_state.o
+ .debug_info    0x00000394      0x423 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+ .debug_info    0x000007b7       0xd4 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lib_mlx813xx_bist.o)
+ .debug_info    0x0000088b      0x2bf /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(nvram.o)
+ .debug_info    0x00000b4a      0x421 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+ .debug_info    0x00000f6b      0x878 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+ .debug_info    0x000017e3      0x14b /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(loader_get_state.o)
+ .debug_info    0x0000192e      0x5a1 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+ .debug_info    0x00001ecf      0x191 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_SetFastBaudRate.o)
+ .debug_info    0x00002060       0xa6 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o)
+ .debug_info    0x00002106      0x106 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_section_init.o)
+ .debug_info    0x0000220c      0x131 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(fatal.o)
+ .debug_info    0x0000233d      0x2ab /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(low_level_init.o)
+ .debug_info    0x000025e8      0x23f /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o)
+ .debug_info    0x00002827      0x1f2 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_mlx16.o)
+ .debug_info    0x00002a19      0x27f /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx_ispowerok.o)
+ .debug_info    0x00002c98       0x65 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o)
+ .debug_info    0x00002cfd      0x22e /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_InitLinModule.o)
+
+.debug_line     0x00000000     0x302f
+ .debug_line    0x00000000       0xb2 obj/loader.o
+ .debug_line    0x000000b2      0x1a2 obj/mlu30.o
+ .debug_line    0x00000254      0x121 obj/loader_state.o
+ .debug_line    0x00000375      0x3b6 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+ .debug_line    0x0000072b      0x139 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lib_mlx813xx_bist.o)
+ .debug_line    0x00000864      0x331 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(nvram.o)
+ .debug_line    0x00000b95      0x31f /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+ .debug_line    0x00000eb4      0xa3e /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+ .debug_line    0x000018f2       0xdd /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(loader_get_state.o)
+ .debug_line    0x000019cf      0x514 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+ .debug_line    0x00001ee3      0x137 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_SetFastBaudRate.o)
+ .debug_line    0x0000201a      0x105 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o)
+ .debug_line    0x0000211f       0xec /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_section_init.o)
+ .debug_line    0x0000220b      0x196 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(fatal.o)
+ .debug_line    0x000023a1      0x279 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(low_level_init.o)
+ .debug_line    0x0000261a      0x2dd /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o)
+ .debug_line    0x000028f7      0x1af /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_mlx16.o)
+ .debug_line    0x00002aa6      0x274 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx_ispowerok.o)
+ .debug_line    0x00002d1a       0xcb /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o)
+ .debug_line    0x00002de5      0x24a /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_InitLinModule.o)
+
+.debug_frame    0x00000000      0x72c
+ .debug_frame   0x00000000       0x22 obj/loader.o
+ .debug_frame   0x00000022       0x6a obj/mlu30.o
+ .debug_frame   0x0000008c       0x3a /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+ .debug_frame   0x000000c6       0x46 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(nvram.o)
+ .debug_frame   0x0000010c       0x86 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+ .debug_frame   0x00000192      0x2e2 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+ .debug_frame   0x00000474       0x22 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(loader_get_state.o)
+ .debug_frame   0x00000496       0xbe /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+ .debug_frame   0x00000554       0x48 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_SetFastBaudRate.o)
+ .debug_frame   0x0000059c       0x22 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o)
+ .debug_frame   0x000005be       0x22 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_section_init.o)
+ .debug_frame   0x000005e0       0x22 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(fatal.o)
+ .debug_frame   0x00000602       0x2e /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(low_level_init.o)
+ .debug_frame   0x00000630       0x2e /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o)
+ .debug_frame   0x0000065e       0x22 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_mlx16.o)
+ .debug_frame   0x00000680       0x2e /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx_ispowerok.o)
+ .debug_frame   0x000006ae       0x5c /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o)
+ .debug_frame   0x0000070a       0x22 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_InitLinModule.o)
+
+.debug_pubnames
+                0x00000000      0x5de
+ .debug_pubnames
+                0x00000000       0x2e obj/loader.o
+ .debug_pubnames
+                0x0000002e       0xb4 obj/mlu30.o
+ .debug_pubnames
+                0x000000e2       0x38 obj/loader_state.o
+ .debug_pubnames
+                0x0000011a       0x2e /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+ .debug_pubnames
+                0x00000148       0x53 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lib_mlx813xx_bist.o)
+ .debug_pubnames
+                0x0000019b       0x5e /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(nvram.o)
+ .debug_pubnames
+                0x000001f9       0xd4 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+ .debug_pubnames
+                0x000002cd       0xb6 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+ .debug_pubnames
+                0x00000383       0x23 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(loader_get_state.o)
+ .debug_pubnames
+                0x000003a6       0xdb /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+ .debug_pubnames
+                0x00000481       0x29 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_SetFastBaudRate.o)
+ .debug_pubnames
+                0x000004aa       0x1c /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o)
+ .debug_pubnames
+                0x000004c6       0x28 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_section_init.o)
+ .debug_pubnames
+                0x000004ee       0x1d /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(fatal.o)
+ .debug_pubnames
+                0x0000050b       0x26 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(low_level_init.o)
+ .debug_pubnames
+                0x00000531       0x1f /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o)
+ .debug_pubnames
+                0x00000550       0x22 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_mlx16.o)
+ .debug_pubnames
+                0x00000572       0x24 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx_ispowerok.o)
+ .debug_pubnames
+                0x00000596       0x21 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o)
+ .debug_pubnames
+                0x000005b7       0x27 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_InitLinModule.o)
+
+.debug_aranges  0x00000000      0x234
+ .debug_aranges
+                0x00000000       0x18 obj/loader.o
+ .debug_aranges
+                0x00000018       0x30 obj/mlu30.o
+ .debug_aranges
+                0x00000048       0x1c /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+ .debug_aranges
+                0x00000064       0x24 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(nvram.o)
+ .debug_aranges
+                0x00000088       0x24 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+ .debug_aranges
+                0x000000ac       0x44 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+ .debug_aranges
+                0x000000f0       0x18 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(loader_get_state.o)
+ .debug_aranges
+                0x00000108       0x3c /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+ .debug_aranges
+                0x00000144       0x18 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_SetFastBaudRate.o)
+ .debug_aranges
+                0x0000015c       0x18 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o)
+ .debug_aranges
+                0x00000174       0x18 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_section_init.o)
+ .debug_aranges
+                0x0000018c       0x18 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(fatal.o)
+ .debug_aranges
+                0x000001a4       0x18 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(low_level_init.o)
+ .debug_aranges
+                0x000001bc       0x18 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o)
+ .debug_aranges
+                0x000001d4       0x18 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_mlx16.o)
+ .debug_aranges
+                0x000001ec       0x18 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx_ispowerok.o)
+ .debug_aranges
+                0x00000204       0x18 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o)
+ .debug_aranges
+                0x0000021c       0x18 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_InitLinModule.o)
+
+.debug_str      0x00000000     0x119c
+ .debug_str     0x00000000       0xca obj/loader.o
+                                0x103 (size before relaxing)
+ .debug_str     0x000000ca      0x25a obj/mlu30.o
+                                0x34c (size before relaxing)
+ .debug_str     0x00000324       0x9b obj/loader_state.o
+                                0x17a (size before relaxing)
+ .debug_str     0x000003bf      0x297 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+                                0x32e (size before relaxing)
+ .debug_str     0x00000656       0x2c /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lib_mlx813xx_bist.o)
+                                0x142 (size before relaxing)
+ .debug_str     0x00000682       0xe2 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(nvram.o)
+                                0x1e7 (size before relaxing)
+ .debug_str     0x00000764      0x1c9 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+                                0x422 (size before relaxing)
+ .debug_str     0x0000092d      0x3ac /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+                                0x705 (size before relaxing)
+ .debug_str     0x00000cd9       0x2d /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(loader_get_state.o)
+                                0x199 (size before relaxing)
+ .debug_str     0x00000d06      0x16d /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+                                0x382 (size before relaxing)
+ .debug_str     0x00000e73       0x7d /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_SetFastBaudRate.o)
+                                0x187 (size before relaxing)
+ .debug_str     0x00000ef0       0x72 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o)
+                                0x110 (size before relaxing)
+ .debug_str     0x00000f62       0x96 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_section_init.o)
+                                0x178 (size before relaxing)
+ .debug_str     0x00000ff8        0xf /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(fatal.o)
+                                0x182 (size before relaxing)
+ .debug_str     0x00001007       0x3d /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(low_level_init.o)
+                                0x1fa (size before relaxing)
+ .debug_str     0x00001044       0x2b /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o)
+                                0x212 (size before relaxing)
+ .debug_str     0x0000106f       0x7a /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_mlx16.o)
+                                0x1e5 (size before relaxing)
+ .debug_str     0x000010e9       0x77 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx_ispowerok.o)
+                                0x201 (size before relaxing)
+ .debug_str     0x00001160       0x18 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o)
+                                 0xef (size before relaxing)
+ .debug_str     0x00001178       0x24 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_InitLinModule.o)
+                                0x21d (size before relaxing)
+
+.comment        0x00000000       0x11
+ .comment       0x00000000       0x11 obj/loader.o
+                                 0x12 (size before relaxing)
+ .comment       0x00000000       0x12 obj/mlu30.o
+ .comment       0x00000000       0x12 obj/loader_state.o
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(prestart.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lib_mlx813xx_bist.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(nvram.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(lin.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashupload.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(loader_get_state.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(flashfunctions_c_cmp.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_SetFastBaudRate.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(startup.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ram_section_init.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(fatal.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(low_level_init.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(premain.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(sys_mlx16.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(mlx_ispowerok.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_LinInit.o)
+ .comment       0x00000000       0x12 /cygdrive/c/Projects/MLX81310/Sanhua/SW/Firmware/81310_Sanhua_VALVE/code/mulan2_platform/lib/lib81310-sae-loader.a(ml_InitLinModule.o)

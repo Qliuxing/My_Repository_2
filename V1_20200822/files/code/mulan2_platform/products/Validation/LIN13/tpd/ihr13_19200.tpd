@@ -1,0 +1,317 @@
+; Visulin Test Suite (c) ihr GmbH
+; Property Template for generic LIN 1.3 Slave IUT
+
+;=========================================================================
+;=========================================================================
+[IUT Type]
+SLAVE=1 ; IUT device is a SLAVE (0/1);
+MASTER=0 ; IUT device is a MASTER (0/1);
+
+; General Data Link Layer Properties
+
+;=========================================================================
+;=========================================================================
+[Baudrate and Timing]
+BR_2400=0; Supports 2400 Baud (0/1);
+BR_9600=0; Supports 9600 Baud (0/1);
+BR_10417=0; Supports 10417 Baud (0/1);
+BR_19200=1; Supports 19200 Baud (0/1);
+AUTOBAUD=0; Slave can detect new baudrate at any time on the fly (0/1);
+BR_NOSYNC=0; Slave does NOT make use of Synchronization (0/1);
+BR_SYNC=1; Slave DOES make use of Synchronization (0/1);
+BR_DEF=19200; Default Baudrate: Set the highest supported Lin Baudrate to be used as default;
+DEL_DEF=10; Default Scheduler Delay [ms] (80 at 2400, 20 at 9600/10400, 10 at 19200);
+DEL_EXP=20; Default "Expect" Timeout [ms]: Time to expect back a transmitted frame;
+
+; add the message processing time to the default scheduler delay
+; DEL_EXP  = DEL_DEF + 10
+
+;=========================================================================
+;=========================================================================
+
+[Command Frames Support]
+CFR_MREQ=0  ; Slave IUT supports receiving a MasterReq command frame (0/1);
+CFR_SRESP=0  ; Slave IUT supports transmitting a SlaveResp command frame (0/1);
+DEL_RESP=10 ; Delay [ms] between MasterReq and SlaveResp Frames (P2_min);
+; DEL_RESP = DEL_DEF + P2_min                
+
+;=========================================================================
+;=========================================================================
+[User Frames]
+FRM_SLAVE=0x01 ;            default ID of slave status frame;
+LEN_SLAVE=2;                datalength (1..8) for Slave status frame;
+FRM_MASTER=0x21 ;           default ID of master command frame;
+LEN_MASTER=4;               datalength (1..8) for Master command frame;
+MDATA_INI={0xE0, 0, 0, 0};     master command data for initializing;
+MDATA_DEF={0xE0, 0, 0, 0};     master command default data;
+MDATA_ACT={0xA0, 0, 0, 0};     master command data for actuation;
+MDATA_ACT_SHORT={0, 0};     master command shortened for TC 3.6;
+STAT_SLAVE_INI={ 0xE0, };   expected data from slave after initialization;
+STAT_SLAVE_DEF={ 0xE0, };   expected data from slave in default state;
+STAT_SLAVE_ACT={ 0xA0, };   expected data from slave activated;
+STAT_SLAVE_ANY={ , };;
+DEL_INI=10;                 worst case time required for slave to initialize;
+DEL_ACT=60;                 delay required by slave to acknowledge the actuation command;
+DEL_DATAREADY=60;           for testcase 2.9;
+
+SUP_MASTER2=1;              Slave supports a subscribed 2 byte frame (0/1);
+FRM_MASTER2=0x04;           ID of subscribed 2 byte frame;
+MDATA_DEF2={0xE0, 0};       TC 3.6.1 master command default data;
+MDATA_ACT2={0xC0, 0};       TC 3.6.1 master command data for actuation;
+MDATA_ACT_SHORT2={0x08};    TC 3.6.1 master command shortened;
+STAT_SLAVE_DEF2={ 0xE0, };  TC 3.6.1 expected data from slave in default state;
+STAT_SLAVE_ACT2={ 0xC0, };  TC 3.6.1 expected data from slave activated;
+
+SUP_MASTER4=1;              Slave supports a subscribed 4 byte frame (0/1);
+FRM_MASTER4=0x21;           ID of subscribed 4 byte frame;
+MDATA_DEF4={0xE0, 0, 0, 0}; TC 3.6.2 master command default data;
+MDATA_ACT4={0xA0, 0, 0, 0}; TC 3.6.2 master command data for actuation;
+MDATA_ACT_SHORT4={0, 0};    TC 3.6.2 master command shortened;
+STAT_SLAVE_DEF4={ 0xE0, };  TC 3.6.2 expected data from slave in default state;
+STAT_SLAVE_ACT4={ 0xA0, };  TC 3.6.2 expected data from slave activated;
+
+SUP_MASTER8=0;              Slave supports a subscribed 8 byte frame (0/1);
+FRM_MASTER8=0xFF ;          ID of subscribed 8 byte frame;
+MDATA_DEF8={0xE0, 0, 0, 0};    TC 3.6.2 master command default data;
+MDATA_ACT8={0xA0, 0, 0, 0};    TC 3.6.2 master command data for actuation;
+MDATA_ACT_SHORT8={0, 0};    TC 3.6.2 master command shortened;
+STAT_SLAVE_DEF8={ 0xE0, };  TC 3.6.2 expected data from slave in default state;
+STAT_SLAVE_ACT8={ 0xA0, };  TC 3.6.2 expected data from slave activated;
+
+SUP_SLAVE2=1;               Slave supports a published 2 byte frame (0/1);
+FRM_SLAVE2=0x01;            ID of published 2 byte frame;
+SUP_SLAVE4=1;               Slave supports a published 4 byte frame (0/1);
+FRM_SLAVE4=0x20;            ID of published 4 byte frame;
+SUP_SLAVE8=1;               Slave supports a published 8 byte frame (0/1);
+FRM_SLAVE8=0x32;            ID of published 8 byte frame;
+
+;=========================================================================
+;=========================================================================
+[Bit Error]
+MDATA_BitErr       = {0, 0, 0, 0}; Master command data for stimulating testable response;
+
+FRM_SLAVE8_BitErr  = 0x20;  Frame ID used for bit error testing;
+LEN_SLAVE8_BitErr  = 4;     Length of test frame;
+STAT_SLAVE8_BitErr = {0xFF, 0xFF, 0xFF, 0xFC}; expected data from slave for bit error testing;
+
+BITPOS_1_SLAVE4    = 1;     Bit to be tested in 1st byte;
+BITPOS_2_SLAVE4    = 2;     Bit to be tested in 2nd byte;
+BITPOS_3_SLAVE4    = 3;     Bit to be tested in 3rd byte;
+BITPOS_4_SLAVE4    = 4;     Bit to be tested in 4th byte;
+BITPOS_CS_SLAVE4   = 2;     Bit to be tested in checksum;
+
+FRM_SLAVE4_BitErr  = 0x32;  Frame ID used for bit error testing;
+LEN_SLAVE4_BitErr  = 8;     Length of test frame;
+STAT_SLAVE4_BitErr = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}; Expected data from slave for bit error testing;
+
+BITPOS_1_SLAVE8    = 1;     Bit to be tested in 1st byte;
+BITPOS_2_SLAVE8    = 2;     Bit to be tested in 2nd byte;
+BITPOS_3_SLAVE8    = 3;     Bit to be tested in 3rd byte;
+BITPOS_4_SLAVE8    = 4;     Bit to be tested in 4th byte;
+BITPOS_5_SLAVE8    = 5;     Bit to be tested in 5st byte;
+BITPOS_6_SLAVE8    = 6;     Bit to be tested in 6nd byte;
+BITPOS_7_SLAVE8    = 7;     Bit to be tested in 7rd byte;
+BITPOS_8_SLAVE8    = 8;     Bit to be tested in 8th byte;
+BITPOS_CS_SLAVE8   = 2;     Bit to be tested in checksum;
+
+BITPOL_1_SLAVE8    = 0;     Bit Polarity to be set in 1st byte;
+BITPOL_2_SLAVE8    = 0;     Bit Polarity to be set in 2st byte;
+BITPOL_3_SLAVE8    = 0;     Bit Polarity to be set in 3st byte;
+BITPOL_4_SLAVE8    = 0;     Bit Polarity to be set in 4st byte;
+BITPOL_5_SLAVE8    = 1;     Bit Polarity to be set in 5st byte;
+BITPOL_6_SLAVE8    = 1;     Bit Polarity to be set in 6st byte;
+BITPOL_7_SLAVE8    = 1;     Bit Polarity to be set in 7st byte;
+BITPOL_8_SLAVE8    = 1;     Bit Polarity to be set in 8st byte;
+BITPOL_CS_SLAVE8   = 0;     Bit Polarity to be set in checksum;
+
+HAS_IBS=0;   Slave has interbyte space in response (0/1);
+
+; Bit positions to be used for test 3.2, application specific data!
+; 0 = byte cannot be tested, because content is always 0x00;
+
+;=========================================================================
+;=========================================================================
+[ErrorTests]
+CE_POL=1;   Polarity for false Checksum Bit in TC 3.3.1;
+PE_POL0=0;  Polarity for false 1st Parity Bit in TC 3.5.1;
+PE_POL1=1;  Polarity for false 2nd Parity Bit in TC 3.5.2;
+
+; Crashed Protected ID is 0x61 (frame FRM_MASTER = 0x21) =>
+; P0 (bit 6) = 1
+; P1 (bit 7) = 0
+
+[No Response Error]
+DELAY_SPACE=85; 3.6.5-13 Spaces: 2ByteFrame=57 4ByteFrame=85 8ByteFrame=141;
+
+; Space size for Tests 3.6.5 .. 3.6.13
+
+;=========================================================================
+;=========================================================================
+[Wakeup Sleep]
+SUP_PWRDN=1     ; slave supports power down after idle or GotoSleep (0/1);
+MAX_IDLE=1400  ; max time for slave to go powerdown after bus idle;
+MAX_GOSLEEP=20    ; max time for slave to go powerdown after GotoSleep;
+MAX_WAKEUP=30    ; max time for slave between wakeup and ready for communication;
+SUP_LOCALWAKE=0   ; slave supports sending a wakeup signal;
+CURRENT_SUP=0   ; current measurement available;
+NM_ISLEEP_MAX=2 ; max current in Sleep Mode [Bit] (Current{30÷A} * Shunt{10Ohm} / 4,88mV/Bit);
+NM_IWAKE_MIN=61 ; min current after Wakeup in Running Mode [Bit] (Current{30mA} * Shunt{10Ohm} / 4,88mV/Bit);
+
+; Slave parameter for wakeup and sleep
+
+;=========================================================================
+;=========================================================================
+[PATTERNGEN]
+PATTERN_INIT     =0xF20;initialize player;
+PATTERN_DOMBITS  =0xF21;output n bit periods..;
+PATTERN_RECBITS  =0xF22;;
+PATTERN_DOMTICKS =0xF23;output n ticks periods...;
+PATTERN_RECTICKS =0xF24;;
+PATTERN_DOM10THS =0xF25;output n 1/10 bit periods;
+PATTERN_REC10THS =0xF26;;
+PATTERN_DOM16THS =0xF27;output n 1/16 bit periods;
+PATTERN_REC16THS =0xF28;;
+PATTERN_BITS     =0xF29;output a sequence of up to 8 [0, 1] bits;
+PATTERN_BYTE     =0xF2A;output a byte with start and stopbit;
+PATTERN_BYTE_CS  =0xF2B;output a byte with start and stopbit, add to checksum;
+PATTERN_RBYTE    =0xF2C;output a byte (bits only);
+PATTERN_RBYTE_CS =0xF2D;output a byte (bits only), add to checksum;
+PATTERN_CHECKSUM =0xF2E;modify or output checksum byte;
+PATTERN_TRIGGER  =0xF2F;output trigger signal [0, 1] on DigOut1;
+CHECK_INIT=0;initialize checksum;
+CHECK_BYTE=1;put byteframe in buffer;
+CHECK_RAWBYTE=2;put bits without start/stop;
+CHECK_XOR=3;xor with const;
+CHECK_ADD=4;add to checksum;
+
+;=========================================================================
+;=========================================================================
+[Tester Control]
+POWER_SWITCH=HIO:DigitalOut_02 ; remotely switch the IUT power supply;
+CURRENT_IN=HIO:AnalogIn5V_01  ; current sensing input;
+
+; switching power supply for the IUT
+
+;=========================================================================
+;=========================================================================
+[Application Specific]
+DEF_SSW={0x17, 0x64, 0x00, 0};;
+DEF_SW1={0x18, 0x0E, 0x00, 0};;
+DEF_SW2={0x19, 0x20, 0x08, 0};;
+INI_SSW={0x17, 0x04, 0x00, 0};;
+EEP_WRITE=0x2F;;
+EEP_READ=0x30;;
+IDW_1=0x20, 0x00;;
+IDW_2=0x40, 0x00;;
+IDW_3=0x60, 0x00;;
+IDW_4=0x80, 0x00;;
+IDW_5=0xA0, 0x00;;
+IDW_6=0xC0, 0x00;;
+IDW_7=0xE0, 0x00;;
+IDW_8=0x00, 0x01;;
+IDW_9=0x20, 0x01;;
+IDW_10=0x40, 0x01;;
+IDW_11=0x60, 0x01;;
+IDW_12=0x80, 0x01;;
+IDW_13=0xA0, 0x01;;
+IDW_14=0xC0, 0x01;;
+IDW_15=0xE0, 0x01;;
+IDW_16=0x00, 0x02;;
+IDW_17=0x20, 0x02;;
+IDW_18=0x40, 0x02;;
+IDW_19=0x60, 0x02;;
+IDW_20=0x80, 0x02;;
+IDW_21=0xA0, 0x02;;
+IDW_22=0xC0, 0x02;;
+IDW_23=0xE0, 0x02;;
+IDW_24=0x00, 0x03;;
+IDW_25=0x20, 0x03;;
+IDW_26=0x40, 0x03;;
+IDW_27=0x60, 0x03;;
+IDW_28=0x80, 0x03;;
+IDW_29=0xA0, 0x03;;
+IDW_30=0xC0, 0x03;;
+IDW_31=0xE0, 0x03;;
+IDW_32=0x00, 0x04;;
+IDW_33=0x20, 0x04;;
+IDW_34=0x40, 0x04;;
+IDW_35=0x60, 0x04;;
+IDW_36=0x80, 0x04;;
+IDW_37=0xA0, 0x04;;
+IDW_38=0xC0, 0x04;;
+IDW_39=0xE0, 0x04;;
+IDW_40=0x00, 0x05;;
+IDW_41=0x20, 0x05;;
+IDW_42=0x40, 0x05;;
+IDW_43=0x60, 0x05;;
+IDW_44=0x80, 0x05;;
+IDW_45=0xA0, 0x05;;
+IDW_46=0xC0, 0x05;;
+IDW_47=0xE0, 0x05;;
+IDW_48=0x00, 0x06;;
+IDW_49=0x20, 0x06;;
+IDW_50=0x40, 0x06;;
+IDW_51=0x60, 0x06;;
+IDW_52=0x80, 0x06;;
+IDW_53=0xA0, 0x06;;
+IDW_54=0xC0, 0x06;;
+IDW_55=0xE0, 0x06;;
+IDW_56=0x00, 0x07;;
+IDW_57=0x20, 0x07;;
+IDW_58=0x40, 0x07;;
+IDW_59=0x60, 0x07;;
+; MLX TH8101 EEPROM Configuration
+; DORf    (Output)         Adr. 0x13 2Byte Rx
+; EepRtf  (EEPROM read)    Adr. 0x14 8Byte Tx
+; PwmDCRf (PWM duty cycle) Adr. 0x15 4Byte Rx
+; AdcTf   (ADC Data)       Adr. 0x16 4Byte Tx
+; SSWTf   (Single Switch)  Adr. 0x17 2Byte Tx (7)064 03 ID (00..1F)
+; SW1Tf   (Switch Frame 1) Adr. 0x18 2Byte Tx (1)00E -- ID (00..1F)
+; SW2Tf   (Switch Frame 2) Adr. 0x19 2Byte Tx (A)820 01 ID (00..1F)
+; DiagTf  (Diagnostic)     Adr. 0x08 8Byte Tx (0)000 -- ID (30..3B)
+
+
+;=========================================================================
+; Constant Labels --- do not modify
+;=========================================================================
+;DELAY_2B = 57
+;DELAY_4B = 85
+;DELAY_8B = 141
+[CONST]
+ALLFRAMES=66  ; RxRequestFrame and TestFrame;
+NOFRAME=65;;
+ERR_NONE=0;;
+ERR_SYNC=1;;
+ERR_BYTE=2;;
+ERR_PARITY=3;;
+ERR_NORESPONSE=4;;
+ERR_TIMEOUT=5;;
+ERR_CHECKSUM=6;;
+ERR_BUSHI=7;;
+ERR_BUSLO=8;;
+ERR_COLLISION=9;;
+ERR_MASTER_TO=10;;
+#ALLFRAMES=66  ; RxRequestFrame and TestFrame;
+#NOFRAME=65;;
+BC_BREAK=1;;
+BC_SYNC=2;;
+BC_PID=3;;
+BC_BYTE_1=4;;
+BC_BYTE_2=5;;
+BC_BYTE_3=6;;
+BC_BYTE_4=7;;
+BC_BYTE_5=8;;
+BC_BYTE_6=9;;
+BC_BYTE_7=10;;
+BC_BYTE_8=11;;
+BC_CHKSUM=12;;
+BC_STARTBIT=0;;
+BC_STOPBIT=9;;
+BC_IBSBIT=10;;
+BC_IBSBIT2=11;;
+FID_ERRORFRAME=0xFFF ; reserved identifier for Errorframe;
+FID_MSGLOST=0xFFE ; reserved identifier for lost message (must not happen during test);
+FID_WAKEUP=0xFFD ; reserved identifier for Wakeup Frame;
+
+;=========================================================================
+;=========================================================================

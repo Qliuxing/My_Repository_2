@@ -1,0 +1,71 @@
+;
+; Copyright (C) 2007-2009 Melexis N.V.
+;
+; Math library
+;
+
+	.macro	NEG_YA
+	xor		Y, #0xFFFF
+	neg		A
+	adc		Y, #0
+	.endm
+
+	;;YA = A * X, 
+	;;where A,X 16-bit integers (zero extended), clobbers Y
+	.macro	MULU_X
+	mov 	Y, #0
+	mov 	Cx, #4
+	mul1
+	mul1
+	mul1
+	mul1
+	djnz 	Cx, .-8
+	rrc 	A
+	.endm
+
+	;;A = A * X, 
+	;;where A,X unsigned 8-bit integers (zero extended), clobbers Y
+	;;cf. __mulqi3
+	.macro	MULU8_X
+	swap	X
+	mov 	Y, #0
+	mul1
+	mul1
+	mul1
+	mul1
+	mul1
+	mul1
+	mul1
+	mul1
+	mov	A, Y
+	.endm
+
+	;;YA = (A * X ) << 8,  (24 bit result shifted by 8)
+	;;where A unsigned 16 bit, X unsigned 8-bit integers (zero extended),
+	;;clobbers Y
+	.macro	MULU248_16_8_X
+	mov	Y, X 		; swap A and X, as 8 bit operand should be in A
+	mov	X, A
+	usex	A		; zero extend, just in case (not needed?)
+	mov	A, Y
+	mov 	Y, #0		; loop initialization
+	mul1
+	mul1
+	mul1
+	mul1
+	mul1
+	mul1
+	mul1
+	mul1
+	rrc	A		; YA now contains 24bit result << 8
+	.endm
+
+	.macro	DIVU_X
+	mov	Cx,#4
+	div1	X
+	div1	X
+	div1	X
+	div1	X
+	djnz	Cx, .-8
+	rlc	A
+	.endm

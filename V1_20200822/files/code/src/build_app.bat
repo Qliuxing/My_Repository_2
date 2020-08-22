@@ -1,0 +1,3 @@
+gmake clean
+gmake all
+
