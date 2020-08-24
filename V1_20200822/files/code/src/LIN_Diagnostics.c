@@ -33,11 +33,10 @@
 #include "LIN_Communication.h"
 #include "lin.h"
 #if ((__MLX_PLTF_VERSION_MAJOR__ == 3) && (__MLX_PLTF_VERSION_MINOR__ >= 3)) || (__MLX_PLTF_VERSION_MAJOR__ >= 4)
-#include "lin_internal.h"														/* LinFrame */
+#include "lin_internal.h"														/* LinFrame (MMP140417-1) */
 #endif /* ((__MLX_PLTF_VERSION_MAJOR__ == 3) && (__MLX_PLTF_VERSION_MINOR__ >= 3)) || (__MLX_PLTF_VERSION_MAJOR__ >= 4) */
 #include "main.h"
-#include "ADC.h"																/* ADC support */
-#include "app_version.h"
+#include "app_version.h"														/* MMP140519-1 */
 #include "ErrorCodes.h"															/* Error-logging support */
 #if _SUPPORT_MLX_DEBUG_MODE
 #include "MotorStall.h"															/* Only for debugging purpose */
@@ -56,22 +55,23 @@
  *	NORMAL FAR IMPLEMENTATION	(@NEAR Memory Space >= 0x100)					*
  * ****************************************************************************	*/
 #pragma space nodp																/* __NEAR_SECTION__ */
-uint16 g_u16DiagResponseTimeoutCount = 0U;
-#if _SUPPORT_LIN_AA && (LIN_AA_INFO != FALSE)
-uint8 l_u8SNPD_CycleCountComm = 0U;												/* Communication Cycle counter LIN-AA info */
-#endif /* _SUPPORT_LIN_AA && (LIN_AA_INFO != FALSE) */
+#if _SUPPORT_MLX_DEBUG_MODE
+uint16 l_u16FlashCRC = 0;
+#endif /* _SUPPORT_MLX_DEBUG_MODE */
+uint16 g_u16DiagResponseTimeoutCount = 0;
+uint8 l_u8SNPD_CycleCountComm = 0;												/* Communication Cycle counter LIN-AA info */
 #pragma space none																/* __NEAR_SECTION__ */
 
 #if _SUPPORT_MLX_DEBUG_MODE
 /*								 ANA_OUTA,ANA_OUTB,ANA_OUTC,ANA_OUTD,ANA_OUTE,ANA_OUTF,ANA_OUTG,ANA_OUTH */
-const uint16 au16AnaOutRegs[] = { 0x201CU, 0x201EU, 0x2020U, 0x204AU, 0x204CU, 0x204EU, 0x28CCU, 0x28CEU};
+const uint16 au16AnaOutRegs[] = {  0x201C,  0x201E,  0x2020,  0x204A,  0x204C,  0x204E,  0x28CC,  0x28CE};
 
-const uint16 tMlxDbgSupport[] = {
-	0xFFFEU, 0x0007U, 0x0000U, 0x0000U,
-	0x0000U, 0x0000U, 0x0000U, 0x0000U,
-	0x0000U, 0x0000U, C_DBG_SUBFUNC_SUPPORT_A, C_DBG_SUBFUNC_SUPPORT_B,
+const uint16 tMlxDbgSupport[] = {												/* MMP140519-2 - Begin */
+	0xFFFE, 0x0007, 0x0000, 0x0000,
+	0x0000, 0x0000, 0x0000, 0x0000,
+	0x0000, 0x0000, C_DBG_SUBFUNC_SUPPORT_A, C_DBG_SUBFUNC_SUPPORT_B,
 	C_DBG_SUBFUNC_SUPPORT_C, C_DBG_SUBFUNC_SUPPORT_D, C_DBG_SUBFUNC_SUPPORT_E, C_DBG_SUBFUNC_SUPPORT_F
-};
+};																				/* MMP140519-2 - End */
 #endif /* _SUPPORT_MLX_DEBUG_MODE */
 
 void SetupDiagResponse( uint8 u8NAD, uint8 u8SID, uint8 u8ResponseCode);
@@ -82,9 +82,9 @@ extern uint16 GetRawChipSupply( void);
 extern uint16 GetRawTemperature( void);
 #endif /* _SUPPORT_MLX_DEBUG_MODE */
 
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 extern uint8 l_u8GAD;
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 
 
 /* ****************************************************************************	*
@@ -105,8 +105,8 @@ void SetupDiagResponse( uint8 u8NAD, uint8 u8SID, uint8 u8ResponseCode)
 		 */
 		g_DiagResponse.byPCI = (uint8) C_RPCI_REASSIGN_NAD;
 		g_DiagResponse.byRSID = (uint8) (u8SID | C_RSID_OK);
-		g_DiagResponse.byD1 = (uint8) C_DIAG_RES;
-		g_DiagResponse.byD2 = (uint8) C_DIAG_RES;
+		g_DiagResponse.byD1 = (uint8) C_DIAG_RES;								/* Clear Pending feedback (MMP151130-1) */
+		g_DiagResponse.byD2 = (uint8) C_DIAG_RES;								/* Clear Pending feedback (MMP151130-1) */
 	}
 	else
 	{
@@ -221,7 +221,7 @@ void HandleDfrDiag( void)
 	}
 #endif /* ((((LINPROT & LINXX) >= LIN21) && ((LINPROT & LINXX) <= LIN22)) || ((LINPROT & LINXX) == LIN2X)) */	/* LIN 2.1, LIN 2.2 */
 
-	if ( pDiag->byNAD == 0x00U )	/* Other bytes should be 0xFF, and are ignored */
+	if ( pDiag->byNAD == 0x00 )	/* Other bytes should be 0xFF, and are ignored */
 	{
 		/* ACT_DFR_DIAG_SLEEP: Sleep request (Optional) */
 		g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_SLEEP;
@@ -241,7 +241,7 @@ void HandleDfrDiag( void)
 		g_DiagResponse.byD4 = (uint8) C_DIAG_RES;
 		g_DiagResponse.byD5 = (uint8) C_DIAG_RES;
 
-#if (LINPROT == LIN2X_ACT44)
+#if ((LINPROT & LINXX) == LIN2X)
 		if ( (u16DiagPCI_SID == C_PCI_SID_STOP_ACTUATOR) && (pDiag->byD5 == 0xFE) )
 		{
 			/* This is a broadcast LIN-command; Therefore no feedback is returned */
@@ -258,7 +258,7 @@ void HandleDfrDiag( void)
 				MotorDriverStop( (uint16) C_STOP_EMERGENCY);					/* Stop actuator NOW (LIN-AA) */
 				g_u8ChipResetOcc = FALSE;										/* Clear all event flags too (Reset, ... */
 				g_u8StallOcc = FALSE;											/* ... Stall detected, and ... */
-				g_u8StallTypeComm &= ~M_STALL_MODE;
+				g_u8StallTypeComm &= ~M_STALL_MODE;								/* MMP130916-1 */
 				g_u8EmergencyRunOcc = FALSE;									/* ... Emergency Run occurred  */
 			}
 		}
@@ -279,9 +279,9 @@ void HandleDfrDiag( void)
 			SetLastError( (uint8) C_ERR_LIN2X_WRITE);
 		}
 		else if ( (u16DiagPCI_SID == C_PCI_SID_REASSIGN_NAD) && (pDiag->byNAD != (uint8) C_DEFAULT_NAD) )
-#else  /* (LINPROT == LIN2X_ACT44) */
+#else  /* ((LINPROT & LINXX) == LIN2X) */
 		if ( u16DiagPCI_SID == C_PCI_SID_REASSIGN_NAD )
-#endif /* (LINPROT == LIN2X_ACT44) */
+#endif /* ((LINPROT & LINXX) == LIN2X) */
 		{
 			/* Re-assign NAD (Optional) */
 			/* Assign NAD is used to resolve conflicting NADs in LIN clusters
@@ -301,8 +301,9 @@ void HandleDfrDiag( void)
 			{
 				uint8 byInitialNAD = g_NvramUser.NAD;
 #if ((LINPROT & LINXX) == LIN2J)
-				if ( (pDiag->byD5 & (C_STEP_J2602_NAD - 1U)) != 0U ) /*lint !e587 */
+				if ( (pDiag->byD5 & (C_STEP_J2602_NAD - 1)) != 0 )
 				{
+					/* TODO: Check response correct in case of invalid NAD */
 					SetupDiagResponse( byInitialNAD, pDiag->bySID, (uint8) C_ERRCODE_INV_MSG_INV_SZ);		/* Status = Negative feedback */
 				}
 				else
@@ -382,7 +383,7 @@ void HandleDfrDiag( void)
 						SetLastError( (uint8) C_ERR_LIN2X_B1);
 					}
 				}
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 				else if ( wMessageID == MSG_GROUP_CONTROL )
 				{
 					SetupDiagResponse( g_u8NAD, pDiag->bySID, C_ERRCODE_PENDING);				/* Status = Pending */
@@ -391,7 +392,11 @@ void HandleDfrDiag( void)
 					(void) ml_AssignFrameToMessageID( MSG_GROUP_CONTROL, g_NvramUser.GroupControlFrameID);
 					(void) ml_Connect();
 					/* Store NVRAM */
+//#if _SUPPORT_IHR_DLL
+//					if ( g_NvramUser.GroupControlFrameID == pDiag->byD5 )						/* IHR-mode: Do not physical save to NVRAM */
+//#else  /* _SUPPORT_IHR_DLL */
 					if ( (NVRAM_Store( C_NVRAM_USER_PAGE_ALL) == C_NVRAM_STORE_OKAY) && (g_NvramUser.GroupControlFrameID == pDiag->byD5) )
+//#endif /* _SUPPORT_IHR_DLL */
 					{
 						/* Control Frame-ID changed */
 						SetupDiagResponse( g_u8NAD, pDiag->bySID, C_ERRCODE_POSITIVE_RESPONSE);	/* Status = Positive feedback */
@@ -403,7 +408,7 @@ void HandleDfrDiag( void)
 						SetLastError( (uint8) C_ERR_LIN2X_B1);
 					}
 				}
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 				else
 				{
 					/* Wrong Message-ID */
@@ -468,7 +473,7 @@ void HandleDfrDiag( void)
 					g_DiagResponse.byRSID = (uint8) C_RSID_READ_BY_ID;
 					StoreD1to4( g_NvramUser.SerialNumberLSW, g_NvramUser.SerialNumberMSW);	/* Serial-number */
 				}
-#if (LINPROT == LIN2J_VALVE_VW)
+#if (LINPROT == LIN2J_VALVE_GM)
 				else if ( pDiag->byD1 == (uint8) C_SVN_ID )
 				{
 					g_DiagResponse.byNAD = g_u8NAD;
@@ -476,8 +481,8 @@ void HandleDfrDiag( void)
 					g_DiagResponse.byRSID = (uint8) C_RSID_READ_BY_ID;
 					StoreD1to4( C_SVN, 0xFFFFU);								/* Firmware SVN */
 				}
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
-#if (LINPROT == LIN2X_ACT44)
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
+#if ((LINPROT & LINXX) == LIN2X)
 				else if ( pDiag->byD1 == (uint8) C_VERIFY_NAD )
 				{
 					/* Last NAD, Frame-ID for Control message & Status-message
@@ -494,10 +499,10 @@ void HandleDfrDiag( void)
 					g_DiagResponse.byD1 = (uint8) g_NvramUser.NAD;				/* Stored NAD (NVRAM) */
 					g_DiagResponse.byD2 = (uint8) g_NvramUser.ControlFrameID;	/* Frame-ID for Control-message */
 					g_DiagResponse.byD3 = (uint8) g_NvramUser.StatusFrameID;	/* Frame-ID for Status-message */
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 					g_DiagResponse.byD4 = g_NvramUser.GroupControlFrameID;		/* Frame-ID for Group Control-message */
 					g_DiagResponse.byD5 = g_NvramUser.GAD;						/* Group-address */
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 					g_u8BufferOutID = (uint8) QR_RFR_DIAG;						/* LIN Output buffer is valid (RFR_DIAG) */
 				}
 				else if ( pDiag->byD1 == (uint8) C_SW_HW_REF )
@@ -562,19 +567,13 @@ void HandleDfrDiag( void)
 					g_DiagResponse.byRSID = (uint8) C_RSID_READ_BY_ID;
 					StoreD1to2( g_NvramUser.ProductionDate);					/* Production Date */
 				}
-#endif /* (LINPROT == LIN2X_ACT44) */
+#endif /* ((LINPROT & LINXX) == LIN2X) */
 				else
 				{
 					/* Identifier not supported */
 					SetupDiagResponse( g_u8NAD, pDiag->bySID, (uint8) C_ERRCODE_SFUNC_NOSUP);	/* Status = Negative feedback */
 					SetLastError( (uint8) C_ERR_LIN2X_B2);
 				}
-			}
-			else
-			{
-				/* Invalid vendor/Function ID (MMP170329-1) */
-				SetupDiagResponse( g_u8NAD, pDiag->bySID, (uint8) C_ERRCODE_SFUNC_NOSUP);	/* Status = Negative feedback */
-				SetLastError( (uint8) C_ERR_LIN2X_B2);
 			}
 		}
 #if ((LINPROT & LINXX) == LIN2X)
@@ -590,27 +589,27 @@ void HandleDfrDiag( void)
 			 */
 			/* Get the identifier of possible read by ID response and selected by Id */
 			/* Extract the data byte selected by Byte */
-			uint8 u8DataByte = 0x00U;
+			uint8 u8DataByte = 0x00;
 			uint8 u8Error = (uint8) C_ERR_NONE;
-			if ( pDiag->byD1 == 0x00U ) /* Requested Id = LIN Product Identification */
+			if ( pDiag->byD1 == 0x00 ) /* Requested Id = LIN Product Identification */
 			{
-				if ( pDiag->byD2 == 1U )
+				if ( pDiag->byD2 == 1 )
 				{
-					u8DataByte = (uint8) (C_SUPPLIER_ID & 0xFFU);				/* LSB of Supplier-ID */
+					u8DataByte = (uint8) (C_SUPPLIER_ID & 0xFF);				/* LSB of Supplier-ID */
 				}
-				else if ( pDiag->byD2 == 2U )
+				else if ( pDiag->byD2 == 2 )
 				{
 					u8DataByte = (uint8) (C_SUPPLIER_ID >> 8);					/* MSB of Supplier-ID */
 				}
-				else if ( pDiag->byD2 == 3U )
+				else if ( pDiag->byD2 == 3 )
 				{
-					u8DataByte = (uint8) (C_FUNCTION_ID & 0xFFU);				/* LSB of Function-ID */
+					u8DataByte = (uint8) (C_FUNCTION_ID & 0xFF);				/* LSB of Function-ID */
 				}
-				else if ( pDiag->byD2 == 4U )
+				else if ( pDiag->byD2 == 4 )
 				{
 					u8DataByte = (uint8) (C_FUNCTION_ID >> 8); /*lint !e572 */	/* MSB of Function-ID */
 				}
-				else if ( pDiag->byD2 == 5U )
+				else if ( pDiag->byD2 == 5 )
 				{
 					u8DataByte = g_NvramUser.Variant;
 				}
@@ -619,9 +618,9 @@ void HandleDfrDiag( void)
 					u8Error = (uint8) C_ERRCODE_INV_MSG_INV_SZ;					/* Selected byte not in range, not valid => no response */
 				}
 			}
-			else if ( pDiag->byD1 == 0x01U ) /* Requested Id = Serial number (optional) */
+			else if ( pDiag->byD1 == 0x01 ) /* Requested Id = Serial number (optional) */
 			{
-				if ( (pDiag->byD2 == 0U) || (pDiag->byD2 > 4U) )
+				if ( (pDiag->byD2 == 0) || (pDiag->byD2 > 4) )
 				{
 					/* Selected byte not in range, not valid => no response */
 					u8Error = (uint8) C_ERRCODE_INV_MSG_INV_SZ;					/* Status = Invalid Format */
@@ -629,7 +628,7 @@ void HandleDfrDiag( void)
 				else
 				{
 					uint8 *pu8Nvram = (uint8 *) &g_NvramUser.SerialNumberLSW;
-					u8DataByte = pu8Nvram[pDiag->byD2 - 1U];						/* Serial-number[n] */
+					u8DataByte = pu8Nvram[pDiag->byD2 - 1];						/* Serial-number[n] */
 				}
 			}
 			else
@@ -651,11 +650,11 @@ void HandleDfrDiag( void)
 				/* Do a bitwise AND with Mask */
 				u8DataByte &= pDiag->byD3;
 
-				if ( u8DataByte == 0U )											/* Condition PASSED */
+				if ( u8DataByte == 0 )												/* Condition PASSED */
 				{
 					uint8 byInitialNAD = g_NvramUser.NAD;
 					SetupDiagResponse( byInitialNAD, pDiag->bySID, (uint8) C_ERRCODE_PENDING);	/* Status = Pending */
-					g_NvramUser.NAD = pDiag->byD5;								/* New NAD */
+					g_NvramUser.NAD = pDiag->byD5;									/* New NAD */
 					g_u8NAD = g_NvramUser.NAD;
 					/* Store NVRAM */
 					if ( (NVRAM_Store( C_NVRAM_USER_PAGE_ALL) == C_NVRAM_STORE_OKAY) && (g_NvramUser.NAD == pDiag->byD5) )
@@ -686,23 +685,23 @@ void HandleDfrDiag( void)
 			if ( CheckSupplier( (pDiag->byD1) | ((uint16)(pDiag->byD2) << 8)) )
 			{
 				SetupDiagResponse( g_u8NAD, pDiag->bySID, (uint8) C_ERRCODE_PENDING);	/* Status = Pending */
-				if ( pDiag->byD3 != 0xFFU )
+				if ( pDiag->byD3 != 0xFF )
 				{
 					g_NvramUser.Variant = pDiag->byD3;							/* Set new Variant-ID */
 				}
-				if ( pDiag->byD4 != 0xFFU )
+				if ( pDiag->byD4 != 0xFF )
 				{
 					g_NvramUser.HwRef = pDiag->byD4;							/* Set new HW-Reference */
 				}
-				if ( pDiag->byD5 != 0xFFU )
+				if ( pDiag->byD5 != 0xFF )
 				{
 					/* -=#=- Note: SW-Ref should not be changed by this function, but be reprogramming the flash */
 					/* g_NvramUser.SwRef = pDiag->byD5;	*/						/* Set new SW-Reference */
 				}
 				/* Store NVRAM */
 				if ( (NVRAM_Store( C_NVRAM_USER_PAGE_ALL) == C_NVRAM_STORE_OKAY)
-					&& ((pDiag->byD3 == 0xFFU) || (g_NvramUser.Variant == pDiag->byD3))
-					&& ((pDiag->byD4 == 0xFFU) || (g_NvramUser.HwRef == pDiag->byD4))
+					&& ((pDiag->byD3 == 0xFF) || (g_NvramUser.Variant == pDiag->byD3))
+					&& ((pDiag->byD4 == 0xFF) || (g_NvramUser.HwRef == pDiag->byD4))
 					/* && ((pDiag->byD5 == 0xFF) || (g_NvramUser.SwRef == pDiag->byD5)) */ /* SW-Reference */
 				   )
 				{
@@ -717,7 +716,6 @@ void HandleDfrDiag( void)
 				}
 			}
 		}
-#if _SUPPORT_LIN_AA
 		else if ( u16DiagPCI_SID == C_PCI_SID_ASSIGN_NAD )
 		{
 			/* Assign NAD (Slave Node Position Detection, SNPD) */
@@ -728,7 +726,7 @@ void HandleDfrDiag( void)
 			 */
 			if ( ( CheckSupplier( (pDiag->byD1) | ((uint16)(pDiag->byD2) << 8)) != FALSE ) && ((pDiag->byD4 == (uint8) C_SNPD_METHOD_BSM) || (pDiag->byD4 == (uint8) C_SNPD_METHOD_BSM2)) )	/* SNPD Method ID */
 			{
-				if ( (pDiag->byD3 == (uint8) C_SNPD_SUBFUNC_START) && (g_u8LinAAMode == 0U) )	/* Sub-function ID */
+				if ( (pDiag->byD3 == (uint8) C_SNPD_SUBFUNC_START) && (g_u8LinAAMode == 0) )	/* Sub-function ID */
 				{
 					/* BSM Initialisation (only if not already in AA-mode) */
 					/*
@@ -750,7 +748,7 @@ void HandleDfrDiag( void)
 					}
 					g_u8ChipResetOcc = FALSE;
 					g_u8StallOcc = FALSE;
-					g_u8StallTypeComm &= ~M_STALL_MODE;
+					g_u8StallTypeComm &= ~M_STALL_MODE;							/* MMP130916-1 */
 					g_u8EmergencyRunOcc = FALSE;
 					g_e8MotorDirectionCCW = (uint8) C_MOTOR_DIR_UNKNOWN;		/* Direction is unknown (9.5.3.13) */
 
@@ -765,9 +763,9 @@ void HandleDfrDiag( void)
 					{
 						g_u8LinAAMode |= (uint8) C_SNPD_METHOD_2;
 					}
-#if (LINAA_BSM_SNPD_R1p0 != FALSE)
+#if (LINAA_BSM_SNPD_R1p0 != FALSE)												/* MMP140417-2 - Begin */
 					ml_InitAutoAddressing();
-#endif /* (LINAA_BSM_SNPD_R1p0 != FALSE) */
+#endif /* (LINAA_BSM_SNPD_R1p0 != FALSE) */										/* MMP140417-2 - End */
 				}
 				else if ( ((pDiag->byD4 == (uint8) C_SNPD_METHOD_BSM ) && ((g_u8LinAAMode & (uint8) C_SNPD_METHOD_2) == 0)) ||
 						  ((pDiag->byD4 == (uint8) C_SNPD_METHOD_BSM2) && ((g_u8LinAAMode & (uint8) C_SNPD_METHOD_2) != 0)) )
@@ -787,11 +785,11 @@ void HandleDfrDiag( void)
 						 * within the break field; after the break the selected SNPD slave takes
 						 * the NAD.
 						 */
-						if ( ml_GetAutoaddressingStatus() )
+						if ( ml_GetAutoaddressingStatus() )							/* MMP140417-2 */
 						{
 							g_u8NAD = (pDiag->byD5);								/* New NAD (into RAM) */
 							(void) ml_SetLoaderNAD( g_u8NAD);						/* Inform new NAD to LIN */
-							ml_SetSlaveAddressed();
+							ml_SetSlaveAddressed();									/* MMP140414-1 */
 						}
 					}
 					else if ( (pDiag->byD3 == (uint8) C_SNPD_SUBFUNC_STORE) && ((g_u8LinAAMode & (uint8) M_SNPD_SUBFUNC) == (uint8) C_SNPD_SUBFUNC_START) )
@@ -826,17 +824,16 @@ void HandleDfrDiag( void)
 						 * All SNPD slaves with BSM capability stop their measurement sequence
 						 * in the break field.
 						 */
-#if (LINAA_BSM_SNPD_R1p0 != FALSE)
+#if (LINAA_BSM_SNPD_R1p0 != FALSE)												/* MMP140417-2 - Begin */
 						ml_StopAutoAddressing();
-#endif /* (LINAA_BSM_SNPD_R1p0 != FALSE) */
-						g_u16LinAATicker = 0U;
-						g_u8LinAAMode = 0U;
+#endif /* (LINAA_BSM_SNPD_R1p0 != FALSE) */										/* MMP140417-2 - End */
+						g_u16LinAATicker = 0;
+						g_u8LinAAMode = 0;
 					}
 				}
 			}
 		}
-#endif /* _SUPPORT_LIN_AA */
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 		else if ( u16DiagPCI_SID == C_PCI_SID_ASSIGN_GROUPADDRESS )
 		{
 			/* Assign Group-address to a NAD
@@ -863,7 +860,7 @@ void HandleDfrDiag( void)
 				SetLastError( (uint8) C_ERR_LIN2X_B6);
 			}
 		}
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 		else if ( u16DiagPCI_SID == C_PCI_SID_ASSIGN_FRAME_ID_RNG )
 		{
 			/* Assign frame ID range */
@@ -894,7 +891,7 @@ void HandleDfrDiag( void)
 			 * A response shall only be sent if the NAD match.
 			 */
 			/* Since the slave node has only two frames the last two must be set to do not care (0xFF), otherwise the request will fail. */
-			if ( (pDiag->byD4 != 0xFFU) || (pDiag->byD5 != 0xFFU) || (pDiag->byD1 > 1U) || ((pDiag->byD1 == 1U) && (pDiag->byD3 != 0xFFU)) )
+			if ( (pDiag->byD4 != 0xFF) || (pDiag->byD5 != 0xFF) || (pDiag->byD1 > 1) || ((pDiag->byD1 == 1) && (pDiag->byD3 != 0xFF)) )
 			{
 				/* Negative feedback */
 				SetupDiagResponse( g_u8NAD, pDiag->bySID, (uint8) C_ERRCODE_SFUNC_NOSUP);	/* Status = Negative feedback */
@@ -905,46 +902,46 @@ void HandleDfrDiag( void)
 				SetupDiagResponse( g_u8NAD, pDiag->bySID, (uint8) C_ERRCODE_PENDING);		/* Status = Pending */
 
 				u16NvramStoreResult = ~C_NVRAM_STORE_OKAY;
-				if ( pDiag->byD1 == 0U )
+				if ( pDiag->byD1 == 0 )
 				{
 					/* Starting with first message-index */
-					if ( pDiag->byD2 != 0xFFU )
+					if ( pDiag->byD2 != 0xFF )
 					{
 						/* First Frame-ID is Control-message Frame-ID */
 						g_NvramUser.ControlFrameID = pDiag->byD2;
 						(void) ml_Disconnect();
-						if ( g_NvramUser.ControlFrameID != 0x00U )
+						if ( g_NvramUser.ControlFrameID != 0x00 )				/* MMP130913-1 - Begin */
 						{
 							(void) ml_AssignFrameToMessageID( MSG_CONTROL, g_NvramUser.ControlFrameID);
 						}
 						else
 						{
 							(void) ml_DisableMessage( MSG_CONTROL);
-						}
+						}														/* MMP130913-1 - End */
 						u16NvramStoreResult = C_NVRAM_STORE_OKAY;
 					}
-					if ( pDiag->byD3 != 0xFFU )
+					if ( pDiag->byD3 != 0xFF )
 					{
 						/* Second Frame-ID is Status-message Frame-ID */
 						g_NvramUser.StatusFrameID = pDiag->byD3;
 						(void) ml_Disconnect();
-						if ( g_NvramUser.StatusFrameID != 0x00U )
+						if ( g_NvramUser.StatusFrameID != 0x00 )				/* MMP130913-1 - Begin */
 						{
 							(void) ml_AssignFrameToMessageID( MSG_STATUS, g_NvramUser.StatusFrameID);
 						}
 						else
 						{
 							(void) ml_DisableMessage( MSG_STATUS);
-						}
+						}														/* MMP130913-1 - End */
 						u16NvramStoreResult = C_NVRAM_STORE_OKAY;
 					}
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
-					if ( pDiag->byD4 != 0xFFU )
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
+					if ( pDiag->byD4 != 0xFF )
 					{
 						/* Third Frame-ID is Group Control-message Frame-ID */
 						g_NvramUser.GroupControlFrameID = pDiag->byD4;
 						(void) ml_Disconnect();
-						if ( g_NvramUser.GroupControlFrameID != 0U )
+						if ( g_NvramUser.GroupControlFrameID != 0 )
 						{
 							(void) ml_AssignFrameToMessageID( MSG_GROUP_CONTROL, g_NvramUser.GroupControlFrameID);
 						}
@@ -954,32 +951,32 @@ void HandleDfrDiag( void)
 						}
 						u16NvramStoreResult = C_NVRAM_STORE_OKAY;
 					}
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 				}
-				else if ( pDiag->byD1 == 1U )
+				else if ( pDiag->byD1 == 1 )
 				{
-					if ( pDiag->byD2 != 0xFFU )
+					if ( pDiag->byD2 != 0xFF )
 					{
-						/* Starting with second message-index; First Frame-ID is Status-message Frame-ID */
+						/* Starting with second message-index; First Frame-ID is Status-msg Frame-ID */
 						g_NvramUser.StatusFrameID = pDiag->byD2;
 						(void) ml_Disconnect();
-						if ( g_NvramUser.StatusFrameID != 0x00U )
+						if ( g_NvramUser.StatusFrameID != 0x00 )					/* MMP130913-1 - Begin */
 						{
 							(void) ml_AssignFrameToMessageID( MSG_STATUS, g_NvramUser.StatusFrameID);
 						}
 						else
 						{
 							(void) ml_DisableMessage( MSG_STATUS);
-						}
+						}															/* MMP130913-1 - End */
 						u16NvramStoreResult = C_NVRAM_STORE_OKAY;
 					}
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
-					if ( pDiag->byD3 != 0xFFU )
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
+					if ( pDiag->byD3 != 0xFF )
 					{
 						/* Third Frame-ID is Group Control-message Frame-ID */
 						g_NvramUser.GroupControlFrameID = pDiag->byD3;
 						(void) ml_Disconnect();
-						if ( g_NvramUser.GroupControlFrameID != 0U )
+						if ( g_NvramUser.GroupControlFrameID != 0 )
 						{
 							(void) ml_AssignFrameToMessageID( MSG_GROUP_CONTROL, g_NvramUser.GroupControlFrameID);
 						}
@@ -989,18 +986,18 @@ void HandleDfrDiag( void)
 						}
 						u16NvramStoreResult = C_NVRAM_STORE_OKAY;
 					}
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 				}
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
-				else if ( pDiag->byD1 == 2U )
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
+				else if ( pDiag->byD1 == 2 )
 				{
 					/* Starting with index 2 (MSG_GROUP_CONTROL) */
-					if ( pDiag->byD2 != 0xFFU )
+					if ( pDiag->byD2 != 0xFF )
 					{
 						/* Third Frame-ID is Group Control-message Frame-ID */
 						g_NvramUser.GroupControlFrameID = pDiag->byD2;
 						(void) ml_Disconnect();
-						if ( g_NvramUser.GroupControlFrameID != 0U )
+						if ( g_NvramUser.GroupControlFrameID != 0 )
 						{
 							(void) ml_AssignFrameToMessageID( MSG_GROUP_CONTROL, g_NvramUser.GroupControlFrameID);
 						}
@@ -1011,7 +1008,7 @@ void HandleDfrDiag( void)
 						u16NvramStoreResult = C_NVRAM_STORE_OKAY;
 					}
 				}
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 				if ( u16NvramStoreResult == C_NVRAM_STORE_OKAY )
 				{
 					(void) ml_Connect();
@@ -1020,24 +1017,24 @@ void HandleDfrDiag( void)
 
 				if ( (u16NvramStoreResult == C_NVRAM_STORE_OKAY) &&
 					(
-					((pDiag->byD1 == 0U)														/* Start-index = MSG_CONTROL */
-					&& ((pDiag->byD2 == 0xFFU) || (g_NvramUser.ControlFrameID == pDiag->byD2))	/* Max. three Frame-ID's */
-					&& ((pDiag->byD3 == 0xFFU) || (g_NvramUser.StatusFrameID == pDiag->byD3))
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
-					&& ((pDiag->byD4 == 0xFFU) || (g_NvramUser.GroupControlFrameID == pDiag->byD4))
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+					((pDiag->byD1 == 0)															/* Start-index = MSG_CONTROL */
+					&& ((pDiag->byD2 == 0xFF) || (g_NvramUser.ControlFrameID == pDiag->byD2))	/* Max. three Frame-ID's */
+					&& ((pDiag->byD3 == 0xFF) || (g_NvramUser.StatusFrameID == pDiag->byD3))
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
+					&& ((pDiag->byD4 == 0xFF) || (g_NvramUser.GroupControlFrameID == pDiag->byD4))
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 					)
-					|| ((pDiag->byD1 == 1U)														/* Start-index = MSG_STATUS */
-					&& ((pDiag->byD2 == 0xFFU) || (g_NvramUser.StatusFrameID == pDiag->byD2))	/* Max. two Frame-ID's */
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
-					&& ((pDiag->byD3 == 0xFFU) || (g_NvramUser.GroupControlFrameID == pDiag->byD3))
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+					|| ((pDiag->byD1 == 1)														/* Start-index = MSG_STATUS */
+					&& ((pDiag->byD2 == 0xFF) || (g_NvramUser.StatusFrameID == pDiag->byD2))	/* Max. two Frame-ID's */
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
+					&& ((pDiag->byD3 == 0xFF) || (g_NvramUser.GroupControlFrameID == pDiag->byD3))
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 					)
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
-					|| ((pDiag->byD1 == 2U)														/* Start-index = MSG_GROUP_CONTROL */
-					&& ((pDiag->byD2 == 0xFFU) || (g_NvramUser.GroupControlFrameID == pDiag->byD2))
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
+					|| ((pDiag->byD1 == 2)														/* Start-index = MSG_GROUP_CONTROL */
+					&& ((pDiag->byD2 == 0xFF) || (g_NvramUser.GroupControlFrameID == pDiag->byD2))
 					)
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 					) )
 				{
 					/* Positive feedback */
@@ -1074,7 +1071,7 @@ void HandleDfrDiag( void)
 			if ( pDiag->byD1 == (uint8) C_LIN_PROD_ID )
 			{
 				/* Write Function ID */
-				if ( (u16SupplierID == C_SUPPLIER_ID) && (u16ParamID == C_FUNCTION_ID) )
+				if ( (u16SupplierID == C_SUPPLIER_ID) && (u16ParamID == C_FUNCTION_ID) )			/* MMP130626-1 */
 				{
 					/* Correct Supplier ID; Change Function ID allowed */
 					SetupDiagResponse( g_u8NAD, pDiag->bySID, (uint8) C_ERRCODE_PENDING);			/* Status = Pending */
@@ -1214,15 +1211,15 @@ void HandleDfrDiag( void)
 			uint16 u16SupplierID = (((uint16) pDiag->byD2) << 8) | ((uint16) pDiag->byD1);
 			if ( u16SupplierID == C_SUPPLIER_ID )
 			{
-				/* Reply diagnostics response with NAD, length and RSID.*/
+				/* MMP131024-1: Reply diagnostics response with NAD, length and RSID.*/
 				g_DiagResponse.byNAD = g_u8NAD;
-				g_DiagResponse.byPCI = 0x06U;
+				g_DiagResponse.byPCI = 0x06;
 				g_DiagResponse.byRSID = (uint8) C_SID_MLX_DEBUG;
 
 				/* Function-ID and Description
-				 * 0x00: Supported Function-ID's
+				 * 0x00: Supported Function-ID's (MMP140519-2)
 				 * 0x5D: Stall detector
-				 * 0x5E: Get currents buffer
+				 * 0x5E: Get currents buffer (_SHRINK_CODE_SIZE == FALSE)
 				 * 0xA0: LIN Auto-Addressing Test module - Ish2/Ish3 setting
 				 * 0xA1: LIN-AA BSM Ishunt #1,2 & 3 and flags
 				 * 0xA2: LIN-AA BSM Common-mode & Differential-mode levels #1
@@ -1232,15 +1229,15 @@ void HandleDfrDiag( void)
 				 * 0xA6: LIN Slave Baudrate
 				 * 0xAC: ADC Temperature/Voltage sensor (raw)
 				 * 0xAE: Ambient-environment: Temperature, S/W Build ID
-				 * 0xAF: Get PWM-IN Period & Low-Time
-				 * 0xC0: Get CPU-clock
+				 * 0xAF: Get PWM-IN Period & Low-Time (_SHRINK_CODE_SIZE == FALSE)
+				 * 0xC0: Get CPU-clock (MMP140527-1)
 				 * 0xC1: Get Chip-ID
 				 * 0xC2: Get HW/SW-ID of chip
-				 * 0xC5: Get _DEBUG options
-				 * 0xC6: Get _SUPPORT options
-				 * 0xC7: MLX4 F/W & Loader
-				 * 0xC8: Get Platform version
-				 * 0xC9: Get application version
+				 * 0xC5: Get _DEBUG options (MMP140905-1)
+				 * 0xC6: Get _SUPPORT options (MMP140904-1)
+				 * 0xC7: MLX4 F/W & Loader (MMP140523-1)
+				 * 0xC8: Get Platform version (MMP140519-1)
+				 * 0xC9: Get application version (MMP140519-1)
 				 * 0xCA: Get Melexis NVRAM page info
 				 * 0xCB: Get PID g_u16PidCtrlRatio & g_u16PID_I
 				 * 0xCC: Get NVRAM stored errorcode's
@@ -1256,7 +1253,7 @@ void HandleDfrDiag( void)
 				 * 0xFD: Get I/O-register value (16-bits)
 				 * 0xFE: Get Fatal-error: error-code, info and address
 				 */
-				if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_SUPPORT )
+				if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_SUPPORT )				/* MMP140519-2 - Begin */
 				{
 					/* Get MLX Debug Support
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
@@ -1273,9 +1270,9 @@ void HandleDfrDiag( void)
 					 *	|     |     |      |          |   (LSB)  |   (MSB)  |          |          |
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
 					 */
-					uint16 u16Index = (uint16) (pDiag->byD3 & 0x0FU);
+					uint16 u16Index = (uint16) (pDiag->byD3 & 0x0F);
 					StoreD1to2( tMlxDbgSupport[u16Index]);
-				}
+				}																/* MMP140519-2 - End */
 				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_STALLDET )
 				{
 					/* Stall detector
@@ -1293,29 +1290,29 @@ void HandleDfrDiag( void)
 					 *	|     |     |      |Thrshld(LSB)|Thrshld(LSB)|MovAvg (LSB)|MovAvg (MSB)|          |
 					 *	+-----+-----+------+------------+------------+------------+------------+----------+
 					 */
-					uint16 u16Value = (uint16) ((mulU32_U16byU16( (l_u16MotorCurrentStallThrshldxN >> C_MOVAVG_SSZ), g_u16MCurrgain) + (C_GMCURR_DIV/2)) / C_GMCURR_DIV); /* Stall motor-current threshold [mA] */
-					g_DiagResponse.byD1 = (uint8) (u16Value & 0xFFU);
+					uint16 u16Value = (uint16) ((mulU32_U16byU16( (l_u16MotorCurrentStallThrshldxN >> C_MOVAVG_SSZ), EE_GMCURR) + (C_GMCURR_DIV/2)) / C_GMCURR_DIV); /* Stall motor-current threshold [mA] */
+					g_DiagResponse.byD1 = (uint8) (u16Value & 0xFF);
 					g_DiagResponse.byD2 = (uint8) (u16Value >> 8);
-					u16Value = (uint16) ((mulU32_U16byU16( (g_u16MotorCurrentMovAvgxN >> C_MOVAVG_SSZ), g_u16MCurrgain) + (C_GMCURR_DIV/2)) / C_GMCURR_DIV); /* Moving average-motor current [mA] */
-					g_DiagResponse.byD3 = (uint8) (u16Value & 0xFFU);
+					u16Value = (uint16) ((mulU32_U16byU16( (g_u16MotorCurrentMovAvgxN >> C_MOVAVG_SSZ), EE_GMCURR) + (C_GMCURR_DIV/2)) / C_GMCURR_DIV); /* Moving average-motor current [mA] */
+					g_DiagResponse.byD3 = (uint8) (u16Value & 0xFF);
 					g_DiagResponse.byD4 = (uint8) (u16Value >> 8);
-#if _SUPPORT_STALLDET_O
+#if _SUPPORT_STALLDET_O															/* MMP140330-1 */
 					if ( g_u8StallTypeComm & C_STALL_FOUND_O )
 					{
-						g_DiagResponse.byD5 = (g_u8StallTypeComm & M_STALL_MODE) | (l_u8StallCountO & 0x07U);	/* Stall detection & count */
+						g_DiagResponse.byD5 = (g_u8StallTypeComm & M_STALL_MODE) | (l_u8StallCountO & 0x07);	/* Stall detection & count */
 					}
 					else
-#endif /* _SUPPORT_STALLDET_O */
+#endif /* _SUPPORT_STALLDET_O */												/* MMP140330-1 */
 					{
-						g_DiagResponse.byD5 = (g_u8StallTypeComm & M_STALL_MODE) | (l_u8StallCountA & 0x07U);	/* Stall detection & count */
+						g_DiagResponse.byD5 = (g_u8StallTypeComm & M_STALL_MODE) | (l_u8StallCountA & 0x07);	/* Stall detection & count */
 					}
-					if ( g_e8StallDetectorEna != C_STALLDET_NONE )
+					if ( g_e8StallDetectorEna != C_STALLDET_NONE )				/* MMP130916-1 */
 					{
 						g_u8StallTypeComm = (uint8) C_STALL_NOT_FOUND;
 					}
 					g_u8BufferOutID = (uint8) QR_RFR_DIAG;						/* LIN Output buffer is valid (RFR_DIAG) */
 				}
-#if _SUPPORT_LIN_AA && (LIN_AA_INFO != FALSE)
+#if (LIN_AA_INFO != FALSE)
 				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_LINAA_1 )
 				{
 					/* LIN-AA BSM Ishunt #1,2 & 3 and flags
@@ -1334,13 +1331,13 @@ void HandleDfrDiag( void)
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
 					 */
 					PSNPD_DATA pSNPD_Data = LIN_AA_DATA + l_u8SNPD_CycleCountComm;
-					g_DiagResponse.byD1 = (uint8) ((pSNPD_Data->byStepAndFlags << 1) & 0xF0U) | (l_u8SNPD_CycleCountComm & 0x0FU);
+					g_DiagResponse.byD1 = (uint8) ((pSNPD_Data->byStepAndFlags << 1) & 0xF0) | (l_u8SNPD_CycleCountComm & 0x0F); /* MMP130818-1 */
 					g_DiagResponse.byD2 = pSNPD_Data->byIshunt1;
 					g_DiagResponse.byD3 = pSNPD_Data->byIshunt2;
 					g_DiagResponse.byD4 = pSNPD_Data->byIshunt3;
-					g_DiagResponse.byD5 = (pSNPD_Data->byStepAndFlags & 0x87U);
+					g_DiagResponse.byD5 = (pSNPD_Data->byStepAndFlags & 0x87);	/* MMP130818-1 */
 					l_u8SNPD_CycleCountComm++;
-					if ( l_u8SNPD_CycleCountComm >= LIN_AA_INFO_SZ )								/* Don't increase index in case last AA-structure index */
+					if ( l_u8SNPD_CycleCountComm >= LIN_AA_INFO_SZ )								/* Don't increase index incase last AA-structure index */
 					{
 						l_u8SNPD_CycleCountComm = 0;
 					}
@@ -1368,21 +1365,15 @@ void HandleDfrDiag( void)
 					uint16 *pu16CMDM;
 					g_DiagResponse.byD1 = l_u8SNPD_CycleCountComm;
 					if ( (pDiag->byD5 == (uint8) C_DBG_SUBFUNC_LINAA_2))
-					{
 						pu16CMDM = (uint16 *) &(pSNPD_Data->u16CM_1);
-					}
 					else if (pDiag->byD5 >= (uint8) C_DBG_SUBFUNC_LINAA_3)
-					{
 						pu16CMDM = (uint16 *) &(pSNPD_Data->u16CM_2);
-					}
 					else
-					{
 						pu16CMDM = (uint16 *) &(pSNPD_Data->u16CM_3);
-					}
 					StoreD2to5( pu16CMDM[0], pu16CMDM[1]); /*lint !e415 */
 				}
 #endif /* (LIN_AA_SCREENTEST != FALSE) */
-#endif /* _SUPPORT_LIN_AA && (LIN_AA_INFO != FALSE) */
+#endif /* (LIN_AA_INFO != FALSE) */
 				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_APPLSTATE )
 				{
 					/* Application state
@@ -1410,34 +1401,26 @@ void HandleDfrDiag( void)
 					g_DiagResponse.byD1 = g_e8MotorStatusMode;
 					{
 						uint16 u16CopyPosition = g_u16ActualPosition;
-						g_DiagResponse.byD2 = (uint8) (u16CopyPosition & 0xFFU);
+						g_DiagResponse.byD2 = (uint8) (u16CopyPosition & 0xFF);
 						g_DiagResponse.byD3 = (uint8) (u16CopyPosition >> 8);
 					}
 					g_DiagResponse.byD4 = (g_e8MotorRequest & 0x0F);
 					{
-						uint8 u8D5 = ((g_e8ErrorVoltage & 0x03U) << 2) | (g_e8ErrorElectric & 0x03U);
+						uint8 u8D5 = ((g_e8ErrorVoltage & 0x03) << 2) | (g_e8ErrorElectric & 0x03);
 						if ( g_e8ErrorOverTemperature != FALSE )
-						{
-							u8D5 |= 0x10U;
-						}
+							u8D5 |= 0x10;
 						if ( g_u8EmergencyRunOcc != FALSE )
-						{
-							u8D5 |= 0x20U;
-						}
+							u8D5 |= 0x20;
 						if ( g_u8StallOcc != FALSE )
-						{
-							u8D5 |= 0x40U;
-						}
+							u8D5 |= 0x40;
 						if (g_u8ChipResetOcc != FALSE)
-						{
-							u8D5 |= 0x80U;
-						}
+							u8D5 |= 0x80;
 						g_DiagResponse.byD5 = u8D5;
 					}
 					g_u8BufferOutID = (uint8) QR_RFR_DIAG;											/* LIN Output buffer is valid (RFR_DIAG) */
 				}
 #if (LIN_AA_INFO && LIN_AA_SCREENTEST)
-				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_LIN_BAUDRATE )
+				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_LIN_BAUDRATE )	/* MMP130810-1 - Begin */
 				{
 					/* LIN Slave baudrate
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
@@ -1454,22 +1437,21 @@ void HandleDfrDiag( void)
 					 *	|     |     |      |   _MULT  |rate (LSB)|rate (MSB)|rate (LSB)|rate (MSB)|
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
 					 */
-					g_DiagResponse.byD1 = (uint8) MCU_PLL_MULT;
+					g_DiagResponse.byD1 = (uint8) MCU_PLL_MULT;					/* MMP131022-1 */
 #if (__MLX_PLTF_VERSION_MAJOR__ == 4)
 					StoreD2to5( 0xFFFF, ml_GetBaudRate());
 #elif (__MLX_PLTF_VERSION_MAJOR__ == 3)
-					uint16 u16Baudrate = divU16_U32byU16( (PLL_freq/2U), (((uint16) u8NominalBaudRateDiv) << (u8BaudRatePreScaler >> 4)));
-					g_DiagResponse.byD2 = (uint8) (u16Baudrate & 0xFFU);
+					uint16 u16Baudrate = divU16_U32byU16( (PLL_freq/2), (((uint16) u8NominalBaudRateDiv) << (u8BaudRatePreScaler >> 4)));
+					g_DiagResponse.byD2 = (uint8) (u16Baudrate & 0xFF);
 					g_DiagResponse.byD3 = (uint8) (u16Baudrate >> 8);
 					u16Baudrate = divU16_U32byU16( (PLL_freq/2), (((uint16) u8ActualBaudRateDiv) << (u8BaudRatePreScaler >> 4)));
-					g_DiagResponse.byD4 = (uint8) (u16Baudrate & 0xFFU);
+					g_DiagResponse.byD4 = (uint8) (u16Baudrate & 0xFF);
 					g_DiagResponse.byD5 = (uint8) (u16Baudrate >> 8);
 					g_u8BufferOutID = (uint8) QR_RFR_DIAG;						/* LIN Output buffer is valid (RFR_DIAG) */
 #endif /* (__MLX_PLTF_VERSION_MAJOR__ == 3) */
-				}
+				}																/* MMP130810-1 - End */
 #endif /* (LIN_AA_INFO && LIN_AA_SCREENTEST) */
-#if (_SUPPORT_AUTO_BAUDRATE != FALSE)
-				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_RESTART_AUTO_BAUDRATE )
+				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_RESTART_AUTO_BAUDRATE )	/* MMP130828-1 - Begin */
 				{
 					/* Restart auto baudrate detection
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
@@ -1484,13 +1466,12 @@ void HandleDfrDiag( void)
 					__asm__("clrb dp:_LinBusStatus.1");							/* LinBusStatus &= ~ML_LIN_BAUDRATE_DETECTED; */
 #endif /* ((__MLX_PLTF_VERSION_MAJOR__ == 3) && (__MLX_PLTF_VERSION_MINOR__ >= 1)) */
 #if (__MLX_PLTF_VERSION_MAJOR__ == 4)
-					(void)ml_SetAutoBaudRateMode( ML_ABR_ON_FIRST_FRAME);
+					(void)ml_SetAutoBaudRateMode( ML_ABR_ON_FIRST_FRAME);		/* MMP141215-1 */
 #endif /* (__MLX_PLTF_VERSION_MAJOR__ == 4) */
 #if _SUPPORT_LIN_BUS_ACTIVITY_CHECK
 					g_u8Mlx4ErrorState = C_MLX4_STATE_IMMEDIATE_RST;			/* Reset MLX4 too */
 #endif /* _SUPPORT_LIN_BUS_ACTIVITY_CHECK */
-				}
-#endif /* (_SUPPORT_AUTO_BAUDRATE != FALSE) */
+				}																/* MMP130828-1 - End */
 				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_ADC_RAW )
 				{
 					/* ADC Raw data (Temperature and Supply)
@@ -1529,15 +1510,15 @@ void HandleDfrDiag( void)
 					 */
 #if _SUPPORT_AMBIENT_TEMP
 					uint16 u16Value = (uint16) (g_i16AmbjTemperature + C_TEMPOFF);				/* Ambient Junction temperature + offset (C_TEMPOFF); Range: -C_TEMPOFF .. +(255-C_TEMPOFF) */
-					g_DiagResponse.byD1 = (uint8) (u16Value & 0xFFU);
+					g_DiagResponse.byD1 = (uint8) (u16Value & 0xFF);
 #endif /* _SUPPORT_AMBIENT_TEMP */
 #if _SUPPORT_PHASE_SHORT_DET
 					StoreD2to5( (uint16) g_i16MotorVoltage, (uint16) g_i16PhaseVoltage);
 #else  /* _SUPPORT_PHASE_SHORT_DET */
-					StoreD2to5( (uint16) g_i16MotorVoltage, 0xFFFFU);
+					StoreD2to5( (uint16) g_i16MotorVoltage, 0xFFFF);
 #endif /* _SUPPORT_PHASE_SHORT_DET */
 				}
-				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_MLX16_CLK )
+				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_MLX16_CLK )		/* MMP140527-1 - Begin */
 				{
 					/* Get MLX16 Clock
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
@@ -1554,7 +1535,7 @@ void HandleDfrDiag( void)
 					 *	|     |     |      |[kHz](LSB)|[kHz](MSB)|   0xFF   |   0xFF   |   0xFF   |
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
 					 */
-					uint16 u16RC_Clock = muldivU16_U16byU16byU16( (2048U + EE_OCLOCK), 1000U, 2048U);
+					uint16 u16RC_Clock = muldivU16_U16byU16byU16( (2048 + EE_OCLOCK), 1000, 2048);
 					int16 i16ADC_Temp = (int16) (GetRawTemperature() - EE_OTEMP);
 					int16 i16Coef;
 					if ( i16ADC_Temp <= 0 )
@@ -1569,8 +1550,8 @@ void HandleDfrDiag( void)
 					}
 					i16Coef = (125 * i16Coef);
 					u16RC_Clock += muldivI16_I16byI16byI16( i16ADC_Temp, i16Coef, 16384);
-					StoreD1to2( (uint16) (mulU32_U16byU16( u16RC_Clock, ((PLL_CTRL >> 8) + 1U)) >> 2));
-				}
+					StoreD1to2( (uint16) (mulU32_U16byU16( u16RC_Clock, ((PLL_CTRL >> 8) + 1)) >> 2));
+				}																/* MMP140527-1 - End */
 				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_CHIPID )
 				{
 					/* Get Chip-ID
@@ -1588,7 +1569,7 @@ void HandleDfrDiag( void)
 					 *	|     |     |      |          |   (LSB)  |   (MSB)  |   (LSB)  |   (MSB)  |
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
 					 */
-					uint16 u16Index = (uint16) (pDiag->byD3 & 0x02U);
+					uint16 u16Index = (uint16) (pDiag->byD3 & 0x02);
 					g_DiagResponse.byD1 = (uint8) u16Index;
 					{
 						uint16 *pu16NvramData = ((uint16 *) C_ADDR_MLX_CHIPID) + u16Index;			/* NVRAM 16-bit pointer */
@@ -1615,7 +1596,7 @@ void HandleDfrDiag( void)
 					g_DiagResponse.byD3 = (uint8) MCU_PLL_MULT;
 					StoreD1to2( *((uint16 *) C_ADDR_MLX_HWSWID));
 				}
-				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_SUPPORT_OPTIONS )
+				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_SUPPORT_OPTIONS )	/* MMP140904-1 - Begin */
 				{
 					/* Get _SUPPORT options
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
@@ -1639,6 +1620,9 @@ void HandleDfrDiag( void)
 #if _SUPPORT_DOUBLE_MOTOR_CURRENT
 													& ~(1U << 1)				/* bit 1: Double motor-current support */
 #endif /* _SUPPORT_DOUBLE_MOTOR_CURRENT */
+//#if _SUPPORT_MLX_FLASH_TMTR
+//													& ~(1U << 2)				/* bit 2: MLX Flash TMTR support */
+//#endif /* _SUPPORT_MLX_FLASH_TMTR */
 #if _SUPPORT_WD_RST_RECOVERY
 													& ~(1U << 3)				/* bit 3: Watchdog reset fast recovery support */
 #endif /* _SUPPORT_WD_RST_RECOVERY */
@@ -1679,6 +1663,9 @@ void HandleDfrDiag( void)
 #if (MOTOR_PHASES == 3) && (_SUPPORT_TWO_PWM != FALSE)
 													& ~(1U << 1)				/* bit 1: Two phase PWM support */
 #endif /* (MOTOR_PHASES == 3) && (_SUPPORT_TWO_PWM != FALSE) */
+//#if _SUPPORT_HWDIAG_MOTORDRV
+//													& ~(1U << 2)				/* bit 2: Hardware control Motor-driver state support */
+//#endif /* _SUPPORT_HWDIAG_MOTORDRV */
 #if _SUPPORT_PWM_DC_RAMPUP
 													& ~(1U << 3)				/* bit 3: Increasing mPWM-DC at ramp-up support */
 #endif /* _SUPPORT_PWM_DC_RAMPUP */
@@ -1699,17 +1686,14 @@ void HandleDfrDiag( void)
 #if _SUPPORT_DIAG_OC
 													& ~(1U << 0)				/* bit 0: Diagnostic OC support */
 #endif /* _SUPPORT_DIAG_OC */
-#if (defined __MLX81315_A__) && _SUPPORT_QUADRUPLE_MOTOR_CURRENT
-													& ~(1U << 1)				/* bit 1: Quadruple motor-current support (MMP141209-4) */
-#endif /* (defined __MLX81315_A__) && _SUPPORT_QUADRUPLE_MOTOR_CURRENT */
 #if _SUPPORT_DOUBLE_USTEP
 													& ~(1U << 3)				/* bit 3: Double uStep support */
 #endif /* _SUPPORT_DOUBLE_USTEP */
 																);
 					g_DiagResponse.byD5 = (uint8) C_DIAG_RES;
 					g_u8BufferOutID = (uint8) QR_RFR_DIAG;						/* LIN Output buffer is valid (RFR_DIAG) */
-				}
-				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_MLX4_VERSION )
+				}																/* MMP140904-1 - End */
+				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_MLX4_VERSION )	/* MMP140523-1 - Begin */
 				{
 					/* Get Platform version
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
@@ -1726,9 +1710,9 @@ void HandleDfrDiag( void)
 					 *	|     |     |      |   (LSB)  |   (MSB)  |   (LSB)  |   (MSB)  |   0xFF   |
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
 					 */
-					StoreD1to4( *((uint16 *) 0x4018U), *((uint16 *) 0x401AU));
-				}
-				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_PLTF_VERSION )
+					StoreD1to4( *((uint16 *) 0x4018), *((uint16 *) 0x401A));
+				}																/* MMP140523-1 - End */
+				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_PLTF_VERSION )	/* MMP140519-1 - Begin */
 				{
 					/* Get Platform version
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
@@ -1766,23 +1750,19 @@ void HandleDfrDiag( void)
 					 *	|     |     |      |  (Major) |  (Minor) | (Rev LSB)| (Rev MSB)|   0xFF   |
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
 					 */
-					if ( pDiag->byD3 == 0U )
+					if ( pDiag->byD3 == 0 )									/* MMP140618-2 */
 					{
 						StoreD1to4( (__APP_VERSION_MAJOR__ | (__APP_VERSION_MINOR__ << 8)), __APP_VERSION_REVISION__);
 					}
-					else if ( pDiag->byD3 == 1U )
+					else if ( pDiag->byD3 == 1 )								/* MMP140618-2 - Begin */
 					{
 						StoreD1to4( *((uint16 *) &product_id[0]), *((uint16 *) &product_id[2]));
 					}
-					else if ( pDiag->byD3 == 2U )
+					else if ( pDiag->byD3 == 2 )
 					{
 						StoreD1to4( *((uint16 *) &product_id[4]), *((uint16 *) &product_id[6]));
 					}
-					else
-					{
-						/* Nothing */
-					}
-				}
+				}																/* MMP140519-1 - End */
 				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_MLXPAGE )
 				{
 					/* Get Melexis NVRAM page info
@@ -1800,7 +1780,7 @@ void HandleDfrDiag( void)
 					 *	|     |     |      |          |   (LSB)  |   (MSB)  |   (LSB)  |   (MSB)  |
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
 					 */
-					uint16 u16Index = (uint16) (pDiag->byD3 & 0x3EU);
+					uint16 u16Index = (uint16) (pDiag->byD3 & 0x3E);
 					g_DiagResponse.byD1 = (uint8) u16Index;
 					{
 						uint16 *pu16NvramData = ((uint16 *) C_ADDR_MLXF_PAGE) + u16Index;			/* NVRAM 16-bit pointer */
@@ -1826,7 +1806,6 @@ void HandleDfrDiag( void)
 					 */
 					StoreD2to5( g_u16PidCtrlRatio, g_u16PID_I);
 				}
-#if _SUPPORT_LOG_NVRAM
 				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_NVRAM_ERRORCODES )
 				{
 					/* Get NVRAM stored errorcode's[index .. index+3]
@@ -1844,13 +1823,13 @@ void HandleDfrDiag( void)
 					 *	| NAD | 0x06| 0xDB |   Index  | ErrorCode| ErrorCode| ErrorCode| ErrorCode|
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
 					 */
-					uint16 u16Index = (uint16) (pDiag->byD3 & 0x1CU);
-					if ( u16Index < (2U * (C_MAX_ERRORS_PER_PAGE - 1U)) )
+					uint16 u16Index = (uint16) (pDiag->byD3 & 0x1C);
+					if ( u16Index < (2 * (C_MAX_ERRORS_PER_PAGE - 1)) )
 					{
 						uint16 *pu16ErrorCode;
-						g_DiagResponse.byD1 = (uint8) (u16Index & 0xFFU);
+						g_DiagResponse.byD1 = (uint8) (u16Index & 0xFF);
 						u16Index = u16Index >> 1;
-						if ( u16Index < (C_MAX_ERRORS_PER_PAGE/2U) )
+						if ( u16Index < (C_MAX_ERRORS_PER_PAGE/2) )
 						{
 							pu16ErrorCode = (uint16 *) &(((PNVRAM_ERRORLOG) (C_ADDR_USERPAGE1 + sizeof(NVRAM_USER)))->ErrorLog[u16Index]);
 						}
@@ -1859,7 +1838,7 @@ void HandleDfrDiag( void)
 							u16Index -= (C_MAX_ERRORS_PER_PAGE/2);
 							pu16ErrorCode = (uint16 *) &(((PNVRAM_ERRORLOG) (C_ADDR_USERPAGE2 + sizeof(NVRAM_USER)))->ErrorLog[u16Index]);
 						}
-						StoreD2to5( *pu16ErrorCode, *(pu16ErrorCode+1U)); /*lint !e661 */
+						StoreD2to5( *pu16ErrorCode, *(pu16ErrorCode+1)); /*lint !e661 */
 					}
 				}
 				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_CLR_NVRAM_ERRORCODES )
@@ -1874,7 +1853,6 @@ void HandleDfrDiag( void)
 					 */
 					NVRAM_ClearErrorLog();
 				}
-#endif /* _SUPPORT_LOG_NVRAM */
 				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_CHIPENV )
 				{
 					/* Temperature, Motor driver current, Supply-voltage
@@ -1893,7 +1871,7 @@ void HandleDfrDiag( void)
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
 					 */
 					uint16 u16Value = (uint16) (g_i16ChipTemperature + C_TEMPOFF);					/* Chip Junction temperature + offset (C_TEMPOFF); Range: -C_TEMPOFF .. +(255-C_TEMPOFF) */
-					g_DiagResponse.byD1 = (uint8) (u16Value & 0xFFU);
+					g_DiagResponse.byD1 = (uint8) (u16Value & 0xFF);
 					StoreD2to5( (uint16) g_i16Current, (uint16) g_i16SupplyVoltage); /* Motor driver current [mA] & Supply voltage [10mV] */
 				}
 				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_FUNC )
@@ -1917,6 +1895,22 @@ void HandleDfrDiag( void)
 						bistResetInfo = C_CHIP_STATE_LIN_CMD_RESET;
 						MLX16_RESET();											/* Reset the Mlx16  */
 					}
+#if _SUPPORT_LINCMD_CRASH
+					else if ( u16FunctionID == C_CHIP_STATE_FATAL_CRASH_RECOVERY )
+					{
+extern uint16 stack;
+						SET_PRIORITY( 0);										/* Protected mode, highest priority (0) */
+						SET_STACK( &stack);
+						__asm__( "mov yl, #01");
+						__asm__( "jmpf __fatal");
+					}
+#endif /* _SUPPORT_LINCMD_CRASH */
+#if _SUPPORT_LINCMD_WD_RST
+					else if ( u16FunctionID == C_CHIP_STATE_WATCHDOG_RESET )
+					{
+						MLX16_RESET();											/* Reset the Mlx16  */
+					}
+#endif /* _SUPPORT_LINCMD_WD_RST */
 				}
 				else if ( (pDiag->byD5 >= (uint8) C_DBG_SUBFUNC_SET_ANAOUTA) && (pDiag->byD5 <= (uint8) C_DBG_SUBFUNC_SET_ANAOUTH) )
 				{
@@ -1928,11 +1922,41 @@ void HandleDfrDiag( void)
 					 *	|     |     | 0xDB | ID (LSB) | ID (MSB) |   (LSB)  |   (MSB)  | 0xD0-0xD7|
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
 					 */
-					uint16 *pu16IoReg = (uint16*) au16AnaOutRegs[pDiag->byD5 & 0x07U];
+					uint16 *pu16IoReg = (uint16*) au16AnaOutRegs[pDiag->byD5 & 0x07];
 					CONTROL |= (OUTA_WE | OUTB_WE | OUTC_WE);					/* Grant access to ANA_OUTx registers */
 					*pu16IoReg = (((uint16) pDiag->byD4) << 8) | ((uint16) pDiag->byD3);
 					CONTROL &= ~(OUTA_WE | OUTB_WE | OUTC_WE);
 				}
+#if _DEBUG_VOLTAGE_COMPENSATION
+				else if ( pDiag->byD5 == (uint8) C_DBG_MOTOR_BEMF_RAW )
+				{
+					/* Get Motor BEMF data
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 *	| NAD | PCI |  SID |    D1    |    D2    |    D3    |    D4    |    D5    |
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 *	| NAD | 0x06| Debug| Supplier | Supplier |   Index  |   Index  |   FUNC   |
+					 *	|     |     | 0xDB | ID (LSB) | ID (MSB) |   (LSB)  |   (MSB)  |   0xDC   |
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 * Response
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 *	| NAD | PCI | RSID |    D1    |    D2    |    D3    |    D4    |    D5    |
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 *	| NAD | 0x06| 0xDB |  BEMF[i] |  BEMF[i] | BEMF[i+1]| BEMF[i+1]| Reserved |
+					 *	|     |     |      |   (LSB)  |   (MSB)  |   (LSB)  |   (MSB)  |          |
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 */
+					uint16 u16Index = (((uint16) pDiag->byD4) << 8) | ((uint16) pDiag->byD3);
+					if ( u16Index == 0xFFFF )
+					{
+						StoreD1to4( SZ_MOTOR_VOLT_COMP, u16MotorVoltIdx);
+					}
+					else if ( u16Index < (C_MOTOR_CURR_SZ - 4) )
+					{
+						uint16 *pu16BemfVolt = (uint16*) &l_ai16MotorVolt[u16Index];
+						StoreD1to4( pu16BemfVolt[0], pu16BemfVolt[1]);
+					}
+				}
+#endif /* _DEBUG_VOLTAGE_COMPENSATION */
 #if _DEBUG_MOTOR_CURRENT_FLT
 				else if ( pDiag->byD5 == (uint8) C_DBG_MOTOR_CURR_RAW )
 				{
@@ -1952,22 +1976,18 @@ void HandleDfrDiag( void)
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
 					 */
 					uint16 u16Index = (((uint16) pDiag->byD4) << 8) | ((uint16) pDiag->byD3);
-					if ( u16Index == 0xFFFFU )
+					if ( u16Index == 0xFFFF )
 					{
 						StoreD1to4( C_MOTOR_CURR_SZ, l_u16MotorCurrIdx);
 					}
-					else if ( u16Index <= (C_MOTOR_CURR_SZ - 4U) )
+					else if ( u16Index < (C_MOTOR_CURR_SZ - 4) )
 					{
 						uint16 *pu16MotorCurrRaw = (uint16*) &l_au8MotorCurrRaw[u16Index];
 						StoreD1to4( pu16MotorCurrRaw[0], pu16MotorCurrRaw[1]);
 					}
-					else
-					{
-						/* Nothing */
-					}
 				}
 #endif /* _DEBUG_MOTOR_CURRENT_FLT */
-				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_FILLNVRAM )
+				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_FILLNVRAM )		/* MMP140407-1 - Begin */
 				{
 					/* Fill NVRAM
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
@@ -1980,7 +2000,7 @@ void HandleDfrDiag( void)
 					 */
 					uint8 u8NvramID = pDiag->byD3;
 					uint16 u16Pattern = (((uint16) pDiag->byD4) << 8) | ((uint16) pDiag->byD4);
-					if ( (u8NvramID & 0x01U) != 0U )
+					if ( u8NvramID & 0x01 )
 					{
 						/* Fill NVRAM #1, 1 */
 						uint16 *pu16NvramData = ((uint16 *) BGN_NVRAM1_PAGE1_ADDRESS);
@@ -1990,7 +2010,7 @@ void HandleDfrDiag( void)
 						} while (pu16NvramData < (uint16 *) END_NVRAM1_PAGE1_ADDRESS);
 						NVRAM_SavePage( NVRAM1_PAGE1);
 					}
-					if ( (u8NvramID & 0x02) != 0U )
+					if ( u8NvramID & 0x02 )
 					{
 						/* Fill NVRAM #1, 2 (Don't overwrite the NVRAM1 trim value) */
 						uint16 *pu16NvramData = ((uint16 *) BGN_NVRAM1_PAGE2_ADDRESS);
@@ -2000,7 +2020,7 @@ void HandleDfrDiag( void)
 						} while (pu16NvramData < (uint16 *) END_NVRAM1_PAGE2_ADDRESS);
 						NVRAM_SavePage( NVRAM1_PAGE2);
 					}
-					if ( (u8NvramID & 0x04U) != 0U )
+					if ( u8NvramID & 0x04 )
 					{
 						/* Fill NVRAM #2, 1 */
 						uint16 *pu16NvramData = ((uint16 *) BGN_NVRAM2_PAGE1_ADDRESS);
@@ -2010,11 +2030,31 @@ void HandleDfrDiag( void)
 						} while (pu16NvramData < (uint16 *) END_NVRAM2_PAGE1_ADDRESS);
 						NVRAM_SavePage( NVRAM2_PAGE1);
 					}
-					if ( (u8NvramID & 0x80U) != 0U )
+					if ( u8NvramID & 0x80 )
 					{
 						NVRAM_LoadUserPage();
 					}
+				}																/* MMP140407-1 - End */
+#if (_DEBUG_FATAL != FALSE)
+				else if ( (pDiag->byD5 == (uint8) C_DBG_SUBFUNC_CLR_FATAL_ERRORCODES) && ((FL_CTRL0 & FL_DETECT) != 0) )	/* MMP150603-2 */
+				{
+					/* Clear Fatal-handler error logging
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 *	| NAD | PCI |  SID |    D1    |    D2    |    D3    |    D4    |    D5    |
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 *	| NAD | 0x06| Debug| Supplier | Supplier | Reserved | Reserved |   FUNC   |
+					 *	|     |     | 0xDB | ID (LSB) | ID (MSB) |          |          |   0xFC   |
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 */
+					uint16 *pu16NvramData = ((uint16 *) C_ADDR_FATALPAGE);		/* NVRAM 16-bit pointer */
+					do
+					{
+						*pu16NvramData = 0x0000;
+						pu16NvramData++;
+					} while ( (uint16) pu16NvramData < (C_ADDR_FATALPAGE + 0x7C));
+					NVRAM_StorePatch();
 				}
+#endif /* (_DEBUG_FATAL != FALSE) */
 				else if ( pDiag->byD5 == (uint8) C_DBG_SUBFUNC_GET_IO_REG )
 				{
 					/* Get I/O-register value (16-bits)
@@ -2034,14 +2074,43 @@ void HandleDfrDiag( void)
 					 *	+-----+-----+------+----------+----------+----------+----------+----------+
 					 */
 					uint16 u16IoAddress = (((uint16) pDiag->byD4) << 8) | ((uint16) pDiag->byD3);
-					if ( ((u16IoAddress >= 0x2000U) && (u16IoAddress <= 0x2056U)) ||	/* System I/O */
-						  (u16IoAddress <= 0x07FEU) ||									/* System RAM */
-						  ((u16IoAddress >= 0x2800U) && (u16IoAddress <= 0x28DAU)) ||	/* User I/O */
-						  ((u16IoAddress >= 0x1000U) && (u16IoAddress <= 0x11FEU)) )	/* NVRAM */
+					if ( ((u16IoAddress >= 0x2000) && (u16IoAddress <= 0x2056)) ||	/* System I/O */
+						  (u16IoAddress <= 0x07FE) ||								/* System RAM */
+						  ((u16IoAddress >= 0x2800) && (u16IoAddress <= 0x28DA)) )
 					{
 						StoreD1to4( u16IoAddress, *((uint16 *) u16IoAddress));
 					}
 				}
+#if (_DEBUG_FATAL != FALSE)
+				else if ( (pDiag->byD5 == (uint8) C_DBG_SUBFUNC_FATAL_ERRORCODES) && ((FL_CTRL0 & FL_DETECT) != 0) )	/* MMP150603-2 */
+				{
+					/* Get Fatal-handler[index]: error-code, info and address
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 *	| NAD | PCI |  SID |    D1    |    D2    |    D3    |    D4    |    D5    |
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 *	| NAD | 0x06| Debug| Supplier | Supplier |   Index  | Reserved |   FUNC   |
+					 *	|     |     | 0xDB | ID (LSB) | ID (MSB) |          |          |   0xFE   |
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 *
+					 * Response
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 *	| NAD | PCI | RSID |    D1    |    D2    |    D3    |    D4    |    D5    |
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 *	| NAD | 0x06| 0xDB |   Index  | ErrorCode|   Info   |AddressLSB|AddressMSB|
+					 *	+-----+-----+------+----------+----------+----------+----------+----------+
+					 */
+					uint16 u16Index = (uint16) (pDiag->byD3 & 0x1F);
+					uint16 u16NVRAM_FatalCount = *((uint16 *) C_ADDR_FATALPAGE);
+					if ( u16Index <= u16NVRAM_FatalCount )
+					{
+						g_DiagResponse.byD1 = (uint8) (u16Index & 0xFF);
+						{
+							uint16 *pu16NV = ((uint16 *) C_ADDR_FATALPAGE + (u16Index << 1));
+							StoreD2to5( pu16NV[0], pu16NV[1]);
+						}
+					}
+				}
+#endif /* (_DEBUG_FATAL != FALSE) */
 			}
 			else
 			{
@@ -2066,7 +2135,7 @@ void HandleDfrDiag( void)
 			 *	+-----+-----+------+----------+----------+----------+----------+----------+
 			 */
 			g_DiagResponse.byNAD = g_u8NAD;
-			g_DiagResponse.byPCI = 0x06U;
+			g_DiagResponse.byPCI = 0x06;
 			g_DiagResponse.byRSID = (uint8) C_SID_MLX_ERROR_CODES;
 			g_DiagResponse.byD1 = GetLastError();													/* Oldest Error-code */
 			g_DiagResponse.byD2 = GetLastError();
@@ -2076,7 +2145,7 @@ void HandleDfrDiag( void)
 
 			g_u8BufferOutID = (uint8) QR_RFR_DIAG;													/* LIN Output buffer is valid (RFR_DIAG) */
 		}
-		else if ( (pDiag->bySID == (uint8) C_SID_MLX_EE_PATCH) && ((FL_CTRL0 & FL_DETECT) == 0U) )
+		else if ( (pDiag->bySID == (uint8) C_SID_MLX_EE_PATCH) && ((FL_CTRL0 & FL_DETECT) == 0) )	/* MMP150603-2 */
 		{
 			/* EEPROM/NVRAM Patch support
 			 * D1.bit 7 = 0 : Read Patch area
@@ -2084,7 +2153,7 @@ void HandleDfrDiag( void)
 			 * D1.bit[6:0] : 16-bit data index. Valid 0x00 through 0x3D.
 			 */
 			uint16 u16Index = (uint16) (pDiag->byD1 & 0x3F);
-			if ( (pDiag->byD1 & 0x80U) != 0U )
+			if ( pDiag->byD1 & 0x80 )
 			{
 				/* Write EEPROM/NVRAM Patch Page
 				 *	+-----+-----+------+----------+----------+----------+----------+----------+
@@ -2093,7 +2162,7 @@ void HandleDfrDiag( void)
 				 *	| NAD | 0x06| 0xED |  Write   | W[index] | W[index] |W[index+1]|W[index+1]|
 				 *	|     |     |      |   Index  |  (LSB)   |  (MSB)   |   (LSB)  |   (MSB)  |
 				 *	+-----+-----+------+----------+----------+----------+----------+----------+
-				 * No Response
+			     * No Response
 				 */
 				uint16 *pu16NvramData = ((uint16 *) C_ADDR_PATCHPAGE) + u16Index;	/* NVRAM 16-bit pointer */
 				*pu16NvramData = (((uint16) pDiag->byD3) << 8) | ((uint16) pDiag->byD2);
@@ -2118,7 +2187,7 @@ void HandleDfrDiag( void)
 				 *	+-----+-----+------+----------+----------+----------+----------+----------+
 				 */
 				g_DiagResponse.byNAD = g_u8NAD;
-				g_DiagResponse.byPCI = 0x06U;
+				g_DiagResponse.byPCI = 0x06;
 				g_DiagResponse.byRSID = (uint8) C_SID_MLX_EE_PATCH;
 				g_DiagResponse.byD1 = (uint8) u16Index;
 				{
@@ -2134,8 +2203,8 @@ void HandleDfrDiag( void)
 			 *			  1 : Write User-page #1
 			 * D1.bit[6:0] : 16-bit data index. Valid 0x00 through 0x3F.
 			 */
-			uint16 u16Index = (uint16) (pDiag->byD1 & 0x3FU);
-			if ( (pDiag->byD1 & 0x80U) != 0U )
+			uint16 u16Index = (uint16) (pDiag->byD1 & 0x3F);
+			if ( pDiag->byD1 & 0x80 )
 			{
 				/* Write EEPROM/NVRAM UserPage #1
 				 *	+-----+-----+------+----------+----------+----------+----------+----------+
@@ -2144,7 +2213,7 @@ void HandleDfrDiag( void)
 				 *	| NAD | 0x06| 0xEE |  Write   | W[index] | W[index] |W[index+1]|W[index+1]|
 				 *	|     |     |      |   Index  |  (LSB)   |  (MSB)   |   (LSB)  |   (MSB)  |
 				 *	+-----+-----+------+----------+----------+----------+----------+----------+
-				 * No Response
+			     * No Response
 				 */
 				uint16 *pu16NvramData = ((uint16 *) &g_NvramUser) + u16Index;	/* NVRAM 16-bit pointer */
 				pu16NvramData[0] = (((uint16) pDiag->byD3) << 8) | ((uint16) pDiag->byD2);
@@ -2168,7 +2237,7 @@ void HandleDfrDiag( void)
 				 *	+-----+-----+------+----------+----------+----------+----------+----------+
 				 */
 				g_DiagResponse.byNAD = g_u8NAD;
-				g_DiagResponse.byPCI = 0x06U;
+				g_DiagResponse.byPCI = 0x06;
 				g_DiagResponse.byRSID = (uint8) C_SID_MLX_EE_USERPG1;
 				g_DiagResponse.byD1 = (uint8) u16Index;
 				{
@@ -2191,14 +2260,14 @@ void HandleDfrDiag( void)
 				 * No Response
 				 */
 				(void) NVRAM_Store( pDiag->byD2);
-				if ( (pDiag->byD2 != 0xFFU) && ((pDiag->byD2 & C_NVRAM_USER_PAGE_RESET) != 0U) )
+				if ( (pDiag->byD2 != 0xFF) && ((pDiag->byD2 & C_NVRAM_USER_PAGE_RESET) != 0) )
 				{
 					(void) mlu_ApplicationStop();
 					MLX4_RESET();												/* Reset the Mlx4   */
 					MLX16_RESET();												/* Reset the Mlx16  */
 				}
 			}
-			else if ( (pDiag->byD1 == (uint8) C_EE_STORE_PATCH) && ((FL_CTRL0 & FL_DETECT) == 0U) )
+			else if ( (pDiag->byD1 == (uint8) C_EE_STORE_PATCH) && ((FL_CTRL0 & FL_DETECT) == 0) )	/* MMP150603-2 */
 			{
 				/* Store Patch SRAM into NVRAM
 				 *	+-----+-----+------+----------+----------+----------+----------+----------+
@@ -2215,7 +2284,7 @@ void HandleDfrDiag( void)
 	}
 } /* End of HandleDfrDiag() */
 
-#if _SUPPORT_MLX_DEBUG_MODE || ((LINPROT & LINXX) == LIN2J)
+#if _SUPPORT_MLX_DEBUG_MODE
 /* ****************************************************************************	*
  * RfrDiagReset()
  *
@@ -2232,17 +2301,13 @@ void RfrDiagReset()
 	{
 		/* Positive Response */
 		g_DiagResponse.byNAD = g_u8NAD;
-		g_DiagResponse.byPCI = 0x06U;
-#if (LINPROT == LIN2J_VALVE_VW)
-		g_DiagResponse.byRSID = (uint8) (C_SID_RESET | C_RSID_OK);
-#else  /* (LINPROT == LIN2J_VALVE_VW) */
+		g_DiagResponse.byPCI = 0x06;
 		g_DiagResponse.byRSID = (uint8) C_SID_MLX_DEBUG;
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
 		g_DiagResponse.byD5 = (uint8) g_NvramUser.Variant;
 		StoreD1to4( C_SUPPLIER_ID, C_FUNCTION_ID);
 	}
 } /* End of RfrDiagReset() */
-#endif /* _SUPPORT_MLX_DEBUG_MODE || ((LINPROT & LINXX) == LIN2J) */
+#endif /* _SUPPORT_MLX_DEBUG_MODE */
 
 #endif /* ((LINPROT & LINXX) == LIN2X) */
 

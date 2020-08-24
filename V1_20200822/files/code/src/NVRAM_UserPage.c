@@ -61,105 +61,105 @@ NVRAM_USER g_NvramUser;
 
 const NVRAM_USER defNvramUser =
 {
-	0U,													/* 0x00: CRC-8 */
+	0,													/* 0x00: CRC-8 */
 	C_NVRAM_USER_REV,									/* 0x01: NVRAM Structure revision */
 #if LIN_COMM
 #if ((LINPROT & LINXX) == LIN2X)						/* LIN 2.x */
 	/* Generic */
 	C_DEFAULT_NAD,										/* 0x02: NAD */
 	C_VARIANT,											/* 0x03: Variant-ID */
-	0x81U,												/* 0x04: HW-Revision (programmed by production) */
+	0x81,												/* 0x04: HW-Revision (programmed by production) */
 	C_SW_REF,											/* 0x05: (Reserved for) SW-Revision */
 	mlxCONTROL,											/* 0x06: Control-message Frame-ID */
 	mlxSTATUS,											/* 0x07: Status-message Frame-ID */
 	CONFIGURATION_ID,									/* 0x08: Configuration ID */
-	0U,													/* 0x0A: LIN-AutoAaddressing Gain DifferentialMode-CommonMode delta */
-	0xFFFFU,											/* 0x0C: (Optional) Serial-number (LSW) (programmed by production) */
-	0xFFFFU,											/* 0x0E: (Optional) Serial-number (MSW) */
+	0,													/* 0x0A: LIN-AutoAaddressing Gain DifferentialMode-CommonMode delta */
+	0xFFFF,												/* 0x0C: (Optional) Serial-number (LSW) (programmed by production) */
+	0x2DC0,												/* 0x0E: (Optional) Serial-number (MSW) */
 #if (LINPROT == LIN2X_ACT44)
 	/* Actuator */
-	0U,													/* 0x10: Motor rotational direction: 0=CW, 1=CCW */
-	0U,													/* 0x10: Emergency-run: 0=Disabled, 1=Enabled */
-	1U,													/* 0x10: Emergency-run end-stop: 0=Low, 1=High */
-	1U,													/* 0x10: Stall-detector: 0=Disabled, 1=Enabled */
-	1U,													/* 0x10: Motor holding-current: 0=Off, 1=On */
+	0,													/* 0x10: Motor rotational direction: 0=CW, 1=CCW */
+	0,													/* 0x10: Emergency-run: 0=Disabled, 1=Enabled */
+	1,													/* 0x10: Emergency-run end-stop: 0=Low, 1=High */
+	1,													/* 0x10: Stall-detector: 0=Disabled, 1=Enabled */
+	1,													/* 0x10: Motor holding-current: 0=Off, 1=On */
 	C_CTRL_SPEED_MID,									/* 0x10: Motor speed */
-	0U,													/* 0x11: Reserved*/
-	0U,													/* 0x12: Reserved */
-	0U,													/* 0x14: Reserved */
+	0,													/* 0x11: Reserved*/
+	0,													/* 0x12: Reserved */
+	0,													/* 0x14: Reserved */
 #endif /* (LINPROT == LIN2X_ACT44) */
 #endif /* ((LINPROT & LINXX) == LIN2X) */
 #if ((LINPROT & LINXX) == LIN2J)
 	/* Generic */
-	C_DEFAULT_J2602_NAD,								/* 0x02: NAD */
+	0x6C,												/* 0x02: NAD *///NAD for GM
 	C_VARIANT,											/* 0x03: Variant-ID */
-	0x81U,												/* 0x04: HW-Revision (programmed by production) */
+	0x81,												/* 0x04: HW-Revision (programmed by production) */
 	C_SW_REF,											/* 0x05: (Reserved for) SW-Revision */
-	0x00U,												/* 0x06: Reserved */
-	0x00U,												/* 0x07: Reserved */
+	0x00,												/* 0x06: Reserved */
+	0x00,												/* 0x07: Reserved */
 	CONFIGURATION_ID,									/* 0x08: Configuration ID */
-	0U,													/* 0x0A: LIN-AutoAaddressing Gain DifferentialMode-CommonMode delta */
-	0xFFFFU,											/* 0x0C: (Optional) Serial-number (LSW) (programmed by production) */
-	0xFFFFU,											/* 0x0E: (Optional) Serial-number (MSW) */
-#if (LINPROT == LIN2J_VALVE_VW)
+	0,													/* 0x0A: LIN-AutoAaddressing Gain DifferentialMode-CommonMode delta */
+	0xFFFF,												/* 0x0C: (Optional) Serial-number (LSW) (programmed by production) */
+	0x2DC0,												/* 0x0E: (Optional) Serial-number (MSW) */
+#if (LINPROT == LIN2J_VALVE_GM)
 	/* Actuator */
-	0U,													/* 0x10: Motor rotational direction: 0=CW, 1=CCW */
-	0U,													/* 0x10: Emergency-run: 0=Disabled, 1=Enabled */
-	1U,													/* 0x10: Emergency-run end-stop: 0=Low, 1=High */
-	1U,													/* 0x10: Stall-detector: 0=Disabled, 1=Enabled */
-	1U,													/* 0x10: Motor holding-current: 0=Off, 1=On */
-	0U,													/* 0x10: Reserved */
+	0,													/* 0x10: Motor rotational direction: 0=CW, 1=CCW */
+	1,													/* 0x10: Emergency-run: 0=Disabled, 1=Enabled */
+	1,													/* 0x10: Emergency-run end-stop: 0=Low, 1=High */
+	1,													/* 0x10: Stall-detector: 0=Disabled, 1=Enabled */
+	1,													/* 0x10: Motor holding-current: 0=Off, 1=On */
+	0,													/* 0x10: Reserved */
 	C_ENDSTOP_PAUSETIME,								/* 0x11: End-stop pause time */
 	C_DEF_TRAVEL,										/* 0x12: Default Travel */
 	C_DEF_TRAVEL_TOLERANCE,								/* 0x14: Default Travel Tolerance (Lower) */
 	C_DEF_TRAVEL_TOLERANCE,								/* 0x15: Default Travel Tolerance (Upper) */
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
 #endif /* ((LINPROT & LINXX) == LIN2J) */
 #endif /* LIN_COMM */
 #if ((LINPROT & LINX) == LIN20 )
 	C_FUNCTION_ID,										/* 0x16: (Programmable) Function ID */
 #else  /* ((LINPROT & LINX) == LIN20 ) */
-	0xFFFFU,											/* 0x16: Reserved (No LIN 2.x) */
+	0xFFFF,												/* 0x16: Reserved (No LIN 2.x) */
 #endif /* ((LINPROT & LINX) == LIN20 ) */
 	C_SUPPLIER_ID,										/* 0x18: (Programmable) Supplier ID */
-	0xFFFFU,											/* 0x1A: Production Date */
-#if (LINPROT == LIN2J_VALVE_VW)
-	0U,													/* 0x1C: Current Position (CPOS) */
-	0U,													/* 0x1D: Application Status */
-#else  /* (LINPROT == LIN2J_VALVE_VW) */
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+	0xFFFF,												/* 0x1A: Production Date */
+#if (LINPROT == LIN2J_VALVE_GM)
+	0,													/* 0x1C: Current Position (CPOS) */
+	0,													/* 0x1E: Application Status */
+#else  /* (LINPROT == LIN2J_VALVE_GM) */
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 	C_INVALD_GAD,										/* 0x1C: Group-address */
 	mlxGROUP_CONTROL,									/* 0x1D: Group-Control-message Frame-ID */
 #else  /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
-	0U,													/* 0x1C: Reserved */
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
-	0U,													/* 0x1E: Reserved */
+	0,													/* 0x1C: Reserved */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
+	0,													/* 0x1E: Reserved */
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
 	MOTOR_FAMILY,										/* 0x1F: Motor Family */
 
-	0U,													/* 0x20: Reserved */
-	0U,													/* 0x22: Reserved */
-	0U,													/* 0x24: Reserved */
-	0U,													/* 0x26: Reserved */
-	0U,													/* 0x28: Reserved */
-	0U,													/* 0x2A: Reserved */
-	0U,													/* 0x2C: Reserved */
-	0U,													/* 0x2E: Reserved */
-	0U,													/* 0x30.[5:0]: Reserved */
+	0,													/* 0x20: Reserved */
+	0,													/* 0x22: Reserved */
+	0,													/* 0x24: Reserved */
+	0,													/* 0x26: Reserved */
+	0,													/* 0x28: Reserved */
+	0,													/* 0x2A: Reserved */
+	0,													/* 0x2C: Reserved */
+	0,													/* 0x2E: Reserved */
+	0			,										/* 0x30.[5:0]: Reserved */
 	C_BROWN_OUT_LEVEL,									/* 0x30.[7:6]: Brown-out level */
 	C_VSUP_REF,											/* 0x31: Vsupply reference [1/8V] */
 	MOTOR_GEAR_BOX_RATIO,								/* 0x32.[12: 0]: Gear-box ratio, e.g. 600:1 */
-	(MOTOR_POLE_PAIRS - 1U),							/* 0x32.[15:13]: Number of pole-pairs + 1 */
+	(MOTOR_POLE_PAIRS - 1),								/* 0x32.[15:13]: Number of pole-pairs + 1 */
 #if _SUPPORT_STALLDET_B
-	0U,													/* 0x34.[4:0]: Stall-detector "B" delay */
+	0,													/* 0x34.[4:0]: Stall-detector "B" delay */
 #elif _SUPPORT_STALLDET_O
 	C_STALL_O_WIDTH,									/* 0x34.[2:0]: Stall-detector "O" Width */
-	0U,													/* 0x34.[4:3]: Reserved */
+	0,													/* 0x34.[4:3]: Reserved */
 #else
 	0,													/* 0x34.[4:0]: Reserved */
 #endif /* _SUPPORT_STALLDET_B */
 	MOTOR_MICROSTEPS,									/* 0x34.[6:5]: Number of micro-steps: 2^n (or 1 << n) */
-	(4U - MOTOR_PHASES),								/* 0x34.[7]: Number of motor-phases: 1 = 3-phase, 0 = Bi-polar */
+	(4 - MOTOR_PHASES),									/* 0x34.[7]: Number of motor-phases: 1 = 3-phase, 0 = Bi-polar */
 #if _SUPPORT_STALLDET_B
 	C_STALL_B_THRESHOLD,								/* 0x35: Stall-detector "B" threshold (BEMF) */
 #elif _SUPPORT_STALLDET_O
@@ -187,10 +187,10 @@ const NVRAM_USER defNvramUser =
 	C_AUTOSPEED_VOLTZONE_3,								/* 0x45.[5:4]: Zone III speed control vs. voltage */
 	C_AUTOSPEED_VOLTZONE_4,								/* 0x45.[7:6]: Zone IV speed control vs. voltage */
 #else  /* _SUPPORT_SPEED_AUTO */
-	0U,													/* 0x3E: Reserved */
-	0U,													/* 0x40: Reserved */
-	0U,													/* 0x42: Reserved */
-	0U,													/* 0x44: Reserved */
+	0,													/* 0x3E: Reserved */
+	0,													/* 0x40: Reserved */
+	0,													/* 0x42: Reserved */
+	0,													/* 0x44: Reserved */
 #endif /* _SUPPORT_SPEED_AUTO */
 	C_SPEED_MIN,										/* 0x46: Minimum speed */
 	C_ACCELERATION_CONST,								/* 0x48: Acceleration-constant */
@@ -201,9 +201,7 @@ const NVRAM_USER defNvramUser =
 	C_MOTOR_CONST_10MV_PER_RPS,							/* 0x4C: Motor Constant [10mV/rps] */
 	C_COILS_RTOT,										/* 0x4D: Motor coil resistance (total) */
 	C_PID_HOLDING_CURR_LEVEL,							/* 0x4E: Holding Torque current threshold */
-#if (defined __MLX81315_A__) && _SUPPORT_QUADRUPLE_MOTOR_CURRENT
-	((C_PID_RUNNING_CURR_LEVEL + 2) / 4),				/* 0x4F: Running Torque current threshold (MMP141209-4) */
-#elif (_SUPPORT_DOUBLE_MOTOR_CURRENT != FALSE)
+#if (_SUPPORT_DOUBLE_MOTOR_CURRENT != FALSE)
 	(C_PID_RUNNING_CURR_LEVEL / 2),						/* 0x4F: Running Torque current threshold */
 #else  /* (_SUPPORT_DOUBLE_MOTOR_CURRENT != FALSE) */
 	C_PID_RUNNING_CURR_LEVEL,							/* 0x4F: Running Torque current threshold */
@@ -234,40 +232,36 @@ const NVRAM_USER defNvramUser =
 	C_MIN_HOLDCORR_RATIO,								/* 0x63: PID Lower-limit Holding (output) */
 	C_MIN_CORR_RATIO,									/* 0x64: PID Lower-limit Running (output) */
 	C_MAX_CORR_RATIO,									/* 0x65: PID Upper-limit (output) */
-	0U,													/* 0x66: PID Ramp-down limitation */
-	0U,													/* 0x67: PID Ramp-up limitation */
+	0,													/* 0x66: PID Ramp-down limitation */
+	0,													/* 0x67: PID Ramp-up limitation */
 	C_REWIND_STEPS,										/* 0x68: Rewind-steps */
-#if (defined __MLX81315_A__) && _SUPPORT_QUADRUPLE_MOTOR_CURRENT
-	(C_PID_BOOST_CURR_LEVEL / 4),						/* 0x69: Running Torque-boost current threshold (MMP141209-4) */
-#elif (_SUPPORT_DOUBLE_MOTOR_CURRENT != FALSE)
+#if (_SUPPORT_DOUBLE_MOTOR_CURRENT != FALSE)
 	(C_PID_BOOST_CURR_LEVEL / 2),						/* 0x69: Running Torque-boost current threshold */
 #else  /* (_SUPPORT_DOUBLE_MOTOR_CURRENT != FALSE) */
 	C_PID_BOOST_CURR_LEVEL,								/* 0x69: Running Torque-boost current threshold */
 #endif /* (_SUPPORT_DOUBLE_MOTOR_CURRENT != FALSE) */
 	C_SPEED_TORQUE_BOOST,								/* 0x6A: Speed Torque-boost */
-	((C_DETECTOR_DELAY + 4U) >> 3),						/* 0x6C: Stall detector delay */
+	((C_DETECTOR_DELAY + 4) >> 3),						/* 0x6C: Stall detector delay */
 #if _SUPPORT_LIN_UV
-	C_LIN_UV,											/* 0x6D.[2:0]: LIN UV threshold */
+	C_LIN_UV,											/* 0x6D.[2:0]: LIN UV threshold (MMP131216-1) */
 #else  /* _SUPPORT_LIN_UV */
-	0U,													/* 0x6D.[2:0]: Reserved */
+	0,													/* 0x6D.[2:0]: Reserved */
 #endif /* _SUPPORT_LIN_UV */
-	0U,													/* 0x6D.[7:3]: Reserved */
+	0,													/* 0x6D.[7:3]: Reserved */
 	C_HALL_LATCHES,										/* 0x6E.[1:0]: Hall Latches */
-	(C_DECELERATION_STEPS - 1U),						/* 0x6E.[5:2]: Deceleration-uSteps */
+	(C_DECELERATION_STEPS - 1),							/* 0x6E.[5:2]: Deceleration-uSteps */
 	C_AUTO_RECALIBRATE,									/* 0x6E.[6]: Auto re-calibrate */
 #if (_SUPPORT_BUSTIMEOUT_SLEEP)
 	C_BUSTIMEOUT_SLEEP,									/* 0x6E.[7]: Bus-Timeout Sleep */
 #else  /* (_SUPPORT_BUSTIMEOUT_SLEEP) */
-	0U,
+	0,
 #endif /* (_SUPPORT_BUSTIMEOUT_SLEEP) */
 	C_VDS_THRESHOLD,									/* 0x6F.[5:0]: VDS Threshold */
 	C_STALL_O,											/* 0x6F.[6]: Stall "O" disabled/enabled */
 	C_STALL_SPEED_DEPENDED								/* 0x6F.[7]: Stall threshold speed depended */
 };
 
-#if _SUPPORT_LOG_NVRAM
 void PlaceError( uint16 *pu16ErrorElement, uint16 u16OddEven, uint8 u8ErrorCode);
-#endif /* _SUPPORT_LOG_NVRAM */
 
 /* ****************************************************************************	*
  *  NVRAM_CRC8
@@ -286,14 +280,14 @@ uint8 NVRAM_CRC8( uint8 byReplaceCRC)
 
 	if ( byReplaceCRC != FALSE )
 	{
-		g_NvramUser.CRC8 = 0x00U;
+		g_NvramUser.CRC8 = 0x00;
 	}
 
-	u16CRC = nvram_CalcCRC( (uint16 *) &g_NvramUser, (sizeof(g_NvramUser)/sizeof(uint16)));
+	u16CRC = nvram_CalcCRC( (uint16 *) &g_NvramUser, (sizeof(g_NvramUser)/sizeof(uint16)));	/* MMP151202-1 */
 
 	if ( byReplaceCRC != FALSE )
 	{
-		g_NvramUser.CRC8 = (0xFFU - u16CRC);
+		g_NvramUser.CRC8 = (0xFF - u16CRC);
 	}
 
 	return ( (uint8) u16CRC );
@@ -313,11 +307,11 @@ uint8 NVRAM_CRC8( uint8 byReplaceCRC)
  * ****************************************************************************	*/
 uint8 NVRAM_CountCRC8( PNVRAM_ERRORLOG pNVERRLOG, uint8 byReplaceCRC)
 {
-	uint16 u16CRC = nvram_CalcCRC( (uint16 *) &pNVERRLOG->NvramProgramCycleCount, 1U);
+	uint16 u16CRC = nvram_CalcCRC( (uint16 *) &pNVERRLOG->NvramProgramCycleCount, 1);	/* MMP151202-1 */
 
 	if ( byReplaceCRC != FALSE )
 	{
-		pNVERRLOG->ErrorLogIndex_CRC = (pNVERRLOG->ErrorLogIndex_CRC & 0x00FF) | ((0xFFU - u16CRC) << 8);
+		pNVERRLOG->ErrorLogIndex_CRC = (pNVERRLOG->ErrorLogIndex_CRC & 0x00FF) | ((0xFF - u16CRC) << 8);
 	}
 	return ( (uint8) ((pNVERRLOG->ErrorLogIndex_CRC >> 8) ^ u16CRC) );
 } /* End of NVRAM_CountCRC8() */
@@ -363,22 +357,22 @@ uint16 NVRAM_Store( uint16 u16Page)
 {
 	uint16 *pURAM;
 	uint16 *pMRAM;
-	uint16 u16Result = C_NVRAM_STORE_OKAY;
+	uint16 u16Result = C_NVRAM_STORE_OKAY;										/* MMP150219-1 */
 
 	/* Store NVRAM */
-	if ( (u16Page & C_MVRAM_USER_PAGE_NoCRC) == 0U )
+	if ( (u16Page & C_MVRAM_USER_PAGE_NoCRC) == 0 )
 	{
 		(void) NVRAM_CRC8( TRUE);												/* Update CRC8 */
 	}
 
 	/* Copy NVRAM UserRAM-copy into NVRAM MirrorRAM */
-	if ( ((u16Page & C_NVRAM_USER_PAGE_1) != 0U) &&
-		 (((u16Page & C_NVRAM_USER_PAGE_FORCE) != 0U) || (NVRAM_PageVerify( (uint16 *) C_ADDR_USERPAGE1) == FALSE)) ) /*lint !e845 */
+	if ( (u16Page & C_NVRAM_USER_PAGE_1) &&
+		 ((u16Page & C_NVRAM_USER_PAGE_FORCE) || (NVRAM_PageVerify( (uint16 *) C_ADDR_USERPAGE1) == FALSE)) ) /*lint !e845 */
 	{
 		/* Forced Write, or RAM differs from NVRAM; Copy RAM to NVRAM */
 		do
 		{
-			/* Update NVRAM program cycle counter */
+			/* Update NVRAM program cycle counter */							/* MMP150219-1 - Begin */
 			PNVRAM_ERRORLOG pNVERRLOG = (PNVRAM_ERRORLOG) (C_ADDR_USERPAGE1 + sizeof(NVRAM_USER));
 			if ( NVRAM_CountCRC8( pNVERRLOG, FALSE) != (uint8) 0xFFU )
 			{
@@ -408,7 +402,7 @@ uint16 NVRAM_Store( uint16 u16Page)
 				{
 					*pMRAM++ = *pURAM++;
 				} while ( pURAM < ((uint16 *) &g_NvramUser + (sizeof(g_NvramUser)/sizeof(uint16))) );
-			}
+			}																	/* MMP150219-1 - End */
 
 			/* Save (NV)RAM to NV(RAM) */
 			NVRAM_SavePage( NVRAM1_PAGE1);
@@ -428,13 +422,13 @@ uint16 NVRAM_Store( uint16 u16Page)
 
 #if _SUPPORT_NVRAM_BACKUP
 	/* Duplicate NVRAM user page 1 into page 2 */
-	if ( ((u16Page & C_NVRAM_USER_PAGE_2) != 0U) &&
-		 (((u16Page & C_NVRAM_USER_PAGE_FORCE) != 0U) || (NVRAM_PageVerify( (uint16 *) C_ADDR_USERPAGE2) == FALSE)) ) /*lint !e845 */
+	if ( (u16Page & C_NVRAM_USER_PAGE_2) &&
+		 ((u16Page & C_NVRAM_USER_PAGE_FORCE) || (NVRAM_PageVerify( (uint16 *) C_ADDR_USERPAGE2) == FALSE)) ) /*lint !e845 */
 	{
 		/* Forced Write, or RAM differs from NVRAM; Copy RAM to NVRAM */
 		do
 		{
-			/* Update NVRAM program cycle counter */
+			/* Update NVRAM program cycle counter */							/* MMP150219-1 - Begin */
 			PNVRAM_ERRORLOG pNVERRLOG = (PNVRAM_ERRORLOG) (C_ADDR_USERPAGE2 + sizeof(NVRAM_USER));
 			if ( NVRAM_CountCRC8( pNVERRLOG, FALSE) != (uint8) 0xFFU )
 			{
@@ -464,7 +458,7 @@ uint16 NVRAM_Store( uint16 u16Page)
 				{
 					*pMRAM++ = *pURAM++;
 				} while ( pURAM < ((uint16 *) &g_NvramUser + (sizeof(g_NvramUser)/sizeof(uint16))) );
-			}
+			}																	/* MMP150219-1 - End */
 
 			/* Save (NV)RAM to NV(RAM) */
 			NVRAM_SavePage( NVRAM2_PAGE1);
@@ -482,7 +476,7 @@ uint16 NVRAM_Store( uint16 u16Page)
 		} while ( FALSE );
 	}
 #endif /* _SUPPORT_NVRAM_BACKUP */
-	return ( u16Result );
+	return ( u16Result );														/* MMP150219-1 */
 } /* NVRAM_Store() */
 
 /* ****************************************************************************	*
@@ -494,19 +488,15 @@ void NVRAM_LoadUserPage( void)
 {
 	uint16 u16ErrorFlag;
 	uint16 *pURAM = (uint16 *) &g_NvramUser;
-#if (LINPROT == LIN2J_VALVE_VW)
+#if (LINPROT == LIN2J_VALVE_GM)
 	uint16 *pMRAM;
-	if ( (((NVRAM_USER *) C_ADDR_USERPAGE1)->AppStatus & 0x80U) ^ (((NVRAM_USER *) C_ADDR_USERPAGE2)->AppStatus & 0x80) )
-	{
+	if ( (((NVRAM_USER *) C_ADDR_USERPAGE1)->AppStatus & 0x80) ^ (((NVRAM_USER *) C_ADDR_USERPAGE2)->AppStatus & 0x80) )
 		pMRAM = (uint16 *) C_ADDR_USERPAGE2;
-	}
 	else
-	{
 		pMRAM = (uint16 *) C_ADDR_USERPAGE1;
-	}
-#else  /* (LINPROT == LIN2J_VALVE_VW) */
+#else  /* (LINPROT == LIN2J_VALVE_GM) */
 	uint16 *pMRAM = (uint16 *) C_ADDR_USERPAGE1;
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
 
 	NVRAM_LoadAll();
 	u16ErrorFlag = (VARIOUS_L & EENV_DED);										/* Double-bit error state */
@@ -533,24 +523,20 @@ void NVRAM_LoadUserPage( void)
 		/* Note: EENV_DED can't be cleared !! In case of first user-page DBE, a second-page DBE can't be detected */
 		u16ErrorFlag = (VARIOUS_L & EENV_DED);
 
-#if (LINPROT == LIN2J_VALVE_VW)
-		if ( (((NVRAM_USER *) C_ADDR_USERPAGE1)->AppStatus & 0x80U) ^ (((NVRAM_USER *) C_ADDR_USERPAGE2)->AppStatus & 0x80) )
-		{
+#if (LINPROT == LIN2J_VALVE_GM)
+		if ( (((NVRAM_USER *) C_ADDR_USERPAGE1)->AppStatus & 0x80) ^ (((NVRAM_USER *) C_ADDR_USERPAGE2)->AppStatus & 0x80) )
 			pMRAM = (uint16 *) C_ADDR_USERPAGE1;
-		}
 		else
-		{
 			pMRAM = (uint16 *) C_ADDR_USERPAGE2;
-		}
-#else  /* (LINPROT == LIN2J_VALVE_VW) */
+#else  /* (LINPROT == LIN2J_VALVE_GM) */
 		pMRAM = (uint16 *) C_ADDR_USERPAGE2;
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
 		pURAM = (uint16 *) &g_NvramUser;
 		do
 		{
 			*pURAM++ = *pMRAM++;
 		} while ( pURAM < (uint16 *) &g_NvramUser + (sizeof(g_NvramUser)/sizeof(uint16)) );
-		if ( ((u16ErrorFlag != FALSE) || ((VARIOUS_L & EENV_DED) == 0U)) && (g_NvramUser.Revision == C_NVRAM_USER_REV) && (NVRAM_CRC8( FALSE) == 0xFF) && (g_NvramUser.ConfigurationID == CONFIGURATION_ID) )
+		if ( ((u16ErrorFlag != FALSE) || ((VARIOUS_L & EENV_DED) == 0)) && (g_NvramUser.Revision == C_NVRAM_USER_REV) && (NVRAM_CRC8( FALSE) == 0xFF) && (g_NvramUser.ConfigurationID == CONFIGURATION_ID) )
 		{
 			/* Second User Page is correct; Rewrite 1st page */
 			SetLastError( (uint8) C_ERR_INV_USERPAGE_1);
@@ -562,7 +548,7 @@ void NVRAM_LoadUserPage( void)
 			u16ErrorFlag = TRUE;
 		}
 	}
-#if (LINPROT != LIN2J_VALVE_VW)
+#if (LINPROT != LIN2J_VALVE_GM)
 	else
 	{
 		/* First user page is correct; Check 2nd page against first page (bit-compare) */
@@ -580,7 +566,7 @@ void NVRAM_LoadUserPage( void)
 		} while ( pURAM < (uint16 *) &g_NvramUser + (sizeof(g_NvramUser)/sizeof(uint16)) );
 		u16ErrorFlag = FALSE;
 	}
-#endif /* (LINPROT != LIN2J_VALVE_VW) */
+#endif /* (LINPROT != LIN2J_VALVE_GM) */
 #endif /* _SUPPORT_NVRAM_BACKUP */
 
 #if (MOTOR_PARAMS == MP_NVRAM)
@@ -604,16 +590,16 @@ void NVRAM_LoadUserPage( void)
 #if (_SUPPORT_CODE_PARAMS == FALSE)
 		{
 			PNVRAM_ERRORLOG pNVERRLOG_UPG = (PNVRAM_ERRORLOG) (C_ADDR_USERPAGE1 + sizeof(NVRAM_USER));
-			if ( NVRAM_CountCRC8( pNVERRLOG_UPG, FALSE) != 0xFFU )				/* Check NVRAM User Page #1 Write-cycle counter CRC */
+			if ( NVRAM_CountCRC8( pNVERRLOG_UPG, FALSE) != 0xFF )				/* Check NVRAM User Page #1 Write-cycle counter CRC */
 			{
-				pNVERRLOG_UPG->NvramProgramCycleCount = 0U;						/* Clear program cycle-counter */
-				pNVERRLOG_UPG->ErrorLogIndex_CRC = 0U;							/* Clear Error-log index & CRC */
+				pNVERRLOG_UPG->NvramProgramCycleCount = 0;						/* Clear program cycle-counter */
+				pNVERRLOG_UPG->ErrorLogIndex_CRC = 0;							/* Clear Error-log index & CRC */
 			}
 			pNVERRLOG_UPG = (PNVRAM_ERRORLOG) (C_ADDR_USERPAGE2 + sizeof(NVRAM_USER));
-			if ( NVRAM_CountCRC8( pNVERRLOG_UPG, FALSE) != 0xFFU )				/* Check NVRAM User Page #2 Write-cycle counter CRC */
+			if ( NVRAM_CountCRC8( pNVERRLOG_UPG, FALSE) != 0xFF )				/* Check NVRAM User Page #2 Write-cycle counter CRC */
 			{
-				pNVERRLOG_UPG->NvramProgramCycleCount = 0U;						/* Clear program cycle-counter */
-				pNVERRLOG_UPG->ErrorLogIndex_CRC = 0U;							/* Clear Error-log index & CRC */
+				pNVERRLOG_UPG->NvramProgramCycleCount = 0;						/* Clear program cycle-counter */
+				pNVERRLOG_UPG->ErrorLogIndex_CRC = 0;							/* Clear Error-log index & CRC */
 			}
 		}
 		(void) NVRAM_Store( (uint16) (C_NVRAM_USER_PAGE_ALL | C_NVRAM_USER_PAGE_FORCE));	/* Write (both) user page(s) with default data */
@@ -641,12 +627,12 @@ void NVRAM_LoadUserPage( void)
 	(void)g_NvramUser.FunctionID;												/* 0x16: Function ID */
 	(void)g_NvramUser.CustomerID;												/* 0x18: Customer ID */
 	(void)g_NvramUser.ProductionDate;											/* 0x1A: Production Date: [15:9] Year (00-99), [8:5] Month (1-12), [4:0] Day (1-31) */
-#if (LINPROT != LIN2J_VALVE_VW)
-#if (_SUPPORT_HVAC_GROUP_ADDRESS == FALSE)
+#if (LINPROT != LIN2J_VALVE_GM)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS == FALSE)										/* MMP150125-1 - Begin */
 	(void)g_NvramUser.Reserved1C;												/* 0x1C: Reserved */
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS == FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS == FALSE) */								/* MMP150125-1 - End */
 	(void)g_NvramUser.Reserved1E;
-#endif /* (LINPROT != LIN2J_VALVE_VW) */
+#endif /* (LINPROT != LIN2J_VALVE_GM) */
 	(void)g_NvramUser.Reserved20;												/* 0x20: Reserved */
 	(void)g_NvramUser.Reserved22;												/* 0x22: Reserved */
 	(void)g_NvramUser.Reserved24;												/* 0x24: Reserved */
@@ -683,7 +669,6 @@ void NVRAM_LoadUserPage( void)
 
 } /* NVRAM_LoadUserPage() */
 
-#if _SUPPORT_LOG_NVRAM
 /* ****************************************************************************	*
  * void PlaceError
  *
@@ -723,36 +708,36 @@ void PlaceError( uint16 *pu16ErrorElement, uint16 u16OddEven, uint8 u8ErrorCode)
  * ****************************************************************************	*/
 uint16 NVRAM_LogError( uint8 u8ErrorCode)
 {
-	uint16 u16Result = C_NVRAM_STORE_OKAY;
+	uint16 u16Result = C_NVRAM_STORE_OKAY;										/* MMP150219-1 */
 	PNVRAM_ERRORLOG pNVERRLOG_UPG1 = (PNVRAM_ERRORLOG) (C_ADDR_USERPAGE1 + sizeof(NVRAM_USER));
 	PNVRAM_ERRORLOG pNVERRLOG_UPG2 = (PNVRAM_ERRORLOG) (C_ADDR_USERPAGE2 + sizeof(NVRAM_USER));
 	uint16 u16ErrorLogIdx1 = (uint8) (pNVERRLOG_UPG1->ErrorLogIndex_CRC);
 	uint16 u16ErrorLogIdx2 = (uint8) (pNVERRLOG_UPG2->ErrorLogIndex_CRC);
 	
-	if ( (u16ErrorLogIdx1 ^ u16ErrorLogIdx2) == 0x00U )
+	if ( (u16ErrorLogIdx1 ^ u16ErrorLogIdx2) == 0x00 )
 	{
-		u16ErrorLogIdx1 = 0x00U;													/* Second UserPage last time written full; Start from index 0 at User Page #1 */
+		u16ErrorLogIdx1 = 0x00;													/* Second UserPage last time written full; Start from index 0 at User Page #1 */
 	}
-	else if ( (u16ErrorLogIdx1 ^ u16ErrorLogIdx2) == 0x01U )
+	else if ( (u16ErrorLogIdx1 ^ u16ErrorLogIdx2) == 0x01 )
 	{
-		u16ErrorLogIdx2 = 0x00U;
+		u16ErrorLogIdx2 = 0x00;
 	}
 	
-	if ( (u16ErrorLogIdx1 & 0x80U) == 0x00U )
+	if ( (u16ErrorLogIdx1 & 0x80) == 0x00 )
 	{
-		/* Store error on User-Page #1 */
+		/* Store error on User-Page #1 */										/* MMP150219-1 - Begin */
 		if ( u16ErrorLogIdx1 >= C_MAX_ERRORS_PER_PAGE )							/* Check against array overflow */
 		{
-			u16ErrorLogIdx1 = 0U;
+			u16ErrorLogIdx1 = 0;
 		}
-		if ( NVRAM_CountCRC8( pNVERRLOG_UPG1, FALSE) == (uint8) 0xFFU )			/* MMP170106-1 */
+		if ( NVRAM_CountCRC8( pNVERRLOG_UPG1, FALSE) == 0x00 )
 		{
 			pNVERRLOG_UPG1->NvramProgramCycleCount++;
 		}
 		else
 		{
 			pNVERRLOG_UPG1->NvramProgramCycleCount = 1U;
-		}
+		}																		/* MMP150219-1 - End */
 		if ( pNVERRLOG_UPG1->NvramProgramCycleCount < (C_MAX_NVRAM_PROGRAM_COUNT - 1000) )
 		{
 			(void) NVRAM_CountCRC8( pNVERRLOG_UPG1, TRUE);
@@ -762,13 +747,13 @@ uint16 NVRAM_LogError( uint8 u8ErrorCode)
 			if ( u16ErrorLogIdx1 >= C_MAX_ERRORS_PER_PAGE )
 			{
 				/* Array full; Switch to page #2 */
-				if ( (u16ErrorLogIdx2 & 0x80U) != 0U )
+				if ( u16ErrorLogIdx2 & 0x80 )
 				{
-					u16ErrorLogIdx1 = (u16ErrorLogIdx2 ^ 0x01U);
+					u16ErrorLogIdx1 = (u16ErrorLogIdx2 ^ 0x01);
 				}
 				else
 				{
-					u16ErrorLogIdx1 = 0xFFU;
+					u16ErrorLogIdx1 = 0xFF;
 				}
 			}
 			pNVERRLOG_UPG1->ErrorLogIndex_CRC = ((pNVERRLOG_UPG1->ErrorLogIndex_CRC) & 0xFF00) | u16ErrorLogIdx1;
@@ -782,19 +767,19 @@ uint16 NVRAM_LogError( uint8 u8ErrorCode)
 	}
 	else 
 	{
-		/* Store error on User-Page #2 */
+		/* Store error on User-Page #2 */										/* MMP150219-1 - Begin */
 		if ( u16ErrorLogIdx2 >= C_MAX_ERRORS_PER_PAGE )							/* Check against array overflow */
 		{
-			u16ErrorLogIdx2 = 0U;
+			u16ErrorLogIdx2 = 0;
 		}
-		if ( NVRAM_CountCRC8( pNVERRLOG_UPG2, FALSE) == (uint8) 0xFFU )			/* MMP170106-1 */
+		if ( NVRAM_CountCRC8( pNVERRLOG_UPG2, FALSE) == 0x00 )
 		{
 			pNVERRLOG_UPG2->NvramProgramCycleCount++;
 		}
 		else
 		{
 			pNVERRLOG_UPG2->NvramProgramCycleCount = 1U;
-		}
+		}																		/* MMP150219-1 - End  */
 		if ( pNVERRLOG_UPG2->NvramProgramCycleCount < (C_MAX_NVRAM_PROGRAM_COUNT - 1000) )
 		{
 			(void) NVRAM_CountCRC8( pNVERRLOG_UPG2, TRUE);
@@ -806,7 +791,7 @@ uint16 NVRAM_LogError( uint8 u8ErrorCode)
 				/* Array full; Switch to page #1  */
 				u16ErrorLogIdx2 = u16ErrorLogIdx1;
 			}
-			pNVERRLOG_UPG2->ErrorLogIndex_CRC = ((pNVERRLOG_UPG2->ErrorLogIndex_CRC) & 0xFF00U) | u16ErrorLogIdx2;
+			pNVERRLOG_UPG2->ErrorLogIndex_CRC = ((pNVERRLOG_UPG2->ErrorLogIndex_CRC) & 0xFF00) | u16ErrorLogIdx2;
 			/* Save (NV)RAM to NV(RAM) */
 			NVRAM_SavePage( NVRAM2_PAGE1 | NVRAM_PAGE_WR_SKIP_WAIT);
 		}
@@ -815,7 +800,7 @@ uint16 NVRAM_LogError( uint8 u8ErrorCode)
 			u16Result = C_NVRAM_STORE_MAX_WRITE_CYCLE;
 		}
 	}
-	return ( u16Result );
+	return ( u16Result );														/* MMP150219-1 */
 } /* End of NVRAM_LogError() */
 
 /* ****************************************************************************	*
@@ -833,28 +818,28 @@ uint8 NVRAM_GetLastError( void)
 	u16ErrorLogIdx1 = (uint8) (pNVERRLOG_UPG1->ErrorLogIndex_CRC);
 	u16ErrorLogIdx2 = (uint8) (pNVERRLOG_UPG2->ErrorLogIndex_CRC);
 
-	if ( (u16ErrorLogIdx1 != 0x00U) || (u16ErrorLogIdx2 != 0x00U) )
+	if ( (u16ErrorLogIdx1 != 0x00) || (u16ErrorLogIdx2 != 0x00) )
 	{
-		if ( (u16ErrorLogIdx1 ^ u16ErrorLogIdx2) == 0x00U )
+		if ( (u16ErrorLogIdx1 ^ u16ErrorLogIdx2) == 0x00 )
 		{
 			u16ErrorLogIdx2 = C_MAX_ERRORS_PER_PAGE;								/* Second UserPage last time written full */
 		}
-		else if ( (u16ErrorLogIdx1 ^ u16ErrorLogIdx2) == 0x01U )
+		else if ( (u16ErrorLogIdx1 ^ u16ErrorLogIdx2) == 0x01 )
 		{
 			u16ErrorLogIdx1 = C_MAX_ERRORS_PER_PAGE;								/* First UserPage last time written full, and Second UserPage is full */
 		}
-		else if ( (u16ErrorLogIdx1 == 0xFFU) && (u16ErrorLogIdx2 == 0U) )
+		else if ( (u16ErrorLogIdx1 == 0xFF) && (u16ErrorLogIdx2 == 0) )				/* MMP140218-1 */
 		{
 			u16ErrorLogIdx1 = C_MAX_ERRORS_PER_PAGE;								/* First UserPage last time written full, and Second UserPage is empty */
-		}
+		}																			/* MMP140218-1 */
 
-		if ( (u16ErrorLogIdx1 & 0x80U) == 0x00U )
+		if ( (u16ErrorLogIdx1 & 0x80) == 0x00 )
 		{
 			/* Get last error from User-Page #1 */
 			u16ErrorLogIdx1--;
 			{
 				uint16 u16ErrorCodes = pNVERRLOG_UPG1->ErrorLog[u16ErrorLogIdx1 >> 1];
-				if ( (u16ErrorLogIdx1 & 0x01U) != 0U )
+				if ( u16ErrorLogIdx1 & 0x01 )
 				{
 					u8Result = (uint8) (u16ErrorCodes >> 8);
 				}
@@ -870,7 +855,7 @@ uint8 NVRAM_GetLastError( void)
 			u16ErrorLogIdx2--;
 			{
 				uint16 u16ErrorCodes = pNVERRLOG_UPG2->ErrorLog[u16ErrorLogIdx2 >> 1];
-				if ( (u16ErrorLogIdx2 & 0x01U) != 0U )
+				if ( u16ErrorLogIdx2 & 0x01 )
 				{
 					u8Result = (uint8) (u16ErrorCodes >> 8);
 				}
@@ -896,24 +881,23 @@ void NVRAM_ClearErrorLog( void)
 {
 	uint16 i;
 	PNVRAM_ERRORLOG pNVERRLOG_UPG = (PNVRAM_ERRORLOG) (C_ADDR_USERPAGE1 + sizeof(NVRAM_USER));
-	pNVERRLOG_UPG->ErrorLogIndex_CRC = ((pNVERRLOG_UPG->ErrorLogIndex_CRC) & 0xFF00U) | 0x00U;	/* Set index at 0x00 */
-	for ( i = 0U; i < (C_MAX_ERRORS_PER_PAGE/2); i++ )
+	pNVERRLOG_UPG->ErrorLogIndex_CRC = ((pNVERRLOG_UPG->ErrorLogIndex_CRC) & 0xFF00) | 0x00;	/* Set index at 0x00 */
+	for ( i = 0; i < (C_MAX_ERRORS_PER_PAGE/2); i++ )
 	{
-		pNVERRLOG_UPG->ErrorLog[i] = 0x0000U;
+		pNVERRLOG_UPG->ErrorLog[i] = 0x0000;
 	}
 	(void) NVRAM_CountCRC8( pNVERRLOG_UPG, TRUE);
 	NVRAM_SavePage( NVRAM1_PAGE1);
 
 	pNVERRLOG_UPG = (PNVRAM_ERRORLOG) (C_ADDR_USERPAGE2 + sizeof(NVRAM_USER));
-	pNVERRLOG_UPG->ErrorLogIndex_CRC = ((pNVERRLOG_UPG->ErrorLogIndex_CRC) & 0xFF00U) | 0x00U;	/* Set index at 0x00 */
-	for ( i = 0U; i < (C_MAX_ERRORS_PER_PAGE/2U); i++ )
+	pNVERRLOG_UPG->ErrorLogIndex_CRC = ((pNVERRLOG_UPG->ErrorLogIndex_CRC) & 0xFF00) | 0x00;	/* Set index at 0x00 */
+	for ( i = 0; i < (C_MAX_ERRORS_PER_PAGE/2); i++ )
 	{
-		pNVERRLOG_UPG->ErrorLog[i] = 0x0000U;
+		pNVERRLOG_UPG->ErrorLog[i] = 0x0000;
 	}
 	(void) NVRAM_CountCRC8( pNVERRLOG_UPG, TRUE);
 	NVRAM_SavePage( NVRAM2_PAGE1);
 } /* End of NVRAM_ClearErrorLog() */
-#endif /* _SUPPORT_LOG_NVRAM */
 
 /* ****************************************************************************	*
  * void NVRAM_StorePatch
@@ -933,7 +917,6 @@ void NVRAM_ClearErrorLog( void)
  * ****************************************************************************	*/
 void NVRAM_StorePatch( void)
 {
-	//TODO[MMP]: Make sure NVRAM1 Trim value is correct
 	NVRAM_SavePage( NVRAM1_PAGE2);
 	NVRAM_LoadUserPage();
 } /* End of NVRAM_StorePatch() */
@@ -948,11 +931,11 @@ void NVRAM_StorePatch( void)
  * ****************************************************************************	*/
 void NVRAM_MlxCalibrationAreaCheck( void)
 {
-	if ( (EE_GLAA == 0U) ||														/* Auto addressing gain calibration */
-		 (EE_GDMCMAA == 0U) ||													/* Common Mode Rejection factor */
-		 (EE_GMCURR == 0U) ||													/* CGAINCAL_FLT (Current sensor filter gain) */
-		 (EE_GVOLTAGE == 0U) ||													/* VGAINCAL (supply sensor filter gain) */
-		 (EE_GTEMP == 0U) )														/* Temperature Gain */
+	if ( (EE_GLAA == 0) ||														/* Auto addressing gain calibration */
+		 (EE_GDMCMAA == 0) ||													/* Common Mode Rejection factor */
+		 (EE_GMCURR == 0) ||													/* CGAINCAL_FLT (Current sensor filter gain) */
+		 (EE_GVOLTAGE == 0) ||													/* VGAINCAL (supply sensor filter gain) */
+		 (EE_GTEMP == 0) )														/* Temperature Gain */
 	{
 		SetLastError( (uint8) C_ERR_NVRAM_MLX_CAL_GN);
 	}

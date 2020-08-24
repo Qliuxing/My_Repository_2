@@ -80,7 +80,7 @@
 
 #include "LIN_Communication.h"
 #if ((__MLX_PLTF_VERSION_MAJOR__ == 3) && (__MLX_PLTF_VERSION_MINOR__ >= 3)) || (__MLX_PLTF_VERSION_MAJOR__ >= 4)
-#include "lin_internal.h"
+#include "lin_internal.h"														/* LinFrame (MMP140417-1) */
 #endif /* ((__MLX_PLTF_VERSION_MAJOR__ == 3) && (__MLX_PLTF_VERSION_MINOR__ >= 3)) || (__MLX_PLTF_VERSION_MAJOR__ >= 4) */
 #include "lin.h"
 #include "main.h"
@@ -96,16 +96,19 @@ extern ml_Status ml_ReleaseBuffer( void);
  *	NORMAL PAGE 0 IMPLEMENTATION (@TINY Memory Space < 0x100)					*
  * ****************************************************************************	*/
 #pragma space dp
-#if _SUPPORT_LIN_AA
+#if ((LINPROT & LINXX) != LIN2J)
 /************************ AUTO ADDRESSING ***********************/
-#if (LINAA_BSM_SNPD_R1p0 == FALSE)
+#if (LINAA_BSM_SNPD_R1p0 == FALSE)												/* MMP140417-2 - Begin */
 volatile uint8 l_e8AutoAddressingState;
 volatile uint8 l_u8AutoAddressingPulse = 0;										/* Local copy of pulse variable set by MLX4 LIN API */
-#endif /* (LINAA_BSM_SNPD_R1p0 == FALSE) */
+#endif /* (LINAA_BSM_SNPD_R1p0 == FALSE) */										/* MMP140417-2 - End */
 volatile uint8 g_u8AutoAddressingFlags = 0x00;									/* Reset all auto addressing flags */
-#endif /* _SUPPORT_LIN_AA */
+#endif /* ((LINPROT & LINXX) != LIN2J) */
 
 uint8 g_u8BufferOutID = QR_INVALID;												/* LIN output buffer is invalid */
+#if ((LINPROT & LINXX) == LIN13) || ((LINPROT & LINXX) == LIN2J)
+uint8 l_u8SynchFieldErrorCounter = 0;
+#endif /* ((LINPROT & LINXX) == LIN13) || ((LINPROT & LINXX) == LIN2J) */
 uint8 l_u8LinInFrameMsgID;														/* LIN input frame message-ID */
 LININBUF g_LinCmdFrameBuffer;
 #if ((LINPROT & LINX) == LIN2)
@@ -119,10 +122,12 @@ RFR_DIAG g_DiagResponse;
 #pragma space nodp
 uint8 g_u8LinInFrameBufState = C_LIN_IN_FREE;									/* LIN input frame-buffer status is FREE */
 uint8 l_u8LastMsgIndex;															/* Last received message ID */
+#if ((LINPROT & LINXX) != LIN2J) || (LINPROT == LIN2J_VALVE_GM)
 volatile uint8 g_u8ErrorCommunication = FALSE;									/* Flag indicate of LIN communication errors occurred */
+#endif /* ((LINPROT & LINXX) != LIN2J) || (LINPROT == LIN2J_VALVE_GM) */
 volatile uint8 g_u8ErrorCommBusTimeout = FALSE;									/* Flag indicate of LIN bus time-out occurred */
 
-#if _SUPPORT_LIN_AA
+#if ((LINPROT & LINXX) != LIN2J)
 /************************ AUTO ADDRESSING ***********************/
 #if (LINAA_BSM_SNPD_R1p0 != FALSE)
 uint16 l_u16SlowBaudrateAdjustment = 0;											/* Minimum time */
@@ -133,9 +138,9 @@ int16 l_i16Ishunt;
 uint16 l_u16AutoAddressingCM = 0;												/* Running sum of up to 2 Common mode ADC results */
 int16 l_i16AutoAddressingDM = 0;												/* Running sum of up to 8 Differential mode ADC results */
 int16 l_i16Ishunt1, l_i16Ishunt2, l_i16Ishunt3;									/* Shunt resistor currents */
-#if (LINAA_BSM_SNPD_R1p0 == FALSE)
+#if (LINAA_BSM_SNPD_R1p0 == FALSE)												/* MMP140417-2 - Begin */
 uint8 l_u8Step;
-#endif /* (LINAA_BSM_SNPD_R1p0 == FALSE) */
+#endif /* (LINAA_BSM_SNPD_R1p0 == FALSE) */										/* MMP140417-2 - End */
 #if LIN_AA_INFO
 #if (USE_MULTI_PURPOSE_BUFFER == FALSE)
 SNPD_DATA l_aSNPD_Data[LIN_AA_INFO_SZ];
@@ -143,16 +148,16 @@ SNPD_DATA l_aSNPD_Data[LIN_AA_INFO_SZ];
 uint8 l_u8SNPD_CycleCount;
 #endif /* LIN_AA_INFO */
 volatile ADC_LINAA LinAutoAddressing; /*lint !e552 */							/* LIN Auto Addressing measurement results */
-#endif /* _SUPPORT_LIN_AA */
+#endif /* ((LINPROT & LINXX) != LIN2J) */
 
 #pragma space none
 
 /* ****************************************************************************	*
  *	Internal function prototypes												*
  * ****************************************************************************	*/
-#if _SUPPORT_LIN_AA
+#if ((LINPROT & LINXX) != LIN2J)
 void ml_AutoAddressingCfgADC( void);
-#endif /* _SUPPORT_LIN_AA */
+#endif /* ((LINPROT & LINXX) != LIN2J) */
 
 /* ****************************************************************************	*
  * LIN_Init()
@@ -163,14 +168,14 @@ void ml_AutoAddressingCfgADC( void);
 void LIN_Init( uint16 u16WarmStart)
 {
 	/* Initialise LIN Communication */
-	LIN_XCFG &= ~DISTERM;														/* Enable LIN pull-up resistor */
+	LIN_XCFG &= ~DISTERM;														/* Enable LIN pull-up resistor (MMP150811-2) */
 	(void) ml_InitLinModule();													/* Initialise the LIN module */
 
 	/* Setup LIN baudrate */
 #if (__MLX_PLTF_VERSION_MAJOR__ == 4)
 #if (_SUPPORT_AUTO_BAUDRATE != FALSE)
 	/* Auto baudrate only on first LIN frame */
-	(void) ml_SetAutoBaudRateMode( ML_ABR_ON_FIRST_FRAME);
+	(void) ml_SetAutoBaudRateMode( ML_ABR_ON_FIRST_FRAME);						/* MMP141215-1 */
 #else  /* (_SUPPORT_AUTO_BAUDRATE != FALSE) */
 	/* Fixed baudrate */
 	(void) ml_SetBaudRate( (ml_uint8) LIN_BR_PRESCALER, (ml_uint8)LIN_BR_DIV);	/* Program the baudrate : default startup : 9600baud @ 20.0 Mhz	*/
@@ -255,6 +260,7 @@ ml_Status mlu_ApplicationStop(void)
 void mlu_DataRequest( ml_MessageID MessageID) 
 {
 	g_u8ErrorCommBusTimeout = FALSE;											/* Data requested; No longer Bus time-out */
+	g_u8EmergencyRunOcc = FALSE;//clear emergency run flag,Ban
 
 #if ((LINPROT & LINXX) == LIN2X)
 	if ( MessageID == (uint8) mlxRFR_DIAG )
@@ -306,6 +312,7 @@ void mlu_DataRequest( ml_MessageID MessageID)
 			dst[3] = src[3];
 
 			(void) ml_DataReady( ML_END_OF_TX_DISABLED);
+			l_u8SynchFieldErrorCounter = 0;										/* Reset sync field errors */
 			g_u8BufferOutID = (uint8) QR_INVALID;								/* Invalidate LIN output buffer */
 		}
 		else
@@ -313,7 +320,7 @@ void mlu_DataRequest( ml_MessageID MessageID)
 			(void) ml_DiscardFrame();											/* Output buffer response doesn't match requested response */
 		}
 	}
-#if (LINPROT == LIN2J_VALVE_VW)
+#if (LINPROT == LIN2J_VALVE_GM)
 	else if ( (g_u8NAD >= (uint8) C_MIN_J2602_NAD) && (g_u8NAD <= (uint8) C_MAX_J2602_NAD) )
 	{
 		if ( MessageID == (uint8) mlxACT_STATUS )
@@ -323,13 +330,13 @@ void mlu_DataRequest( ml_MessageID MessageID)
 			(void) ml_DataReady( ML_END_OF_TX_ENABLED);
 		}
 	}
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
 #if (__MLX_PLTF_VERSION_MAJOR__ == 3)
 	(void) ml_ReleaseBuffer();													/* See MELEXIS doc */
 #endif /* (__MLX_PLTF_VERSION_MAJOR__ == 3) */
 #endif /* ((LINPROT & LINXX) == LIN2J) */
 
-#if ((LINPROT & LINXX) == LIN2X)
+#if ((LINPROT & LINXX) == LIN2X)												/* MMP140414-1 */
 	if ( g_u8LinAAMode != 0 )
 	{
 		(void)ml_GetAutoaddressingStatus();
@@ -343,17 +350,17 @@ void mlu_DataRequest( ml_MessageID MessageID)
 void mlu_DataTransmitted(void) 
 {
 #if ((LINPROT & LINXX) == LIN2J)
-#if (LINPROT != LIN2J_VALVE_VW)
+#if (LINPROT != LIN2J_VALVE_GM)
 	if ( g_u8SAE_SendErrorState )
 	{
 		g_u8SAE_ErrorFlags &= ~(uint8)(1 << g_u8SAE_SendErrorState);			/* Clear error-flags which have been transmitted */
 	}
-#else  /* (LINPROT != LIN2J_VALVE_VW) */
+#else  /* (LINPROT != LIN2J_VALVE_GM) */
 	if ( g_u8SAE_SendErrorState )
 	{
 		g_u8ErrorCommunication = FALSE;
 	}
-#endif /* (LINPROT != LIN2J_VALVE_VW) */
+#endif /* (LINPROT != LIN2J_VALVE_GM) */
 #endif /* ((LINPROT & LINXX) == LIN2J) */
 
 #if (__MLX_PLTF_VERSION_MAJOR__ == 3)
@@ -372,7 +379,7 @@ void mlu_ErrorDetected( ml_LinError Error)
 #if (__MLX_PLTF_VERSION_MAJOR__ == 3)
 	(void) ml_ReleaseBuffer(); 													/* Release the buffer in case there was a reception overflow */
 #endif /* (__MLX_PLTF_VERSION_MAJOR__ == 3) */
-#elif (LINPROT == LIN2J_VALVE_VW)
+#elif (LINPROT == LIN2J_VALVE_GM)
 	LIN2J_ErrorHandling( Error);
 #else  /* (LINPROT == LIN2X_ACT44) */
 
@@ -437,13 +444,14 @@ void mlu_ErrorDetected( ml_LinError Error)
 #endif /* (__MLX_PLTF_VERSION_MAJOR__ == 3) */
 			break;
 
+		/* MMP151118-1 */
 		case ml_erShortDone :													/* erSHORTDONE : A short state has been seen on the bus, but now recovered */
 		case ml_erWakeUpInit :													/* erWKUPINIT : A valid wake-up pulse has been seen while waiting to enter in sleep state */
 		default :																/* Unrecognised error                                        */
 			break;
 	}
 #endif /* (LINPROT == LIN2X_ACT44) */
-#if ((LINPROT & LINXX) == LIN2X)
+#if ((LINPROT & LINXX) == LIN2X)												/* MMP140414-1 */
 	if ( g_u8LinAAMode != 0 )
 	{
 		(void)ml_GetAutoaddressingStatus();
@@ -467,13 +475,13 @@ void mlu_HeaderReceived( ml_MessageID MessageID, ml_bool ValidMessage)
 /* ****************************************************************************	*
  *  LIN API event: mlu_LinSleepMode
  * ****************************************************************************	*/
-void mlu_LinSleepMode(ml_StateReason Reason)
+void mlu_LinSleepMode(ml_StateReason Reason)									/* MMP130918-1 */
 {
 	/*
 	 * MLX4 FW handles Goto Sleep frame (0x3C, 0x00 ...) automatically
 	 * and does not report it via mlu_MessageReceived event.
 	 */
-	if ( (Reason == ml_reasonMaster) || (Reason == ml_reasonCommand) )
+	if ( (Reason == ml_reasonMaster) || (Reason == ml_reasonCommand) )			/* MMP130918-1 */
 	{
 		{
 			g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_SLEEP;
@@ -522,6 +530,7 @@ void mlu_MessageReceived( ml_MessageID byMessageID)
 #endif /* (__MLX_PLTF_VERSION_MAJOR__ == 3) */
 		g_u8LinInFrameBufState = (uint8) C_LIN_IN_FULL;
 		g_u8ErrorCommBusTimeout = FALSE;										/* Frame received; No longer Bus time-out */
+		g_u8EmergencyRunOcc = FALSE;//clear emergency run flag,Ban
 		LinFrame[0] = 0x00;														/* Clear NAD address */
 	}
 } /* End of mlu_MessageReceived() */
@@ -544,19 +553,19 @@ void HandleLinInMsg( void)
 	else if ( l_u8LinInFrameMsgID == (uint8) MSG_CONTROL )
 	{
 		/* Control */
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 		HandleActCtrl( FALSE);
 #else  /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
 		HandleActCtrl();
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 	}
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 	else if ( l_u8LinInFrameMsgID == (uint8) MSG_GROUP_CONTROL )
 	{
 		/* Control */
 		HandleActCtrl( TRUE);
 	}
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 #endif /* (LINPROT == LIN2X_ACT44) */
 #endif /* ((LINPROT & LINXX) == LIN2X) */
 
@@ -566,13 +575,13 @@ void HandleLinInMsg( void)
 		/* Diagnostic frame */
 		HandleDfrDiag();
 	}
-#if (LINPROT == LIN2J_VALVE_VW)
+#if (LINPROT == LIN2J_VALVE_GM)
 	else if ( (g_u8NAD >= (uint8) C_MIN_J2602_NAD) && (g_u8NAD <= (uint8) C_MAX_J2602_NAD) && (l_u8LinInFrameMsgID == (uint8) mlxACT_CTRL) )
 	{
 		/* Control */
 		HandleActCfrCtrl();
 	}
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
 #endif /* ((LINPROT & LINXX) == LIN2J) */
 
 	if ( g_u8LinInFrameBufState != (uint8) C_LIN_IN_POSTPONE )
@@ -581,7 +590,7 @@ void HandleLinInMsg( void)
 		g_u8LinInFrameBufState = (uint8) C_LIN_IN_FREE;
 	}
 
-#if ((LINPROT & LINXX) == LIN2X)
+#if ((LINPROT & LINXX) == LIN2X)												/* MMP140414-1 */
 	if ( g_u8LinAAMode != 0 )
 	{
 		(void)ml_GetAutoaddressingStatus();
@@ -589,7 +598,7 @@ void HandleLinInMsg( void)
 #endif /* ((LINPROT & LINXX) == LIN2X) */
 } /* End of HandleLinInMsg() */
 
-#if _SUPPORT_LIN_AA
+#if ((LINPROT & LINXX) != LIN2J)
 
 /************************ AUTO ADDRESSING ***********************/
 uint16 const SBASE_LIN[19] = { 
@@ -635,6 +644,7 @@ uint16 const SBASE_LIN[19] = {
 /* ****************************************************************************	*
  *  LIN API event: mlu_AutoAddressingStep
  * ****************************************************************************	*/
+/* MMP140417-2 - Begin */
 #define DELAY_40US (uint16)((40U * PLL_freq)/(1000000U*2*CYCLES_PER_INSTR))		/* 40us * PLL / (cy/inst) * us * 2 inst/loop */
 
 /* Timer2 is used for LIN Auto-Addressing ADC trigger; Timer1 could also be used, as the motor is not running */
@@ -684,7 +694,7 @@ void mlu_AutoAddressingStep( ml_uint8 StepNumber)
 			NopDelay( l_u16SlowBaudrateAdjustment); /*lint !e522 */
 
 			/* Test-module: No ADC-measurement, only current source */
-			ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START);
+			ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START);				/* MMP140812-1 */
 			LINAA_TIMER_START();												/* Start LIN-shunt current measurement (LIN-AA Timer) */
 		}
 		else if ( StepNumber == 3 )
@@ -692,7 +702,7 @@ void mlu_AutoAddressingStep( ml_uint8 StepNumber)
 			/* *** Step 2: Setup for pull-up LIN-shunt current measurement *** */
 			if ( l_u16SlowBaudrateAdjustment )
 			{
-				NopDelay( DELAY_40US / 2); /*lint !e522 */
+				NopDelay( DELAY_40US / 2); /*lint !e522 */						/* MMP131217-1/MMP140404-3 */
 			}
 
 			/* Setup 2nd current measurement; Either enable pull-up or enable current-source of 1.12mA */
@@ -721,7 +731,7 @@ void mlu_AutoAddressingStep( ml_uint8 StepNumber)
 			/* *** Step 3: Perform pull-up LIN-shunt measurement *** */
 
 			/* Test-module: No ADC-measurement, only current source */
-			ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START);
+			ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START);				/* MMP140812-1 */
 			LINAA_TIMER_START();												/* Start LIN-shunt current measurement (LIN-AA Timer) */
 
 #if ((LIN_AA_INFO != FALSE) && (LIN_AA_SCREENTEST != FALSE))
@@ -783,7 +793,7 @@ void mlu_AutoAddressingStep( ml_uint8 StepNumber)
 			NopDelay( l_u16SlowBaudrateAdjustment); /*lint !e522 */
 
 			/* Test-module: No ADC-measurement, only current source */
-			ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START);
+			ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START);				/* MMP140812-1 */
 			LINAA_TIMER_START();												/* Start LIN-shunt current measurement (LIN-AA Timer) */
 
 #if ((LIN_AA_INFO != FALSE) && (LIN_AA_SCREENTEST != FALSE))
@@ -819,13 +829,13 @@ void mlu_AutoAddressingStep( ml_uint8 StepNumber)
 				(((g_u8LinAAMode & C_SNPD_METHOD_2) == 0) && ((l_i16Ishunt2 - l_i16Ishunt1) < C_LIN2xAA_dI_2_BSM)) )	/* BSM 1: Calculate difference Ishunt2 - Ishunt1 < 2.0mA */
 #endif /* (FORCE_LINAA_OLD != FALSE) */
 			{
-				g_u8AutoAddressingFlags |= (uint8) LASTSLAVE;					/* This LIN-slave is the last slave: take the address and set SLAVEADDRESSED flag */
+				g_u8AutoAddressingFlags |= (uint8) LASTSLAVE;					/* This LIN-slave is the last slave: take the address and set SLAVEADDRESSED flag (MMP140414-1) */
 			}
 		}
 		if ( StepNumber == 7 )
 		{
 #if LIN_AA_INFO
-			pSNPD_Data->byStepAndFlags = (7 << 3) | (g_u8AutoAddressingFlags & 0x87);
+			pSNPD_Data->byStepAndFlags = (7 << 3) | (g_u8AutoAddressingFlags & 0x87);	/* MMP130818-1 */
 			pSNPD_Data->byIshunt1 = (uint8) l_i16Ishunt1;
 			pSNPD_Data->byIshunt2 = (uint8) l_i16Ishunt2;
 			pSNPD_Data->byIshunt3 = (uint8) l_i16Ishunt3;
@@ -838,7 +848,7 @@ void mlu_AutoAddressingStep( ml_uint8 StepNumber)
 	}
 
 #endif /* (LINAA_BSM_SNPD_R1p0 == FALSE) */
-} /* End of mlu_AutoAddressingStep() */
+} /* End of mlu_AutoAddressingStep() */											/* MMP140414-1 - End */
 
 /* ****************************************************************************	*
  *  ml_SetSlaveNotAddressed
@@ -915,7 +925,7 @@ void ml_SetSlaveAddressed( void)
  *	6: Last device check							0:1			7
  *	6: Finished (< 13T)								0:0			7
  * ****************************************************************************	*/
-#if (LINAA_BSM_SNPD_R1p0 != FALSE)
+#if (LINAA_BSM_SNPD_R1p0 != FALSE)												/* MMP140414-1 - Begin */
 void ml_InitAutoAddressing( void)
 {
 	/* Calculate the detected MLX4 LIN Baudrate, based on baudrate divider and pre-scaler */
@@ -935,11 +945,11 @@ void ml_InitAutoAddressing( void)
 	ADC_Stop();
 	g_u8AdcIsrMode = (uint8) C_ADC_ISR_LIN_AA;									/* Set switch ADC to Auto-addressing-mode */
 	ADC_SBASE = (uint16) SBASE_LIN;												/* Switch ADC input source to LIN Shunt */
-#if (_LINAA_ASM == FALSE)
+#if (_LINAA_ASM == FALSE)														/* MMP140417-2 - Begin */
 	ADC_DBASE = (uint16) &LinAutoAddressing.Result_LinShunt1_CommonMode;
 #else  /* (_LINAA_ASM == FALSE) */
 	ADC_DBASE = (uint16) &LinAutoAddressing.Result_LinAA[0];
-#endif /* (_LINAA_ASM == FALSE) */
+#endif /* (_LINAA_ASM == FALSE) */												/* MMP140417-2 - End */
 
 	/* Disable Timer2 & IRQ */
 	LINAA_TIMER_RESET();														/* Reset timer */
@@ -997,11 +1007,11 @@ ml_Status ml_GetAutoaddressingStatus( void)
 	ADC_Stop();
 	g_u8AdcIsrMode = (uint8) C_ADC_ISR_LIN_AA;									/* Set switch ADC to Autoaddressingmode */
 	ADC_SBASE = (uint16) SBASE_LIN;												/* Switch ADC input source to LIN Shunt */
-#if (_LINAA_ASM == FALSE)
+#if (_LINAA_ASM == FALSE)														/* MMP140417-2 - Begin */
 	ADC_DBASE = (uint16) &LinAutoAddressing.Result_LinShunt1_CommonMode;
 #else  /* (_LINAA_ASM == FALSE) */
 	ADC_DBASE = (uint16) &LinAutoAddressing.Result_LinAA[0];
-#endif /* (_LINAA_ASM == FALSE) */
+#endif /* (_LINAA_ASM == FALSE) */												/* MMP140417-2 - End */
 
 	/* Calculate the detected MLX4 LIN Baudrate, based on baudrate divider and pre-scaler */
 #if (__MLX_PLTF_VERSION_MAJOR__ == 4)
@@ -1088,27 +1098,27 @@ ml_Status ml_GetAutoaddressingStatus( void)
 	}
 	else
 	{
-		g_u8AutoAddressingFlags &= (uint8) ~LASTSLAVE;
+		g_u8AutoAddressingFlags &= (uint8) ~LASTSLAVE;							/* MMP140414-1 */
 		ml_AutoAddressingCfgADC();												/* Setup LIN-shunt current measurement */
 		while ( l_u8AutoAddressingPulse < 2 ) ;									/* Wait for Pulse #2 */
 		NopDelay( u16SlowBaudrateAdjustment); /*lint !e522 */
-		/* l_u8Step = 1; */
+		/* l_u8Step = 1; */														/* MMP140404-2 */
 
 		/* Test-module: No ADC-measurement, only current source */
-		ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START);
+		ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START);					/* MMP140812-1 */
 		LINAA_TIMER_START();													/* Start LIN-shunt current measurement (Timer2) */
 	
 		while ( l_u8AutoAddressingPulse < 3 ) ;									/* Wait for Pulse #3 */
 		if ( u16SlowBaudrateAdjustment )
-			NopDelay( DELAY_40US / 2); /*lint !e522 */
+			NopDelay( DELAY_40US / 2); /*lint !e522 */							/* MMP131217-1/MMP140404-3 */
 
 		/* *** Step 2: Setup for pull-up LIN-shunt current measurement *** */
-		/* l_u8Step = 2; */
+		/* l_u8Step = 2; */														/* MMP140404-2 */
 
 		/* Normal slave module */
 		l_i16Ishunt1 = l_i16Ishunt; 
 
-		/* NopDelay( 20); */
+		/* NopDelay( 20); */													/* MMP140404-3 */
 
 		/* Setup 2nd current measurement; Either enable pull-up or enable current-source of 1.12mA */
 #if ((LINPROT == LIN13_COOLING23) || (FORCE_LINAA_OLD != FALSE))
@@ -1132,10 +1142,10 @@ ml_Status ml_GetAutoaddressingStatus( void)
 		NopDelay( u16SlowBaudrateAdjustment); /*lint !e522 */
 
 		/* *** Step 3: Perform pull-up LIN-shunt measurement *** */
-		/* l_u8Step = 3; */
+		/* l_u8Step = 3; */														/* MMP140404-2 */
 
 		/* Test-module: No ADC-measurement, only current source */
-		ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START);
+		ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START);					/* MMP140812-1 */
 		LINAA_TIMER_START();													/* Start LIN-shunt current measurement (Timer2) */
 
 #if ((LIN_AA_INFO != FALSE) && (LIN_AA_SCREENTEST != FALSE))
@@ -1150,7 +1160,7 @@ ml_Status ml_GetAutoaddressingStatus( void)
 		NopDelay( u16SlowBaudrateAdjustment); /*lint !e522 */
 
 		/* *** Step 4: Pre-select: Check I2-I1 < threshold1 then Setup for current-source measurement, otherwise "quit" (wait) *** */
-		/* l_u8Step = 4; */
+		/* l_u8Step = 4; */														/* MMP140404-2 */
 
 		l_i16Ishunt2 = l_i16Ishunt; 
 #if ((LINPROT == LIN13_COOLING23) || (FORCE_LINAA_OLD != FALSE))
@@ -1199,7 +1209,7 @@ ml_Status ml_GetAutoaddressingStatus( void)
 			l_u8Step = 5;
 
 			/* Test-module: No ADC-measurement, only current source */
-			ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START);
+			ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START);				/* MMP140812-1 */
 			LINAA_TIMER_START();												/* Start LIN-shunt current measurement (Timer2) */
 
 #if ((LIN_AA_INFO != FALSE) && (LIN_AA_SCREENTEST != FALSE))
@@ -1249,8 +1259,8 @@ ml_Status ml_GetAutoaddressingStatus( void)
 			 (((g_u8LinAAMode & C_SNPD_METHOD_2) == 0) && ((l_i16Ishunt2 - l_i16Ishunt1) < C_LIN2xAA_dI_2_BSM)) )	/* BSM 1: Calculate difference Ishunt2 - Ishunt1 < 2.0mA */
 #endif /* ((LINPROT == LIN13_COOLING23) || (FORCE_LINAA_OLD != FALSE)) */
 		{
-			/* g_u8AutoAddressingFlags |= (uint8) (LASTSLAVE | SLAVEADDRESSED); */ /* This LIN-slave is the last slave: take the address and set SLAVEADDRESSED flag */
-			g_u8AutoAddressingFlags |= (uint8) LASTSLAVE;						/* This LIN-slave is the last slave: take the address and set SLAVEADDRESSED flag */
+			/* g_u8AutoAddressingFlags |= (uint8) (LASTSLAVE | SLAVEADDRESSED); */ /* (MMP140414-1) This LIN-slave is the last slave: take the address and set SLAVEADDRESSED flag */
+			g_u8AutoAddressingFlags |= (uint8) LASTSLAVE;						/* This LIN-slave is the last slave: take the address and set SLAVEADDRESSED flag (MMP140414-1) */
 		} 
 																				/* Else we are not the last slave: nothing to do. */
 		/* l_e8AutoAddressingState = (uint8) AUTOADDRESSING_DONE; */
@@ -1258,7 +1268,7 @@ ml_Status ml_GetAutoaddressingStatus( void)
 
 #if LIN_AA_INFO
 	{
-		pSNPD_Data->byStepAndFlags = ((l_u8Step & 0x0F) << 3) | (g_u8AutoAddressingFlags & 0x87);
+		pSNPD_Data->byStepAndFlags = ((l_u8Step & 0x0F) << 3) | (g_u8AutoAddressingFlags & 0x87);	/* MMP130818-1 */
 		pSNPD_Data->byIshunt1 = (uint8) l_i16Ishunt1;
 		pSNPD_Data->byIshunt2 = (uint8) l_i16Ishunt2;
 		pSNPD_Data->byIshunt3 = (uint8) l_i16Ishunt3;
@@ -1297,7 +1307,7 @@ void AutoAddressingReadADCResult( void)
 	LINAA_TIMER_STOP();															/* Stop LIN-AA Timer */
 
 	/*	l_u16AutoAddressingCM =	((LinAutoAddressing.Result_LinShunt1_CommonMode & 0x03FF) + (LinAutoAddressing.Result_LinShunt2_CommonMode & 0x03FF)); */
-#if (_LINAA_ASM == FALSE)
+#if (_LINAA_ASM == FALSE)														/* MMP140417-2 - Begin */
 	int16 i16Sum;
 	i16Sum =  *(int16 *) &LinAutoAddressing.Result_LinShunt1_CommonMode;
 	i16Sum += *(int16 *) &LinAutoAddressing.Result_LinShunt2_CommonMode;
@@ -1305,10 +1315,10 @@ void AutoAddressingReadADCResult( void)
 #else  /* (_LINAA_ASM == FALSE) */
 	asm("mov x, #_LinAutoAddressing");
 	asm("mov a, [x++]");		/* i16Sum =  *(int16 *) &LinAutoAddressing.Result_LinShunt1_CommonMode */
-	asm("add a, [x++]");		/* i16Sum += *(int16 *) &LinAutoAddressing.Result_LinShunt2_CommonMode */
+	asm("add a, [x++]");		/* i16Sum += *(int16 *) &LinAutoAddressing.Result_LinShunt2_CommonMode */ /* MMP140812-2 */
 	asm("lsr a, #1");			/* l_u16AutoAddressingCM = (i16Sum >> 1) */
 	asm("mov _l_u16AutoAddressingCM, a");
-#endif /* (_LINAA_ASM == FALSE) */
+#endif /* (_LINAA_ASM == FALSE) */												/* MMP140417-2 - End */
 #if (LINAA_NON_CHOPPER_MODE == FALSE)
 /*	l_i16AutoAddressingDM =	((int)(LinAutoAddressing.Result_LinShunt1_mode1 & 0x03FF) - (int)(LinAutoAddressing.Result_LinShunt1_mode2 & 0x03FF)) +
  *						((int)(LinAutoAddressing.Result_LinShunt2_mode1 & 0x03FF) - (int)(LinAutoAddressing.Result_LinShunt2_mode2 & 0x03FF)) +
@@ -1319,7 +1329,7 @@ void AutoAddressingReadADCResult( void)
  *						((int)(LinAutoAddressing.Result_LinShunt7_mode1 & 0x03FF) - (int)(LinAutoAddressing.Result_LinShunt7_mode2 & 0x03FF)) +
  *						((int)(LinAutoAddressing.Result_LinShunt8_mode1 & 0x03FF) - (int)(LinAutoAddressing.Result_LinShunt8_mode2 & 0x03FF)); */
 	/* Check listing for usage X++/Y++ */
-#if (_LINAA_ASM == FALSE)
+#if (_LINAA_ASM == FALSE)														/* MMP140417-2 - Begin */
 	i16Sum =  *(int16 *) &LinAutoAddressing.Result_LinShunt1_mode1;
 	i16Sum -= *(int16 *) &LinAutoAddressing.Result_LinShunt1_mode2;
 	i16Sum += *(int16 *) &LinAutoAddressing.Result_LinShunt2_mode1;
@@ -1357,7 +1367,7 @@ void AutoAddressingReadADCResult( void)
 	asm("asr a, #2");
 	asm("asr a, #2");
 	asm("mov _l_i16AutoAddressingDM, a");
-#endif /* (_LINAA_ASM == FALSE) */
+#endif /* (_LINAA_ASM == FALSE) */												/* MMP140417-2 - End */
 #else /* LINAA_NON_CHOPPER_MODE == FALSE */
 /*	AutoAddressingDM =	((int)(LinAutoAddressing.Result_LinShunt1_mode1 & 0x03FF) - (int)(LinAutoAddressing.Result_LinShunt5_mode1 & 0x03FF)) +
  *						((int)(LinAutoAddressing.Result_LinShunt1_mode2 & 0x03FF) - (int)(LinAutoAddressing.Result_LinShunt5_mode2 & 0x03FF)) +
@@ -1367,7 +1377,7 @@ void AutoAddressingReadADCResult( void)
  *						((int)(LinAutoAddressing.Result_LinShunt3_mode2 & 0x03FF) - (int)(LinAutoAddressing.Result_LinShunt7_mode2 & 0x03FF)) +
  *						((int)(LinAutoAddressing.Result_LinShunt4_mode1 & 0x03FF) - (int)(LinAutoAddressing.Result_LinShunt8_mode1 & 0x03FF)) +
  *						((int)(LinAutoAddressing.Result_LinShunt4_mode2 & 0x03FF) - (int)(LinAutoAddressing.Result_LinShunt8_mode2 & 0x03FF)); */
-#if (_LINAA_ASM == FALSE)
+#if (_LINAA_ASM == FALSE)														/* MMP140417-2 - Begin */
 	i16Sum =  *pi16Result;														/* LinAutoAddressing.Result_LinShunt1_mode1 */
 	pi16Result++;
 	i16Sum += *pi16Result;														/* LinAutoAddressing.Result_LinShunt1_mode2 */
@@ -1420,19 +1430,19 @@ void AutoAddressingReadADCResult( void)
 	asm("asr a, #2");
 	asm("asr a, #2");
 	asm("mov _AutoAddressingDM, a");
-#endif /* (_LINAA_ASM == FALSE) */
+#endif /* (_LINAA_ASM == FALSE) */												/* MMP140417-2 - End */
 #endif /*  LINAA_NON_CHOPPER_MODE == FALSE */
 
 	{
-		int16 i16AA_CM = (int16) l_u16AutoAddressingCM - EE_OCMAA;
+		int16 i16AA_CM = (int16) l_u16AutoAddressingCM - EE_OCMAA;					/* MMP140404-2 */
 #if (LIN_AA_INFO && LIN_AA_SCREENTEST)
 		int16 AASDMCM = EE_GDMCMAA;
 		AASDMCM -= (int16)g_NvramUser.AASDMCM_delta;
 		/* l_i16Ishunt = (int16) (mulI32_I16byI16( l_i16Ishunt, AASDMCM) >> 15); */
-		l_i16Ishunt = (int16) (((int32) i16AA_CM * AASDMCM) >> 15);
+		l_i16Ishunt = (int16) (((int32) i16AA_CM * AASDMCM) >> 15);			/* MMP140404-1/MMP140404-2 */
 #else  /* (LIN_AA_INFO && LIN_AA_SCREENTEST) */
 	/* l_i16Ishunt = (int16) (mulI32_I16byI16( l_i16Ishunt, EE_GDMCMAA) >> 15); */
-		l_i16Ishunt = (int16) (((int32) i16AA_CM * EE_GDMCMAA) >> 15);
+		l_i16Ishunt = (int16) (((int32) i16AA_CM * EE_GDMCMAA) >> 15);			/* MMP140404-1/MMP140404-2 */
 #endif /* (LIN_AA_INFO && LIN_AA_SCREENTEST) */
 	}
 
@@ -1441,7 +1451,7 @@ void AutoAddressingReadADCResult( void)
 
 	/* Correct DM gain to target gain (scale correction) */
 	/* l_i16Ishunt = (int16) (mulI32_I16byI16( l_i16Ishunt, EE_GLAA) >> 12); */
-	l_i16Ishunt = (int16) (((int32) l_i16Ishunt * EE_GLAA) >> 12);
+	l_i16Ishunt = (int16) (((int32) l_i16Ishunt * EE_GLAA) >> 12);				/* MMP140404-1 */
 
 	PEND = CLR_ADC_IT;
 	MASK &= ~EN_ADC_IT;
@@ -1465,7 +1475,7 @@ void ml_AutoAddressingCfgADC( void)
 
 	/* Set AdcCtrl to start CM, continuous */
 	ADC_CTRL = ADC_TRIG_SRC | ADC_SYNC_SOC;										/* Sync ADC with Timer, skip first pulse */
-	/* ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START); */
+	/* ADC_CTRL = (ADC_TRIG_SRC | ADC_SYNC_SOC | ADC_START); */					/* MMP140812-1 */
 
 } /* End of ml_AutoAddressingCfgADC() */
 
@@ -1491,7 +1501,7 @@ void ClearAAData(void)
 } /* End of ClearAAData() */
 #endif /* LIN_AA_INFO */
 
-#else  /* _SUPPORT_LIN_AA */
+#else  /* ((LINPROT & LINXX) != LIN2J) */
 
 /* ****************************************************************************	*
  *  LIN API event: mlu_AutoAddressingStep
@@ -1501,7 +1511,7 @@ void mlu_AutoAddressingStep( ml_uint8 StepNumber)
 	(void) StepNumber; 
 } /* End of mlu_AutoAddressingStep() */
 
-#endif /* _SUPPORT_LIN_AA */
+#endif /* ((LINPROT & LINXX) != LIN2J) */
 #endif /* LIN_COMM */
 
 /* EOF */

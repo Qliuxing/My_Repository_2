@@ -1,7 +1,7 @@
-/*! \file		LIN_Diagnostics.h
- *  \brief		MLX81300 LIN Diagnostics communication handling
+/*! \file		LIN_2x.h
+ *  \brief		MLX81300 LIN communication handling
  *
- * \note		project MLX81315
+ * \note		project MLX81300
  * 
  * \author 		Marcel Braat
  *   
@@ -24,7 +24,7 @@
 #ifndef LIN_DIAGNOSTICS_H_
 #define LIN_DIAGNOSTICS_H_
 
-#include "Build.h"
+#include <syslib.h>
 #include <lin.h>
 
 #define mlxDFR_DIAG							0x10U				/* Demand for diagnostic */
@@ -58,9 +58,9 @@
 #define C_PCI_SID_READ_BY_ID					0x06B2U
 #define C_LIN_PROD_ID								0x00U		/* (00, Mandatory) LIN Product Identification */
 #define	C_SERIAL_NR_ID								0x01U		/* (01, Optional) Serial number */
-#if (LINPROT == LIN2J_VALVE_VW)
+#if (LINPROT == LIN2J_VALVE_GM)
 #define C_SVN_ID									0x30U		/* (30, User) SVN */
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
 #define C_PCI_CC_NAD							0x06U
 #define C_SID_CC_NAD							0xB3U			/* (Optional) Conditional change NAD */
 #define C_PCI_SID_CC_NAD						0x06B3U
@@ -83,9 +83,9 @@
 #define C_SNPD_METHOD_2								0x80U		/* Second method */
 #define C_PCI_SAVE_CONFIG						0x01U
 #define C_SID_SAVE_CONFIG						0xB6U			/* (Optional) Save configuration */
-#define C_PCI_ASSIGN_GROUPADDRESS				0x06U
+#define C_PCI_ASSIGN_GROUPADDRESS				0x06U			/* MMP150125-1 - Begin */
 #define C_SID_ASSIGN_GROUPADDRESS				0xB6U			/* Assign Group-address (HVAC 4.7) */
-#define C_PCI_SID_ASSIGN_GROUPADDRESS			0x06B6U
+#define C_PCI_SID_ASSIGN_GROUPADDRESS			0x06B6U			/* MMP150125-1 - End */
 #define C_PCI_ASSIGN_FRAME_ID_RNG				0x06U
 #define C_SID_ASSIGN_FRAME_ID_RNG				0xB7U			/* (Mandatory) Assign frame ID range */
 #define C_PCI_SID_ASSIGN_FRAME_ID_RNG			0x06B7U
@@ -101,7 +101,7 @@
 
 /* *** MELEXIS *** */
 #define C_SID_MLX_DEBUG							0xDBU			/* Debug Support */
-#define C_DBG_SUBFUNC_SUPPORT						0x00U		/* Support 0xA0-0xFE */
+#define C_DBG_SUBFUNC_SUPPORT						0x00U		/* Support 0xA0-0xFE (MMP140519-2) */
 #define C_DBG_SUBFUNC_SUPPORT_A						0xD0FF		/* F, E, C, 7, 6, 5, 4, 3, 2, 1, 0 */
 #define C_DBG_SUBFUNC_SUPPORT_B						0x0000		/* - */
 #define C_DBG_SUBFUNC_SUPPORT_C						0xFF87		/* F, E, D, C, B, A, 9, 8, 7, 2, 1, 0 */
@@ -115,19 +115,19 @@
 #define C_DBG_SUBFUNC_LINAA_3						0xA3U		/* LIN Auto-Addressing - CM & DM #2 */
 #define C_DBG_SUBFUNC_LINAA_4						0xA4U		/* LIN Auto-Addressing - CM & DM #3 */
 #define C_DBG_SUBFUNC_APPLSTATE						0xA5U		/* Application Status */
-#define C_DBG_SUBFUNC_LIN_BAUDRATE					0xA6U		/* LIN Slave baudrate */
-#define C_DBG_SUBFUNC_RESTART_AUTO_BAUDRATE			0xA7U		/* Restart Auto baud-rate detection */
+#define C_DBG_SUBFUNC_LIN_BAUDRATE					0xA6U		/* LIN Slave baudrate (MMP130810-1) */
+#define C_DBG_SUBFUNC_RESTART_AUTO_BAUDRATE			0xA7U		/* Restart Auto baud-rate detection (MMP130828-1) */
 #define C_DBG_SUBFUNC_ADC_RAW						0xACU		/* ADC Temperature & voltage (raw) */
 #define C_DBG_SUBFUNC_AMBJENV						0xAEU		/* Ambient Environment */
 #define C_DBG_SUBFUNC_PWM_IN						0xAFU		/* PWM-In period & duty-cycle */
-#define C_DBG_SUBFUNC_MLX16_CLK						0xC0U		/* MLX16 Clock */
+#define C_DBG_SUBFUNC_MLX16_CLK						0xC0U		/* MLX16 Clock (MMP140527-1) */
 #define C_DBG_SUBFUNC_CHIPID						0xC1U		/* Chip ID */
 #define C_DBG_SUBFUNC_HWSWID						0xC2U		/* HW/SW ID */
-#define C_DBG_SUBFUNC_DEBUG_OPTIONS					0xC5U		/* Get _DEBUG options */
-#define C_DBG_SUBFUNC_SUPPORT_OPTIONS				0xC6U		/* Get _SUPPORT options */
-#define C_DBG_SUBFUNC_MLX4_VERSION					0xC7U		/* MLX4 F/W & Loader */
-#define C_DBG_SUBFUNC_PLTF_VERSION					0xC8U		/* Get Platform version */
-#define C_DBG_SUBFUNC_APP_VERSION					0xC9U		/* Get application version */
+#define C_DBG_SUBFUNC_DEBUG_OPTIONS					0xC5U		/* Get _DEBUG options (MMP140905-1) */
+#define C_DBG_SUBFUNC_SUPPORT_OPTIONS				0xC6U		/* Get _SUPPORT options (MMP140904-1) */
+#define C_DBG_SUBFUNC_MLX4_VERSION					0xC7U		/* MLX4 F/W & Loader (MMP140523-1) */
+#define C_DBG_SUBFUNC_PLTF_VERSION					0xC8U		/* Get Platform version (MMP140519-1) */
+#define C_DBG_SUBFUNC_APP_VERSION					0xC9U		/* Get application version (MMP140519-1) */
 #define C_DBG_SUBFUNC_MLXPAGE						0xCAU		/* Melexis Calibration page */
 #define C_DBG_SUBFUNC_MLXPID						0xCBU		/* Get PID info */
 #define C_DBG_SUBFUNC_NVRAM_ERRORCODES				0xCCU		/* NVRAM error-codes */
@@ -148,7 +148,10 @@
 #endif /* _DEBUG_MOTOR_CURRENT_FLT */
 #define C_DBG_RD_TMTR								0xDEU		/* Read TM_TR register */
 #define C_DBG_WR_TMTR								0xDFU		/* Write TM_TR register */
-#define C_DBG_SUBFUNC_FILLNVRAM						0xF8U		/* Fill NVRAM */
+//#define C_DBG_SUBFUNC_FLASHTRIM					0xF0U		/* Flash-trimming support */
+//#define C_DBG_SUBFUNC_FLASHCRC_CALC				0xF1U		/* Flash-CRC Calculation */
+//#define C_DBG_SUBFUNC_FLASHCRC_RES				0xF2U		/* Flash-CRC Result */
+#define C_DBG_SUBFUNC_FILLNVRAM						0xF8U		/* Fill NVRAM (MMP140407-1) */
 #define	C_DBG_SUBFUNC_HTOL_A						0xFAU		/* HTOL-A Time & Temperature */
 #define C_DBG_SUBFUNC_HTOL_B						0xFBU		/* HTOL-B Flash-readwindow & Supply */
 #define C_DBG_SUBFUNC_CLR_FATAL_ERRORCODES			0xFCU		/* Clear Fatal-error logging */
@@ -203,9 +206,9 @@
 #define C_RSID_REASSIGN_NAD						(C_SID_REASSIGN_NAD | C_RSID_OK)
 #define C_RPCI_READ_BY_ID_00					0x06U			/* Response-PCI: LIN Product Identification */
 #define C_RPCI_READ_BY_ID_01					0x05U			/* Response-PCI: Serial number */
-#if (LINPROT == LIN2J_VALVE_VW)
+#if (LINPROT == LIN2J_VALVE_GM)
 #define C_RPCI_READ_BY_ID_30					0x05U			/* Response-PCI: SVN */
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
 #define C_RSID_READ_BY_ID						(C_SID_READ_BY_ID | C_RSID_OK)
 #define C_RPCI_ASSIGN_FRAME_ID					0x01U
 #define C_RSID_ASSIGN_FRAME_ID					(C_SID_ASSIGN_FRAME_ID | C_RSID_OK)

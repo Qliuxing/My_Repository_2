@@ -74,9 +74,9 @@ __vectors:
 	.word	0xA55A	; Flash marker
     JMPVECTOR    (0x0008, STACK_IT, USER_MODE+0)  ;           STACK_IT      ; abort current instruction, return NOT possible
 ; Unsupported interrupts are handled by non-returnable _fatal-handler
-    JMPFATALVCTR (0x0010, 2, USER_MODE+0)         ; 0         PROT_ERR_IT   ; abort current instruction, return NOT possible
-    JMPFATALVCTR (0x0018, 3, USER_MODE+0)         ; 0         INV_AD_IT     ; abort current instruction, return NOT possible
-    JMPFATALVCTR (0x0020, 4, USER_MODE+0)         ; 0         PROG_ERR_IT   ; abort current instruction, return NOT possible
+    JMPFATALVCTR (0x0010, 2, USER_MODE+0)         ; 0         PROT_ERR_IT   ; abort current instruction, return NOT possible (MMP141023-1)
+    JMPFATALVCTR (0x0018, 3, USER_MODE+0)         ; 0         INV_AD_IT     ; abort current instruction, return NOT possible (MMP141023-1)
+    JMPFATALVCTR (0x0020, 4, USER_MODE+0)         ; 0         PROG_ERR_IT   ; abort current instruction, return NOT possible (MMP141023-1)
     JMPFATALVCTR (0x0028, 5,           0)         ; 1         EXCHANGE_IT
     JMPFATALVCTR (0x0030, 6,           0)         ; 1         TASK_RST_IT
     JMPFATALVCTR (0x0038, 7,           0)         ; 1         WD_ATT_IT

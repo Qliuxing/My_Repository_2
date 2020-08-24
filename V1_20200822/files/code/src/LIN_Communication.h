@@ -24,8 +24,6 @@
 #ifndef LIN_COMMUNICATION_H_
 #define LIN_COMMUNICATION_H_
 
-#include "Build.h"
-
 #if ((LINPROT & LINXX) == LIN2X)
 #include "LIN_2x.h"
 #include "LIN_Diagnostics.h"
@@ -36,10 +34,10 @@
 #include "LIN_Diagnostics.h"
 #endif /* ((LINPROT & LINXX) == LIN2J) */
 
-#include <pltf_version.h>
+#include <pltf_version.h>														/* MMP140408-1 */
 
 /* LIN Communication */
-#define LIN_BR					10417U
+#define LIN_BR					10415U
 #if (LIN_BR < 12000)
 #define LIN_BR_PRESCALER		3
 #else /* (LIN_BR < 10000) */
@@ -66,9 +64,9 @@ typedef union _LININBUF
 
 #if ((LINPROT & LINXX) == LIN2J)
 	DFR_DIAG Diag;
-#if (LINPROT == LIN2J_VALVE_VW)
+#if (LINPROT == LIN2J_VALVE_GM)
 	ACT_CFR_CTRL cfrCtrl;														/* Control Service: Command-frame */
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
 #endif /* ((LINPROT & LINXX) == LIN2J) */
 } LININBUF, *PLININBUF;
 
@@ -83,25 +81,25 @@ typedef union _LINOUTBUF
 
 #if ((LINPROT & LINXX) == LIN2J)
 /*	RFR_DIAG DiagResponse; */	/* Not used */
-#if (LINPROT == LIN2J_VALVE_VW)
+#if (LINPROT == LIN2J_VALVE_GM)
 	ACT_RFR_STA rfrSta;															/* Status Service: Response-frame */
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
 #endif /* ((LINPROT & LINXX) == LIN2J) */
 } LINOUTBUF, *PLINOUTBUF;
 #define INVALID 0																/* BufferOut Status "INVALID" */
 #define VALID	1																/* BufferOut Status "VALID" */
 
-#if _SUPPORT_LIN_AA
+#if ((LINPROT & LINXX) != LIN2J)
 /* flags in AutoAddressingFlags */
 #define SLAVEADDRESSED					0x01									/* 0: slave still in the running; 1: slave is addressed */
 #define WAITINGFORBREAK					0x02
 #define SLAVEFINALSTEP					0x02
 #define LINSHUNTCURRENT					0x08
 #define SLAVEWAITING					0x04									/* 0: slave in the running for Ishunt3; 1: slave not in the running for this break */
-#define LASTSLAVE						0x80									/* 0: slave is not the  last in line; 1: slave is the last in line. */
+#define LASTSLAVE						0x80								    /* 0: slave is not the  last in line; 1: slave is the last in line. */
 
-#define _LINAA_ASM	TRUE
-#if (_LINAA_ASM == FALSE)
+#define _LINAA_ASM	TRUE														/* MMP140417-2 */
+#if (_LINAA_ASM == FALSE)														/* MMP140417-2 - Begin */
 typedef struct _ADC_LINAA
 {
 	uint16 Result_LinShunt1_CommonMode;											/* LIN Common-mode #1 */
@@ -128,15 +126,15 @@ typedef struct _ADC_LINAA
 {
 	uint16 Result_LinAA[18];
 } ADC_LINAA, *PADC_LINAA;
-#endif /* (_LINAA_ASM == FALSE) */
+#endif /* (_LINAA_ASM == FALSE) */												/* MMP140417-2 - End */
 
 /* threshold constants for meeting the protocol */
-#define C_LIN13AA_dI_1					12										/* Set it back to ideal threshold */
+#define C_LIN13AA_dI_1					12										/* Set it back to ideal threshold (MMP131129-1) */
 #define C_LIN13AA_dI_2					12										/* Set it back to ideal threshold */
-#define C_LIN2xAA_dI_1_BSM2				12
+#define C_LIN2xAA_dI_1_BSM2				12										/* MMP131129-1 */
 #define C_LIN2xAA_dI_2_BSM2				12
-#define C_LIN2xAA_dI_1_BSM				26
-#define C_LIN2xAA_dI_2_BSM				26
+#define C_LIN2xAA_dI_1_BSM				26										/* MMP140923-1 */
+#define C_LIN2xAA_dI_2_BSM				26										/* MMP140923-1 */
 
 /* definition of auto-addressing state names */
 typedef enum 
@@ -152,29 +150,25 @@ typedef enum
 	AUTOADDRESSING_WAIT,
 	AUTOADDRESSING_DONE 
 } T_AUTOADDRESSING_STEP;
-#endif /* _SUPPORT_LIN_AA */
+#endif /* ((LINPROT & LINXX) != LIN2J) */
 
 /* ****************************************************************************	*
  *	P u b l i c   f u n c t i o n s												*
  * ****************************************************************************	*/
 extern void LIN_Init( uint16 u16WarmStart);										/* LIN communication initialisation */
-extern void HandleLinInMsg( void);												/* Handle LIN input frame buffer */
-#if _SUPPORT_LIN_AA
 extern void ml_SetSlaveNotAddressed( void);
-extern void ml_SetSlaveAddressed( void);
+extern void ml_SetSlaveAddressed( void);										/* MMP140414-1 */
 extern ml_Status ml_GetAutoaddressingStatus( void);
 extern void ClearAAData( void);
 extern void AutoAddressingReadADCResult( void);									/* LIN Auto Addressing */
-#if (LINAA_BSM_SNPD_R1p0 != FALSE)
+extern void HandleLinInMsg( void);												/* Handle LIN input frame buffer */
+#if (LINAA_BSM_SNPD_R1p0 != FALSE)												/* MMP140417-2 - Begin */
 extern void ml_InitAutoAddressing( void);
 extern void ml_StopAutoAddressing( void);
-#endif /* (LINAA_BSM_SNPD_R1p0 != FALSE) */
-#endif /* _SUPPORT_LIN_AA */
+#endif /* (LINAA_BSM_SNPD_R1p0 != FALSE) */										/* MMP140417-2 - End */
 
 #pragma space dp
-#if _SUPPORT_LIN_AA
 extern volatile uint8 g_u8AutoAddressingFlags;
-#endif /* _SUPPORT_LIN_AA */
 extern uint8 g_u8BufferOutID;													/* LIN output buffer is invalid */
 extern LININBUF g_LinCmdFrameBuffer;											/* (Copy of) LIN input frame-buffer */
 #if ((LINPROT & LINX) == LIN2)
@@ -184,22 +178,24 @@ extern RFR_DIAG g_DiagResponse;
 
 #pragma space nodp
 extern uint8 g_u8LinInFrameBufState;											/* LIN input frame-buffer status */
+#if ((LINPROT & LINXX) != LIN2J) || (LINPROT == LIN2J_VALVE_GM)
 extern volatile uint8 g_u8ErrorCommunication;									/* Communication error */
+#endif /* ((LINPROT & LINXX) != LIN2J) || (LINPROT == LIN2J_VALVE_GM) */
 extern volatile uint8 g_u8ErrorCommBusTimeout;									/* Flag indicate of LIN bus time-out occurred */
-#if _SUPPORT_LIN_AA && LIN_AA_INFO
+#if LIN_AA_INFO
 extern uint8 l_u8SNPD_CycleCount;												/* SNPD cycle count */
-#endif /* _SUPPORT_LIN_AA && LIN_AA_INFO */
+#endif /* LIN_AA_INFO */
 
 #if (__MLX_PLTF_VERSION_MAJOR__ == 3)
-/* MLX4 Data-area */
+/* MLX4 Data-area */															/* MMP130810-1 */
 extern volatile uint8 u8ActualBaudRateDiv __attribute((nodp, addr(0x07B1)));	/* MLX4-Addr: 0x01 (Complete byte) */
 extern volatile uint8 u8NominalBaudRateDiv __attribute((nodp, addr(0x07B2)));	/* MLX4-Addr: 0x02 (Complete byte) */
 /* extern volatile uint8 u8BaudRatePreScaler __attribute((nodp, addr(0x07DF))); */	/* MLX4-Addr: 0x5F (Upper-nibble) */
 #if ((__MLX_PLTF_VERSION_MINOR__ == 0) && (__MLX_PLTF_VERSION_REVISION__ == 15))
-extern volatile uint8 u8BaudRatePreScaler __attribute((nodp, addr(0x07D7))); 	/* MLX4-Addr: 0x4F (Upper-nibble) (Clean-up MLX4 platform) */
+extern volatile uint8 u8BaudRatePreScaler __attribute((nodp, addr(0x07D7))); 	/* MLX4-Addr: 0x4F (Upper-nibble) (MMP131022-1: Clean-up MLX4 platform) */
 #endif /* ((__MLX_PLTF_VERSION_MINOR__ == 0) && (__MLX_PLTF_VERSION_REVISION__ == 15)) */
 #if (__MLX_PLTF_VERSION_MINOR__ >= 1)
-extern volatile uint8 u8BaudRatePreScaler __attribute((nodp, addr(0x07B3)));	/* MLX4-Addr: 0x03 (Upper-nibble) (New MLX4 platform 3.1.0) */
+extern volatile uint8 u8BaudRatePreScaler __attribute((nodp, addr(0x07B3)));	/* MLX4-Addr: 0x03 (Upper-nibble) (MMP140408-1: New MLX4 platform 3.1.0) */
 #endif /* (__MLX_PLTF_VERSION_MINOR__ >= 1) */
 #endif /* (__MLX_PLTF_VERSION_MAJOR__ == 3) */
 

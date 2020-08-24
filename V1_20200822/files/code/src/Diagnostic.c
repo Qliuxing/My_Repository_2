@@ -41,10 +41,8 @@
  *	NORMAL FAR IMPLEMENTATION	(@NEAR Memory Space >= 0x100)					*
  * ****************************************************************************	*/
 #pragma space nodp
-#if (_SUPPORT_HALL_SENSOR)
 uint8 g_u8HallSwitchState = 0xFF;
 uint16 g_u16HallMicroStepIdx = 0xFFFF;
-#endif /* (_SUPPORT_HALL_SENSOR) */
 #pragma space none
 
 /* ****************************************************************************	*
@@ -59,25 +57,25 @@ void DiagnosticsInit( void)
 	DRVCFG = (DRVCFG | (DIS_OC | DIS_OT | DIS_OV | DIS_UV));					/* Disable over-current, over-temperature, over-voltage, under-voltage */
 	ANA_OUTI &= ~SEL_UV_VS;														/* Enable UV & OV debounce circuitry */
 	ANA_OUTG = (ANA_OUTG & 0xFCFF) | (NVRAM_BROWNOUT_LEVEL << 8);				/* Brown-out UV-level = 6V + n * 1V; */
-	/* Important note: Any OV/UV or OVT at power-up of the chip,
+	/* MMP141212-1: Important note: Any OV/UV or OVT at power-up of the chip,
 	 * will be cleared below and therefore not given an IRQ. OC should not
 	 * happen as driver is not enabled. UV can also be caused by a slow ramp-up
 	 * of the supply-voltage!! */
 #if (_SUPPORT_DIAG_OVT == FALSE)
-	ANA_OUTG |= INACTIVE_OVT;
+	ANA_OUTG |= INACTIVE_OVT;													/* MMP150409-2 */
 #endif /* (_SUPPORT_DIAG_OVT == FALSE) */
 #if (_SUPPORT_HALL_SENSOR)
 	XI4_PEND = (C_DIAG_MASK | XI4_IO5);
-	XI4_MASK |= (C_DIAG_MASK | XI4_IO5);										/* Enable second-level diagnostic interrupts and Hall-switch @ IO[0] */
+	XI4_MASK |= (C_DIAG_MASK | XI4_IO5);									/* Enable second-level diagnostic interrupts and Hall-switch @ IO[0] */
 	g_u8HallSwitchState = IO_IN & XI4_IO5;
 	if ( g_u8HallSwitchState )
 	{
-		/* IO[5] is high; Set IRQ-event on falling-edge */
+		/* IO[0] is high; Set IRQ-event on falling-edge */
 		IO_CFG |= FRB_IO5;
 	}
 	else
 	{
-		/* IO[5] is low; Set IRQ-event on rising-edge */
+		/* IO[0] is low; Set IRQ-event on rising-edge */
 		IO_CFG &= ~FRB_IO5;
 	}
 #else  /* (_SUPPORT_HALL_SENSOR) */
@@ -89,7 +87,7 @@ void DiagnosticsInit( void)
 	PEND = CLR_EXT4_IT;
 	MASK |= EN_EXT4_IT;															/* Enable Diagnostic Interrupt */
 
-	/* Check for OVT and OV. Perform Diagnostics handling if required */
+	/* MMP141212-1: Check for OVT and OV. Perform Diagnostics handling if required */
 	{
 #if (_SUPPORT_DIAG_OVT == FALSE)
 		uint16 u16DiagnosticEvent = (ANA_INA & XI4_OV);
@@ -127,25 +125,25 @@ void HandleDiagnosticEvent( uint16 u16Event)
 				/* Average between two driver-current measurements */
 				NopDelay( DELAY_mPWM); /*lint !e522 */							/* Wait for ESD pulse to be gone and a new ADC measurement have been take place */
 				g_i16Current = GetMotorDriverCurrent();
-#if (defined __MLX81315_A__)
-				if ( g_i16Current > 1400 )										/* MLX81315 */
-#else  /* (defined __MLX81315_A__) */
-				if ( g_i16Current > 700 )										/* MLX81310 */
-#endif /* (defined __MLX81315_A__) */
+				if ( g_i16Current > 1400 )
 				{
-					g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_YES;
+					//g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_YES;
+					g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;// Ban, stop the motor in case of coil short
 					MotorDriverStop( (uint16) C_STOP_EMERGENCY);				/* Over-current */
-					g_u16TargetPosition = g_u16ActualPosition;
+					//g_u16TargetPosition = g_u16ActualPosition;					/* 9.5.3.3 */
 					SetLastError( (uint8) C_ERR_DIAG_OVER_CURRENT);
+					g_e8ErrorCoil = (uint8) C_ERR_SELFTEST_B;
 				}
 			}
-//			else
-//			{
-//				g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_YES;
-//				MotorDriverStop( (uint16) C_STOP_EMERGENCY);					/* Over-current */
-//				g_u16TargetPosition = g_u16ActualPosition;
-//				SetLastError( (uint8) C_ERR_DIAG_OVER_CURRENT);
-//			}
+			else
+			{
+				//g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_YES;
+				g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;// Ban, stop the motor in case of coil short
+				MotorDriverStop( (uint16) C_STOP_EMERGENCY);					/* Over-current */
+				//g_u16TargetPosition = g_u16ActualPosition;						/* 9.5.3.3 */
+				SetLastError( (uint8) C_ERR_DIAG_OVER_CURRENT);
+				g_e8ErrorCoil = (uint8) C_ERR_SELFTEST_B;
+			}
 		}
 #endif /* _SUPPORT_DIAG_OC */
 		if ( u16Event & XI4_OVT )
@@ -155,30 +153,22 @@ void HandleDiagnosticEvent( uint16 u16Event)
 			{
 				ResetChipTemperature();
 				NopDelay( DELAY_mPWM); /*lint !e522 */
-				GetChipTemperature( FALSE);
+				GetChipTemperature( FALSE);										/* MMP131020-1 */
 			}
 			else
 			{
 				MeasureVsupplyAndTemperature();
-				GetChipTemperature( FALSE);
+				GetChipTemperature( FALSE);										/* MMP131020-1 */
 			}
-			if ( g_i16ChipTemperature > (int16) C_CHIP_OVERTEMP_LEVEL )
+			if ( (g_i16ChipTemperature > (int16) C_CHIP_OVERTEMP_LEVEL) && (g_e8ErrorOverTemperature != (uint8) C_ERR_OTEMP_YES))
 			{
-				/* Over-temperature level */
-				g_e8ErrorOverTemperature = (uint8) C_ERR_OTEMP_YES;
-				MotorDriverStop( (uint16) C_STOP_EMERGENCY);					/* Over-temperature */
-				g_u16TargetPosition = g_u16ActualPosition;
-#if _SUPPORT_OVT_PED
-				if ( g_e8ErrorElectric != (uint8) C_ERR_ELECTRIC_PERM )
+				g_u8OverTemperatureCount++;
+				if ( g_u8OverTemperatureCount >= (uint8) C_OVERTEMP_TO_PERMDEFECT_THRSHLD )
 				{
-					g_u8OverTemperatureCount++;
-					if ( g_u8OverTemperatureCount >= (uint8) C_OVERTEMP_TO_PERMDEFECT_THRSHLD )
-					{
-						g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;
-					}
+					g_e8ErrorOverTemperature = (uint8) C_ERR_OTEMP_YES;
+					SetLastError( (uint8) C_ERR_DIAG_OVER_TEMP);
+					//g_u8OverTemperatureCount = 0;
 				}
-#endif /* _SUPPORT_OVT_PED */
-				SetLastError( (uint8) C_ERR_DIAG_OVER_TEMP);
 			}
 		}
 	}
@@ -212,17 +202,15 @@ void HandleDiagnosticEvent( uint16 u16Event)
 			}
 			if ( e8DiagVoltage != (uint8) C_ERR_VOLTAGE_IN_RANGE)
 			{
-				g_e8ErrorVoltage = e8DiagVoltage;
-#if (LINPROT == LIN2X_ACT44)
+				g_e8ErrorVoltage = e8DiagVoltage;								/* 9.5.3.4 */
 				g_e8ErrorVoltageComm = g_e8ErrorVoltage;
-#endif /* (LINPROT == LIN2X_ACT44) */
-				if ( g_e8MotorRequest != C_MOTOR_REQUEST_NONE )
+				if ( g_e8MotorRequest != C_MOTOR_REQUEST_NONE )					/* MMP150313-3 - Begin */
 				{
 					g_e8DegradedMotorRequest = g_e8MotorRequest;
 					g_e8MotorRequest = C_MOTOR_REQUEST_NONE;
 					MotorDriverStop( (uint16) C_STOP_EMERGENCY);				/* Under/Over-voltage */
 				}
-				else if ( g_e8MotorStatusMode == (uint8) C_MOTOR_STATUS_RUNNING )
+				else if ( g_e8MotorStatusMode == (uint8) C_MOTOR_STATUS_RUNNING )	/* MMP150313-3 - End */
 				{
 					/* Enter degraded-mode; Stop motor and resume when voltage decreases below upper-application threshold or raise above lower-application threshold */
 					g_e8DegradedMotorRequest = (uint8) C_MOTOR_REQUEST_START;
@@ -261,23 +249,22 @@ __interrupt__ void EXT4_IT(void)
 	{
 		HandleDiagnosticEvent( u16Pending);
 
-#if (_SUPPORT_HALL_SENSOR)
 		if ( (u16Pending & XI4_IO5) != 0 )
 		{
 			g_u8HallSwitchState = IO_IN & XI4_IO5;
 			if ( g_u8HallSwitchState )
 			{
-				/* IO[5] is high; Set IRQ-event on falling-edge */
+				/* IO[0] is high; Set IRQ-event on falling-edge */
 				IO_CFG |= FRB_IO5;
 			}
 			else
 			{
-				/* IO[5] is low; Set IRQ-event on rising-edge */
+				/* IO[0] is low; Set IRQ-event on rising-edge */
 				IO_CFG &= ~FRB_IO5;
 			}
-			g_u16HallMicroStepIdx = g_u16ActuatorActPos;
+			//g_u16HallMicroStepIdx = g_u16MicroStepIdx;
+			g_u16HallMicroStepIdx = g_u16ActuatorActPos;//Ban
 		}
-#endif /* (_SUPPORT_HALL_SENSOR) */
 	}
 } /* EXT4_IT() */
 

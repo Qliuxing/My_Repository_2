@@ -24,6 +24,9 @@
 #ifndef DIAGNOSTIC_H_
 #define DIAGNOSTIC_H_
 
+#ifndef SYSLIB_H_
+#include "syslib.h"
+#endif /* SYSLIB_H_ */
 #include "Build.h"
 
 #if (_SUPPORT_DIAG_OC == FALSE) && (_SUPPORT_DIAG_OVT == FALSE)
@@ -46,10 +49,8 @@ extern void HandleDiagnosticEvent( uint16 u16Event);
  *	P u b l i c   v a r i a b l e s												*
  * ****************************************************************************	*/
 #pragma space nodp
-#if (_SUPPORT_HALL_SENSOR)
 extern uint8 g_u8HallSwitchState;
 extern uint16 g_u16HallMicroStepIdx;
-#endif /* (_SUPPORT_HALL_SENSOR) */
 #pragma space none
 
 #endif /* DIAGNOSTIC_H_ */

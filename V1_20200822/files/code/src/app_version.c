@@ -27,16 +27,16 @@
 #include "Build.h"
 
 /* Clear Flash Key */
-const uint16 Flash_Key[4] __attribute__((section(".protection_key"))) =
+const uint16 Flash_Key[4] __attribute__((section(".protection_key"))) =			/* MMP150407-1 - Begin */
 {
-	0x0000U,
-	0x0000U,
-	0x0000U,
-	0x0000U
-};
+	0x0000,	//C_VENDOR_ID,
+	0x0000,	//C_PRODUCT_ID
+	0x0000,
+	0x0000
+};																				/* MMP150407-1 - End */
 
 /* Clear Flash CRC */
-const uint16 Flash_CRC __attribute__((section(".flash_crc"))) = 0x0000;
+const uint16 Flash_CRC __attribute__((section(".flash_crc"))) = 0x0000;			/* MMP131126-4 */
 
 /* Set application version */
 const uint32 application_version __attribute__((section(".app_version"))) =

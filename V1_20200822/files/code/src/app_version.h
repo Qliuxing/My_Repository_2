@@ -28,11 +28,11 @@
 /*
  * Application version
  */
-#define __APP_VERSION_MAJOR__		1UL				/* Major version: 1 */
-#define __APP_VERSION_MINOR__		0UL				/* Minor version: 0 */
-#define __APP_VERSION_REVISION__	0xE004UL		/* Engineering build #0004 */
+#define __APP_VERSION_MAJOR__      	1UL				/* Major version: 1 */
+#define __APP_VERSION_MINOR__      	0UL				/* Minor version: 0 */
+#define __APP_VERSION_REVISION__   	0xE008UL		/* Engineering build #0008 */
 
-#define __APP_VERSION_STRING__		"1.0.E004"
+#define __APP_VERSION_STRING__		"1.0.E008"
 
 #endif /* APP_VERSION_H_ */
 

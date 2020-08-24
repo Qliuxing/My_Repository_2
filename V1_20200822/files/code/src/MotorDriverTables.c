@@ -25,6 +25,7 @@
  * ****************************************************************************	*/
 
 #include "Build.h"
+#include <syslib.h>
 #include "MotorDriver.h"
 #include "MotorParams.h"
 #include "MotorDriverTables.h"
@@ -32,7 +33,7 @@
 #define   Q15(A)      (int16) ((A) * 32768)
 
 /* Set-Test - Part A: Single FET ON */
-uint8 const c_au8DrvCfgSelfTestA[8] =
+uint8 const c_au8DrvCfgSelfTestA[8] =											/* MMP130626-7 */
 {
 	(DRV_CFG_T_TRISTATE | DRV_CFG_W_0 | DRV_CFG_V_TRISTATE | DRV_CFG_U_TRISTATE),	/* PhD = Z, PhC = L, PhB = Z, PhA = Z */
 	(DRV_CFG_T_TRISTATE | DRV_CFG_W_1 | DRV_CFG_V_TRISTATE | DRV_CFG_U_TRISTATE),	/* PhD = Z, PhC = H, PhB = Z, PhA = Z */
@@ -44,7 +45,7 @@ uint8 const c_au8DrvCfgSelfTestA[8] =
 	(DRV_CFG_T_1 | DRV_CFG_W_TRISTATE | DRV_CFG_V_TRISTATE | DRV_CFG_U_TRISTATE)	/* PhD = H, PhC = Z, PhB = Z, PhA = Z */
 };
 
-uint16 const c_au16DrvAdcSelfTestA[4][2] =
+uint16 const c_au16DrvAdcSelfTestA[4][2] =										/* MMP130919-1 */
 {
 	{(ADC_CH11 | ADC_REF_2_50_V), 0xFFFF},										/* Ch11: Voltage on W Driver output (divided by 14) */
 	{(ADC_CH10 | ADC_REF_2_50_V), 0xFFFF},										/* Ch10: Voltage on V Driver output (divided by 14) */
@@ -52,16 +53,16 @@ uint16 const c_au16DrvAdcSelfTestA[4][2] =
 	{(ADC_CH25 | ADC_REF_2_50_V), 0xFFFF}										/* Ch29: Voltage on T Driver output (divided by 14) */
 };
 
-uint8 const c_au8DrvCfgSelfTestB4[10] =
+uint8 const c_au8DrvCfgSelfTestB4[10] =											/* MMP130916-2 */
 {
 	(DRV_CFG_T_TRISTATE | DRV_CFG_W_1 | DRV_CFG_V_TRISTATE | DRV_CFG_U_PWM),	/* PhD = Z, PhC = H, PhB = Z, PhA = PWM */
 	(DRV_CFG_T_1 | DRV_CFG_W_TRISTATE | DRV_CFG_V_PWM | DRV_CFG_U_TRISTATE),	/* PhD = H, PhC = Z, PhB = PWM, PhA = Z */
 	(DRV_CFG_T_TRISTATE | DRV_CFG_W_0 | DRV_CFG_V_TRISTATE | DRV_CFG_U_PWM),	/* PhD = Z, PhC = L, PhB = Z, PhA = PWM */
 	(DRV_CFG_T_0 | DRV_CFG_W_TRISTATE | DRV_CFG_V_PWM | DRV_CFG_U_TRISTATE),	/* PhD = L, PhC = Z, PhB = PWM, PhA = Z */
-	(DRV_CFG_T_TRISTATE | DRV_CFG_W_PWM | DRV_CFG_V_TRISTATE | DRV_CFG_U_1),	/* PhD = Z, PhC = PWM, PhB = Z, PhA = H */
-	(DRV_CFG_T_PWM | DRV_CFG_W_TRISTATE | DRV_CFG_V_1 | DRV_CFG_U_TRISTATE),	/* PhD = PWM, PhC = Z, PhB = H, PhA = Z */
-	(DRV_CFG_T_TRISTATE | DRV_CFG_W_PWM | DRV_CFG_V_TRISTATE | DRV_CFG_U_0),	/* PhD = Z, PhC = PWM, PhB = Z, PhA = L */
-	(DRV_CFG_T_PWM | DRV_CFG_W_TRISTATE | DRV_CFG_V_0 | DRV_CFG_U_TRISTATE),	/* PhD = PWM, PhC = Z, PhB = L, PhA = Z */
+	(DRV_CFG_T_TRISTATE | DRV_CFG_W_PWM | DRV_CFG_V_TRISTATE | DRV_CFG_U_1),	/* PhD = Z, PhC = PWM, PhB = Z, PhA = H (MMP130916-2) */
+	(DRV_CFG_T_PWM | DRV_CFG_W_TRISTATE | DRV_CFG_V_1 | DRV_CFG_U_TRISTATE),	/* PhD = PWM, PhC = Z, PhB = H, PhA = Z (MMP130916-2) */
+	(DRV_CFG_T_TRISTATE | DRV_CFG_W_PWM | DRV_CFG_V_TRISTATE | DRV_CFG_U_0),	/* PhD = Z, PhC = PWM, PhB = Z, PhA = L (MMP130916-2) */
+	(DRV_CFG_T_PWM | DRV_CFG_W_TRISTATE | DRV_CFG_V_0 | DRV_CFG_U_TRISTATE),	/* PhD = PWM, PhC = Z, PhB = L, PhA = Z (MMP130916-2) */
 	(DRV_CFG_T_1 | DRV_CFG_W_1 | DRV_CFG_V_PWM | DRV_CFG_U_PWM),
 	(DRV_CFG_T_0 | DRV_CFG_W_1 | DRV_CFG_V_PWM | DRV_CFG_U_PWM)
 };

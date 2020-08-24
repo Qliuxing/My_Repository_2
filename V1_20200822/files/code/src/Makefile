@@ -9,7 +9,7 @@
 #
 
 # target dependent configurable tools
-include Makefile.configure.mk
+include Makefile.configure.inc
 
 ifndef MLX4_TYPE
 $(error 'Error: Variable MLX4_TYPE is not defined')
@@ -25,13 +25,10 @@ endif
 
 PROFILE ?= $(PRODUCT)-$(MLX4_TYPE)
 
-UNCRUSTIFY ?= uncrustify
-
 PROJ_DIR = ../..
 CODE_DIR = $(PROJ_DIR)/code
 PLTF_DIR = $(CODE_DIR)/mulan2_platform
 LINT_DIR = $(PROJ_DIR)/verification/lint
-UNCR_DIR = $(PROJ_DIR)/verification/uncrustify
 
 LIBRARIES = 
 
@@ -56,7 +53,7 @@ include $(patsubst %,%/srclist.mk,$(LIBS_DIRS))
 #
 # SOURCE FILES LIST
 #
-include Makefile.srcs.mk
+include Makefile.srcs.inc
 SRCS += $(LIBRARIES_SRC)
 SRCS += $(LIN_SRCS)
 
@@ -129,26 +126,11 @@ lint: $(SRCS)
 	$(LINT) -i"$(LINT_DIR)" common-options.lnt co-gcc.lnt project-options.lnt temp.lnt $(filter %.c, $(SRCS)) > $(TARGET)_lint.txt
 	$(LINT) -i"$(LINT_DIR)" common-options.lnt co-gcc.lnt au-misra2.lnt project-options.lnt temp.lnt $(filter %.c, $(SRCS)) > $(TARGET)_lint_misra.txt
 
-# get all application c and h files to be uncrustified
-SRCS_UNCRUSTIFY := $(wildcard *.c) $(wildcard *.h)
-
-.PHONY: uncrustify
-uncrustify:
-	$(UNCRUSTIFY) -c $(UNCR_DIR)/uncrustify.cfg --replace --no-backup -l C $(SRCS_UNCRUSTIFY)
-
-.PHONY: uncrustify-check
-uncrustify-check:
-	$(UNCRUSTIFY) -c $(UNCR_DIR)/uncrustify.cfg --check -l C $(SRCS_UNCRUSTIFY)
-
 include $(PLTF_DIR)/config/Rules.mk
 
 # Include automatic dependencies
 ifneq (${MAKECMDGOALS},clean)
 ifneq (${MAKECMDGOALS},lint)
-ifneq (${MAKECMDGOALS},uncrustify)
-ifneq (${MAKECMDGOALS},uncrustify-check)
 -include $(DEPS)
-endif
-endif
 endif
 endif

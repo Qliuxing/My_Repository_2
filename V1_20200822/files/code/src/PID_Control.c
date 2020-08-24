@@ -63,13 +63,19 @@ uint16 g_u16PidHoldingThreshold;												/* 5: Motor holding current threshol
 uint16 g_u16PidHoldingThresholdADC;												/* 5: Motor holding current threshold (ADC) */
 uint16 g_u16PidRunningThreshold;												/* 5: Motor current threshold (running) */
 uint16 g_u16PidRunningThresholdADC;												/* 5: Motor current threshold (running) (ADC) */
-uint16 l_u16MinCorrectionRatio;
-uint16 l_u16MaxCorrectionRatio;
+uint16 l_u16MinCorrectionRatio;													/* MMP150509-2 */
+uint16 l_u16MaxCorrectionRatio;													/* MMP150509-2 */
 #if _SUPPORT_AMBIENT_TEMP
 uint16 g_u16SelfHeatingCounter = 0;
 uint32 l_u32SelfHeatingIntegrator = 0;
 #endif /* _SUPPORT_AMBIENT_TEMP */
+uint16 g_u16MotorRefVoltage = 1200;												/* Motor reference voltage */
 uint16 l_u16MotorRefVoltageADC = (uint16) ((12*1024)/(2.5*14));					/* 12.00V [ADC-LSB] */
+
+#if _DEBUG_VOLTAGE_COMPENSATION
+int16 l_ai16MotorVolt[SZ_MOTOR_VOLT_COMP];
+uint16 u16MotorVoltIdx = 0;
+#endif /* _DEBUG_VOLTAGE_COMPENSATION */
 #pragma space none																/* __NEAR_SECTION__ */
 
 /* ***
@@ -77,19 +83,21 @@ uint16 l_u16MotorRefVoltageADC = (uint16) ((12*1024)/(2.5*14));					/* 12.00V [A
  * ***/
 void PID_Init( void)
 {
-	/* Convert [mA] to [ADC-lsb] */
+	/* MMP141209-1: Convert [mA] to [ADC-lsb] */
+	uint16 u16MCurrgain = EE_GMCURR;
 	g_u16PidHoldingThreshold = NVRAM_HOLDING_CURR_LEVEL;
-	g_u16PidHoldingThresholdADC = muldivU16_U16byU16byU16( g_u16PidHoldingThreshold, C_GMCURR_DIV, g_u16MCurrgain);
+	g_u16PidHoldingThresholdADC = muldivU16_U16byU16byU16( g_u16PidHoldingThreshold, C_GMCURR_DIV, u16MCurrgain);	/* MMP141209-1 */
 	g_u16PidRunningThreshold = NVRAM_RUNNING_CURR_LEVEL;
-	g_u16PidRunningThresholdADC = muldivU16_U16byU16byU16( g_u16PidRunningThreshold, C_GMCURR_DIV, g_u16MCurrgain);
+	g_u16PidRunningThresholdADC = muldivU16_U16byU16byU16( g_u16PidRunningThreshold, C_GMCURR_DIV, u16MCurrgain);	/* MMP141209-1/MMP131219-1 */
+	g_u16MotorRefVoltage = NVRAM_VSUP_REF;
 #if _SUPPORT_VSMFILTERED
 	l_u16MotorRefVoltageADC = muldivU16_U16byU16byU16( NVRAM_VSUP_REF, C_GVOLTAGE_DIV, EE_GVOLTAGE) + EE_OVOLTAGE;
 #else  /* _SUPPORT_VSMFILTERED */
 	l_u16MotorRefVoltageADC = muldivU16_U16byU16byU16( NVRAM_VSUP_REF, C_GVOLTAGE_DIV, EE_GADC) + EE_OADC;
 #endif /* _SUPPORT_VSMFILTERED */
 
-	l_u16MinCorrectionRatio = NVRAM_MIN_CORR_RATIO;
-	l_u16MaxCorrectionRatio = NVRAM_MAX_CORR_RATIO;
+	l_u16MinCorrectionRatio = NVRAM_MIN_CORR_RATIO;								/* MMP150509-2 */
+	l_u16MaxCorrectionRatio = NVRAM_MAX_CORR_RATIO;								/* MMP150509-2 */
 } /* End of PID_Init() */
 
 /* ***
@@ -101,6 +109,10 @@ void PID_Init( void)
 void VoltageCorrection( void)
 {
 	uint16 u16MotorVoltageADC = GetRawVsupplyMotor();
+#if _DEBUG_VOLTAGE_COMPENSATION
+	l_ai16MotorVolt[u16MotorVoltIdx] = g_i16MotorVoltage;
+	u16MotorVoltIdx = (u16MotorVoltIdx + 1) & (SZ_MOTOR_VOLT_COMP - 1);
+#endif /* _DEBUG_VOLTAGE_COMPENSATION */
 	if ( (u16MotorVoltageADC > 0) && (l_u16MotorRefVoltageADC > 0) )
 	{
 		/* Correct Motor PWM duty cycle instantly based on change of supply voltage */
@@ -145,10 +157,10 @@ void PID_Control( void)
 	{
 		/* Running-mode and NOT stall-mode "B" */
 		if ( (((g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_RUNNING) != 0) &&
-				 (NVRAM_PID_RUNNINGCTRL_PER != 0) && (g_u16PID_CtrlCounter >= NVRAM_PID_RUNNINGCTRL_PER))	/* Period */
+				 (NVRAM_PID_RUNNINGCTRL_PER != 0) && (g_u16PID_CtrlCounter >= NVRAM_PID_RUNNINGCTRL_PER))	/* Period (MMP140410-1) */
 			/* Stop-mode & holding-current required */
 			 || ((g_e8MotorStatusMode == (uint8) C_MOTOR_STATUS_STOP) &&
-				 (NVRAM_PID_HOLDINGCTRL_PER != 0) && (g_u16PID_CtrlCounter >= NVRAM_PID_HOLDINGCTRL_PER))
+				 (NVRAM_PID_HOLDINGCTRL_PER != 0) && (g_u16PID_CtrlCounter >= NVRAM_PID_HOLDINGCTRL_PER))	/* MMP140410-1 */
 			)
 		{
 			/* Periodic update (PWM-DC/Current/Speed-Control) */
@@ -158,15 +170,15 @@ void PID_Control( void)
 			uint16 u16PidCtrlRatio;
 
 			/* Current Control */
-			uint16 u16MotorCurrentLPFFraction = ((g_u16MotorCurrentLPFx64 + 32) >> 6);
+			uint16 u16MotorCurrentLPFFraction = ((g_u16MotorCurrentLPFx64 + 32) >> 6);	/* MMP140911-1 */
 			if ( g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_RUNNING )
 			{
-				i16ControlError = (int16) (g_u16PidRunningThresholdADC - u16MotorCurrentLPFFraction);
+				i16ControlError = (int16) (g_u16PidRunningThresholdADC - u16MotorCurrentLPFFraction);	/* MMP140911-1 */
 				l_u16MaxPidCtrlRatio = l_u16MaxCorrectionRatio;
 			}
 			else
 			{
-				i16ControlError = (int16) (g_u16PidHoldingThresholdADC - u16MotorCurrentLPFFraction);
+				i16ControlError = (int16) (g_u16PidHoldingThresholdADC - u16MotorCurrentLPFFraction);	/* MMP140911-1 */
 			}
 
 			/* Derivative-part */
@@ -210,7 +222,7 @@ void PID_Control( void)
 					{
 						/* Overflow */
 						u16PidCtrlRatio = l_u16MaxPidCtrlRatio;
-						g_u16PID_I = u16PidCtrlRatio;
+						g_u16PID_I = u16PidCtrlRatio;								/* MMP140617-1 */
 					}
 				}
 				else if ( u16PidCtrlRatio < NVRAM_MIN_HOLDCORR_RATIO )
@@ -326,8 +338,9 @@ void ThresholdControl( void)
 			}
 		}
 		{
-			g_u16PidHoldingThresholdADC = muldivU16_U16byU16byU16( g_u16PidHoldingThreshold, u16CurrThrshldRatio, g_u16MCurrgain);
-			g_u16PidRunningThresholdADC = muldivU16_U16byU16byU16( g_u16PidRunningThreshold, u16CurrThrshldRatio, g_u16MCurrgain);
+			uint16 u16MCurrgain = EE_GMCURR;
+			g_u16PidHoldingThresholdADC = muldivU16_U16byU16byU16( g_u16PidHoldingThreshold, u16CurrThrshldRatio, u16MCurrgain);		/* MMP141209-1/MMP131219-1 */
+			g_u16PidRunningThresholdADC = muldivU16_U16byU16byU16( g_u16PidRunningThreshold, u16CurrThrshldRatio, u16MCurrgain);		/* MMP141209-1/MMP131219-1 */
 		}
 	}
 

@@ -37,6 +37,7 @@
  * ****************************************************************************	*/
 
 #include "Build.h"
+#include <syslib.h>
 #include "MotorDriver.h"
 #include "main.h"
 #include "ADC.h"																/* ADC support */
@@ -51,6 +52,7 @@
 #include <mathlib.h>															/* Use Melexis math-library functions to avoid compiler warnings */
 #if _DEBUG_SPI
 #include "SPI_Debug.h"
+#include "Diagnostic.h"
 #endif /* _DEBUG_SPI */
 
 /* ****************************************************************************	*
@@ -61,12 +63,12 @@ volatile uint16 g_u16CorrectionRatio;											/* Motor correction ratio, depen
 uint16 g_u16MicroStepIdx;														/* (Micro)step index */
 uint16 g_u16CommutTimerPeriod;													/* Commutation timer period */
 uint16 g_u16TargetCommutTimerPeriod;											/* Target commutation timer period (target speed) */
-uint16 g_u16StartupDelay = 2U * C_MOVAVG_SZ;
+uint16 g_u16StartupDelay = 2*C_MOVAVG_SZ;
 uint16 g_u16MotorCurrentMovAvgxN;												/* Moving average current (4..16 samples) */
 uint16 g_u16MotorCurrentLPFx64;													/* Low-pass filter (IIR-1) motor-current x 64 */
-uint8 g_u8MotorStopDelay = 0U;													/* Delay between drive stage from LS to TRI-STATE */
-uint16 l_u16VTIdx = 0U;															/* MMP160915-2: Could be more then 256 acceleration/deceleration steps */
-
+uint8 g_u8MotorStopDelay = 0;													/* Delay between drive stage from LS to TRI-STATE */
+uint8 l_u8VTIdx = 0;
+/* MMP151118-2 */
 volatile uint16 g_u16ActuatorActPos __attribute__ ((section(".dp.noinit")));	/* (Motor-driver) Actual motor-rotor position [WD] */
 uint16 g_u16ActuatorTgtPos __attribute__ ((section(".dp.noinit")));				/* (Motor-driver) Target motor-rotor position [WD] */
 #pragma space none
@@ -82,7 +84,7 @@ int16 g_i16VoltStepIdx = -1;
 
 uint16 l_au16MotorCurrentRaw[C_MOVAVG_SZ];
 uint16 l_u16MotorCurrentRawIdx;
-uint16 l_u16StartupDelayInit = 2U*C_MOVAVG_SZ;									/* Initial startup-delay [uSteps] */
+uint16 l_u16StartupDelayInit = 2*C_MOVAVG_SZ;									/* Initial startup-delay [uSteps] */
 
 uint16 l_u16SpeedRPM;															/* MMP160606-1 */
 uint32 l_u32Temp;																/* MMP160606-1 */
@@ -93,20 +95,25 @@ uint16 g_au16MotorSpeedRPS[8];
 uint16 g_u16MotorMicroStepsPerElecRotation;										/* Number of micro-steps per electric rotation */
 uint16 g_u16MotorMicroStepsPerMechRotation;										/* Number of micro-steps per mechanical rotation */
 uint16 g_u16MotorRewindSteps;
-uint16 l_u16CoilZeroCurrCountA = 0U;
-uint16 l_u16CoilZeroCurrCountB = 0U;
+uint16 l_u16CoilZeroCurrCountA = 0;
+uint16 l_u16CoilZeroCurrCountB = 0;
+uint16 l_u16CoilCurrentStartDelay = 0;
+
+#if (USE_MULTI_PURPOSE_BUFFER == FALSE)
+uint16 l_au16VelocityTimer[VT_BUF_SZ];
+#endif /* (USE_MULTI_PURPOSE_BUFFER == FALSE) */
 
 #if _DEBUG_MOTOR_CURRENT_FLT
 uint8 l_au8MotorCurrRaw[C_MOTOR_CURR_SZ];										/* Raw (un-filtered) motor current measurement */
 uint16 l_u16MotorCurrIdx;														/* Motor current measurement index */
 #endif /* _DEBUG_MOTOR_CURRENT_FLT */
-
-extern uint16 l_u16CurrentZeroOffset;
 #pragma space none																/* __NEAR_SECTION__ */
 
 #define C_MIN_COIL_CURRENT			10		/* ADC-LSB */
-#define C_COIL_ZERO_CURRENT_COUNT	32U		/* 32 micro-steps */
-#define C_COIL_OVER_CURRENT_COUNT	32U		/* 32 micro-steps */
+#define C_COIL_ZERO_CURRENT_COUNT	32		/* 32 micro-steps */
+#define C_COIL_OVER_CURRENT_COUNT	32		/* 32 micro-steps */
+#define C_COIL_CURRENT_START_DELAY	128
+extern uint16 l_u16CurrentZeroOffset;
 
 /* ****************************************************************************	*
  *	L o c a l   f u n c t i o n s												*
@@ -121,35 +128,35 @@ void MotorDriver_InitialPwmDutyCycle( uint16 u16CurrentLevel, uint16 u16MotorSpe
 void MotorDriverInit( void)
 {
 #if _SUPPORT_DOUBLE_USTEP
-	uint16 u16MotorMicroStepsPerFullStep = (1U << (NVRAM_MICRO_STEPS + 1U));	/* Number of micro-steps per full-step (2, 4, 8 or 16) */
+	uint16 u16MotorMicroStepsPerFullStep = (1 << (NVRAM_MICRO_STEPS + 1));		/* Number of micro-steps per full-step (2, 4, 8 or 16) */
 #else  /* _SUPPORT_DOUBLE_USTEP */
-	uint16 u16MotorMicroStepsPerFullStep = (1U << NVRAM_MICRO_STEPS);			/* Number of micro-steps per full-step (1, 2, 4 or 8) */
+	uint16 u16MotorMicroStepsPerFullStep = (1 << NVRAM_MICRO_STEPS);			/* Number of micro-steps per full-step (1, 2, 4 or 8) */
 #endif /* _SUPPORT_DOUBLE_USTEP */
 	g_u16MotorMicroStepsPerElecRotation = (uint16) mulU32_U16byU16( u16MotorMicroStepsPerFullStep, (NVRAM_MOTOR_PHASES + 2) << 1);
 	g_u16MotorMicroStepsPerMechRotation = (uint16) mulU32_U16byU16( NVRAM_POLE_PAIRS, g_u16MotorMicroStepsPerElecRotation);
 	{
 		uint16 u16ConstAccelaration = NVRAM_ACCELERATION_CONST;
-		if ( u16ConstAccelaration != 0U )
+		if ( u16ConstAccelaration != 0 )
 		{
-			l_u32Temp = divU32_U32byU16( (TIMER_CLOCK * 60U), g_u16MotorMicroStepsPerMechRotation);
+			l_u32Temp = divU32_U32byU16( (TIMER_CLOCK * 60), g_u16MotorMicroStepsPerMechRotation);
 
-			g_au16MotorSpeedCommutTimerPeriod[0] = divU16_U32byU16( l_u32Temp, NVRAM_MIN_SPEED) - 1U;
-			g_au16MotorSpeedCommutTimerPeriod[1] = divU16_U32byU16( l_u32Temp, NVRAM_SPEED_TORQUE_BOOST) - 1U;
-			g_au16MotorSpeedCommutTimerPeriod[2] = divU16_U32byU16( l_u32Temp, NVRAM_SPEED0) - 1U;
-			g_au16MotorSpeedCommutTimerPeriod[3] = divU16_U32byU16( l_u32Temp, NVRAM_SPEED1) - 1U;
-			g_au16MotorSpeedCommutTimerPeriod[4] = divU16_U32byU16( l_u32Temp, NVRAM_SPEED2) - 1U;
-			g_au16MotorSpeedCommutTimerPeriod[5] = divU16_U32byU16( l_u32Temp, NVRAM_SPEED3) - 1U;
+			g_au16MotorSpeedCommutTimerPeriod[0] = divU16_U32byU16( l_u32Temp, NVRAM_MIN_SPEED) - 1;
+			g_au16MotorSpeedCommutTimerPeriod[1] = divU16_U32byU16( l_u32Temp, NVRAM_SPEED_TORQUE_BOOST) - 1;
+			g_au16MotorSpeedCommutTimerPeriod[2] = divU16_U32byU16( l_u32Temp, NVRAM_SPEED0) - 1;
+			g_au16MotorSpeedCommutTimerPeriod[3] = divU16_U32byU16( l_u32Temp, NVRAM_SPEED1) - 1;
+			g_au16MotorSpeedCommutTimerPeriod[4] = divU16_U32byU16( l_u32Temp, NVRAM_SPEED2) - 1;
+			g_au16MotorSpeedCommutTimerPeriod[5] = divU16_U32byU16( l_u32Temp, NVRAM_SPEED3) - 1;
 			g_au16MotorSpeedCommutTimerPeriod[6] = g_au16MotorSpeedCommutTimerPeriod[1];
 			g_au16MotorSpeedCommutTimerPeriod[7] = g_au16MotorSpeedCommutTimerPeriod[0];
 			g_u16TargetCommutTimerPeriod = g_au16MotorSpeedCommutTimerPeriod[2];	/* Target commutation timer period (target speed) */
 			g_u16CommutTimerPeriod = g_au16MotorSpeedCommutTimerPeriod[2];
 
-			g_au16MotorSpeedRPS[0] = divU16_U32byU16( (uint32)(uint16)(NVRAM_MIN_SPEED + 30U), 60U);
-			g_au16MotorSpeedRPS[1] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED_TORQUE_BOOST + 30U), 60U);
-			g_au16MotorSpeedRPS[2] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED0 + 30U), 60U);
-			g_au16MotorSpeedRPS[3] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED1 + 30U), 60U);
-			g_au16MotorSpeedRPS[4] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED2 + 30U), 60U);
-			g_au16MotorSpeedRPS[5] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED3 + 30U), 60U);
+			g_au16MotorSpeedRPS[0] = divU16_U32byU16( (uint32)(uint16)(NVRAM_MIN_SPEED + 30U), 60);
+			g_au16MotorSpeedRPS[1] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED_TORQUE_BOOST + 30U), 60);
+			g_au16MotorSpeedRPS[2] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED0 + 30U), 60);
+			g_au16MotorSpeedRPS[3] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED1 + 30U), 60);
+			g_au16MotorSpeedRPS[4] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED2 + 30U), 60);
+			g_au16MotorSpeedRPS[5] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED3 + 30U), 60);
 			g_au16MotorSpeedRPS[6] = g_au16MotorSpeedRPS[1];
 			g_au16MotorSpeedRPS[7] = g_au16MotorSpeedRPS[0];
 		}
@@ -157,23 +164,23 @@ void MotorDriverInit( void)
 
 	g_u16CorrectionRatio = NVRAM_MIN_CORR_RATIO;
 	/* BLDC motor Commutation/Stepper timer */
-	g_u16MicroStepIdx = 0U;
+	g_u16MicroStepIdx = 0;
 	TMR1_CTRL = C_TMRx_CTRL_MODE0;												/* Timer mode 0 */
 	TMR1_REGB = g_u16CommutTimerPeriod;											/* Will be overwritten by MotorDriverStart() */
 	XI0_PEND = CLR_T1_INT4;														/* Clear (potentially) Timer1 second level interrupts (T1_INT4) */
 	XI0_MASK |= EN_T1_INT4;														/* Enable Timer1, CompareB (T1_INT4) */
-	PRIO = (PRIO & ~(3U << 6)) | ((4U - 3U) << 6);								/* Set Timer1 priority to 4 (3..6) */
+	PRIO = (PRIO & ~(3 << 6)) | ((4 - 3) << 6);									/* Set Timer1 priority to 4 (3..6) */
 	PEND = CLR_EXT0_IT;
 	MASK |= EN_EXT0_IT;
 
 	g_u16MotorRewindSteps = (uint16) mulU32_U16byU16( NVRAM_REWIND_STEPS, u16MotorMicroStepsPerFullStep);
 
 	/* Setup Motor PWM */	
-	PWM1_CTRL = 0U;																/* Disable master */
-	PWM2_CTRL = 0U;																/* Disable Slave 1 */
-	PWM3_CTRL = 0U;																/* Disable Slave 2 */
-	PWM4_CTRL = 0U;																/* Disable Slave 3 */
-	PWM5_CTRL = 0U;																/* Disable Slave 4 */
+	PWM1_CTRL = 0;																/* Disable master */
+	PWM2_CTRL = 0;																/* Disable Slave 1 */
+	PWM3_CTRL = 0;																/* Disable Slave 2 */
+	PWM4_CTRL = 0;																/* Disable Slave 3 */
+	PWM5_CTRL = 0;																/* Disable Slave 4 */
 	PWM1_PSCL = PWM_PRESCALER;													/* Initialise the master pre-scaler ratio (Fck/8) */
 	PWM1_PER = PWM_REG_PERIOD;
 	PWM2_PER = PWM_REG_PERIOD;													/* -=#=- Probably not needed to set slave period too */
@@ -186,17 +193,17 @@ void MotorDriverInit( void)
 	 * (Double PWM)	25%(7.9us)	44%(7.5us)	62%(7.9us)	81%(7.9us)	100%(10.4us)		(7.5us/ADC-conversion)
 	 * MF_STEPPER:	Imotor		Vphase		Vs-filt		Temperature	Vsm
 	 */
-	PWM1_CMP = (((25UL * PWM_REG_PERIOD) + 50U)/100U);	/*  8.0us */			/* 25% of period */
-	PWM2_CMP = (((44UL * PWM_REG_PERIOD) + 50U)/100U);	/*  7.5us */			/* 44% of period */
-	PWM3_CMP = (((62UL * PWM_REG_PERIOD) + 50U)/100U);	/*  8.0us */			/* 62% of period */
-	PWM4_CMP = (((81UL * PWM_REG_PERIOD) + 50U)/100U);	/*  8.0us */			/* 81% of period */
+	PWM1_CMP = (((25L * PWM_REG_PERIOD) + 50)/100);		/*  8.0us */			/* 25% of period */
+	PWM2_CMP = (((44L * PWM_REG_PERIOD) + 50)/100);		/*  7.5us */			/* 44% of period */
+	PWM3_CMP = (((62L * PWM_REG_PERIOD) + 50)/100);		/*  8.0us */			/* 62% of period */
+	PWM4_CMP = (((81L * PWM_REG_PERIOD) + 50)/100);		/*  8.0us */			/* 81% of period */
 #else  /* _SUPPORT_PHASE_SHORT_DET */
 	/* (Double PWM)	25%			50%			75%			100%							(10.5us/ADC-conversion)
 	 * MF_STEPPER:	Imotor		Vs-filt		Temperature	Vsm
 	 */
-	PWM1_CMP = (((25UL * PWM_REG_PERIOD) + 50U)/100U);	/* 10.5us */			/* 25% of period: (PWM_REG_PERIOD+2)/4 */
-	PWM2_CMP = (((50UL * PWM_REG_PERIOD) + 50U)/100U);	/* 10.5us */			/* 50% of period */
-	PWM3_CMP = (((75UL * PWM_REG_PERIOD) + 50U)/100U);	/* 10.5us */			/* 75% of period */
+	PWM1_CMP = (((25L * PWM_REG_PERIOD) + 50)/100);		/* 10.5us */			/* 25% of period: (PWM_REG_PERIOD+2)/4 */
+	PWM2_CMP = (((50L * PWM_REG_PERIOD) + 50)/100);		/* 10.5us */			/* 50% of period */
+	PWM3_CMP = (((75L * PWM_REG_PERIOD) + 50)/100);		/* 10.5us */			/* 75% of period */
 #endif /* _SUPPORT_PHASE_SHORT_DET */
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_DOUBLE_MIRROR) */
 
@@ -205,17 +212,17 @@ void MotorDriverInit( void)
 	/* (Single PWM)	20%			40%			60%			80%			100%				(8.33us/ADC-conversion)
 	 * MF_STEPPER:	Vphase		Vs-filt		Temperature	Vsm-unfilt	Imotor
 	 */
-	PWM1_CMP = (((20UL * PWM_REG_PERIOD) + 50U)/100U);	/* 8.33us */			/* 20% of period */
-	PWM2_CMP = (((40UL * PWM_REG_PERIOD) + 50U)/100U);							/* 40% of period */
-	PWM3_CMP = (((60UL * PWM_REG_PERIOD) + 50U)/100U);							/* 60% of period */
-	PWM4_CMP = (((80UL * PWM_REG_PERIOD) + 50U)/100U);							/* 80% of period */
+	PWM1_CMP = (((20L * PWM_REG_PERIOD) + 50)/100);		/* 8.33us */			/* 20% of period */
+	PWM2_CMP = (((40L * PWM_REG_PERIOD) + 50)/100);								/* 40% of period */
+	PWM3_CMP = (((60L * PWM_REG_PERIOD) + 50)/100);								/* 60% of period */
+	PWM4_CMP = (((80L * PWM_REG_PERIOD) + 50)/100);								/* 80% of period */
 #else  /* _SUPPORT_PHASE_SHORT_DET */
 	/* (Single PWM)	25%			50%			75%			100%							(10.5us/ADC-conversion)
 	 * MF_STEPPER:	Vs-filt		Temperature	Vsm-unfilt	Imotor
 	 */
-	PWM1_CMP = (((25UL * PWM_REG_PERIOD) + 50U)/100U);	/* 10.5us */			/* 25% of period */
-	PWM2_CMP = (((50UL * PWM_REG_PERIOD) + 50U)/100U);	/* 10.5us */			/* 50% of period */
-	PWM3_CMP = (((75UL * PWM_REG_PERIOD) + 50U)/100U);	/* 10.5us */			/* 75% of period */
+	PWM1_CMP = (((25L * PWM_REG_PERIOD) + 50)/100);		/* 10.5us */			/* 25% of period */
+	PWM2_CMP = (((50L * PWM_REG_PERIOD) + 50)/100);		/* 10.5us */			/* 50% of period */
+	PWM3_CMP = (((75L * PWM_REG_PERIOD) + 50)/100);		/* 10.5us */			/* 75% of period */
 #endif /* _SUPPORT_PHASE_SHORT_DET */
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRROR_VSM) */
 
@@ -224,18 +231,18 @@ void MotorDriverInit( void)
 	/* (Single PWM)	17%			33%			50%			67%			83%			100%				(8.33us/ADC-conversion)
 	 * MF_STEPPER:	Vs-unfilt	Vphase		Imotor		Vsm-filt	-			Temperature
 	 */
-	PWM1_CMP = (((17UL * PWM_REG_PERIOD) + 50U)/100U);	/* 8.33us */			/* 17% of period */
-	PWM2_CMP = (((33UL * PWM_REG_PERIOD) + 50U)/100U);							/* 33% of period */
-	PWM3_CMP = (((50UL * PWM_REG_PERIOD) + 50U)/100U);							/* 50% of period */
-	PWM4_CMP = (((67UL * PWM_REG_PERIOD) + 50U)/100U);							/* 67% of period */
-	PWM5_CMP = (((83UL * PWM_REG_PERIOD) + 50U)/100U);							/* 83% of period */
+	PWM1_CMP = (((17L * PWM_REG_PERIOD) + 50)/100);		/* 8.33us */			/* 17% of period */
+	PWM2_CMP = (((33L * PWM_REG_PERIOD) + 50)/100);								/* 33% of period */
+	PWM3_CMP = (((50L * PWM_REG_PERIOD) + 50)/100);								/* 50% of period */
+	PWM4_CMP = (((67L * PWM_REG_PERIOD) + 50)/100);								/* 67% of period */
+	PWM5_CMP = (((83L * PWM_REG_PERIOD) + 50)/100);								/* 83% of period */
 #else  /* _SUPPORT_PHASE_SHORT_DET */
 	/* (Single PWM)	25%			50%			75%			100%							(10.5us/ADC-conversion)
 	 * MF_STEPPER:	Vs-unfilt	Imotor		Vsm-filt	Temperature
 	 */
-	PWM1_CMP = (((25UL * PWM_REG_PERIOD) + 50U)/100U);	/* 10.5us */			/* 25% of period */
-	PWM2_CMP = (((50UL * PWM_REG_PERIOD) + 50U)/100U);	/* 10.5us */			/* 50% of period */
-	PWM3_CMP = (((75UL * PWM_REG_PERIOD) + 50U)/100U);	/* 10.5us */			/* 75% of period */
+	PWM1_CMP = (((25L * PWM_REG_PERIOD) + 50)/100);		/* 10.5us */			/* 25% of period */
+	PWM2_CMP = (((50L * PWM_REG_PERIOD) + 50)/100);		/* 10.5us */			/* 50% of period */
+	PWM3_CMP = (((75L * PWM_REG_PERIOD) + 50)/100);		/* 10.5us */			/* 75% of period */
 #endif /* _SUPPORT_PHASE_SHORT_DET */
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRROR_GND) */
 
@@ -244,36 +251,36 @@ void MotorDriverInit( void)
 	/* (Single PWM)	17%			33%			50%			67%			83%			100%	(7.0us/ADC-conversion)
 	 * MF_STEPPER:	Temperature	Vs-filt		Imotor1		Vs-phase	Vsm-unfilt	Imotor2
 	 */
-	PWM1_CMP = (((17UL * PWM_REG_PERIOD) + 50U)/100U);	/*  7.0us */			/* 17% of period */
-	PWM2_CMP = (((33UL * PWM_REG_PERIOD) + 50U)/100U);	/*  7.0us */			/* 33% of period */
-	PWM3_CMP = (((50UL * PWM_REG_PERIOD) + 50U)/100U);	/*  7.0us */			/* 50% of period */
-	PWM4_CMP = (((67UL * PWM_REG_PERIOD) + 50U)/100U);	/*  7.0us */			/* 67% of period */
-	PWM5_CMP = (((83UL * PWM_REG_PERIOD) + 50U)/100U);	/*  7.0us */			/* 83% of period */
+	PWM1_CMP = (((17L * PWM_REG_PERIOD) + 50)/100);		/*  7.0us */			/* 17% of period */
+	PWM2_CMP = (((33L * PWM_REG_PERIOD) + 50)/100);		/*  7.0us */			/* 33% of period */
+	PWM3_CMP = (((50L * PWM_REG_PERIOD) + 50)/100);		/*  7.0us */			/* 50% of period */
+	PWM4_CMP = (((67L * PWM_REG_PERIOD) + 50)/100);		/*  7.0us */			/* 67% of period */
+	PWM5_CMP = (((83L * PWM_REG_PERIOD) + 50)/100);		/*  7.0us */			/* 83% of period */
 #else  /* _SUPPORT_PHASE_SHORT_DET */
 	/* (Single PWM)	17%			33%			50%			75%			100%		(7.0us/ADC-conversion)
 	 * MF_STEPPER:	Temperature	Vs-filt		Imotor1		Vsm-unfilt	Imotor2
 	 */
-	PWM1_CMP = (((17UL * PWM_REG_PERIOD) + 50U)/100U);	/*  7.0us */			/* 17% of period */
-	PWM2_CMP = (((33UL * PWM_REG_PERIOD) + 50U)/100U);	/*  7.0us */			/* 33% of period */
-	PWM3_CMP = (((50UL * PWM_REG_PERIOD) + 50U)/100U);	/*  10.5us */			/* 50% of period */
-	PWM4_CMP = (((75UL * PWM_REG_PERIOD) + 50U)/100U);	/*  10.5us */			/* 75% of period */
+	PWM1_CMP = (((17L * PWM_REG_PERIOD) + 50)/100);		/*  7.0us */			/* 17% of period */
+	PWM2_CMP = (((33L * PWM_REG_PERIOD) + 50)/100);		/*  7.0us */			/* 33% of period */
+	PWM3_CMP = (((50L * PWM_REG_PERIOD) + 50)/100);		/*  10.5us */			/* 50% of period */
+	PWM4_CMP = (((75L * PWM_REG_PERIOD) + 50)/100);		/*  10.5us */			/* 75% of period */
 #endif /* _SUPPORT_PHASE_SHORT_DET */
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL) */
 
 #if (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) && (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_INDEPENDED_GND)
 	/* Mirror mode */
-	PWM1_CTRL = ((uint8) MODE | (uint8) EBLK | (uint8) ECI | (uint8) EPI);		/* Initialise the master control register - CMPI and PWMI enabled */
-	PWM2_CTRL = ((uint8) MODE | (uint8) ECI | (uint8) EXT | (uint8) EBLK);		/* Initialise the slave 1 control register - CMPI enabled */
-	PWM3_CTRL = ((uint8) MODE | (uint8) ECI | (uint8) EXT | (uint8) EBLK);		/* Initialise the slave 2 control register - CMPI enabled */
-	PWM4_CTRL = ((uint8) MODE | (uint8) ECI | (uint8) EXT | (uint8) EBLK);		/* Initialise the slave 3 control register - CMPI enabled */
-	PWM5_CTRL = ((uint8) MODE | (uint8) EXT | (uint8) EBLK);					/* Initialise the slave 4 control register - CMPI disabled */
+	PWM1_CTRL = (MODE | EBLK | ECI | EPI);										/* Initialise the master control register - CMPI and PWMI enabled */
+	PWM2_CTRL = (MODE | ECI | EXT | EBLK);										/* initialise the slave 1 control register - CMPI enabled */
+	PWM3_CTRL = (MODE | ECI | EXT | EBLK);										/* initialise the slave 2 control register - CMPI enabled */
+	PWM4_CTRL = (MODE | ECI | EXT | EBLK);										/* initialise the slave 3 control register - CMPI enabled */
+	PWM5_CTRL = (MODE | EXT | EBLK);											/* Initialise the slave 4 control register - CMPI disabled */
 #else  /* (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) && (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_INDEPENDED_GND) */
 	/* In-depended mode */
-	PWM1_CTRL = ((uint8) EBLK | (uint8) ECI | (uint8) EPI);						/* Initialise the master control register - CMPI and PWMI enabled */
-	PWM2_CTRL = ((uint8) ECI | (uint8) EXT | (uint8) EBLK);						/* Initialise the slave 1 control register - CMPI enabled */
-	PWM3_CTRL = ((uint8) ECI | (uint8) EXT | (uint8) EBLK);						/* Initialise the slave 2 control register - CMPI enabled */
-	PWM4_CTRL = ((uint8) ECI | (uint8) EXT | (uint8) EBLK);						/* Initialise the slave 3 control register - CMPI enabled */
-	PWM5_CTRL = ((uint8) ECI | (uint8) EXT | (uint8) EBLK);						/* Initialise the slave 4 control register - CMPI enabled */
+	PWM1_CTRL = (EBLK | ECI | EPI);												/* Initialise the master control register - CMPI and PWMI enabled */
+	PWM2_CTRL = (ECI | EXT | EBLK);												/* Initialise the slave 1 control register - CMPI enabled */
+	PWM3_CTRL = (ECI | EXT | EBLK);												/* Initialise the slave 2 control register - CMPI enabled */
+	PWM4_CTRL = (ECI | EXT | EBLK);												/* Initialise the slave 3 control register - CMPI enabled */
+	PWM5_CTRL = (ECI | EXT | EBLK);												/* Initialise the slave 4 control register - CMPI enabled */
 #endif /* (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) && (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_INDEPENDED_GND) */
 	PWM1_CTRL |= EBLK;															/* Start PWM in application mode */
 
@@ -291,35 +298,37 @@ void MotorDriverInit( void)
  * 3. Test Open connection with motor-phase
  * 4. Test BEMF Voltage levels
  * ****************************************************************************	*/
-#define FET_SETTING (((10U*PLL_freq)/(1000000UL*CYCLES_PER_INSTR*2U)) + 1U)			/* 10us: 10us*PLL-freq/(10000000us/s * #cycles/instruction) * instructions */
+#define FET_SETTING (((10*PLL_freq)/(1000000*CYCLES_PER_INSTR*2)) + 1)			/* 10us: 10us*PLL-freq/(10000000us/s * #cycles/instruction) * instructions */
 void MotorDriverSelfTest( void)
 {
 	uint16 u16SelfTestIdx;
-	uint16 u16VdsThreshold;
+	uint16 u16VdsThreshold;														/* MMP130919-1/MMP140403-1 */
 	T_ADC_SELFTEST_4PH adcMotorSelfTest4Ph;
-	uint16 u16Pwm2Storage = PWM2_CMP;											/* Save PWM2 ADC trigger CMP time */
-	PWM2_CMP = (((50UL * PWM_REG_PERIOD) + 50U)/100U);							/* Set PWM2 ADC trigger CMP time at 50% or period */
+	uint16 u16Pwm2Storage = PWM2_CMP;											/* MMP150219-2: Save PWM2 ADC trigger CMP time */
+	PWM2_CMP = (((50L * PWM_REG_PERIOD) + 50)/100);								/* MMP150219-2: Set PWM2 ADC trigger CMP time at 50% or period */
 
-	MeasureVsupplyAndTemperature();
+	g_e8ErrorCoil = 0;//init
+
+	MeasureVsupplyAndTemperature();												/* MMP130919-1 - Begin */
 	GetVsupplyMotor();
-	if ( NVRAM_VDS_THRESHOLD != 0U )
+	if ( NVRAM_VDS_THRESHOLD != 0 )
 	{
 		u16VdsThreshold = NVRAM_VDS_THRESHOLD;
 	}
 	else
 	{
 		u16VdsThreshold = 200U;
-	}
+	}																			/* MMP130919-1 - End */
 
 	/* Test for FET shortages; Note: Diagnostics configuration will switch off driver at over-current */
 	for ( u16SelfTestIdx = 0; (g_e8ErrorElectric == (uint8) C_ERR_ELECTRIC_NO) && (u16SelfTestIdx < (sizeof(c_au8DrvCfgSelfTestA)/sizeof(c_au8DrvCfgSelfTestA[0]))); u16SelfTestIdx++ )
 	{
-		int16 i16DriverCurrent = 0;
+		int16 i16DriverCurrent = 0;												/* MMP140403-1 */
 
-		DRVCFG_CNFG_UVWT( (uint16) c_au8DrvCfgSelfTestA[u16SelfTestIdx]);
+		DRVCFG_CNFG_UVWT( (uint16) c_au8DrvCfgSelfTestA[u16SelfTestIdx]);		/* MMP130904-1 */
 
-		MeasurePhaseVoltage( (uint16)c_au16DrvAdcSelfTestA[u16SelfTestIdx>>1]);
-		if ( (u16SelfTestIdx & 1U) == 0U )
+		MeasurePhaseVoltage( (uint16)c_au16DrvAdcSelfTestA[u16SelfTestIdx>>1]);	/* MMP140403-1/MMP130919-1 - Begin */
+		if ( (u16SelfTestIdx & 1) == 0 )
 		{
 			/* Even-index (0,2,4,6) are phase to ground: Check current too (< 20 mA) */
 			MeasureMotorCurrent();
@@ -327,12 +336,13 @@ void MotorDriverSelfTest( void)
 		}
 		/* Even-index (0,2,4,6) are phase to ground: Vphase < Vds; Odd-index (1,3,5,7) are phase to supply: Vphase > (Vsup - Vds) */
 		if ( (g_e8ErrorElectric != (uint8) C_ERR_ELECTRIC_NO) ||
-			(((u16SelfTestIdx & 1U) == 0U) && ((g_i16PhaseVoltage > (int16)u16VdsThreshold) || (i16DriverCurrent > 20))) ||
-			(((u16SelfTestIdx & 1U) != 0U) && (g_i16PhaseVoltage < (int16)(g_i16MotorVoltage - u16VdsThreshold))) )
-		{
+			(((u16SelfTestIdx & 1) == 0) && ((g_i16PhaseVoltage > (int16)u16VdsThreshold) || (i16DriverCurrent > 20))) ||
+			(((u16SelfTestIdx & 1) != 0) && (g_i16PhaseVoltage < (int16)(g_i16MotorVoltage - u16VdsThreshold))) )
+		{																		/* MMP130919-1 - End */
 			/* Over-current trigger; Phase makes short with supply or Ground */
 			g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;
 			SetLastError( (uint8) C_ERR_SELFTEST_A);
+			g_e8ErrorCoil = (uint8) C_ERR_SELFTEST_A;//Ban, FET short with ground or supply
 			break;
 		}
 	}
@@ -340,7 +350,7 @@ void MotorDriverSelfTest( void)
 	/* Convert Vds-voltage (10mV units) to ADC-LSB */
 	u16VdsThreshold = muldivU16_U16byU16byU16( u16VdsThreshold, C_GVOLTAGE_DIV, EE_GADC);
 
-	for ( u16SelfTestIdx = 0U; (g_e8ErrorElectric == (uint8) C_ERR_ELECTRIC_NO) && (u16SelfTestIdx < (sizeof(c_au8DrvCfgSelfTestB4)/sizeof(c_au8DrvCfgSelfTestB4[0]))); u16SelfTestIdx++ )
+	for ( u16SelfTestIdx = 0; (g_e8ErrorElectric == (uint8) C_ERR_ELECTRIC_NO) && (u16SelfTestIdx < (sizeof(c_au8DrvCfgSelfTestB4)/sizeof(c_au8DrvCfgSelfTestB4[0]))); u16SelfTestIdx++ )
 	{
 		/* Test for open connections, damaged coil(s) */
 		uint16 u16Vsm;
@@ -349,7 +359,7 @@ void MotorDriverSelfTest( void)
 		uint16 u16Vds;
 		uint16 u16MotorCoilCurrent;
 		register uint16 u16DC;
-		if ( (u16SelfTestIdx & 0x02U) != 0U )
+		if ( u16SelfTestIdx & 0x02 )
 		{
 			/* Phase LOW + phase -PWM */
 			u16DC = (PWM_REG_PERIOD >> 3);
@@ -366,7 +376,7 @@ void MotorDriverSelfTest( void)
 		PWM5_LT = u16DC;														/* Copy the results into the PWM register for phase T */
 		PWM1_LT = u16DC;														/* Master must be modified at last (value is not important) */
 #else  /* (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) && (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_INDEPENDED_GND) */
-		u16DC = u16DC/2U;
+		u16DC = u16DC/2;
 		PWM2_LT = u16DC;														/* Copy the results into the PWM register for phase U */
 		PWM2_HT = PWM_REG_PERIOD - u16DC;
 		PWM3_LT = u16DC;														/* Copy the results into the PWM register for phase V */
@@ -381,7 +391,7 @@ void MotorDriverSelfTest( void)
 		DRVCFG_CNFG_UVWT( (uint16) c_au8DrvCfgSelfTestB4[u16SelfTestIdx]);
 
 		ADC_Stop();																/* clear the ADC control register */
-		if ( (u16SelfTestIdx & 2U) != 0U )
+		if ( u16SelfTestIdx & 2 )
 		{
 			ADC_SBASE = (uint16) tAdcSelfTest4B;								/* Phase = Low */
 		}
@@ -394,7 +404,7 @@ void MotorDriverSelfTest( void)
 		ADC_CTRL |= ADC_START;													/* Start ADC */
 
 		/* This takes about 4 Motor PWM-periods per self-test */
-		while ((ADC_CTRL & ADC_START) != 0U) {}									/* Wait for ADC result (Time-out?) */
+		while (ADC_CTRL & ADC_START) /* lint -e{722} */ ;						/* Wait for ADC result (Time-out?) */
 
 		DRVCFG_GND_UVWT();
 
@@ -403,10 +413,11 @@ void MotorDriverSelfTest( void)
 			/* Over-current trigger; Phase makes short with other phase */
 			g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;
 			SetLastError( C_ERR_SELFTEST_B);
+			g_e8ErrorCoil = (uint8) C_ERR_SELFTEST_B;//Ban, phase shot with other phase
 			break;
 		}
 
-		if ( (u16SelfTestIdx & 2U) != 0U )
+		if ( u16SelfTestIdx & 2 )
 		{
 			/* Use tAdcSelfTest4B */
 			u16Vsm = adcMotorSelfTest4Ph.UnfilteredDriverCurrent;				/* Current becomes voltage */
@@ -441,30 +452,32 @@ void MotorDriverSelfTest( void)
 		}
 
 		if ( u16Vsm > u16VphH )
-		{
 			u16Vds = u16Vsm - u16VphH;
-		}
 		else
-		{
 			u16Vds = u16VphH - u16Vsm;
-		}
+#if _SUPPORT_COIL_RESISTANCE_CHECK //Ban disable coil resistance check
 		if ( u16Vds > u16VdsThreshold )
 		{
 			g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;
 			SetLastError( C_ERR_SELFTEST_D);
+			g_e8ErrorCoil = (uint8) C_ERR_SELFTEST_D;//Ban, phase resistance is too small
 			break;
 		}
 		if ( u16VphL > u16VdsThreshold )
 		{
 			g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;
 			SetLastError( C_ERR_SELFTEST_E);
+			g_e8ErrorCoil = (uint8) C_ERR_SELFTEST_E;//Ban, phase resistance is too small
 			break;
 		}
+#endif // _SUPPORT_COIL_RESISTANCE_CHECK
+		extern uint16 l_u16CurrentZeroOffset;
 		if ( (int16) (u16MotorCoilCurrent - l_u16CurrentZeroOffset) < C_MIN_COIL_CURRENT )
 		{
 			/* No current (less than 10 LSB's); Coil Open */
 			g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;
 			SetLastError( C_ERR_SELFTEST_C);
+			g_e8ErrorCoil = (uint8) C_ERR_SELFTEST_C;
 			break;
 		}
 	}	
@@ -475,8 +488,8 @@ void MotorDriverSelfTest( void)
 	PWM4_LT = PWM_SCALE_OFFSET;													/* 50% PWM duty cycle for phase W */
 	PWM5_LT = PWM_SCALE_OFFSET;													/* 50% PWM duty cycle for phase T */
 	PWM1_LT = PWM_SCALE_OFFSET;													/* Master must be modified at last (value is not important) */
-	DRVCFG_DIS();
-	PWM2_CMP = u16Pwm2Storage;													/* Restore PWM2 ADC trigger CMP time */
+	DRVCFG_DIS();																/* MMP140903-1 */
+	PWM2_CMP = u16Pwm2Storage;													/* MMP150219-2: Restore PWM2 ADC trigger CMP time */
 
 } /* End of MotorDriverSelfTest() */
 #endif /* (_SUPPORT_MOTOR_SELFTEST != FALSE) */
@@ -489,34 +502,30 @@ void MotorDriverSelfTest( void)
  * ****************************************************************************	*/
 void MotorDriverCurrentMeasureInit( void)
 {
-	uint16 u16Count;
-	l_u16StartupDelayInit = 64U * NVRAM_ACCELERATION_POINTS;						/* Calculate the startup-delay, based on acceleration steps */
-	if ( l_u16StartupDelayInit < (2U*C_MOVAVG_SZ) )
+	uint16 u16Count;															/* MMP140331-2 - Begin */
+	l_u16StartupDelayInit = 64 * NVRAM_ACCELERATION_POINTS;						/* Calculate the startup-delay, based on acceleration steps */
+	if ( l_u16StartupDelayInit < (2*C_MOVAVG_SZ) )
 	{
-		l_u16StartupDelayInit = (2U*C_MOVAVG_SZ);								/* Minimum of twice the moving-average filter size */
+		l_u16StartupDelayInit = (2*C_MOVAVG_SZ);								/* Minimum of twice the moving-average filter size */
 	}
 	else if ( l_u16StartupDelayInit > NVRAM_STALL_DETECTOR_DELAY )
 	{
 		l_u16StartupDelayInit = NVRAM_STALL_DETECTOR_DELAY;						/* Maximum of NVRAM specified */
-	}
-	else
-	{
-		/* Nothing */
-	}
+	}																			/* MMP140331-2 - End */
 
 	ATOMIC_CODE
 	(
-		g_u16StartupDelay = l_u16StartupDelayInit;
-		g_u16MotorCurrentLPFx64 = 0U;											/* Low-pass Filtered motor-current (x 64) */
-		l_u16MotorCurrentRawIdx = 0U;											/* Raw current moving average index */
-		g_u16MotorCurrentMovAvgxN = 0U;											/* Moving average motor-current (x 4..16) */
-		l_au16MotorCurrentRaw[0] = 0U;
+		g_u16StartupDelay = l_u16StartupDelayInit;								/* (MMP140331-2) */
+		g_u16MotorCurrentLPFx64 = 0;											/* Low-pass Filtered motor-current (x 64) */
+		l_u16MotorCurrentRawIdx = 0;											/* Raw current moving average index */
+		g_u16MotorCurrentMovAvgxN = 0;											/* Moving average motor-current (x 4..16) */
+		l_au16MotorCurrentRaw[0] = 0;
 	);
 	{
 		uint16 *pStallCurrentRaw = &l_au16MotorCurrentRaw[1];
-		for ( u16Count = 1U; u16Count < C_MOVAVG_SZ; u16Count++ )
+		for ( u16Count = 1; u16Count < C_MOVAVG_SZ; u16Count++ )
 		{
-			*pStallCurrentRaw = 0U;
+			*pStallCurrentRaw = 0;
 			pStallCurrentRaw++;
 		}
 	}
@@ -529,85 +538,65 @@ void MotorDriverCurrentMeasureInit( void)
  * Measure a average motor current, based on ADC current's
  * Performance: Approximate: 10us @ 20MHz
  * ****************************************************************************	*/
-void MotorDriverCurrentMeasure( uint16 u16RunningMode)
+void MotorDriverCurrentMeasure( void)
 {
 #if (C_MOVAVG_SSZ < 6)
 	uint16 u16MotorCurrentAcc;
 #endif /* (C_MOVAVG_SSZ < 6 ) */
 	uint16 u16MicroStepMotorCurrent = GetRawMotorDriverCurrent();
 #if _DEBUG_SPI
-	SpiDebugWriteFirst( u16MicroStepMotorCurrent);
+	SpiDebugWriteFirst(g_u16PidRunningThreshold|0x8000);
+	SpiDebugWriteNext(g_u16MotorCurrentMovAvgxN);
+	//SpiDebugWriteFirst(g_u16HallMicroStepIdx);
+	//SpiDebugWriteNext(u16MicroStepMotorCurrent);
 #endif /* _DEBUG_SPI */
 
 	/* Moving average (sum) of motor-driver current */
 	uint16 *pu16MotorCurrentElement = &l_au16MotorCurrentRaw[l_u16MotorCurrentRawIdx];
 	uint16 u16PrevMotorCurrent = *pu16MotorCurrentElement;
-	l_u16MotorCurrentRawIdx = (l_u16MotorCurrentRawIdx + 1U) & (C_MOVAVG_SZ - 1U);
-//	if ( (g_u16StartupDelay != 0) || (u16MicroStepMotorCurrent < (u16PrevMotorCurrent << 1)) )	/* Check for valid motor-driver current (at least smaller than 2x previous current)  */
+	l_u16MotorCurrentRawIdx = (l_u16MotorCurrentRawIdx + 1) & (C_MOVAVG_SZ - 1);
+	if ( (g_u16StartupDelay != 0) || (u16MicroStepMotorCurrent < (u16PrevMotorCurrent << 1)) )	/* Check for valid motor-driver current (at least smaller than 2x previous current)  */
 	{
 		g_u16MotorCurrentMovAvgxN -= u16PrevMotorCurrent;						/* Subtract oldest raw motor-driver current */
 		g_u16MotorCurrentMovAvgxN += u16MicroStepMotorCurrent;					/* Add newest raw motor-driver current */
 		*pu16MotorCurrentElement = u16MicroStepMotorCurrent;					/* Overwrite oldest with newest motor-driver current */
 	}
 
-	if ( u16RunningMode )
-	{
-		/* During twice the moving-average-buffer size and during acceleration of the motor, LPF should follow
-		   lowest value of LPF or Motor-current. As the speed is increasing so also is the BEMF also increasing,
-		   which causes the current to decrease. Otherwise a first order (IIR-1) LPF is used. */
+	/* During twice the moving-average-buffer size and during acceleration of the motor, LPF should follow
+	   lowest value of LPF or Motor-current. As the speed is increasing so also is the BEMF also increasing,
+	   which causes the current to decrease. Otherwise a first order (IIR-1) LPF is used. */
 #if (C_MOVAVG_SSZ < 6)
-		u16MotorCurrentAcc = (g_u16MotorCurrentMovAvgxN << (6U - C_MOVAVG_SSZ));
-		if ( (g_u16StartupDelay > (l_u16StartupDelayInit - (2U*C_MOVAVG_SZ))) || (g_u8MotorStartupMode == (uint8) MSM_STEPPER_D) || ((g_u8MotorStartupMode == (uint8) MSM_STEPPER_A) && (u16MotorCurrentAcc < g_u16MotorCurrentLPFx64)) )
-		{
-			g_u16MotorCurrentLPFx64 = u16MotorCurrentAcc;
-		}
+	u16MotorCurrentAcc = (g_u16MotorCurrentMovAvgxN << (6 - C_MOVAVG_SSZ));
+	if ( (g_u16StartupDelay > (l_u16StartupDelayInit - (2*C_MOVAVG_SZ))) || (g_u8MotorStartupMode == (uint8) MSM_STEPPER_D) || ((g_u8MotorStartupMode == (uint8) MSM_STEPPER_A) && (u16MotorCurrentAcc < g_u16MotorCurrentLPFx64)) )
+	{
+		g_u16MotorCurrentLPFx64 = u16MotorCurrentAcc;
 #endif /* (C_MOVAVG_SSZ < 6 ) */
 #if (C_MOVAVG_SSZ == 6 )
-		if ( (g_u16StartupDelay > (l_u16StartupDelayInit - (2U*C_MOVAVG_SZ))) || (g_u8MotorStartupMode == (uint8) MSM_STEPPER_D) || ((g_u8MotorStartupMode == (uint8) MSM_STEPPER_A) && (g_u16MotorCurrentMovAvgxN < g_u16MotorCurrentLPFx64)) )
-		{
-			g_u16MotorCurrentLPFx64 = g_u16MotorCurrentMovAvgxN;
-		}
+	if ( (g_u16StartupDelay > (l_u16StartupDelayInit - (2*C_MOVAVG_SZ))) || (g_u8MotorStartupMode == (uint8) MSM_STEPPER_D) || ((g_u8MotorStartupMode == (uint8) MSM_STEPPER_A) && (g_u16MotorCurrentMovAvgxN < g_u16MotorCurrentLPFx64)) )
+	{
+		g_u16MotorCurrentLPFx64 = g_u16MotorCurrentMovAvgxN;
 #endif /* (C_MOVAVG_SSZ == 6 ) */
-		else
-		{
-#if (MOTOR_MICROSTEPS < 3)
-			/* LPF_B: IIR of 0.9921875 (127/128) & 0.0078125 (1/128) */
-			g_u16MotorCurrentLPFx64 = (g_u16MotorCurrentLPFx64 - ((g_u16MotorCurrentLPFx64 + 63U) >> 7)) + ((g_u16MotorCurrentMovAvgxN + (1U << C_MOVAVG_SSZ)) >> (1U + C_MOVAVG_SSZ));
-#else  /* (MOTOR_MICROSTEPS < 3) */
-			/* LPF_B: IIR of 0.99609375 (255/256) & 0.00390625 (1/256) */
-			g_u16MotorCurrentLPFx64 = (g_u16MotorCurrentLPFx64 - ((g_u16MotorCurrentLPFx64 + 63U) >> 8)) + ((g_u16MotorCurrentMovAvgxN + ((1U << (2U + C_MOVAVG_SSZ)) >> 1)) >> (2U + C_MOVAVG_SSZ));
-#endif /* (MOTOR_MICROSTEPS < 3) */
-		}
 	}
 	else
 	{
-		/* LPF_B: IIR of 0.984375 (63/64) & 0.015625 (1/64) */
-		g_u16MotorCurrentLPFx64 = (g_u16MotorCurrentLPFx64 - ((g_u16MotorCurrentLPFx64 + 16U) >> 5)) + ((g_u16MotorCurrentMovAvgxN + ((1U << (C_MOVAVG_SSZ - 1U)) >> 1)) >> (C_MOVAVG_SSZ - 1U));
+#if (MOTOR_MICROSTEPS < 3)
+		/* LPF_B: IIR of 0.9921875 (127/128) & 0.0078125 (1/128) */
+		g_u16MotorCurrentLPFx64 = (g_u16MotorCurrentLPFx64 - ((g_u16MotorCurrentLPFx64 + 63) >> 7)) + ((g_u16MotorCurrentMovAvgxN + (1 << C_MOVAVG_SSZ)) >> (1 + C_MOVAVG_SSZ));
+#else  /* (MOTOR_MICROSTEPS < 3) */
+		/* LPF_B: IIR of 0.99609375 (255/256) & 0.00390625 (1/256) */
+		g_u16MotorCurrentLPFx64 = (g_u16MotorCurrentLPFx64 - ((g_u16MotorCurrentLPFx64 + 63) >> 8)) + ((g_u16MotorCurrentMovAvgxN + (1 << (1 + C_MOVAVG_SSZ))) >> (2 + C_MOVAVG_SSZ));
+#endif /* (MOTOR_MICROSTEPS < 3) */
 	}
 
-
-	if ( g_u16StartupDelay > 0U )
+	if ( g_u16StartupDelay > 0 )
 	{
 		g_u16StartupDelay--;
 	}
 
 #if _DEBUG_MOTOR_CURRENT_FLT
-//	if ( l_u16MotorCurrIdx < C_MOTOR_CURR_SZ )
-	{
-		uint8 *pBfr = &l_au8MotorCurrRaw[l_u16MotorCurrIdx];
-		*pBfr++ = (uint8) ((u16MicroStepMotorCurrent >> 2) & 0xFFU);					/* Stall-A */
-//		*pBfr++ = (uint8) ((g_u16CurrentMotorCoilA >> 2) & 0xFFU);						/* Stall-O */
-//		*pBfr++ = (uint8) ((g_u16CurrentMotorCoilB >> 2) & 0xFFU);						/* Stall-O */
-//		*pBfr++ = (uint8) ((g_u16CorrectionRatio >> 7) & 0xFFU);
-		*pBfr++ = (uint8) (((g_u16MotorCurrentMovAvgxN/C_MOVAVG_SZ) >> 2) & 0xFFU);		/* Stall-A */
-		*pBfr++ = (uint8) (((g_u16MotorCurrentLPFx64/64) >> 2) & 0xFFU);				/* Stall-A/Stall-O */
-//		*pBfr++ = (uint8) (((l_u16MotorCurrentStallThrshldxN/C_MOVAVG_SZ) >> 2) & 0xFFU);/* Stall-A */
-//		*pBfr++ = (uint8) ((g_u16CurrStallO >> 2) & 0xFFU);								/* Stall-O */
-		*pBfr++ = (uint8) ((l_u16CurrentZeroOffset >> 2) & 0xFFU);
-		l_u16MotorCurrIdx += 4U;
-		if ( l_u16MotorCurrIdx >= C_MOTOR_CURR_SZ )
-			l_u16MotorCurrIdx = 0U;
-	}
+	l_au8MotorCurrRaw[l_u16MotorCurrIdx] = (uint8) ((u16MicroStepMotorCurrent >> 1) & 0xFF);
+	if ( ++l_u16MotorCurrIdx >= C_MOTOR_CURR_SZ )
+		l_u16MotorCurrIdx = 0;
 #endif /* _DEBUG_MOTOR_CURRENT_FLT */
 } /* End of MotorDriverCurrentMeasure() */
 
@@ -618,24 +607,26 @@ void MotorDriverCurrentMeasure( uint16 u16RunningMode)
  * ****************************************************************************	*/
 void MotorDriver_InitialPwmDutyCycle( uint16 u16CurrentLevel, uint16 u16MotorSpeed)
 {
-	if ( u16MotorSpeed == 0U )
+	if ( u16MotorSpeed == 0 )														/* MMP140228-1 - Begin */
 	{
-		g_u16CorrectionRatio  = ((NVRAM_MOTOR_COIL_RTOT + 2U * C_FETS_RTOT) * u16CurrentLevel);
-		g_u16CorrectionRatio /= 8U;
-	}
+		g_u16CorrectionRatio  = ((NVRAM_MOTOR_COIL_RTOT + 2 * C_FETS_RTOT) * u16CurrentLevel);
+		g_u16CorrectionRatio /= 4;
+//		g_u16CorrectionRatio = (5 * g_u16CorrectionRatio);							/* Divided by 5/16 */
+//		g_u16PidCtrlRatio = muldivU16_U16byU16byU16( g_u16CorrectionRatio, PWM_REG_PERIOD << PWM_PRESCALER_N, NVRAM_VSUP_REF);
+	}																				/* MMP140228-1 - End */
 	else
 	{
 		/* Ohmic losses: Ur-losses = (0.5 * R[ohm] * I[mA])/10 [10mV] = (R[ohm] * I[mA])/20 [10mV]
 		 * FET losses: Ufet-losses = (Rfet * I[mA])/10 [10mV] = (2 * Rfet * I[mA])/20 [10mV]*/
-		g_u16CorrectionRatio  = ((NVRAM_MOTOR_COIL_RTOT + (2U * C_FETS_RTOT)) * u16CurrentLevel);
-		g_u16CorrectionRatio /= 20U;											/* Divided by 20 */
-		g_u16CorrectionRatio += (NVRAM_MOTOR_CONSTANT * u16MotorSpeed);			/* BEMF = Kmotor[10mV/RPS] * Speed[RPS] */
+		g_u16CorrectionRatio  = ((NVRAM_MOTOR_COIL_RTOT + (2 * C_FETS_RTOT)) * u16CurrentLevel);
+		g_u16CorrectionRatio /= 20;													/* Divided by 20 */
+		g_u16CorrectionRatio += (NVRAM_MOTOR_CONSTANT * u16MotorSpeed);				/* BEMF = Kmotor[10mV/RPS] * Speed[RPS] */
 	}
-	g_u16PidCtrlRatio =  muldivU16_U16byU16byU16( g_u16CorrectionRatio << 3, PWM_REG_PERIOD << (1U + PWM_PRESCALER_N), NVRAM_VSUP_REF);
+	g_u16PidCtrlRatio =  muldivU16_U16byU16byU16( g_u16CorrectionRatio << 3, PWM_REG_PERIOD << (1 + PWM_PRESCALER_N), NVRAM_VSUP_REF);
 	g_u16PID_I = g_u16PidCtrlRatio;
 	if ( g_i16MotorVoltage > 0 )
 	{
-		g_u16CorrectionRatio = muldivU16_U16byU16byU16( g_u16CorrectionRatio << 3, PWM_REG_PERIOD << (1U + PWM_PRESCALER_N), (uint16) g_i16MotorVoltage);
+		g_u16CorrectionRatio = muldivU16_U16byU16byU16( g_u16CorrectionRatio << 3, PWM_REG_PERIOD << (1 + PWM_PRESCALER_N), (uint16) g_i16MotorVoltage);
 	}
 	else
 	{
@@ -643,7 +634,7 @@ void MotorDriver_InitialPwmDutyCycle( uint16 u16CurrentLevel, uint16 u16MotorSpe
 	}
 	g_i16PID_D = 0;
 	g_i16PID_E = 0;
-	g_u16PID_CtrlCounter = 0U;													/* Re-start Current-control PID */
+	g_u16PID_CtrlCounter = 0;													/* Re-start Current-control PID */
 } /* End of MotorDriver_InitialPwmDutyCycle() */
 
 /* ****************************************************************************	*
@@ -767,17 +758,17 @@ void MotorDriver_4PhaseStepper( void)
 		/* 1st and 2nd Quadrant */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 		/* U-phase: HIGH, W-Phase: PWM */
-		PWM4_LT = 0U;										/* U = LOW */
+		PWM4_LT = 0;										/* U = LOW */
 		PWM2_LT = (uint16) iPwm;							/* W = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 		/* T-phase: HIGH, W-Phase: PWM */
-		PWM5_LT = 0U;										/* T = LOW */
+		PWM5_LT = 0;										/* T = LOW */
 		PWM2_LT = (uint16) iPwm;							/* W = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 		/* V-phase: HIGH, W-Phase: PWM */
-		PWM3_LT = 0U;										/* V = LOW */
+		PWM3_LT = 0;										/* V = LOW */
 		PWM2_LT = (uint16) iPwm;							/* W = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 	}
@@ -786,17 +777,17 @@ void MotorDriver_4PhaseStepper( void)
 		/* 3rd and 4th Quadrant */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 		/* W-phase: HIGH, U-Phase: PWM */
-		PWM2_LT = 0U;										/* W = LOW */
+		PWM2_LT = 0;										/* W = LOW */
 		PWM4_LT = (uint16) ((int16) 0 - iPwm);				/* U = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 		/* W-phase: HIGH, T-Phase: PWM */
-		PWM2_LT = 0U;										/* W = LOW */
+		PWM2_LT = 0;										/* W = LOW */
 		PWM5_LT = (uint16) ((int16) 0 - iPwm);				/* T = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 		/* W-phase: HIGH, V-Phase: PWM */
-		PWM2_LT = 0U;										/* W = LOW */
+		PWM2_LT = 0;										/* W = LOW */
 		PWM3_LT = (uint16) ((int16) 0 - iPwm);				/* V = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 	}
@@ -807,17 +798,17 @@ void MotorDriver_4PhaseStepper( void)
 		/* 1st and 4th Quadrant */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 		/* V-phase: HIGH, T-Phase: PWM */
-		PWM3_LT = 0U;										/* V = LOW */
+		PWM3_LT = 0;										/* V = LOW */
 		PWM5_LT = (uint16) iPwm;							/* T = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 		/* U-phase: HIGH, V-Phase: PWM */
-		PWM4_LT = 0U;										/* U = LOW */
+		PWM4_LT = 0;										/* U = LOW */
 		PWM3_LT = (uint16) iPwm;							/* V = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 		/* U-phase: HIGH, T-Phase: PWM */
-		PWM4_LT = 0U;										/* U = LOW */
+		PWM4_LT = 0;										/* U = LOW */
 		PWM5_LT = (uint16) iPwm;							/* T = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 	}
@@ -826,17 +817,17 @@ void MotorDriver_4PhaseStepper( void)
 		/* 2st and 3th Quadrant */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 		/* T-phase: HIGH, V-Phase: PWM */
-		PWM5_LT = 0U;										/* T = LOW */
+		PWM5_LT = 0;										/* T = LOW */
 		PWM3_LT = (uint16) ((int16) 0 - iPwm);				/* V = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 		/* V-phase: HIGH, U-Phase: PWM */
-		PWM3_LT = 0U;										/* V = LOW */
+		PWM3_LT = 0;										/* V = LOW */
 		PWM4_LT = (uint16) ((int16) 0 - iPwm);				/* U = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 		/* T-phase: HIGH, U-Phase: PWM */
-		PWM5_LT = 0U;										/* T = LOW */
+		PWM5_LT = 0;										/* T = LOW */
 		PWM4_LT = (uint16) ((int16) 0 - iPwm);				/* U = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 	}
@@ -870,8 +861,8 @@ void MotorDriver_4PhaseStepper( void)
 		iPwm1 = (0 - iPwm1);
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 		/* W = HIGH */
-		PWM2_LT = 0U;
-		PWM2_HT = PWM_REG_PERIOD + 1U;
+		PWM2_LT = 0;
+		PWM2_HT = PWM_REG_PERIOD + 1;											/* MMP150603-1 */
 
 		/* U = PWM */
 		PWM4_LT = (uint16) iPwm1;
@@ -879,8 +870,8 @@ void MotorDriver_4PhaseStepper( void)
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 		/* W = HIGH */
-		PWM2_LT = 0U;
-		PWM2_HT = PWM_REG_PERIOD + 1U;
+		PWM2_LT = 0;
+		PWM2_HT = PWM_REG_PERIOD + 1;											/* MMP150603-1 */
 
 		/* T = PWM */
 		PWM5_LT = (uint16) iPwm1;
@@ -888,52 +879,52 @@ void MotorDriver_4PhaseStepper( void)
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 		/* W = HIGH */
-		PWM2_LT = 0U;
-		PWM2_HT = PWM_REG_PERIOD + 1U;
+		PWM2_LT = 0;
+		PWM2_HT = PWM_REG_PERIOD + 1;											/* MMP150603-1 */
 
 		/* V = PWM */
 		PWM3_LT = (uint16) iPwm1;
 		PWM3_HT = (uint16) (PWM_REG_PERIOD - iPwm1);
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 
-		if ( iPwm2 == 0 )
+		if ( iPwm2 == 0 )														/* MMP141119-1 - Begin */
 		{
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 			/* V = HIGH */
-			PWM3_LT = 0U;
-			PWM3_HT = PWM_REG_PERIOD + 1U;
+			PWM3_LT = 0;
+			PWM3_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* T = HIGH */
-			PWM5_LT = 0U;
-			PWM5_HT = PWM_REG_PERIOD + 1U;
+			PWM5_LT = 0;
+			PWM5_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 			/* U = HIGH */
-			PWM4_LT = 0U;
-			PWM4_HT = PWM_REG_PERIOD + 1U;
+			PWM4_LT = 0;
+			PWM4_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* V = HIGH */
-			PWM3_LT = 0U;
-			PWM3_HT = PWM_REG_PERIOD + 1U;
+			PWM3_LT = 0;
+			PWM3_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 			/* U  = HIGH */
-			PWM4_LT = 0U;
-			PWM4_HT = PWM_REG_PERIOD + 1U;
+			PWM4_LT = 0;
+			PWM4_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* T = HIGH */
-			PWM5_LT = 0U;
-			PWM5_HT = PWM_REG_PERIOD + 1U;
+			PWM5_LT = 0;
+			PWM5_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 		}
-		else if ( u16MicroStepIdx & C_MICROSTEP_PER_FULLSTEP )
+		else if ( u16MicroStepIdx & C_MICROSTEP_PER_FULLSTEP )					/* MMP141119-1 - End */
 		{
 			/* 4th Quadrant (Pwm2) */
 			iPwm2 = ((int16) PWM_SCALE_OFFSET - iPwm2);
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 			/* V = HIGH */
-			PWM3_LT = 0U;
-			PWM3_HT = PWM_REG_PERIOD + 1U;
+			PWM3_LT = 0;
+			PWM3_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* T = PWM */
 			PWM5_HT = (uint16) iPwm2;
@@ -941,8 +932,8 @@ void MotorDriver_4PhaseStepper( void)
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 			/* U = HIGH */
-			PWM4_LT = 0U;
-			PWM4_HT = PWM_REG_PERIOD + 1U;
+			PWM4_LT = 0;
+			PWM4_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* V = PWM */
 			PWM3_HT = (uint16) iPwm2;
@@ -950,8 +941,9 @@ void MotorDriver_4PhaseStepper( void)
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 			/* U  = HIGH */
-			PWM4_LT = 0U;
-			PWM4_HT = PWM_REG_PERIOD + 1U;
+			PWM4_LT = 0;
+			PWM4_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
+
 			/* T = PWM */
 			PWM5_HT = (uint16) iPwm2;
 			PWM5_LT = (uint16) (PWM_REG_PERIOD - iPwm2);
@@ -963,8 +955,8 @@ void MotorDriver_4PhaseStepper( void)
 			iPwm2 = (PWM_SCALE_OFFSET + iPwm2);
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 			/* T = HIGH */
-			PWM5_LT = 0U;
-			PWM5_HT = PWM_REG_PERIOD + 1U;
+			PWM5_LT = 0;
+			PWM5_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* V = PWM */
 			PWM3_LT = (uint16) iPwm2;
@@ -972,8 +964,8 @@ void MotorDriver_4PhaseStepper( void)
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 			/* V = HIGH */
-			PWM3_LT = 0U;
-			PWM3_HT = PWM_REG_PERIOD + 1U;
+			PWM3_LT = 0;
+			PWM3_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* U = PWM */
 			PWM4_HT = (uint16) iPwm2;
@@ -981,8 +973,8 @@ void MotorDriver_4PhaseStepper( void)
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 			/* T = HIGH */
-			PWM5_LT = 0U;
-			PWM5_HT = PWM_REG_PERIOD + 1U;
+			PWM5_LT = 0;
+			PWM5_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* U = PWM */
 			PWM4_HT = (uint16) iPwm2;
@@ -995,8 +987,8 @@ void MotorDriver_4PhaseStepper( void)
 		/* 1st and 2nd Quadrant (Pwm1)*/
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 		/* U = HIGH */
-		PWM4_LT = 0U;
-		PWM4_HT = PWM_REG_PERIOD + 1U;
+		PWM4_LT = 0;
+		PWM4_HT = PWM_REG_PERIOD + 1;											/* MMP150603-1 */
 
 		/* W = PWM */
 		PWM2_LT = (uint16) iPwm1;
@@ -1004,8 +996,8 @@ void MotorDriver_4PhaseStepper( void)
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 		/* T = HIGH */
-		PWM5_LT = 0U;
-		PWM5_HT = PWM_REG_PERIOD + 1U;
+		PWM5_LT = 0;
+		PWM5_HT = PWM_REG_PERIOD + 1;											/* MMP150603-1 */
 
 		/* W = PWM */
 		PWM2_LT = (uint16) iPwm1;
@@ -1013,52 +1005,52 @@ void MotorDriver_4PhaseStepper( void)
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 		/* V= HIGH */
-		PWM3_LT = 0U;
-		PWM3_HT = PWM_REG_PERIOD + 1U;
+		PWM3_LT = 0;
+		PWM3_HT = PWM_REG_PERIOD + 1;											/* MMP150603-1 */
 
 		/* W = PWM */
 		PWM2_LT = (uint16) iPwm1;
 		PWM2_HT = (uint16) (PWM_REG_PERIOD - iPwm1);
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 
-		if ( iPwm2 == 0 )
+		if ( iPwm2 == 0 )														/* MMP141119-1 - Begin */
 		{
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 			/* T = HIGH */
-			PWM5_LT = 0U;
-			PWM5_HT = PWM_REG_PERIOD + 1U;
+			PWM5_LT = 0;
+			PWM5_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* V = HIGH */
-			PWM3_LT = 0U;
-			PWM3_HT = PWM_REG_PERIOD + 1U;
+			PWM3_LT = 0;
+			PWM3_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 			/* V = HIGH */
-			PWM3_LT = 0U;
-			PWM3_HT = PWM_REG_PERIOD + 1U;
+			PWM3_LT = 0;
+			PWM3_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* U = HIGH */
-			PWM4_LT = 0U;
-			PWM4_HT = PWM_REG_PERIOD + 1U;
+			PWM4_LT = 0;
+			PWM4_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 			/* T = HIGH */
-			PWM5_LT = 0U;
-			PWM5_HT = PWM_REG_PERIOD + 1U;
+			PWM5_LT = 0;
+			PWM5_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* U = HIGH */
-			PWM4_LT = 0U;
-			PWM4_HT = PWM_REG_PERIOD + 1U;
+			PWM4_LT = 0;
+			PWM4_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 		}
-		else if ( u16MicroStepIdx & C_MICROSTEP_PER_FULLSTEP )
+		else if ( u16MicroStepIdx & C_MICROSTEP_PER_FULLSTEP )					/* MMP141119-1 - End */
 		{
 			/* 2nd Quadrant */
 			iPwm2 = (PWM_SCALE_OFFSET + iPwm2);
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 			/* T = HIGH */
-			PWM5_LT = 0U;
-			PWM5_HT = PWM_REG_PERIOD + 1U;
+			PWM5_LT = 0;
+			PWM5_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* V = PWM */
 			PWM3_LT = (uint16) iPwm2;
@@ -1066,8 +1058,8 @@ void MotorDriver_4PhaseStepper( void)
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 			/* V = HIGH */
-			PWM3_LT = 0U;
-			PWM3_HT = PWM_REG_PERIOD + 1U;
+			PWM3_LT = 0;
+			PWM3_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* U = PWM */
 			PWM4_HT = (uint16) iPwm2;
@@ -1075,8 +1067,8 @@ void MotorDriver_4PhaseStepper( void)
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 			/* T = HIGH */
-			PWM5_LT = 0U;
-			PWM5_HT = PWM_REG_PERIOD + 1U;
+			PWM5_LT = 0;
+			PWM5_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* U = PWM */
 			PWM4_HT = (uint16) iPwm2;
@@ -1089,8 +1081,8 @@ void MotorDriver_4PhaseStepper( void)
 			iPwm2 = ((int16) PWM_SCALE_OFFSET - iPwm2);
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 			/* V = HIGH */
-			PWM3_LT = 0U;
-			PWM3_HT = PWM_REG_PERIOD + 1U;
+			PWM3_LT = 0;
+			PWM3_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* T = PWM */
 			PWM5_HT = (uint16) iPwm2;
@@ -1098,8 +1090,8 @@ void MotorDriver_4PhaseStepper( void)
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 			/* U = HIGH */
-			PWM4_LT = 0U;
-			PWM4_HT = PWM_REG_PERIOD + 1U;
+			PWM4_LT = 0;
+			PWM4_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* V = PWM */
 			PWM3_HT = (uint16) iPwm2;
@@ -1107,8 +1099,8 @@ void MotorDriver_4PhaseStepper( void)
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 			/* U = HIGH */
-			PWM4_LT = 0U;
-			PWM4_HT = PWM_REG_PERIOD + 1U;
+			PWM4_LT = 0;
+			PWM4_HT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 
 			/* T = PWM */
 			PWM5_HT = (uint16) iPwm2;
@@ -1118,7 +1110,7 @@ void MotorDriver_4PhaseStepper( void)
 	}
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) */
 
-#if (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND)
+#if (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND)					/* MMP150515-1 */
 	/* EMC CE/RE reduction */
 	int16 iPwm1, iPwm2;
 	int16 *pi16Vector = (int16 *) &c_ai16MicroStepVector4PH[g_u16MicroStepIdx];
@@ -1127,13 +1119,13 @@ void MotorDriver_4PhaseStepper( void)
 	pi16Vector += C_MICROSTEP_PER_FULLSTEP;
 	iPwm2 = (int16) (mulI32_I16byU16( *pi16Vector, g_u16CorrectionRatio) >> (20 + PWM_PRESCALER_N));
 #elif (PWM_PRESCALER_N == 0)
-	iPwm1 = mulI16_I16byI16Shft4( *pi16Vector, (int16) g_u16CorrectionRatio);	/* Coil-A */
+	iPwm1 = mulI16_I16byI16Shft4( *pi16Vector, (int16) g_u16CorrectionRatio);	/* U */
 	pi16Vector += C_MICROSTEP_PER_FULLSTEP;
-	iPwm2 = mulI16_I16byI16Shft4( *pi16Vector, (int16) g_u16CorrectionRatio);	/* Coil-B */
+	iPwm2 = mulI16_I16byI16Shft4( *pi16Vector, (int16) g_u16CorrectionRatio);	/* V */
 #else
-	i16PwmU = (int16) (mulI16_I16byI16( *pi16Vector, (int16) g_u16CorrectionRatio) >> (4 + PWM_PRESCALER_N));	/* Coil-A */
+	i16PwmU = (int16) (mulI16_I16byI16( *pi16Vector, (int16) g_u16CorrectionRatio) >> (4 + PWM_PRESCALER_N));	/* U */
 	pi16Vector += C_MICROSTEP_PER_FULLSTEP;
-	i16PwmV = (int16) (mulI16_I16byI16( *pi16Vector, (int16) g_u16CorrectionRatio) >> (4 + PWM_PRESCALER_N));	/* Coil-B */
+	i16PwmV = (int16) (mulI16_I16byI16( *pi16Vector, (int16) g_u16CorrectionRatio) >> (4 + PWM_PRESCALER_N));	/* V */
 #endif
 	if ( g_u16MicroStepIdx & (2*C_MICROSTEP_PER_FULLSTEP) )
 	{
@@ -1156,8 +1148,8 @@ void MotorDriver_4PhaseStepper( void)
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 
 		/* W = LOW */
-		PWM2_HT = 0U;
-		PWM2_LT = PWM_REG_PERIOD + 1U;
+		PWM2_HT = 0;
+		PWM2_LT = PWM_REG_PERIOD + 1;											/* MMP150603-1 */;
 	}
 	else
 	{
@@ -1169,18 +1161,18 @@ void MotorDriver_4PhaseStepper( void)
 
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 		/* U = LOW */
-		PWM4_HT = 0U;
-		PWM4_LT = PWM_REG_PERIOD + 1U;
+		PWM4_HT = 0;
+		PWM4_LT = PWM_REG_PERIOD + 1;											/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 		/* T = LOW */
-		PWM5_HT = 0U;
-		PWM5_LT = PWM_REG_PERIOD + 1U;
+		PWM5_HT = 0;
+		PWM5_LT = PWM_REG_PERIOD + 1;											/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 		/* V= LOW */
-		PWM3_HT = 0U;
-		PWM3_LT = PWM_REG_PERIOD + 1U;
+		PWM3_HT = 0;
+		PWM3_LT = PWM_REG_PERIOD + 1;											/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 	}
 
@@ -1195,8 +1187,8 @@ void MotorDriver_4PhaseStepper( void)
 			PWM5_LT = (uint16) (PWM_REG_PERIOD - iPwm2);
 
 			/* V = LOW */
-			PWM3_HT = 0U;
-			PWM3_LT = PWM_REG_PERIOD + 1U;
+			PWM3_HT = 0;
+			PWM3_LT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 			/* V = PWM */
@@ -1204,8 +1196,8 @@ void MotorDriver_4PhaseStepper( void)
 			PWM3_LT = (uint16) (PWM_REG_PERIOD - iPwm2);
 
 			/* U = LOW */
-			PWM4_HT = 0U;
-			PWM4_LT = PWM_REG_PERIOD + 1U;
+			PWM4_HT = 0;
+			PWM4_LT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 			/* T = PWM */
@@ -1213,8 +1205,8 @@ void MotorDriver_4PhaseStepper( void)
 			PWM5_LT = (uint16) (PWM_REG_PERIOD - iPwm2);
 
 			/* U  = LOW */
-			PWM4_HT = 0U;
-			PWM4_LT = PWM_REG_PERIOD + 1U;
+			PWM4_HT = 0;
+			PWM4_LT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 		}
 		else
@@ -1227,8 +1219,8 @@ void MotorDriver_4PhaseStepper( void)
 			PWM3_LT = (uint16) (PWM_REG_PERIOD - iPwm2);
 
 			/* T = LOW */
-			PWM5_HT = 0U;
-			PWM5_LT = PWM_REG_PERIOD + 1U;
+			PWM5_HT = 0;
+			PWM5_LT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 			/* U = PWM */
@@ -1236,8 +1228,8 @@ void MotorDriver_4PhaseStepper( void)
 			PWM4_LT = (uint16) (PWM_REG_PERIOD - iPwm2);
 
 			/* V = LOW */
-			PWM3_HT = 0U;
-			PWM3_LT = PWM_REG_PERIOD + 1U;
+			PWM3_HT = 0;
+			PWM3_LT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 			/* U = PWM */
@@ -1245,8 +1237,8 @@ void MotorDriver_4PhaseStepper( void)
 			PWM4_LT = (uint16) (PWM_REG_PERIOD - iPwm2);
 
 			/* T = LOW */
-			PWM5_HT = 0U;
-			PWM5_LT = PWM_REG_PERIOD + 1U;
+			PWM5_HT = 0;
+			PWM5_LT = PWM_REG_PERIOD + 1;										/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 		}
 	}
@@ -1298,12 +1290,12 @@ void MotorDriver_4PhaseStepper( void)
 		/* 1st and 4th Quadrant */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 		/* V-phase: HIGH, T-Phase: PWM */
-		PWM3_LT = 0U;										/* V = LOW */
+		PWM3_LT = 0;										/* V = LOW */
 		PWM5_LT = (uint16) iPwm;							/* T = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 		/* U-phase: HIGH, V-Phase: PWM */
-		PWM4_LT = 0U;										/* U = LOW */
+		PWM4_LT = 0;										/* U = LOW */
 		PWM3_LT = (uint16) iPwm;							/* V = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
@@ -1317,17 +1309,17 @@ void MotorDriver_4PhaseStepper( void)
 		/* 2st and 3th Quadrant */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 		/* T-phase: HIGH, V-Phase: PWM */
-		PWM5_LT = 0U;										/* T = LOW */
+		PWM5_LT = 0;										/* T = LOW */
 		PWM3_LT = (uint16) (0 - iPwm);						/* V = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
 		/* V-phase: HIGH, U-Phase: PWM */
-		PWM3_LT = 0U;										/* V = LOW */
+		PWM3_LT = 0;										/* V = LOW */
 		PWM4_LT = (uint16) (0 - iPwm);						/* U = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
 		/* T-phase: HIGH, U-Phase: PWM */
-		PWM5_LT = 0U;										/* T = LOW */
+		PWM5_LT = 0;										/* T = LOW */
 		PWM4_LT = (uint16) (0 - iPwm);						/* U = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 	}
@@ -1355,38 +1347,33 @@ void MotorDriverStart( void)
 		return;
 	}
 
+#if USE_MULTI_PURPOSE_BUFFER
 	/* Fill multi-purpose buffer with acceleration-data */
 	{
 		l_u16SpeedRPM = NVRAM_MIN_SPEED;
 		l_u32Temp = divU32_U32byU16( (TIMER_CLOCK * 60U), g_u16MotorMicroStepsPerMechRotation);
-		if ( l_u16SpeedRPM >= (l_u32Temp >> 16))									/* MMP160915-1: Make sure no period overrun */
-		{
-			l_u16LowSpeedPeriod = divU16_U32byU16( l_u32Temp, l_u16SpeedRPM) - 1U;
-		}
-		else
-		{
-			l_u16LowSpeedPeriod = 0xFFFEU;
-		}
+		l_u16LowSpeedPeriod = divU16_U32byU16( l_u32Temp, l_u16SpeedRPM) - 1;
 	}
+#endif /* USE_MULTI_PURPOSE_BUFFER */
 
 	if ( g_u8RewindFlags & (uint8) C_REWIND_STALL_DETECT )
 	{
-		if ( (g_u16MotorRewindSteps != 0U) &&
+		if ( (g_u16MotorRewindSteps != 0) &&									/* MMP140331-1 */
 			(((g_u8RewindFlags & (uint8) C_REWIND_DIRECTION_CCW) == g_e8MotorDirectionCCW) || (g_u8RewindFlags & C_REWIND_DIRECTION_AUTO)) )
 		{
 			/* Start rewind-function, with "rewinding" */
-			g_u8RewindFlags = (uint8) (C_REWIND_ACTIVE | C_REWIND_REWIND);		/* Start rewind-process */
+			g_u8RewindFlags = (uint8) (C_REWIND_ACTIVE | C_REWIND_REWIND);		/* Start rewind-process (MMP140331-1) */
 			g_u16TargetPositionRewind = g_u16TargetPosition;
 			if ( g_e8MotorDirectionCCW )
 			{
 				if ( g_u16ActualPosition <= (uint16) (C_MAX_POS - g_u16MotorRewindSteps) )
 				{
 					g_u16TargetPosition = g_u16ActualPosition + g_u16MotorRewindSteps;
-					g_e8MotorDirectionCCW = FALSE;
+					g_e8MotorDirectionCCW = FALSE;								/* MMP140331-3 */
 				}
 				else
 				{
-					g_u8RewindFlags = 0U;										/* No rewind possible */
+					g_u8RewindFlags = 0;										/* No rewind possible */
 				}
 			}
 			else
@@ -1394,37 +1381,33 @@ void MotorDriverStart( void)
 				if ( g_u16ActualPosition >= g_u16MotorRewindSteps )
 				{
 					g_u16TargetPosition = g_u16ActualPosition - g_u16MotorRewindSteps;
-					g_e8MotorDirectionCCW = TRUE;
+					g_e8MotorDirectionCCW = TRUE;								/* MMP140331-3 */
 				}
 				else
 				{
-					g_u8RewindFlags = 0U;										/* No rewind possible */
+					g_u8RewindFlags = 0;										/* No rewind possible */
 				}
 			}
 		}
-		else if ( (g_u8RewindFlags & (uint8) C_REWIND_DIRECTION_CCW) != g_e8MotorDirectionCCW )
+		else if ( (g_u8RewindFlags & (uint8) C_REWIND_DIRECTION_CCW) != g_e8MotorDirectionCCW ) /* MMP140331-1 - Begin */
 		{
-			g_u8RewindFlags = 0U;												/* Clear previous detected stall flags */
-		}
-		else
-		{
-			/* Nothing */
-		}
+			g_u8RewindFlags = 0;												/* Clear previous detected stall flags */
+		}																		/* MMP140331-1 - End */
 	}
 
 	g_u16ActuatorActPos = g_u16ActualPosition;
 	g_u16ActuatorTgtPos = g_u16TargetPosition;
-	g_u8StallOcc = FALSE;
-	g_u8MechError = FALSE;
+	//g_u8StallOcc = FALSE; TODO,Ban
+	//g_u8MechError = FALSE;
 
 	/* Clear motor-driver current measurement */
 	MotorDriverCurrentMeasureInit();
 #if _DEBUG_MOTOR_CURRENT_FLT
-	l_u16MotorCurrIdx = 0U;
+	l_u16MotorCurrIdx = 0;
 #endif /* _DEBUG_MOTOR_CURRENT_FLT */
 
 	g_u8MotorStartupMode = (uint8) MSM_STEPPER_A;								/* Start-up in Acceleration stepper mode */
-	/* g_u16StartupDelay = NVRAM_STALL_DETECTOR_DELAY; */
+	/* (MMP140331-2) g_u16StartupDelay = NVRAM_STALL_DETECTOR_DELAY; */
 	MotorStallInitA();
 #if _SUPPORT_STALLDET_O
 	MotorStallInitO();
@@ -1433,18 +1416,26 @@ void MotorDriverStart( void)
 	MotorStallInitH();
 #endif /* _SUPPORT_STALLDET_H */
 
-	l_u16CoilZeroCurrCountA = 0U;
-	l_u16CoilZeroCurrCountB = 0U;
+#if _DEBUG_VOLTAGE_COMPENSATION
+	u16MotorVoltIdx = 0;
+#endif /* _DEBUG_VOLTAGE_COMPENSATION */
+	l_u16CoilZeroCurrCountA = 0;
+	l_u16CoilZeroCurrCountB = 0;
+	l_u16CoilCurrentStartDelay = C_COIL_CURRENT_START_DELAY;
 
-	/* Connect drivers: Stepper 4-phase/32-steps */
-	MotorDriver_InitialPwmDutyCycle( g_u16PidRunningThreshold, g_au16MotorSpeedRPS[1]);
+	/* Connect drivers */
+	/* Stepper 4-phase/32-steps */
+
+	{
+		MotorDriver_InitialPwmDutyCycle( g_u16PidRunningThreshold, g_au16MotorSpeedRPS[1]);	/* MMP140822-1 - Begin */
+	}
 	MotorDriver_4PhaseStepper();
-#if (_SUPPORT_PWM_DC_RAMPUP == FALSE)
+#if (_SUPPORT_PWM_DC_RAMPUP == FALSE)											/* MMP140903-2 - Begin */
 	if ( g_u16MotorSpeedRPS > g_au16MotorSpeedRPS[1] )
 	{
 		MotorDriver_InitialPwmDutyCycle( g_u16PidRunningThreshold, g_u16MotorSpeedRPS);
-	}
-#endif /* (_SUPPORT_PWM_DC_RAMPUP == FALSE) */
+	}																			/* MMP140822-1 - End */
+#endif /* (_SUPPORT_PWM_DC_RAMPUP == FALSE) */									/* MMP140903-2 - End */
 	DRVCFG_PWM_UVWT();															/* Enable the driver and the PWM phase W, V, U and T */
 	g_u8MotorHoldingCurrState = FALSE;
 
@@ -1455,7 +1446,7 @@ void MotorDriverStart( void)
 	ADC_Start();
 #endif /* _SUPPORT_PHASE_SHORT_DET */
 
-	l_u16VTIdx = 0U;
+	l_u8VTIdx = 0;
 	if ( g_u8MotorStartupMode == (uint8) MSM_STEPPER_A )
 	{
 		if ( g_u16TargetCommutTimerPeriod < l_u16LowSpeedPeriod )
@@ -1472,7 +1463,7 @@ void MotorDriverStart( void)
 	TMR1_REGB = g_u16CommutTimerPeriod;
 	TMR1_CTRL = C_TMRx_CTRL_MODE0 | TMRx_START;									/* Start Timer mode 0 */
 	g_e8MotorStatusMode = (uint8) C_MOTOR_STATUS_RUNNING;
-	g_u8MotorStopDelay = 0U;
+	g_u8MotorStopDelay = 0;
 
 	if ( (g_u8RewindFlags & (uint8) (C_REWIND_ACTIVE | C_REWIND_REWIND)) == (uint8) C_REWIND_ACTIVE )
 	{
@@ -1495,7 +1486,7 @@ void MotorDriverStop( uint16 u16Immediate)
 	if ( (g_e8MotorStatusMode & (uint8) ~C_MOTOR_STATUS_DEGRADED) != (uint8) C_MOTOR_STATUS_STOP )
 	{
 		/* Not STOP status */
-		if ( (u16Immediate == (uint16) C_STOP_RAMPDOWN) && (l_u16VTIdx > 1) ) /*lint !e845 */
+		if ( (u16Immediate == (uint16) C_STOP_RAMPDOWN) && (l_u8VTIdx > 1) ) /*lint !e845 */	/* MMP150922-1 */
 		{
 			TMR1_CTRL = C_TMRx_CTRL_MODE0 | TMRx_START;							/* Start timer mode 0 */
 
@@ -1512,17 +1503,17 @@ void MotorDriverStop( uint16 u16Immediate)
 				if ( g_u16ActuatorActPos > g_u16ActuatorTgtPos )
 				{
 					uint32 u32DeltaPos = g_u16ActuatorActPos - g_u16ActuatorTgtPos;
-					if ( u32DeltaPos > l_u16VTIdx )								/* MMP160915-2 */
+					if ( u32DeltaPos > l_u8VTIdx )
 					{
-						g_u16ActuatorTgtPos = g_u16ActuatorActPos - l_u16VTIdx;	/* MMP160915-2 */
+						g_u16ActuatorTgtPos = g_u16ActuatorActPos - l_u8VTIdx;
 					}
 				}
 				else
 				{
 					uint32 u32DeltaPos = g_u16ActuatorTgtPos - g_u16ActuatorActPos;
-					if ( u32DeltaPos > l_u16VTIdx )								/* MMP160915-2 */
+					if ( u32DeltaPos > l_u8VTIdx )
 					{
-						g_u16ActuatorTgtPos = g_u16ActuatorActPos + l_u16VTIdx;	/* MMP160915-2 */
+						g_u16ActuatorTgtPos = g_u16ActuatorActPos + l_u8VTIdx;
 					}
 				}
 			}
@@ -1541,52 +1532,51 @@ void MotorDriverStop( uint16 u16Immediate)
 		}
 		else
 		{
-			g_u8MotorStartDelay = 0U;
+			g_u8MotorStartDelay = 0;
 		}
 	}
 
 	/* Re-stall code */
-	if ( (g_u8StallOcc != FALSE) && ((g_u8RewindFlags & (uint8) C_REWIND_ACTIVE) == 0U) )
+	if ( (g_u8StallOcc != FALSE) && ((g_u8RewindFlags & (uint8) C_REWIND_ACTIVE) == 0) )
 	{
-#if 0
-		/* 'Restore' actual-position in case of re-stall without rewind; */
-		if ( (NVRAM_REWIND_STEPS == 0U) && ((g_u8RewindFlags & (uint8) C_REWIND_STALL_DETECT) != 0U) )
+		/* 'Restore' actual-position in case of re-stall without rewind; MMP140331-4 - Begin */
+		if ( (NVRAM_REWIND_STEPS == 0) && ((g_u8RewindFlags & (uint8) C_REWIND_STALL_DETECT) != 0) )
 		{
 			/* Stall detected before (no rewind support) */
 			if ( g_e8MotorDirectionCCW )
 			{
-				if ( (g_u8RewindFlags & (uint8) C_REWIND_DIRECTION_CCW) != 0U )
+				if ( (g_u8RewindFlags & (uint8) C_REWIND_DIRECTION_CCW) != 0 )
 				{
 					/* Stall in same direction; 'Restore' actual-position */
-					g_u16ActuatorActPos += (l_u16StartupDelayInit + (C_MICROSTEP_PER_FULLSTEP << NVRAM_STALL_O_OFFSET));
+					g_u16ActuatorActPos += (l_u16StartupDelayInit + (C_MICROSTEP_PER_FULLSTEP << NVRAM_STALL_O_OFFSET));		/* MMP140428-1 */
 				}
 			}
 			else
 			{
-				if ( (g_u8RewindFlags & (uint8) C_REWIND_DIRECTION_CCW) == 0U )
+				if ( (g_u8RewindFlags & (uint8) C_REWIND_DIRECTION_CCW) == 0 )
 				{
 					/* Stall in same direction; 'Restore' actual-position */
-					if ( g_u16ActuatorActPos > (l_u16StartupDelayInit + (C_MICROSTEP_PER_FULLSTEP << NVRAM_STALL_O_OFFSET)) )
+					if ( g_u16ActuatorActPos > (l_u16StartupDelayInit + (C_MICROSTEP_PER_FULLSTEP << NVRAM_STALL_O_OFFSET)) )	/* MMP140428-1 */
 					{
-						g_u16ActuatorActPos -= (l_u16StartupDelayInit + (C_MICROSTEP_PER_FULLSTEP << NVRAM_STALL_O_OFFSET));
+						g_u16ActuatorActPos -= (l_u16StartupDelayInit + (C_MICROSTEP_PER_FULLSTEP << NVRAM_STALL_O_OFFSET));	/* MMP140428-1 */
 					}
 					else
 					{
-						g_u16ActuatorActPos = 0U;
+						g_u16ActuatorActPos = 0;
 					}
 				}
 			}
-		}
-#endif
+		}																		/* MMP140331-4 - End */
 
 		/* Set re-wind active */
+		g_u8RewindFlags |= (uint8) C_REWIND_STALL_DETECT;
 		if ( g_e8MotorDirectionCCW )
 		{
-			g_u8RewindFlags = g_u8RewindFlags | (uint8) (C_REWIND_DIRECTION_CCW | C_REWIND_STALL_DETECT);
+			g_u8RewindFlags |= (uint8) C_REWIND_DIRECTION_CCW;
 		}
 		else
 		{
-			g_u8RewindFlags = (g_u8RewindFlags & (uint8) ~C_REWIND_DIRECTION_CCW) | (uint8) C_REWIND_STALL_DETECT;
+			g_u8RewindFlags &= (uint8) ~C_REWIND_DIRECTION_CCW;
 		}
 	}
 
@@ -1594,68 +1584,47 @@ void MotorDriverStop( uint16 u16Immediate)
 	ADC_Stop();
 	g_u8MotorStartupMode = (uint8) MSM_STOP;									/* Stop mode */
 	g_e8MotorStatusMode = ((g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_DEGRADED) | (uint8) C_MOTOR_STATUS_STOP);
-#if (LINPROT == LIN2J_VALVE_VW)
-	if ( (g_u8StallOcc != 0U) && (g_u16TargetPosition == 0U) /* && (g_u16ActuatorActPos < (C_PERC_OFFSET+C_HALFPERC_OFFSET)) */ )
-	{
-		// TODO[MMP]: Add check g_u16ActuatorActPos is close to 0
-		g_u16ActuatorActPos = (0U + C_PERC_OFFSET);
-		g_e8CalibrationStep = (uint8) C_CALIB_DONE;
-		g_u8StallOcc = FALSE;
-	}
-	else if ( (g_u8StallOcc) && (g_u16TargetPosition == (g_u16CalibTravel + (2*C_PERC_OFFSET))) /* && (g_u16ActuatorActPos >=  (g_u16CalibTravel-C_HALFPERC_OFFSET)) */ )
-	{
-		// TODO[MMP]: Add check g_u16ActuatorActPos is close to g_u16CalibTravel
-		g_u16ActuatorActPos = (g_u16CalibTravel + C_PERC_OFFSET);
-		g_e8CalibrationStep = (uint8) C_CALIB_DONE;
-		g_u8StallOcc = FALSE;
-	}
-	else
-	{
-		/* No stall or no end-stop request */
-
-		/* Check for mechanical defect (1 = calculation rounding) */
-		if ( (g_u16ActuatorActPos <= 1U) || (g_u16ActuatorActPos >= ((g_u16CalibTravel + (2U*C_PERC_OFFSET)) - 1U)) )
-		{
-			g_u8MechError = TRUE;												/* Not initialised */
-			g_e8CalibrationStep = (uint8) C_CALIB_NONE;
-		}
-		else if ( g_e8CalibrationStep == (uint8) C_CALIB_DONE )
-		{
-			/* Round actual position */
-			if ( g_u16ActuatorActPos < (C_PERC_OFFSET + C_HALFPERC_OFFSET) )
-			{
-				g_u16ActuatorActPos = C_PERC_OFFSET;
-			}
-			else if ( g_u16ActuatorActPos > ((g_u16CalibTravel + C_PERC_OFFSET) - C_HALFPERC_OFFSET) )
-			{
-				g_u16ActuatorActPos = (g_u16CalibTravel + C_PERC_OFFSET);
-			}
-			else
-			{
-				/* Nothing */
-			}
-		}
-	}
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
 	if ( bistResetInfo != C_CHIP_STATE_WATCHDOG_RESET )
 	{
 		/* make target-position same as actual position, except in case of WD-reset */
-		g_u16ActuatorTgtPos = g_u16ActuatorActPos;								/* Stop: Target = Actual */
+		g_u16ActuatorTgtPos = g_u16ActuatorActPos;							/* Stop: Target = Actual */
 	}
 	g_u16ActualPosition = g_u16ActuatorActPos;
 	g_u8MotorStatusSpeed = (uint8) C_MOTOR_SPEED_STOP;							/* Stop */
+
+#if (LINPROT == LIN2J_VALVE_GM)
+	if ( g_e8CalibrationStep == (uint8) C_CALIB_DONE )
+	{
+		/* Check for mechanical defect (1 = calculation rounding) */
+		if ( (g_u16ActualPosition <= 1) || (g_u16ActualPosition >= ((g_u16CalibTravel + (2*C_PERC_OFFSET)) - 1)) )
+		{
+			g_u8MechError = TRUE;
+		}
+
+		/* Round actual position */
+		if ( g_u16ActualPosition < (C_PERC_OFFSET + C_HALFPERC_OFFSET) )
+		{
+			g_u16ActualPosition = C_PERC_OFFSET;
+		}
+		else if ( g_u16ActualPosition > ((g_u16CalibTravel + C_PERC_OFFSET) - C_HALFPERC_OFFSET) )
+		{
+			g_u16ActualPosition = (g_u16CalibTravel + C_PERC_OFFSET);
+		}
+	}
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
+
 
 	if ( (g_u8MotorHoldingCurrEna != FALSE) &&									/* Holding mode enabled */
 		(g_e8ErrorElectric != (uint8) C_ERR_ELECTRIC_PERM) && (g_e8ErrorVoltage == (uint8) C_ERR_VOLTAGE_IN_RANGE) && (u16Immediate != (uint16) C_STOP_SLEEP) ) /*lint !e845 */
 	{
 		/* Keep Motor driver active with a specified amount of current (unless permanent electric error) */
-		MotorDriver_InitialPwmDutyCycle( g_u16PidHoldingThreshold, 0U);
+		MotorDriver_InitialPwmDutyCycle( g_u16PidHoldingThreshold, 0);
 	
 		MotorDriver_4PhaseStepper();
 		DRVCFG_PWM_UVWT();														/* Enable the driver and the PWM phase W, V and U */
 		g_u8MotorHoldingCurrState = TRUE;
-		g_u16StartupDelay = l_u16StartupDelayInit;								/* MMP160615-1 */
-//		g_u16MotorCurrentLPFx64 = (g_u16PidHoldingThreshold << 6);				/* Low-pass Filtered motor-current (x 64) */
+
+		g_u16MotorCurrentLPFx64 = (g_u16PidHoldingThreshold << 6);				/* Low-pass Filtered motor-current (x 64) */
 #if _SUPPORT_PHASE_SHORT_DET
 		ADC_Start( 0);															/* Start measuring motor current */
 #else  /* _SUPPORT_PHASE_SHORT_DET */
@@ -1665,39 +1634,41 @@ void MotorDriverStop( uint16 u16Immediate)
 	else
 	{
 		/* Disconnect drivers */
-		if ( g_e8ErrorElectric != (uint8) C_ERR_ELECTRIC_PERM )
+		if ( g_e8ErrorElectric != (uint8) C_ERR_ELECTRIC_PERM )					/* MMP130919-1 - Begin */
 		{
-			if ( g_e8ErrorElectric != (uint8) C_ERR_ELECTRIC_YES )
+			if ( g_e8ErrorElectric != (uint8) C_ERR_ELECTRIC_YES )				/* MMP150217-1 - Begin */
 			{
 				DRVCFG_GND_UVWT();												/* Make Low-side active, for a short time (recycle current) */
 			}
 			else
 			{
 				DRVCFG_VSUP_UVWT();												/* Make High-side active, for a short time (recycle current) */
-			}
+			}																	/* MMP150217-1 - End */
 		}
 		else
 		{
 			/* In case of a permanent error, don't connect drivers anymore */
 			DRVCFG_DIS_UVWT();
-			DRVCFG_DIS();
-		}
+			DRVCFG_DIS();														/* MMP140903-1 */
+		}																		/* MMP130919-1 - End */
 		g_u8MotorHoldingCurrState = FALSE;
 
-		g_u8MotorStopDelay = 200U;												/* 200x 0.5ms = 100ms delay before driver is disconnected */
+		g_u8MotorStopDelay = 200;												/* 200x 0.5ms = 100ms delay before driver is disconnected */
 	}
 
 	TMR1_CTRL &= ~TMRx_START;													/* Stop "commutation timer" */
 	XI0_PEND = CLR_T1_INT4;														/* Clear (potentially pending) Timer1 second level interrupts (T1_INT4) */
 	PEND = CLR_EXT0_IT;															/* ... and first level interrupt */
+#if USE_MULTI_PURPOSE_BUFFER
+	g_MPBuf.u8Usage = (uint8) C_MP_BUF_FREE;									/* Motor-stopped: Multi-purpose buffer is free for others */
+#endif /* USE_MULTI_PURPOSE_BUFFER */
 
 	/* Re-stall code */
 	if ( (g_u8RewindFlags & (uint8) (C_REWIND_ACTIVE | C_REWIND_REWIND)) == (uint8) (C_REWIND_ACTIVE | C_REWIND_REWIND) )
 	{
 		g_u8RewindFlags &= (uint8) ~C_REWIND_REWIND;							/* Rewinding of the Rewind-function is finished */
 		g_u16TargetPosition = g_u16TargetPositionRewind;
-		g_u8MotorStopDelay = 0U;												/* Cancel stop delay */
-#if _SUPPORT_AUTO_CALIBRATION
+		g_u8MotorStopDelay = 0;													/* Cancel stop delay */
 		if ( g_e8MotorRequest == (uint8) C_MOTOR_REQUEST_CALIBRATION )
 		{
 			if ( g_e8CalibrationStep == (uint8) C_CALIB_CHECK_HI_ENDPOS )
@@ -1706,19 +1677,14 @@ void MotorDriverStop( uint16 u16Immediate)
 				g_e8CalibrationStep = C_CALIB_SETUP_LO_ENDPOS;
 		}
 		else
-#endif /* _SUPPORT_AUTO_CALIBRATION */
 			g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_START;
 	}
-	else if ( (g_u8RewindFlags & (uint8) C_REWIND_STALL_DETECT) == 0U )
+	else if ( (g_u8RewindFlags & (uint8) C_REWIND_STALL_DETECT) == 0 )
 	{
-		g_u8RewindFlags = 0U;													/* Clear all other flags in case no STALL have been detected */
-	}
-	else
-	{
-		/* Nothing */
+		g_u8RewindFlags = 0;													/* Clear all other flags in case no STALL have been detected */
 	}
 
-#if (_SUPPORT_BUSTIMEOUT_SLEEP != FALSE)
+#if (_SUPPORT_BUSTIMEOUT_SLEEP != FALSE)										/* MMP130626-8 */
 	if ( (g_u8EmergencyRunOcc != FALSE) && (g_u8ErrorCommBusTimeout != FALSE) &&
 		 (g_e8MotorRequest == (uint8) C_MOTOR_REQUEST_NONE) && (g_e8DegradedMotorRequest == (uint8) C_MOTOR_REQUEST_NONE) )
 	{
@@ -1750,9 +1716,9 @@ __interrupt__ void Commutation_ISR(void)
 	do
 	{
 		XI0_PEND = pending;														/* Clear requests which are going to be processed */
-	} while ( (XI0_PEND & pending) != 0U );
+	} while (XI0_PEND & pending);
 
-	if ( (g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_RUNNING) == 0U )
+	if ( (g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_RUNNING) == 0 )
 	{
 		return;		/* Used for CPU wake-up */
 	}
@@ -1767,73 +1733,63 @@ __interrupt__ void Commutation_ISR(void)
 	}
 
 	{
-		uint16 u16DeltaPosition;												/* MMP160915-3 */
-		if ( g_u16ActuatorActPos > g_u16ActuatorTgtPos )
-		{
-			u16DeltaPosition = (g_u16ActuatorActPos - g_u16ActuatorTgtPos);
-		}
-		else
-		{
-			u16DeltaPosition = (g_u16ActuatorTgtPos - g_u16ActuatorActPos);
-		}
-		if ( u16DeltaPosition == 0U )
+		int32 i32DeltaPosition = (int32)g_u16ActuatorActPos - (int32)g_u16ActuatorTgtPos;
+		if ( i32DeltaPosition == 0 )
 		{
 			MotorDriverStop( (uint16) C_STOP_IMMEDIATE);
 			return;
 		}
-		if ( u16DeltaPosition <= l_u16VTIdx )									/* MMP160915-2 */
+		if ( i32DeltaPosition < 0 )
+		{
+			i32DeltaPosition = -i32DeltaPosition;
+		}
+		if ( i32DeltaPosition <= (int16) l_u8VTIdx )
 		{
 			/* Decelerate motor speed (almost at target-position) */
-			g_u16StartupDelay = u16DeltaPosition;
+			g_u16StartupDelay = (uint16) i32DeltaPosition;
 			g_u16TargetCommutTimerPeriod = l_u16LowSpeedPeriod;
 			g_e8MotorStatusMode |= (uint8) C_MOTOR_STATUS_STOPPING;
 		}
 	}
 
 	/* Current measurement used for Stall-detector "A" and current control (PID) */
-	MotorDriverCurrentMeasure( TRUE);
-
+	MotorDriverCurrentMeasure();
 	/* Coil current check */
-	if ( g_u16StartupDelay == 0U )
+	if(l_u16CoilCurrentStartDelay == 0)
 	{
-		if ( g_u16CurrentMotorCoilA < (l_u16CurrentZeroOffset + C_MIN_COIL_CURRENT) )
+		if(g_u16CurrentMotorCoilA < (l_u16CurrentZeroOffset + C_MIN_COIL_CURRENT))
 		{
-			if ( ++l_u16CoilZeroCurrCountA >= C_COIL_ZERO_CURRENT_COUNT )
-			{
-				MotorDriverStop( (uint16) C_STOP_IMMEDIATE);						/* Open coil connection */
-				g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;
-				SetLastError( (uint8) C_ERR_COIL_ZERO_CURRENT);
-				return;
-			}
+			l_u16CoilZeroCurrCountA++;
 		}
-		else if ( l_u16CoilZeroCurrCountA != 0U )
+		else if ( l_u16CoilZeroCurrCountA != 0 )
 		{
 			l_u16CoilZeroCurrCountA--;
 		}
-		else
-		{
-			/* Nothing */
-		}
 
-		if	( g_u16CurrentMotorCoilB < (l_u16CurrentZeroOffset + C_MIN_COIL_CURRENT) )
+		if(g_u16CurrentMotorCoilB < (l_u16CurrentZeroOffset + C_MIN_COIL_CURRENT))
 		{
-			if ( ++l_u16CoilZeroCurrCountB >= C_COIL_ZERO_CURRENT_COUNT )
-			{
-				MotorDriverStop( (uint16) C_STOP_IMMEDIATE);						/* Open coil connection */
-				g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;
-				SetLastError( (uint8) C_ERR_COIL_ZERO_CURRENT);
-				return;
-			}
+			l_u16CoilZeroCurrCountB++;
 		}
-		else if ( l_u16CoilZeroCurrCountB != 0U )
+		else if ( l_u16CoilZeroCurrCountB != 0 )
 		{
 			l_u16CoilZeroCurrCountB--;
 		}
-		else
+
+		if((l_u16CoilZeroCurrCountA >= C_COIL_ZERO_CURRENT_COUNT) || (l_u16CoilZeroCurrCountB >= C_COIL_ZERO_CURRENT_COUNT))
 		{
-			/* Nothing */
+			MotorDriverStop( (uint16) C_STOP_IMMEDIATE);
+			g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;
+			SetLastError( (uint8) C_ERR_COIL_ZERO_CURRENT);
+			g_e8ErrorCoil = (uint8) C_ERR_SELFTEST_C;//coil open
+			return;
 		}
+	}else if(l_u16CoilCurrentStartDelay > 0){
+		l_u16CoilCurrentStartDelay--;
+	}else{
+		l_u16CoilCurrentStartDelay = 0;
 	}
+
+
 
 	/* Update micro-step index */
 	{
@@ -1841,7 +1797,7 @@ __interrupt__ void Commutation_ISR(void)
 		if ( g_e8MotorDirectionCCW )
 		{
 			/* Counter Clock-wise (Closing) */
-			if ( u16MicroStepIdx == 0U )
+			if ( u16MicroStepIdx == 0 )
 			{
 				u16MicroStepIdx = g_u16MotorMicroStepsPerElecRotation;
 			}
@@ -1853,7 +1809,7 @@ __interrupt__ void Commutation_ISR(void)
 			u16MicroStepIdx++;													/* Increment the PWM vectors pointer */
 			if ( u16MicroStepIdx >= g_u16MotorMicroStepsPerElecRotation )		/* Test the PWM vectors pointer: 48 usteps per electrical period */
 			{
-				u16MicroStepIdx = 0U;											/* Re-initialise the PWM vectors pointer to 0 */
+				u16MicroStepIdx = 0;											/* Re-initialise the PWM vectors pointer to 0 */
 			}
 		}
 		g_u16MicroStepIdx = u16MicroStepIdx;
@@ -1867,51 +1823,83 @@ __interrupt__ void Commutation_ISR(void)
 	else
 	{
 		/* Update speed */
-		uint16 u16Compensation = l_u16SpeedRPM;									/* MMP160606-1 */
+		uint16 u16Compensation = l_u16SpeedRPM;							//MMP160606-1
 		if ( g_u16CommutTimerPeriod < g_u16TargetCommutTimerPeriod )
 		{
 			/* Deceleration per micro-step */
 			g_u8MotorStartupMode = (uint8) MSM_STEPPER_D;					/* Too fast, decelerate */
-			l_u16SpeedRPM = l_u16SpeedRPM - divU16_U32byU16( (uint32) NVRAM_ACCELERATION_CONST, l_u16SpeedRPM);	/* MMP160606-1 */
-			g_u16CommutTimerPeriod = divU16_U32byU16( l_u32Temp, l_u16SpeedRPM) - 1U;	/* MMP160606-1 */
-			if ( l_u16VTIdx != 0U )												/* MMP160915-2 */
+			l_u16SpeedRPM = l_u16SpeedRPM - divU16_U32byU16( (uint32) 2*NVRAM_ACCELERATION_CONST, l_u16SpeedRPM);	/* MMP160606-1 */
+			g_u16CommutTimerPeriod = divU16_U32byU16( l_u32Temp, l_u16SpeedRPM) - 1;	/* MMP160606-1 */
+			l_u8VTIdx--;
+			if ( g_u16StartupDelay < l_u8VTIdx )
 			{
-				l_u16VTIdx--;													/* MMP160915-2 */
-				if ( g_u16StartupDelay < l_u16VTIdx )
-				{
-					g_u16StartupDelay = l_u16StartupDelayInit;					/* Speed reduction, stall detection post-poned */
-				}
+				g_u16StartupDelay = l_u16StartupDelayInit;						/* MMP130627-1/MMP140331-2: Speed reduction, stall detection post-poned */
 			}
 			if ( g_u16CommutTimerPeriod > g_u16TargetCommutTimerPeriod )
 			{
 				g_u16CommutTimerPeriod = g_u16TargetCommutTimerPeriod;
 			}
 			TMR1_REGB = g_u16CommutTimerPeriod;
-#if (_SUPPORT_PWM_DC_RAMPDOWN != FALSE)
+#if (_SUPPORT_PWM_DC_RAMPDOWN != FALSE)											/* MMP140903-2 - Begin */
 			g_u16PidCtrlRatio = muldivU16_U16byU16byU16( g_u16PidCtrlRatio, l_u16SpeedRPM, u16Compensation);	/* MMP160606-2 */
 			g_u16PID_I = g_u16PidCtrlRatio;
-#endif /* (_SUPPORT_PWM_DC_RAMPDOWN != FALSE) */
+#endif /* (_SUPPORT_PWM_DC_RAMPDOWN != FALSE) */								/* MMP140903-2 - Begin */
+
+//			g_u16CommutTimerPeriod = VELOCITY_TIMER[l_u8VTIdx];
+//			if ( g_u16CommutTimerPeriod > g_u16TargetCommutTimerPeriod )
+//			{
+//				g_u16CommutTimerPeriod = g_u16TargetCommutTimerPeriod;
+//			}
+//			else if ( l_u8VTIdx != 0 )
+//			{
+//				l_u8VTIdx--;
+//				if ( g_u16StartupDelay < l_u8VTIdx )
+//				{
+//					g_u16StartupDelay = l_u16StartupDelayInit;					/* MMP130627-1/MMP140331-2: Speed reduction, stall detection post-poned */
+//				}
+//			}
+//			TMR1_REGB = g_u16CommutTimerPeriod;
+//			g_u8MotorStartupMode = (uint8) MSM_STEPPER_D;						/* Too fast, decelerate */
+//#if (_SUPPORT_PWM_DC_RAMPDOWN != FALSE)											/* MMP140903-2 - Begin */
+//			/* Reduce the PWM-duty cycle to avoid current increase (wrong stall detection) (254/256) */
+//			g_u16PidCtrlRatio = (uint16) (mulU32_U16byU16( g_u16PidCtrlRatio, 254) >> 8);
+//			g_u16PID_I = g_u16PidCtrlRatio;
+//#endif /* (_SUPPORT_PWM_DC_RAMPDOWN != FALSE) */								/* MMP140903-2 - Begin */
 		}
-		else if ( (g_u16MicroStepIdx == 0U) || ((g_u16MicroStepIdx > NVRAM_ACCELERATION_POINTS) && ((g_u16MicroStepIdx & NVRAM_ACCELERATION_POINTS) == 0)) )
+		else if ( (g_u16MicroStepIdx == 0) || ((g_u16MicroStepIdx > NVRAM_ACCELERATION_POINTS) && ((g_u16MicroStepIdx & NVRAM_ACCELERATION_POINTS) == 0)) )
 		{
 			/* Acceleration per acceleration_points ((multiple) full-step) */
 			g_u8MotorStartupMode = (uint8) MSM_STEPPER_A;					/* Too slow, accelerate */
-			l_u16SpeedRPM = l_u16SpeedRPM + divU16_U32byU16( (uint32) NVRAM_ACCELERATION_CONST, l_u16SpeedRPM);	/* MMP160606-1 */
+			l_u16SpeedRPM = l_u16SpeedRPM + divU16_U32byU16( (uint32) 2*NVRAM_ACCELERATION_CONST, l_u16SpeedRPM);	/* MMP160606-1 */
 			g_u16CommutTimerPeriod = divU16_U32byU16( l_u32Temp, l_u16SpeedRPM) - 1;	/* MMP160606-1 */
-			l_u16VTIdx++;														/* MMP160915-2 */
-			if ( g_u16CommutTimerPeriod < g_u16TargetCommutTimerPeriod )
+			l_u8VTIdx++;
+			if ( g_u16CommutTimerPeriod < g_u16TargetCommutTimerPeriod )	/* MMP150923-1 */
 			{
 				g_u16CommutTimerPeriod = g_u16TargetCommutTimerPeriod;
 			}
 			TMR1_REGB = g_u16CommutTimerPeriod;
-#if (_SUPPORT_PWM_DC_RAMPUP != FALSE)
+#if (_SUPPORT_PWM_DC_RAMPUP != FALSE)											/* MMP140903-2 - Begin */
 			g_u16PidCtrlRatio = muldivU16_U16byU16byU16( g_u16PidCtrlRatio, l_u16SpeedRPM, u16Compensation);	/* MMP160606-2 */
 			g_u16PID_I = g_u16PidCtrlRatio;
-#endif /* (_SUPPORT_PWM_DC_RAMPUP != FALSE) */
-		}
-		else
-		{
-			/* Nothing */
+#endif /* (_SUPPORT_PWM_DC_RAMPUP != FALSE) */									/* MMP140903-2 - End */
+
+//			g_u16CommutTimerPeriod = VELOCITY_TIMER[l_u8VTIdx];
+//			if ( g_u16CommutTimerPeriod < g_u16TargetCommutTimerPeriod )
+//			{
+//				g_u16CommutTimerPeriod = g_u16TargetCommutTimerPeriod;
+//			}
+//			else if ( l_u8VTIdx < ((sizeof(VELOCITY_TIMER)/sizeof(VELOCITY_TIMER[0])) - 1) )
+//			{
+//				l_u8VTIdx++;
+//#if (_SUPPORT_PWM_DC_RAMPUP != FALSE)											/* MMP140903-2 - Begin */
+//				if ( g_u16MotorSpeedRPS > g_au16MotorSpeedRPS[1] )
+//				{
+//					g_u16PidCtrlRatio = g_u16PID_I = g_u16PidCtrlRatio + (g_u16PidCtrlRatio >> 7);
+//				}
+//#endif /* (_SUPPORT_PWM_DC_RAMPUP != FALSE) */									/* MMP140903-2 - Begin */
+//			}
+//			TMR1_REGB = g_u16CommutTimerPeriod;
+//			g_u8MotorStartupMode = (uint8) MSM_STEPPER_A;						/* Too slow, accelerate */
 		}
 	}
 
@@ -1921,14 +1909,14 @@ __interrupt__ void Commutation_ISR(void)
 	if ( MotorStallCheckA() != (uint16) C_STALL_NOT_FOUND )						/* Stall-detector "A" */
 	{
 		g_u8StallTypeComm |= (uint8) C_STALL_FOUND_A;
-		if ( g_e8StallDetectorEna & ((uint8) C_STALLDET_A | (uint8) C_STALLDET_CALIB))
+		if ( g_e8StallDetectorEna & ((uint8) C_STALLDET_A | (uint8) C_STALLDET_CALIB))	/* MMP130916-1 */
 		{
 			g_u8StallOcc = TRUE;												/* Report stall and ...  */
 			MotorDriverStop( (uint16) C_STOP_EMERGENCY);						/* ... stop motor (Stall) */
 		}
 	}
 #if _SUPPORT_STALLDET_O
-	else if ( (NVRAM_STALL_O != 0U) && (MotorStallCheckO() != C_STALL_NOT_FOUND) )	/* Stall-detector "O" */
+	else if ( (NVRAM_STALL_O != 0) && (MotorStallCheckO() != C_STALL_NOT_FOUND) )	/* Stall-detector "O" (MMP140428-1) */
 	{
 		g_u8StallTypeComm |= (uint8) C_STALL_FOUND_O;
 		if ( g_e8StallDetectorEna & ((uint8) C_STALLDET_O | (uint8) C_STALLDET_CALIB))
@@ -1943,17 +1931,13 @@ __interrupt__ void Commutation_ISR(void)
 	else if ( MotorStallCheckH() != (uint8) C_STALL_NOT_FOUND )					/* Stall-detector "H" */
 	{
 		g_u8StallTypeComm |= (uint8) C_STALL_FOUND_H;
-		if ( g_e8StallDetectorEna & ((uint8) C_STALLDET_H | (uint8) C_STALLDET_CALIB))
+		if ( g_e8StallDetectorEna & ((uint8) C_STALLDET_H | (uint8) C_STALLDET_CALIB))									/* MMP130916-1 */
 		{
 			g_u8StallOcc = TRUE;												/* Report stall and ...  */
 			MotorDriverStop( (uint16) C_STOP_EMERGENCY);						/* ... stop motor (Stall) */
 		}
 	}
 #endif /* _SUPPORT_STALLDET_H */
-	else
-	{
-		/* Nothing */
-	}
 
 #if _DEBUG_COMMUT_ISR
 	DEBUG_CLR_IO_B();

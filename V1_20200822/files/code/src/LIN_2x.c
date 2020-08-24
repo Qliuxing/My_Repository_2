@@ -35,10 +35,10 @@
 #include "LIN_Communication.h"
 #include "lin.h"
 #if ((__MLX_PLTF_VERSION_MAJOR__ == 3) && (__MLX_PLTF_VERSION_MINOR__ >= 3)) || (__MLX_PLTF_VERSION_MAJOR__ >= 4)
-#include "lin_internal.h"
+#include "lin_internal.h"														/* LinFrame (MMP140417-1) */
 #endif /* ((__MLX_PLTF_VERSION_MAJOR__ == 3) && (__MLX_PLTF_VERSION_MINOR__ >= 3)) || (__MLX_PLTF_VERSION_MAJOR__ >= 4) */
 #include "main.h"
-#include "app_version.h"
+#include "app_version.h"														/* MMP140519-1 */
 #include "ErrorCodes.h"															/* Error-logging support */
 #if _SUPPORT_MLX_DEBUG_MODE
 #include "MotorStall.h"															/* Only for debugging purpose */
@@ -68,10 +68,10 @@ uint8 l_e8PositionType = C_POSTYPE_INIT;										/* Status-flag position-type *
 #if (LINPROT == LIN2X_ACT44)
 uint8 l_u8PrevProgramMode = C_CTRL_PROGRAM_INV;									/* Previous Programming mode flags (initial: Invalid) */
 #endif /* (LINPROT == LIN2X_ACT44) */
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 uint8 l_u8GAD = C_INVALD_GAD;
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
-uint8 l_u8PctStatusFlagsSend = 0;
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
+uint8 l_u8PctStatusFlagsSend = 0;												/* MMP130626-5 */
 #pragma space none																/* __NEAR_SECTION__ */
 
 
@@ -101,24 +101,24 @@ void LIN_2x_Init( uint16 u16WarmStart)
 		/* Keep original default NAD address */
 		SetLastError( (uint8) C_ERR_INV_NAD);
 	}
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 	l_u8GAD = g_NvramUser.GAD;
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 
 	l_u8ActDirection = g_NvramUser.MotorDirectionCCW;
 
 	(void) ml_AssignFrameToMessageID( MSG_CONTROL, g_NvramUser.ControlFrameID);
 	(void) ml_AssignFrameToMessageID( MSG_STATUS, g_NvramUser.StatusFrameID);
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 	(void) ml_AssignFrameToMessageID( MSG_GROUP_CONTROL, g_NvramUser.GroupControlFrameID);
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 
 	(void) ml_SetLoaderNAD( g_u8NAD);											/* Setup NAD at power-up */
 
 	if ( u16WarmStart == FALSE )
 	{
-		g_u16ActualPosition = ActPosition( 32767, g_NvramUser.MotorDirectionCCW);	/* Default: CPos = 0x7FFF */
-		g_u16TargetPosition = ActPosition( 65535, g_NvramUser.MotorDirectionCCW);	/* Default: Invalid FPos */
+//		g_u16ActualPosition = ActPosition( 32767, g_NvramUser.MotorDirectionCCW);	/* Default: CPos = 0x7FFF */
+//		g_u16TargetPosition = ActPosition( 65535, g_NvramUser.MotorDirectionCCW);	/* Default: Invalid FPos */
 	}
 
 } /* End of LIN_2x_Init() */
@@ -158,11 +158,11 @@ void LIN_2x_Init( uint16 u16WarmStart)
  *				Motor holding current
  *				Motor mode
  * ****************************************************************************	*/
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 void HandleActCtrl( uint16 u16Group)
 #else  /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
 void HandleActCtrl( void)
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 {
 	if ( g_u8RewindFlags & (uint8) C_REWIND_REWIND )
 	{
@@ -171,7 +171,7 @@ void HandleActCtrl( void)
 	else
 	{
 		ACT_CTRL *pCtrl = &g_LinCmdFrameBuffer.Ctrl;
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 		/* Check for correct NAD (Broadcast) and not LIN-AA mode */
 		if ( (((u16Group == FALSE) && (pCtrl->byNAD == g_u8NAD)) ||
 			  ((u16Group != FALSE) && (pCtrl->byNAD == l_u8GAD)) ||
@@ -179,7 +179,8 @@ void HandleActCtrl( void)
 #else  /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
 		/* Check for correct NAD (Broadcast) and not LIN-AA mode */
 		if ( ((pCtrl->byNAD == g_u8NAD) || (pCtrl->byNAD == (uint8) C_BROADCAST_NAD)) && (g_u8LinAAMode == 0) )
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
+		{
 			uint8 u8EventMode;
 			/* Priority 1: Clear Event Flags */
 			if ( (pCtrl->byClearEventFlags != (uint8) C_CTRL_CLREVENT_NONE) && (pCtrl->byClearEventFlags != (uint8) C_CTRL_CLREVENT_INV) )
@@ -194,7 +195,7 @@ void HandleActCtrl( void)
 				{
 					/* Clear stall detected flag */
 					g_u8StallOcc = FALSE;
-					if ( g_e8StallDetectorEna != C_STALLDET_NONE )
+					if ( g_e8StallDetectorEna != C_STALLDET_NONE )					/* MMP130916-1 - Begin */
 					{
 						g_u8StallTypeComm &= ~M_STALL_MODE;
 					}
@@ -204,9 +205,9 @@ void HandleActCtrl( void)
 						/* If actuator is still active, stop it */
 						if ( g_e8MotorStatusMode == (uint8) C_MOTOR_STATUS_RUNNING )
 						{
-							g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_STOP;
+							g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_STOP;		/* MMP130917-2 */
 						}
-					}
+					}																/* MMP130916-1 - End */
 				}
 				if ( pCtrl->byClearEventFlags & (uint8) C_CTRL_CLREVENT_EMRUN )
 				{
@@ -238,7 +239,7 @@ void HandleActCtrl( void)
 			
 			/* Priority 3: Store data into NVRAM */
 			if ( (pCtrl->byProgram == (uint8) C_CTRL_PROGRAM_ENA) && (g_e8MotorCtrlMode == (uint8) C_MOTOR_CTRL_STOP) && 
-				 (u8EventMode == FALSE) && (l_u8PrevProgramMode == (uint8) C_CTRL_PROGRAM_DIS) )
+				 (u8EventMode == FALSE) && (l_u8PrevProgramMode == (uint8) C_CTRL_PROGRAM_DIS) )	/* MMP130626-12 */
 			{
 				/* Store info into NVRAM (Rotational-direction, Emergency-run info), only in Stop-mode, and not Event-mode */
 				uint8 u8OrgActDirection = l_u8ActDirection;
@@ -279,7 +280,7 @@ void HandleActCtrl( void)
 			/* Priority 4: Stall detection enable/disable */
 			if ( (g_u8EmergencyRunOcc == FALSE) && ((pCtrl->byStallDetector == (uint8) C_CTRL_STALLDET_DIS) || (pCtrl->byStallDetector == (uint8) C_CTRL_STALLDET_ENA)) )
 			{
-				if ( ( g_e8StallDetectorEna == C_STALLDET_NONE ) &&
+				if ( ( g_e8StallDetectorEna == C_STALLDET_NONE ) &&				/* MMP130920-1 - Begin */
 					(pCtrl->byStallDetector == (uint8) C_CTRL_STALLDET_ENA) &&
 					((g_u8StallTypeComm & M_STALL_MODE) != 0) )
 				{
@@ -290,7 +291,7 @@ void HandleActCtrl( void)
 					{
 						g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_STOP;
 					}
-				}
+				}																/* MMP130920-1 - End */
 				g_e8StallDetectorEna = (pCtrl->byStallDetector == (uint8) C_CTRL_STALLDET_ENA) ? C_STALLDET_ALL : C_STALLDET_NONE;
 			}
 
@@ -359,7 +360,7 @@ void HandleActCtrl( void)
 				if ( g_u8MotorHoldingCurrEna != u8HoldingCurrEna )
 				{
 					/* Change of motor holding current setting */
-					if ( (g_e8MotorRequest == (uint8) C_MOTOR_REQUEST_NONE) && ((g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_RUNNING) == 0) )
+					if ( (g_e8MotorRequest == (uint8) C_MOTOR_REQUEST_NONE) && ((g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_RUNNING) == 0) )	/* MMP150825-1 */
 					{
 						g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_STOP;
 					}
@@ -531,7 +532,7 @@ void HandleActStatus( void)
 		/* Byte 7 */
 		pStatus->byNAD = g_u8NAD;
 		/* Byte 8 */
-		if ( g_NvramUser.EmergencyRunEna )
+		if ( g_NvramUser.EmergencyRunEna )										/* NVRAM stored state (MMP130626-2) */
 		{
 			pStatus->byEmergencyRun = (uint8) C_STATUS_EMRUN_ENA;
 		}
@@ -539,7 +540,7 @@ void HandleActStatus( void)
 		{
 			pStatus->byEmergencyRun = (uint8) C_STATUS_EMRUN_DIS;
 		}
-		if ( g_NvramUser.EmergencyRunEndStopHi )
+		if ( g_NvramUser.EmergencyRunEndStopHi )								/* NVRAM stored state (MMP130626-2) */
 		{
 			pStatus->byEmergencyRunEndStop = (uint8) C_STATUS_EMRUN_ENDPOS_HI;
 		}
@@ -547,7 +548,7 @@ void HandleActStatus( void)
 		{
 			pStatus->byEmergencyRunEndStop = (uint8) C_STATUS_EMRUN_ENDPOS_LO;
 		}
-		if ( g_NvramUser.MotorDirectionCCW )
+		if ( g_NvramUser.MotorDirectionCCW )									/* NVRAM stored state (MMP130626-2) */
 		{
 			pStatus->byRotationDirection = (uint8) C_STATUS_DIRECTION_CCW;
 		}
@@ -714,7 +715,7 @@ void HandleActStatus( void)
 
 		/* Byte 8 */
 		u8Data = 0x00U;
-		if ( g_NvramUser.EmergencyRunEna )
+		if ( g_NvramUser.EmergencyRunEna )										/* NVRAM stored state (MMP130626-2) */
 		{
 			u8Data |= (uint8) C_STATUS_EMRUN_ENA;
 		}
@@ -722,7 +723,7 @@ void HandleActStatus( void)
 		{
 			u8Data |= (uint8) C_STATUS_EMRUN_DIS;
 		}
-		if ( g_NvramUser.EmergencyRunEndStopHi )
+		if ( g_NvramUser.EmergencyRunEndStopHi )								/* NVRAM stored state (MMP130626-2) */
 		{
 			u8Data |= (uint8) (C_STATUS_EMRUN_ENDPOS_HI << 2);
 		}
@@ -730,7 +731,7 @@ void HandleActStatus( void)
 		{
 			u8Data |= (uint8) (C_STATUS_EMRUN_ENDPOS_LO << 2);
 		}
-		if ( g_NvramUser.MotorDirectionCCW )
+		if ( g_NvramUser.MotorDirectionCCW )									/* NVRAM stored state (MMP130626-2) */
 		{
 			u8Data |= (uint8) (C_STATUS_DIRECTION_CCW << 4);
 		}
@@ -775,16 +776,12 @@ void HandleBusTimeout( void)
 		{
 			if ( g_NvramUser.EmergencyRunEna )
 			{
-#if _SUPPORT_AUTO_CALIBRATION
 				if ( g_e8MotorRequest == (uint8) C_MOTOR_REQUEST_CALIBRATION )
 				{
 					/* Calibration is on-going; Postpone emergency-run till after calibration-process have been finished */
 					g_e8CalibPostMotorRequest = (uint8) C_MOTOR_REQUEST_EMRUN;
 				}
 				else if ( g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_DEGRADED )
-#else  /* _SUPPORT_AUTO_CALIBRATION */
-				if ( g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_DEGRADED )
-#endif /* _SUPPORT_AUTO_CALIBRATION */
 				{
 					/* Module is in degraded-mode; Postpone emergency-run till after degraded-mode have been obsoleted */
 					g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_EMRUN;
@@ -796,7 +793,7 @@ void HandleBusTimeout( void)
 					g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_EMRUN;
 				}
 			}
-#if (_SUPPORT_BUSTIMEOUT_SLEEP != FALSE)
+#if (_SUPPORT_BUSTIMEOUT_SLEEP != FALSE)										/* MMP130626-8 */
 			else
 			{
 				g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_SLEEP;	
@@ -820,9 +817,9 @@ void LinAATimeoutControl( void)
 {
 	/* LIN-AA takes too long time */
 	g_u8NAD = g_NvramUser.NAD;													/* Restore original NAD */
-#if (LINAA_BSM_SNPD_R1p0 != FALSE)
+#if (LINAA_BSM_SNPD_R1p0 != FALSE)												/* MMP140417-2 - Begin */
 	ml_StopAutoAddressing();
-#endif /* (LINAA_BSM_SNPD_R1p0 != FALSE) */
+#endif /* (LINAA_BSM_SNPD_R1p0 != FALSE) */										/* MMP140417-2 - End */
 	(void) ml_SetLoaderNAD( g_u8NAD);
 	g_u16LinAATicker = 0;														/* Stop LIN-AA timeout counter */
 	g_u8LinAAMode = 0;															/* Cancel LIN-AA mode */

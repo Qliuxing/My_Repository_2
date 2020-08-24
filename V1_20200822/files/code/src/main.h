@@ -25,9 +25,13 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-#include "Build.h"
+#ifndef SYSLIB_H_
+#include "syslib.h"
+#endif /* SYSLIB_H_ */
 #if LIN_COMM
+#ifndef LIN_COMMUNICATION_H_
 #include "LIN_Communication.h"													/* LIN Communication support */
+#endif /* LIN_COMMUNICATION_H_ */
 #endif /* LIN_COMM */
 #include "MotorDriver.h"														/* Motor-driver support */
 
@@ -55,7 +59,7 @@
 
 /* Chip */
 #define CYCLES_PER_INSTR		5												/* 5 clocks per instruction */
-#define PWM_FREQ				17920U											/* PWM signal frequency in Hz */
+#define PWM_FREQ				20000U											/* PWM signal frequency in Hz */
 #define PWM_PRESCALER_M			1U												/* Define the PWM timer clock frequency */
 #define PWM_PRESCALER_N			0U												/* as F = Fpll / ( Mx2^N ) */
 #define PWM_PRESCALER			(((PWM_PRESCALER_M - 1) << 4 ) + PWM_PRESCALER_N ) 	/* Pre-scaler value */
@@ -126,7 +130,7 @@ typedef unsigned char lint_typedef_fail_main_h;
 #if LIN_AA_INFO
 typedef struct _SNPD_DATA
 {
-	uint8 byStepAndFlags;						/* 0x00 */
+	uint8 byStepAndFlags;						/* 0x00 (MMP130818-1) */
 	uint8 byIshunt1;							/* 0x01 */
 	uint8 byIshunt2;							/* 0x02 */
 	uint8 byIshunt3;							/* 0x03 */
@@ -208,16 +212,15 @@ typedef enum
 {
 	C_CALIB_NONE = 0,															/* 0: No calibration */
 	C_CALIB_START,																/* 1: Start calibration */
-	C_CALIB_SETUP_HI_ENDPOS,													/* 2: Setup movement towards High End-stop */
-	C_CALIB_CHECK_HI_ENDPOS,													/* 3: High End-stop reached */
-	C_CALIB_PAUSE_HI_ENDSTOP,													/* 4: High End-stop Pause */
-	C_CALIB_SETUP_LO_ENDPOS,													/* 5: Setup movement towards Low End-stop */
-	C_CALIB_CHECK_LO_ENDPOS,													/* 6: Low End-stop reached */
-	C_CALIB_DONE,																/* 7: Calibration successfully done */
-	C_CALIB_FAILED,																/* 8: Calibration failed */
-	C_CALIB_FAILED_NO_ENDSTOP,													/* 9: Calibration failed, no end-stop */
-	C_CALIB_FAILED_TOO_LONG,													/* 10: Calibration failed, too long */
-	C_CALIB_FAILED_TOO_SHORT													/* 11: Calibration failed, too short */
+	C_CALIB_SETUP_HI_ENDPOS,													/* 2: Setup movement towards High Endstop */
+	C_CALIB_CHECK_HI_ENDPOS,													/* 3: High Endstop reached */
+	C_CALIB_PAUSE_HI_ENDSTOP,													/* 4: High Endstop Pause */
+	C_CALIB_SETUP_LO_ENDPOS,													/* 5: Setup movement towards Low Endstop */
+	C_CALIB_CHECK_LO_ENDPOS,													/* 6: Low Endstop reached */
+	C_CALIB_SETUP_HM_ENDPOS,													/* 7: Low Endstop reached */
+	C_CALIB_CHECK_HM_ENDPOS,													/* 8: Low Endstop reached */
+	C_CALIB_END,																/* 9: End of calibration */
+	C_CALIB_DONE,																/* 10: Calibration successfully done */
 } CALIB_MODE;
 
 typedef enum
@@ -243,19 +246,17 @@ typedef enum
 } STALLDET_MODE;
 
 /* Motor speeds (g_u8MotorCtrlSpeed/g_u8MotorStatusSpeed) */
-#define C_MOTOR_SPEED_STOP			0U											/* Stop */
-#define C_MOTOR_SPEED_LOW			1U											/* Valve Actuator:  40 FS/sec */
-#define C_MOTOR_SPEED_MID_LOW		2U											/* Valve Actuator:  60 FS/sec */
-#define C_MOTOR_SPEED_MID			3U											/* Valve Actuator:  80 FS/sec */
-#define C_MOTOR_SPEED_MID_HIGH		4U											/* Valve Actuator: 100 FS/sec */
-#define C_MOTOR_SPEED_HIGH 			5U											/* Valve Actuator: 120 FS/sec */
+#define C_MOTOR_SPEED_STOP			0U											//NVRAM_MIN_SPEED
+#define C_MOTOR_SPEED_LOW			1U											//NVRAM_SPEED_TORQUE_BOOST
+#define C_MOTOR_SPEED_MID_LOW		2U											//NVRAM_SPEED0
+#define C_MOTOR_SPEED_MID			3U											//NVRAM_SPEED1
+#define C_MOTOR_SPEED_MID_HIGH		4U											//NVRAM_SPEED2
+#define C_MOTOR_SPEED_HIGH 			5U											//NVRAM_SPEED3
 #define C_DEFAULT_MOTOR_SPEED		C_MOTOR_SPEED_MID
 
-#if (LINPROT == LIN2X_ACT44)
 /* Motor Control mode (g_e8MotorCtrlMode) */
-#define C_MOTOR_CTRL_STOP			0x00U										/* Allow LIN-AA & NVRAM-Write's */
+#define C_MOTOR_CTRL_STOP			0x00U
 #define C_MOTOR_CTRL_NORMAL			0x01U
-#endif /* (LINPROT == LIN2X_ACT44) */
 /* Motor Status mode (g_e8MotorStatusMode) */
 #define C_MOTOR_STATUS_STOP			0x00U										/* Actuator stopped */
 #define C_MOTOR_STATUS_RUNNING		0x01U										/* bit 0: Actuator Running */
@@ -288,9 +289,9 @@ typedef enum
 
 /* Motor rotational direction (g_e8MotorDirectionCCW) */
 #define C_MOTOR_DIR_OPENING		0												/* Positioning: Moving from low-to-high Pos */
-#define C_MOTOR_DIR_CW			0												/* Continues */
+#define C_MOTOR_DIR_CW			0												/* Continueos */
 #define C_MOTOR_DIR_CLOSING		1												/* Positioning: Moving from high-to-low Pos */
-#define C_MOTOR_DIR_CCW			1												/* Continues */
+#define C_MOTOR_DIR_CCW			1												/* Continueos */
 #define C_MOTOR_DIR_UNKNOWN		2
 
 /* Debounce error filter; An error has to be detected twice in a row */
@@ -301,19 +302,53 @@ typedef enum
 #define C_DEBFLT_ERR_OV				0x08U										/* Bit 3: Over-Voltage error */
 #define C_DEBFLT_ERR_TEMP_PROFILE	0x10U										/* Bit 4: Chip Temperature profile error */
 
-/* MLX4/LIN State */
+/* MLX4/LIN State (MMP130812-1) */
 #define C_LIN_SLEEP				0U												/* MLX4/LIN Bus-Timeout or Sleep-request */
 #define C_LIN_AWAKE				1U												/* LIN-bus active */
 
 #define LOW						FALSE
 #define HIGH					TRUE
 
-#define EE_GMCURR_NEW	(((CalibrationParams.EE_C_GAINS_CAL & 0xFF) < 100) ? ((CalibrationParams.EE_C_GAINS_CAL & 0xFF) + 256) : ((CalibrationParams.EE_C_GAINS_CAL & 0xFF) * 2))	/* MMP160616-1 */
+//EXV Position
+#if _SUPPORT_DOUBLE_USTEP
+#define	C_EXV_MICRO_STEP	(1 << (NVRAM_MICRO_STEPS + 1))						/* Number of micro-steps per full-step (2, 4, 8 or 16) */
+#else  /* _SUPPORT_DOUBLE_USTEP */
+#define	C_EXV_MICRO_STEP	(1 << NVRAM_MICRO_STEPS)							/* Number of micro-steps per full-step (1, 2, 4 or 8) */
+#endif
+#define C_EXV_HALL_DETECTION_STEP	((uint16)24*C_EXV_MICRO_STEP) //24 full steps for hall stall detection
+#define C_EXV_ZERO_POS				((uint16)100*C_EXV_MICRO_STEP)
+#define C_EXV_TOLERANCE_LO			(g_NvramUser.DefTravelToleranceLo*C_EXV_MICRO_STEP)
+#define C_EXV_TOLERANCE_UP			(g_NvramUser.DefTravelToleranceUp*C_EXV_MICRO_STEP)
+#define C_EXV_DEF_TRAVEL			(g_NvramUser.DefTravel*C_EXV_MICRO_STEP)
+#define C_EXV_RANGE_MAX				(C_EXV_DEF_TRAVEL + C_EXV_TOLERANCE_LO + C_EXV_TOLERANCE_UP + C_EXV_HALL_DETECTION_STEP)
+#define C_EXV_RANGE_MIN				(C_EXV_DEF_TRAVEL - C_EXV_TOLERANCE_LO - C_EXV_TOLERANCE_UP + C_EXV_HALL_DETECTION_STEP)
 
+#define C_EXV_FULLY_CLOSE_LIN		0x000
+#define C_EXV_FULLY_OPEN_LIN		0x3FF
+#define C_EXV_POSITION_STD			((uint16)288*C_EXV_MICRO_STEP)
+
+//EXV Move Enable(g_e8EXVMoveEnableRequestFlag)
+#define C_EXV_MOVE_DISABLE				0											/* 0: EXV move disabled */
+#define C_EXV_MOVE_ENABLE				1											/* 1: EXV move enabled */
+
+//EXV Init Direction(g_e8EXVInitDirection)
+#define C_EXV_INIT_DIR_NO_SELECT		0
+#define C_EXV_INIT_DIR_LOWENDSTOP		1
+#define C_EXV_INIT_DIR_HIGHENDSTOP		2
+
+#define C_GMCV_INIT_DIR_NO_SELECT		0
+#define C_GMCV_INIT_DIR_OPEN_FIRST		1
+#define C_GMCV_INIT_DIR_CLOSE_FIRST		2
+
+//EXV Warning temperature
+#define C_CHIP_WARNING_OVERTEMP_LEVEL	145U
+#define C_WARNING_OTEMP_YES				01U
+#define C_WARNING_OTEMP_NO				00U
 /* ****************************************************************************	*
  * P u b l i c   f u n c t i o n s												*
  * ****************************************************************************	*/
 extern int16 main( void);
+extern void UpdateMotorSpeed(void);
 
 /* ****************************************************************************	*
  *	P u b l i c   v a r i a b l e s												*
@@ -321,6 +356,7 @@ extern int16 main( void);
 #pragma space dp 																/* __TINY_SECTION__ */
 extern uint8 g_e8MotorRequest;		
 extern volatile uint8 g_e8ErrorElectric;										/* Status-flags electric error */
+extern volatile uint8 g_e8ErrorCoil;
 extern volatile uint8 g_e8ErrorVoltage;											/* Status-flags voltage */
 extern uint8 g_e8MotorDirectionCCW;												/* Control/Status-flag motor rotational direction Counter Clock-wise */
 extern volatile uint8 g_u8ChipResetOcc;											/* Status-flag indicate chip-reset occurred (POR) */
@@ -334,13 +370,11 @@ extern volatile int16 g_i16ChipTemperature;										/* Chip internal temperatur
 extern volatile int16 g_i16AmbjTemperature;										/* Ambient Temperature */
 #endif /* _SUPPORT_AMBIENT_TEMP */
 extern volatile int16 g_i16MotorVoltage;										/* Motor-driver voltage */
-extern uint8 g_u8StallTypeComm;													/* Stall type occurred (communication) */
+extern uint8 g_u8StallTypeComm;													/* Stall type occurred (communication) (MMP130917-3) */
 extern uint8 g_u8MotorStatusSpeed;												/* (Status) Actual motor-speed */
 extern uint8 g_e8CalibrationStep;												/* Calibration step */
-
-#if (LINPROT == LIN2X_ACT44)
+/* MMP151118-2 */
 extern uint8 g_e8MotorCtrlMode __attribute__ ((section(".dp.noinit")));			/* Control-flags motor mode (from Master) [WD] */
-#endif /* (LINPROT == LIN2X_ACT44) */
 extern volatile uint8 g_e8MotorStatusMode __attribute__ ((section(".dp.noinit")));	/* Status-flags motor mode (to Master) */
 extern uint8 g_e8StallDetectorEna __attribute__ ((section(".dp.noinit")));		/* Control-flag Stall-detector enabled [WD] */
 extern uint8 g_u8MotorHoldingCurrEna __attribute__ ((section(".dp.noinit")));	/* Control-flag motor Holding-current enabled [WD] */
@@ -348,6 +382,13 @@ extern uint16 g_u16ActualPosition __attribute__ ((section(".dp.noinit")));		/* (
 extern uint16 g_u16TargetPosition __attribute__ ((section(".dp.noinit")));		/* (Control) Target motor-rotor position (invalid) [WD] */
 extern uint8 g_u8MotorCtrlSpeed __attribute__ ((section(".dp.noinit")));		/* (Control) Selected motor-speed */
 extern uint16 g_u16CalibTravel __attribute__ ((section(".dp.noinit")));			/* Number of steps between two end-stops */
+
+extern uint8 g_e8EXVMoveEnableRequestFlag;										//EXV Move enable flag, Ban
+extern uint8 g_e8EXVInitDirection;												//EXV Init direction, Ban
+extern uint8 g_e8WarningOverTemperature;										//EXV warning temperature, Ban
+extern uint8 g_e8EXVFault;														//EXV error, Ban
+extern uint8 g_e8EXVErrorBlock;													//EXV unexpect stall
+
 #pragma space none																/* __TINY_SECTION__ */
 
 extern volatile int16 g_i16SupplyVoltage;										/* Supply Voltage */
@@ -359,26 +400,28 @@ extern uint16 g_u16TargetPositionRewind;
 #if _SUPPORT_CHIP_TEMP_PROFILE
 extern uint16 g_u16TemperatureStabilityCounter;									/* Temperature stability counter */
 #endif /* _SUPPORT_CHIP_TEMP_PROFILE */
-#if (_SUPPORT_DEGRADE_DELAY != FALSE) && (LINPROT == LIN2X_ACT44)
+#if (_SUPPORT_DEGRADE_DELAY != FALSE) && (LINPROT == LIN2X_ACT44)				/* MMP150128-1 - Begin */
 extern uint16 u16DegradeDelay;													/* Disable degrade delay timer */
-#endif /* (_SUPPORT_DEGRADE_DELAY != FALSE) && (LINPROT == LIN2X_ACT44) */
+#endif /* (_SUPPORT_DEGRADE_DELAY != FALSE) && (LINPROT == LIN2X_ACT44) */		/* MMP150128-1 - End */
 #if _SUPPORT_LIN_BUS_ACTIVITY_CHECK
 extern uint16 g_u16Mlx4StateCheckCounter;										/* State check counter */
 extern uint8 g_u8Mlx4ErrorState;												/* Number of MLX4 Error states occurred */
 #endif /* _SUPPORT_LIN_BUS_ACTIVITY_CHECK */
-#if _SUPPORT_OVT_PED
 extern uint8 g_u8OverTemperatureCount;											/* Number of over-temperature events */
-#endif /* _SUPPORT_OVT_PED */
 extern uint8 g_u8MotorStartDelay;												/* Motor start delay (500us) */
-#if (LINPROT == LIN2X_ACT44)
 extern uint8 g_e8ErrorVoltageComm;												/* Status-flags voltage (Communication) */
-#endif /* (LINPROT == LIN2X_ACT44) */
 extern uint8 g_u8MechError;														/* No mechanical error */
 extern uint8 g_u8TorqueBoostRequest;											/* Torque Boost */
-#if _SUPPORT_AUTO_CALIBRATION
 extern uint8 g_e8CalibPostMotorRequest;											/* Post calibration Motor Request */
 extern uint16 g_u16CalibPauseCounter;
-#endif /* _SUPPORT_AUTO_CALIBRATION */
+
+extern uint16 g_u16EXVTargetPositionTemp;
+
+extern uint8 g_e8EXVStatusCommErr;
+extern uint8 g_e8EXVStatusFaultState;
+extern uint8 g_e8EXVStatusMovInProcs;
+extern uint16 g_u16EXVStatusCurrentPositon;
+extern uint8 g_e8EXVStatusInitStat;
 
 #if USE_MULTI_PURPOSE_BUFFER
 extern MP_BUF g_MPBuf;

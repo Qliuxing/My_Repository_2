@@ -47,11 +47,11 @@
 /* ****************************************************************************	*
  *	P u b l i c   f u n c t i o n s												*
  * ****************************************************************************	*/
-extern void Timer_Init( void);													/*!< Initialise the core timer (Mulan2-timer), at a periodic rate of 500us */
+extern void Timer_Init( void);													/*!< Initialize the core timer (Mulan2-timer), at a periodic rate of 500us */
 extern void Timer_SleepCompensation( uint16 u16SleepPeriod);					/*!< Compensate the various timer-counters for the sleep-period */
 
 #if _SUPPORT_LIN_UV
-extern uint16 g_u16LinUVTimeCounter;											/* LIN UV Time-counter */
+extern uint16 g_u16LinUVTimeCounter;											/* LIN UV Time-counter (MMP131216-1) */
 #endif /* _SUPPORT_LIN_UV */
 
 #endif /* TIMER_H_ */

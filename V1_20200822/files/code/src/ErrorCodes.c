@@ -30,9 +30,9 @@
 #include "ErrorCodes.h"
 #include "NVRAM_UserPage.h"
 
-#define C_ERR_LOG_SZ	10U
+#define C_ERR_LOG_SZ	10
 uint8 l_au8FiFoErrorLog[C_ERR_LOG_SZ];
-uint8 l_u8ErrorLogIdx = 0U;
+uint8 l_u8ErrorLogIdx = 0;
 
 /* ****************************************************************************	*
  * ErrorLogInit
@@ -45,14 +45,14 @@ uint8 l_u8ErrorLogIdx = 0U;
  * ****************************************************************************	*/
 void ErrorLogInit( void)
 {
-	if ( (AWD_CTRL & AWD_RST) != 0U )
+	if ( (AWD_CTRL & AWD_RST) != 0 )
 	{
 		uint16 i;
-		for ( i = 0U; i < C_ERR_LOG_SZ; i++ )
+		for ( i = 0; i < C_ERR_LOG_SZ; i++ )
 		{
 			l_au8FiFoErrorLog[i] = C_ERR_NONE;
 		}
-		l_u8ErrorLogIdx = 0U;
+		l_u8ErrorLogIdx = 0;
 	}
 } /* End of ErrorLogInit() */
 
@@ -67,16 +67,15 @@ void ErrorLogInit( void)
  * ****************************************************************************	*/
 void SetLastError( uint8 u8ErrorCode)
 {
-	if ( (l_u8ErrorLogIdx == 0U) || (l_au8FiFoErrorLog[l_u8ErrorLogIdx - 1U] != u8ErrorCode) )
+	if ( (l_u8ErrorLogIdx == 0) || (l_au8FiFoErrorLog[l_u8ErrorLogIdx - 1] != u8ErrorCode) )
 	{
 		/* Don't log the same error over and over again */
 		l_au8FiFoErrorLog[l_u8ErrorLogIdx] = u8ErrorCode;
-		if ( l_u8ErrorLogIdx < (C_ERR_LOG_SZ - 1U) )
+		if ( l_u8ErrorLogIdx < (C_ERR_LOG_SZ - 1) )
 		{
 			l_u8ErrorLogIdx++;
 		}
 
-#if _SUPPORT_LOG_NVRAM
 		/* Log serious error-codes also in NVRAM */
 		/* Serious errors are:
 		  	  Unsupported IRQ's   or C_ERR_INV_MLXPAGE_CRC1..4, CAL_GN or Over-temperature                   or 'Fatal'-errors */
@@ -84,7 +83,6 @@ void SetLastError( uint8 u8ErrorCode)
 		{
 			(void) NVRAM_LogError( u8ErrorCode);
 		}
-#endif /* _SUPPORT_LOG_NVRAM */
 	}
 } /* End of SetLastError() */
 
@@ -96,9 +94,9 @@ uint8 GetLastError( void)
 		uint16 i;
 		ATOMIC_CODE
 		(
-			for ( i = 1U; i < l_u8ErrorLogIdx; i++ )
+			for ( i = 1; i < l_u8ErrorLogIdx; i++ )
 			{
-				l_au8FiFoErrorLog[i - 1U] = l_au8FiFoErrorLog[i];
+				l_au8FiFoErrorLog[i - 1] = l_au8FiFoErrorLog[i];
 			}
 			l_u8ErrorLogIdx--;
 			l_au8FiFoErrorLog[l_u8ErrorLogIdx] = C_ERR_NONE;

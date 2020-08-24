@@ -49,7 +49,7 @@
  * ****************************************************************************	*/
 #pragma space nodp																/* __NEAR_SECTION__ */
 #if _SUPPORT_LIN_UV
-uint16 g_u16LinUVTimeCounter = 0;												/* LIN UV Time-counter */
+uint16 g_u16LinUVTimeCounter = 0;												/* LIN UV Time-counter (MMP131216-1) */
 #endif /* _SUPPORT_LIN_UV */
 #pragma space none																/* __NEAR_SECTION__ */
 
@@ -116,7 +116,7 @@ void Timer_SleepCompensation( uint16 u16SleepPeriod)
 #endif /* _SUPPORT_LIN_BUS_ACTIVITY_CHECK */
 
 		g_u16PID_CtrlCounter += u16SleepPeriod;									/* PID Current/Speed control */
-		g_u16PID_ThrshldCtrlCounter += u16SleepPeriod;							/* PID Current/Speed Threshold control */
+		g_u16PID_ThrshldCtrlCounter += u16SleepPeriod;							/* PID Current/Speed Threshold control (MMP140317-1)*/
 		if ( g_u8MotorStartDelay > u16SleepPeriod )
 		{
 			g_u8MotorStartDelay -= (uint8) u16SleepPeriod;
@@ -151,15 +151,15 @@ void Timer_SleepCompensation( uint16 u16SleepPeriod)
 
 /*lint !e436 */
 #if _SUPPORT_LIN_UV
-		if ( g_u16LinUVTimeCounter != 0 )
+		if ( g_u16LinUVTimeCounter != 0 )										/* MMP131216-1 - Begin */
 		{
 			g_u16LinUVTimeCounter += u16SleepPeriod;
-		}
+		}																		/* MMP131216-1 - End */
 /*lint !e436 */
 #endif /* _SUPPORT_LIN_UV */
 
 /*lint !e436 */
-#if (_SUPPORT_DEGRADE_DELAY != FALSE) && (LINPROT == LIN2X_ACT44)
+#if (_SUPPORT_DEGRADE_DELAY != FALSE) && (LINPROT == LIN2X_ACT44)				/* MMP150128-1 - Begin */
 		if ( (u16DegradeDelay != 0) && (u16DegradeDelay != 0xFFFF) )
 		{
 			if ( u16DegradeDelay >  u16SleepPeriod )
@@ -168,9 +168,8 @@ void Timer_SleepCompensation( uint16 u16SleepPeriod)
 				u16DegradeDelay = 0;
 		}
 /*lint !e436 */
-#endif /* (_SUPPORT_DEGRADE_DELAY != FALSE) && (LINPROT == LIN2X_ACT44) */
+#endif /* (_SUPPORT_DEGRADE_DELAY != FALSE) && (LINPROT == LIN2X_ACT44) */		/* MMP150128-1 - End */
 
-#if _SUPPORT_AUTO_CALIBRATION
 		if ( g_u16CalibPauseCounter != 0 )
 		{
 			if ( g_u16CalibPauseCounter > u16SleepPeriod )
@@ -178,9 +177,8 @@ void Timer_SleepCompensation( uint16 u16SleepPeriod)
 			else
 				g_u16CalibPauseCounter = 0;
 		}
-#endif /* _SUPPORT_AUTO_CALIBRATION */
 	);
-} /* End of Timer_SleepCompensation() */ /*lint !e438 */
+} /* End of Timer_SleepCompensation() */
 
 /* ****************************************************************************	*
  * TIMER_IT()
@@ -190,7 +188,7 @@ void Timer_SleepCompensation( uint16 u16SleepPeriod)
 __interrupt__ void TIMER_IT(void) 
 {
 #if _SUPPORT_LIN_BUS_ACTIVITY_CHECK && (__MLX_PLTF_VERSION_MAJOR__ == 3)
-	/* MLX4 LIN-Bus activity check, except during PWM-mode */
+	/* MLX4 LIN-Bus activity check, except during PWM-mode (MMP131126-2) */
 	/* Note: For (__MLX_PLTF_VERSION_MAJOR__ == 4) the periodic check has to be performed in the main-loop.
 	 * (ml-functions can not be used in ISR's)
 	 */
@@ -212,7 +210,7 @@ __interrupt__ void TIMER_IT(void)
 		if ( (--g_u8MotorStopDelay == 0) && ((g_e8MotorStatusMode & (uint8) ~C_MOTOR_STATUS_DEGRADED) == (uint8) C_MOTOR_STATUS_STOP) )
 		{
 			DRVCFG_DIS_UVWT();
-			DRVCFG_DIS();
+			DRVCFG_DIS();														/* MMP140903-1 */
 		}
 	}
 
@@ -257,13 +255,13 @@ __interrupt__ void TIMER_IT(void)
 #endif /* ((LINPROT & LINXX) == LIN2X) */
 
 #if WATCHDOG == ENABLED
-#if _SUPPORT_LIN_AA
+#if ((LIN_COMM != FALSE) && ((LINPROT & LINXX) != LIN2J))
 	if ( g_u8AutoAddressingFlags & WAITINGFORBREAK )
 	{
 		/* Start performing "background" watchdog acknowledges, during LIN auto-addressing (waiting for the LIN break-pulse */
 		WDG_Manager();
 	}
-#endif /* _SUPPORT_LIN_AA */
+#endif /* ((LIN_COMM != FALSE) && ((LINPROT & LINXX) != LIN2J)) */
 #endif /* WATCHDOG == ENABLED */
 
 #if _SUPPORT_CHIP_TEMP_PROFILE
@@ -271,23 +269,21 @@ __interrupt__ void TIMER_IT(void)
 #endif /* _SUPPORT_CHIP_TEMP_PROFILE */
 
 #if _SUPPORT_LIN_UV
-	if ( g_u16LinUVTimeCounter != 0 )
+	if ( g_u16LinUVTimeCounter != 0 )											/* MMP131216-1 - Begin */
 	{
 		g_u16LinUVTimeCounter++;
-	}
+	}																			/* MMP131216-1 - End */
 #endif /* _SUPPORT_LIN_UV */
 
-#if (_SUPPORT_DEGRADE_DELAY != FALSE) && (LINPROT == LIN2X_ACT44)
+#if (_SUPPORT_DEGRADE_DELAY != FALSE) && (LINPROT == LIN2X_ACT44)				/* MMP150128-1 - Begin */
 	if ( (u16DegradeDelay != 0) && (u16DegradeDelay != 0xFFFF) )
 	{
 		u16DegradeDelay--;
 	}
-#endif /* (_SUPPORT_DEGRADE_DELAY != FALSE) && (LINPROT == LIN2X_ACT44) */
+#endif /* (_SUPPORT_DEGRADE_DELAY != FALSE) && (LINPROT == LIN2X_ACT44) */		/* MMP150128-1 - End */
 
-#if _SUPPORT_AUTO_CALIBRATION
 	if ( g_u16CalibPauseCounter != 0 )
 		g_u16CalibPauseCounter--;
-#endif /* _SUPPORT_AUTO_CALIBRATION */
 } /* End of TIMER_IT() */
 
 /* EOF */

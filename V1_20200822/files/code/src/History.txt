@@ -1,35 +1,25 @@
-ZH Valve Module
+Sanhua Valve Module
 
 History:
 --------
 based on MLX81310 UniROM code of 150522.
+MMP150603-1: Fix PWM continious low
+MMP150603-2: Use (FL_CTRL0 & FL_DETECT) to detect Flash vs. ROM for Patch and TMTR-support (low_level_init.c)
+MMP150811-1: Vs/Vsm filtered vs. unfiltered; MLX81300D & MLX81310A support Vs-filtered; MLX81300E, MLX81310C and MLX81315A support Vsm-filtered (ADC.c & Build.h)
+MMP150811-2: Force LIN pull-up enable
+MMP150825-1: Fix changing holding current mode during Emergency Run.
+MMP150922-1: UV/OV during MotorStart() fix. 
+MMP150925-1: RAM vs. NVRAM test modification
+MMP151118-1: Platform Version 4.1.0
+MMP151118-2: Change of dp-variables to dp.noinit
+MMP151125-1: Support 'last' fatal-error (bistError + Info)
+MMP151130-1: Clear Pending feedback
+MMP151208-1: __attribute__ ((dp, section(".dp.noinit"))); Note: Ignore warning "section attribute overrides"
 MMP160420-1: Add hall-sensor support for stall detection. (Hall-sensor connected to IO[0])
-SVN:0001
-MMP160613-1: Remove LIN 2.0 SAE-J2602 Status Byte; Add VW LIN-error bit.
+MMP160613-1: Remove LIN 2.0 SAE-J2602 Status Byte; Add GM LIN-error bit.
 MMP160613-2: Save Status before SLEEP and retrieve at wake-up.
 MMP160613-3: Variant-ID fixed by SW (no longer in NVRAM)
-SVN:0002
-MMP160614-X: Disable auto-calibration at POR
-MMP160614-2: Allow only move towards endstop when not initialised.
-MMP160614-3: Allow only movement when enabled and torque-setting not '0'.
-MMP160614-4: Change order main-initialisation; First motor-holding before LIN-init (wake-up)
-MMP160614-5: Support rewind to avoid missed end-stop check after sleep.
-MMP160616-1: Add Motor-current mA-calculation fix
-MMP160915-1: Check for low-speed period overrun
-MMP160915-2: Could be more then 256 acceleration/deceleration steps (change l_u8VTIdx to l_u16VTIdx)
-MMP160915-3: Avoid role-over
-MMP161208-1: Fixed Loader NAD issue in case it's lost
-MMP170106-1: NVRAM Error-log fix for Write-cycle counter.
-MMP170201-1: Bugfix Stall-"O" initial ignore-counter (outside buffer write)
-MMP170222-4: VDDA & VDDD check
-MMP170302-1: VIO check (IO[5:0])
-MMP170329-1: Invalid Vendor/Function-ID 0xB2 response
-MMP170404-2: Set DBASE to scratch (ADC Off)
-SVN:0003 (Version 1.0.E003 - 20170404)
-MMP170405-1: Enable motor-driver to allow motor current measurement.
-MMP170405-2: Add MotorStart motor-coil current check (below 600mA)
-MMP170405-3: Motor-driver short/Overcurrent cause _fatal(); handle OC in _fatal().
-SVN:0004 (Version 1.0.E004 - 20170405)
 
+TODO's:
 
-Standby-current: Approx. 5mA at 28MHz (5.6 MIPS) and 4mA at 18MHz (4 MIPS)
+Standby-current: Approx. 5mA at 28MHz (5 MIPS) and 4mA at 18MHz (4 MIPS)

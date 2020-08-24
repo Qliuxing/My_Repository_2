@@ -26,9 +26,11 @@
  */
 
 #include "Build.h"
-#include "ErrorCodes.h"
 #include <ioports.h>
 #include <nvram.h>
+#if _DEBUG_FATAL
+#include "NVRAM_UserPage.h"
+#endif /* _DEBUG_FATAL */
 
 /* Linker symbols (these objects are not created in the memory) */
 extern uint16 stack;
@@ -46,18 +48,19 @@ uint16 FlashBackgroundTest( uint16 u16Size);
  */
 __MLX_TEXT__ void STACK_IT(void)
 {
+//	SET_STACK( &stack);
 	/* Chip header is valid and chip successfully initialised; LIN Command Reset use AWD to reset chip */
-	if ( (bistHeader == C_CHIP_HEADER) && ((bistResetInfo == (uint16) C_CHIP_STATE_LIN_CMD_RESET) || (bistResetInfo == (uint16) C_CHIP_STATE_LOADER_PROG_RESET)) )
+	if ( (bistHeader == C_CHIP_HEADER) && ((bistResetInfo == C_CHIP_STATE_LIN_CMD_RESET) || (bistResetInfo == C_CHIP_STATE_LOADER_PROG_RESET)) )
 	{
 		/* INLINE MLX16_RESET (Don't use stack) */
 		do
 		{
-			if ( (PLL_CTRL & PLL_EN) != 0U )									/* Only delay in case of PLL is active */
+			if ( (PLL_CTRL & PLL_EN) != 0 )								/* Only delay in case of PLL is active */
 			{
-				DELAY_US( 250U);												/* Should be called with period > 200us, otherwise bit AWD_WRITE_FAIL will be set and further acknowledgment will fail during next 200 us */
+				DELAY_US( 250);											/* Should be called with period > 200us, otherwise bit AWD_WRITE_FAIL will be set and further acknowledgment will fail during next 200 us */
 			}
-			AWD_CTRL = (AWD_ATT | AWD_WRITE_FAIL | (3U << 8) | 1U);				/* Set 1:1 pre-scaler and minimal period; AWD timeout will be 100 us */
-		} while ( (AWD_CTRL & (AWD_ATT | AWD_WRITE_FAIL)) != 0U );
+			AWD_CTRL = (AWD_ATT | AWD_WRITE_FAIL | (3u << 8) | 1);		/* Set 1:1 pre-scaler and minimal period; AWD timeout will be 100 us */
+		} while ( AWD_CTRL & (AWD_ATT | AWD_WRITE_FAIL) );
 		for ( ; ; ) {
 			/* wait for reset */
 		}
@@ -81,7 +84,7 @@ __MLX_TEXT__ void STACK_IT(void)
  */
 __MLX_TEXT__ void _fatal (void)
 {
-	/* YL = Error-reason; Don't use stack */
+	/* YL = Error-reason; Don't use stack (MMP151125-1) */
 	__asm__("lod X, 0x2026");													/* X = [FL_CTRL0] */
 	__asm__("and X, #0x07");													/* X[2:0] = ([FL_CTRL0] & (FL_DBE | FL_SBE | FL_DETECT)) */
 	__asm__("lod A, 0x2040");													/* A = [PLL_STAT] */
@@ -96,30 +99,39 @@ __MLX_TEXT__ void _fatal (void)
 
 #if _SUPPORT_CRASH_RECOVERY
 	/* Crash recovery */
-	if ( (bistResetInfo == C_CHIP_STATE_FATAL_RECOVER_ENA) && ((uint8)(bistError & 0xFFU) < 0x05U) )
+	if ( (bistResetInfo == C_CHIP_STATE_FATAL_RECOVER_ENA) && ((uint8)(bistError & 0xFF) < 0x05) )	/* MMP151125-1 */
 	{
 		/* Crash recovery is enabled, and type of IRQ is between 0x01 and 0x04 */
 		bistResetInfo = C_CHIP_STATE_FATAL_CRASH_RECOVERY;						/* Start recovery (on-going) */
 		SET_STACK( &stack);														/* Re-initialise stack */
-		ENTER_SYSTEM_MODE();													/* Protected mode, highest priority (0) */
-		if ( (ANA_INA & XI4_OC_DRV) != 0U )										/* MMP170405-3 - Begin */
-		{
-			/* Over-current! */
-			g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_YES;
-			MotorDriverStop( (uint16) C_STOP_EMERGENCY);						/* Over-current */
-			g_u16TargetPosition = g_u16ActualPosition;
-			SetLastError( (uint8) C_ERR_DIAG_OVER_CURRENT);
-		}																		/* MMP170405-3 - End */
+		ENTER_SYSTEM_MODE();													/* Protected mode, highest priority (0) (MMP141023-1) */
 		XI0_PEND = CLR_T1_INT4;
-		XI2_PEND = 0xFFFFU;														/* Clear all XI2_PEND flags */
+		XI2_PEND = 0xFFFF;														/* Clear all XI2_PEND flags */
 		XI4_PEND = (XI4_OVT | XI4_UV | XI4_OV | XI4_OC_DRV);
 		g_u8Mlx4ErrorState = (uint8) C_MLX4_STATE_IMMEDIATE_RST;				/* Reset MLX4 always */
 		PEND = CLR_TIMER_IT;													/* Core-Timer */
 		SET_PRIORITY( 7);														/* Protected mode, low priority (7) */
-		if ( (FL_CTRL0 & FL_DETECT) != 0U )
+		(void) FlashBackgroundTest( 0);
+
+#if (_DEBUG_FATAL != FALSE)
+		if ( (FL_CTRL0 & FL_DETECT) != 0 )										/* MMP150603-2 */
 		{
-			(void) FlashBackgroundTest( 0U);
+			/* Only in case of a FLASH-device, store FATAL error info */
+			uint16 u16NVRAM_FatalCount = *((uint16 *) C_ADDR_FATALPAGE);
+			u16NVRAM_FatalCount++;
+			if ( u16NVRAM_FatalCount <= 30 )
+			{
+				uint16 *pu16NV;
+				*((uint16 *) C_ADDR_FATALPAGE) = u16NVRAM_FatalCount;
+				u16NVRAM_FatalCount <<= 1;
+				pu16NV = ((uint16 *) C_ADDR_FATALPAGE + u16NVRAM_FatalCount);
+				pu16NV[0] = bistError;
+				pu16NV[1] = bistErrorInfo;
+				NVRAM_SavePage( NVRAM1_PAGE2 | NVRAM_PAGE_WR_SKIP_WAIT);
+			}
 		}
+#endif /* (_DEBUG_FATAL != FALSE) */
+
 		(void) main();
 
 		/* Should never come here, as main should not be left */
@@ -128,12 +140,31 @@ __MLX_TEXT__ void _fatal (void)
 	}
 #endif /* _SUPPORT_CRASH_RECOVERY */
 
-	SET_STACK( &stack);															/* Re-initialise stack */
-	ENTER_SYSTEM_MODE();														/* Protected mode, highest priority (0) */
-	FL_CTRL0 &= ~(FL_DBE | FL_SBE);												/* Clear DBE and SBE errors */
+	SET_STACK( &stack);															/* Re-initialise stack (MMP141023-1) */
+	ENTER_SYSTEM_MODE();														/* Protected mode, highest priority (0) (MMP141023-1) */
+	FL_CTRL0 &= ~(FL_DBE | FL_SBE);												/* Clear DBE and SBE errors (MMP141023-1) */
+
+#if (_DEBUG_FATAL != FALSE)
+	if ( (FL_CTRL0 & FL_DETECT) != 0 )											/* MMP150603-2 */
+	{
+		/* Only in case of a FLASH-device, store FATAL error info */
+		uint16 u16NVRAM_FatalCount = *((uint16 *) C_ADDR_FATALPAGE);
+		u16NVRAM_FatalCount++;
+		if ( u16NVRAM_FatalCount <= 30 )
+		{
+			uint16 *pu16NV;
+			*((uint16 *) C_ADDR_FATALPAGE) = u16NVRAM_FatalCount;
+			u16NVRAM_FatalCount <<= 1;
+			pu16NV = ((uint16 *) C_ADDR_FATALPAGE + u16NVRAM_FatalCount);
+			pu16NV[0] = bistError;
+			pu16NV[1] = bistErrorInfo;
+			NVRAM_SavePage( NVRAM1_PAGE2);
+		}
+	}
+#endif /* (_DEBUG_FATAL != FALSE) */
 
 	/* Disable motor driver first, before waiting for watchdog */
-	DRVCFG_DIS_UVWT();															/* Tri-state (disconnect) the phase U, V, W and T */
+	DRVCFG_DIS_UVWT();															/* Tri-state (disconnect) the phase U, V, W and T (MMP130919-1) */
 
 	for (;;) {
 		/* loop forever */

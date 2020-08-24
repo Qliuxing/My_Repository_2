@@ -24,14 +24,14 @@
 #ifndef LIN_2X_H_
 #define LIN_2X_H_
 
-#include "Build.h"
+#include <syslib.h>
 #include <lin.h>
 
-#define C_DEFAULT_NAD						0x7FU								/* Default (not-programmed) NAD */
+#define C_DEFAULT_NAD						0x7FU								/* Default (unprogrammed) NAD */
 #define C_BROADCAST_NAD						0x7FU								/* Broadcast NAD */
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 #define C_INVALD_GAD						0xFF								/* Default/not-programmed Group-address */
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 
 /* Supplier ID */
 #define C_WILDCARD_SUPPLIER_ID				0x7FFFU
@@ -41,11 +41,11 @@
 /* Function ID */
 #define C_WILDCARD_FUNCTION_ID				0xFFFFU
 #if (LINPROT == LIN2X_ACT44)
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 #define C_FUNCTION_ID						0x0002U								/* Function-ID for a Group-Actuator */
 #else  /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
 #define C_FUNCTION_ID						0x0001U								/* Function-ID for an Actuator */
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 #endif /* (LINPROT == LIN2X_ACT44) */
 
 /* Variant ID */
@@ -61,9 +61,9 @@
 
 #define MSG_CONTROL							0x0001U								/* Actuator Control Message-ID */
 #define MSG_STATUS							0x0002U								/* Actuator Status Message-ID */
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 #define MSG_GROUP_CONTROL					0x0003U								/* Actuator Group Control Message-ID */
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 
 #define C_MIN_POS							0x0000U
 #define C_MAX_POS							0xFFFEU
@@ -72,9 +72,9 @@
 
 #define mlxCONTROL							0xC1U								/* Actuator Control Frame-ID */
 #define mlxSTATUS							0x42U								/* Actuator Status Frame-ID */
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 #define mlxGROUP_CONTROL					0x03U								/* Actuator Group-Control Frame-ID */
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 
 #define QR_INVALID							0xFFU
 
@@ -252,11 +252,11 @@ typedef struct _ACT_STATUS							/* Description of ACT_STATUS LIN-Frame */
  * ****************************************************************************	*/
 void LIN_2x_Init( uint16 u16WarmStart);											/* LIN 2.x initialisation */
 #if (LINPROT == LIN2X_ACT44)
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 void HandleActCtrl( uint16 u16Group);											/* HVAC Actuator or AGS Control (with Group-support) */
 #else  /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
 void HandleActCtrl( void);														/* HVAC Actuator or AGS Control */
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 void HandleActStatus( void);													/* HVAC Actuator or AGS Status */
 #endif /* (LINPROT == LIN2X_ACT44) */
 void HandleBusTimeout( void);													/* Bus time-out */

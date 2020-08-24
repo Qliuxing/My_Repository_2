@@ -24,34 +24,37 @@
 #ifndef NVRAM_USER_PAGE_H_
 #define NVRAM_USER_PAGE_H_
 
-#include "Build.h"
+#include <syslib.h>
 #include "nvram.h"																/* NVRAM support */
 #include "MotorParams.h"
 #include <plib.h>																/* Use Melexis MLX813xx library (WDG_Manager) */
 
-#define C_NVRAM_USER_REV		0x01U
+#define C_NVRAM_USER_REV		0x01
 
-#define C_NVRAM_USER_PAGE_1		0x01U						/* NVRAM User Page #1 */
-#define C_NVRAM_USER_PAGE_2		0x02U						/* NVRAM User Page #2 */
+#define C_NVRAM_USER_PAGE_1		0x01						/* NVRAM User Page #1 */
+#define C_NVRAM_USER_PAGE_2		0x02						/* NVRAM User Page #2 */
 #define C_NVRAM_USER_PAGE_ALL	(C_NVRAM_USER_PAGE_1 | C_NVRAM_USER_PAGE_2)
-#define C_NVRAM_USER_PAGE_AUTO	0x10U						/* Alternate save Page #1/#2 */
-#define C_NVRAM_USER_PAGE_RESET	0x20U						/* Reset chip after NVRAM Write */
-#define C_NVRAM_USER_PAGE_FORCE	0x40U						/* NVRAM Write w/o pre-verify */
-#define C_MVRAM_USER_PAGE_NoCRC	0x80U						/* No CRC Update */
+#define C_NVRAM_USER_PAGE_RESET	0x20
+#define C_NVRAM_USER_PAGE_FORCE	0x40						/* NVRAM Write w/o pre-verify */
+#define C_MVRAM_USER_PAGE_NoCRC	0x80						/* No CRC Update */
 
 /* Note: NVRAM is currently LIN communication protocol depended !! */
 
-#define C_ADDR_USERPAGE1		0x1000U
-#define C_SIZE_USERPAGE1		0x0080U
-#define C_ADDR_PATCHPAGE		0x1080U
-#define C_SIZE_PATCHPAGE		0x007CU
-#define C_ADDR_USERPAGE2		0x1100U
-#define C_SIZE_USERPAGE2		0x0080U
-#define C_ADDR_MLXF_PAGE		0x1180U
-#define C_ADDR_MLX_HWSWID		0x1182U
-#define C_ADDR_MLX_CHIPID		0x1188U
-#define C_ADDR_MLX_TESTID		0x11A0U
-#define C_SIZE_MLXF_PAGE		0x0080U
+#define C_ADDR_USERPAGE1		0x1000
+#define C_SIZE_USERPAGE1		0x0080
+#define C_ADDR_PATCHPAGE		0x1080
+#define C_SIZE_PATCHPAGE		0x007C
+#if _DEBUG_FATAL
+#define C_ADDR_FATALPAGE		0x1080
+#define C_SIZE_FATALPAGE		0x007C
+#endif /* _DEBUG_FATAL */
+#define C_ADDR_USERPAGE2		0x1100
+#define C_SIZE_USERPAGE2		0x0080
+#define C_ADDR_MLXF_PAGE		0x1180
+#define C_ADDR_MLX_HWSWID		0x1182
+#define C_ADDR_MLX_CHIPID		0x1188 
+#define C_ADDR_MLX_TESTID		0x11A0
+#define C_SIZE_MLXF_PAGE		0x0080
 
 typedef struct _NVRAM_USER
 {
@@ -95,7 +98,7 @@ typedef struct _NVRAM_USER
 	uint16 AASDMCM_delta;									/* 0x0A: LIN-AutoAaddressing Gain DifferentialMode-CommonMode delta */
 	uint16 SerialNumberLSW;									/* 0x0C: (Optional) Serial-number (LSW) */
 	uint16 SerialNumberMSW;									/* 0x0E: (Optional) Serial-number (MSW) */
-#if (LINPROT == LIN2J_VALVE_VW)
+#if (LINPROT == LIN2J_VALVE_GM)
 	/* Actuator */
 	uint16 MotorDirectionCCW	: 1;						/* 0x10: Motor rotational direction: 0=CW, 1=CCW */
 	uint16 EmergencyRunEna		: 1;						/* 0x10: Emergency-run: 0=Disabled, 1=Enabled */
@@ -107,7 +110,7 @@ typedef struct _NVRAM_USER
 	uint16 DefTravel;										/* 0x12: Default Travel */
 	uint16 DefTravelToleranceLo	: 8;						/* 0x14: Default Travel Tolerance (Lower) */
 	uint16 DefTravelToleranceUp	: 8;						/* 0x15: Default Travel Tolerance (Upper) */
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
 #endif /* ((LINPROT & LINXX) == LIN2J) */
 #endif /* LIN_COMM */
 	uint16 FunctionID;										/* 0x16: Function ID */
@@ -116,18 +119,18 @@ typedef struct _NVRAM_USER
 /*	uint16 ProductionDay		: 5; */						/* 0x1A.[ 4: 0]: Production Day (1-31) */
 /*	uint16 ProductionMonth		: 4; */						/* 0x1A.[ 8: 5]: Production Month (1-12) */
 /*	uint16 ProductionYear		: 7; */						/* 0x1A.[15: 9]: Production Year (20nn, 00<nn<99) */
-#if (LINPROT == LIN2J_VALVE_VW)
-	uint16 CPOS					: 8;						/* 0x1C: Current Position (CPOS) */
-	uint16 AppStatus			: 8;						/* 0x1D: Application Status */
-#else  /* (LINPROT == LIN2J_VALVE_VW) */
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)
+#if (LINPROT == LIN2J_VALVE_GM)
+	uint16 CPOS;											/* 0x1C: Current Position (CPOS) */
+	uint16 AppStatus			: 8;						/* 0x1E: Application Status */
+#else  /* (LINPROT == LIN2J_VALVE_GM) */
+#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 	uint16 GAD					: 8;						/* 0x1C: Group-address */
 	uint16 GroupControlFrameID	: 8;						/* 0x1D: Group-Control-message Frame-ID */
 #else  /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
 	uint16 Reserved1C;										/* 0x1C: Reserved */
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
+#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 	uint16 Reserved1E			: 8;						/* 0x1E: Reserved */
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
 	uint16 MotorFamily			: 8;						/* 0x1F: Motor Family */
 
 	uint16 Reserved20;										/* 0x20: Reserved */
@@ -233,14 +236,14 @@ typedef struct _NVRAM_USER
 	uint16 BoostTorqueCurrent	: 8;						/* 0x69: Running Torque-boost current threshold */
 	uint16 SpeedTorqueBoost;								/* 0x6A: Speed (Torque-boost mode) */
 	uint16 StallDetectorDelay	: 8;						/* 0x6C: Stall detector delay */
-	uint16 LinUV				: 3;						/* 0x6D[2:0]: LIN UV threshold */
+	uint16 LinUV				: 3;						/* 0x6D[2:0]: LIN UV threshold (MMP131216-1) */
 	uint16 Reserved6D			: 5;						/* 0x6D[7:3]: Reserved */
-	uint16 HallLatches			: 2;						/* 0x6E[1:0]: Hall-Latches: 0b00: None, 0b01: One Hall-Latch, etc */
-	uint16 DecelerationSteps	: 4;						/* 0x6E[5:2]: Deceleration-(u)Steps */
-	uint16 AutoRecalibration	: 1;						/* 0x6E[6]: Auto re-calibration */
-	uint16 BusTimeOutSleep		: 1;						/* 0x6E[7]: Bus-TimeOut Sleep */
-	uint16 VdsThreshold			: 6;						/* 0x6F[5:0]: Vds Threshold */
-	uint16 StallO				: 1;						/* 0x6F[6]: Stall "O" disabled/enabled */
+	uint16 HallLatches			: 2;						/* 0x6E[1:0]: Hall-Latches: 0b00: None, 0b01: One Hall-Latch, etc (MMP130819-3) */
+	uint16 DecelerationSteps	: 4;						/* 0x6E[5:2]: Deceleration-(u)Steps (MMP130819-1) */
+	uint16 AutoRecalibration	: 1;						/* 0x6E[6]: Auto re-calibration (MMP130819-4) */
+	uint16 BusTimeOutSleep		: 1;						/* 0x6E[7]: Bus-TimeOut Sleep (MMP130819-2) */
+	uint16 VdsThreshold			: 6;						/* 0x6F[5:0]: Vds Threshold (MMP140428-1) */
+	uint16 StallO				: 1;						/* 0x6F[6]: Stall "O" disabled/enabled (MMP140428-1) */
 	uint16 StallSpeedDepended	: 1;						/* 0x6F[7]: Stall speed depended */
 } NVRAM_USER, *PNVRAM_USER;
 
@@ -248,18 +251,16 @@ typedef struct _NVRAM_ERRORLOG
 {
 	uint16	NvramProgramCycleCount;							/* 0x70: 16-bits Program cycle counter */
 	uint16	ErrorLogIndex_CRC;								/* 0x72: Error-log index (0-11) & (Optional-CRC) */
-#if _SUPPORT_LOG_NVRAM
 	uint16	ErrorLog[6];									/* 0x74-0x7F: Error-log */
-#endif /* _SUPPORT_LOG_NVRAM */
 } NVRAM_ERRORLOG, *PNVRAM_ERRORLOG;
-#define C_MAX_NVRAM_PROGRAM_COUNT		65000U				/* Maximum 65000 Write-cycles */
-#define C_MAX_ERRORS_PER_PAGE			12U
+#define C_MAX_NVRAM_PROGRAM_COUNT		65000				/* Maximum 65000 Write-cycles */
+#define C_MAX_ERRORS_PER_PAGE			12
 
-#define C_NVRAM_STORE_OKAY				0x00U
-#define C_NVRAM_STORE_MAX_WRITE_CYCLE	0x01U
-#define C_NVRAM_STORE_INVALID_COUNTER	0x02U
+#define C_NVRAM_STORE_OKAY				0x00
+#define C_NVRAM_STORE_MAX_WRITE_CYCLE	0x01
+#define C_NVRAM_STORE_INVALID_COUNTER	0x02
 
-#define EEP_FLASHTRIM					0x11FCU
+#define EEP_FLASHTRIM					0x11FC
 
 /* ****************************************************************************	*
  *	P u b l i c   f u n c t i o n s												*
@@ -269,9 +270,9 @@ extern NVRAM_USER g_NvramUser;
 #pragma space none
 
 extern void NVRAM_LoadUserPage( void);											/* Load user NVRAM page (NVRAM to User-RAM) */
-extern uint16 NVRAM_PageVerify( const uint16 *pMRAM);							/* Verify NVRAM page versus RAM */
+extern uint16 NVRAM_PageVerify( const uint16 *pMRAM);							/* Verify NVRAM page vs RAM */
 extern uint16 NVRAM_Store( uint16 u16Page);										/* Store user NVRAM page (shadow RAM to NVRAM) and load all NVRAM pages */
-extern uint16 NVRAM_LogError( uint8 u8ErrorCode);								/* Store serious error code */
+extern uint16 NVRAM_LogError( uint8 u8ErrorCode);								/* Store servire error code */
 extern uint8 NVRAM_GetLastError( void);											/* Get last NVRAM error code */
 extern void NVRAM_ClearErrorLog( void);											/* Clear NVRAM error log */
 extern uint8 NVRAM_CRC8( uint8 byReplaceCRC);									/* Calculate CRC8 on User-NVRAM */

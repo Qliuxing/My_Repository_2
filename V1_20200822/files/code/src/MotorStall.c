@@ -42,10 +42,8 @@
  *	NORMAL PAGE 0 IMPLEMENTATION (@TINY Memory Space < 0x100)					*
  * ****************************************************************************	*/
 #pragma space dp
-uint8 l_u8StallCountA = 0U;
-#if _SUPPORT_STALLDET_O
-uint8 l_u8StallCountO = 0U;
-#endif /* _SUPPORT_STALLDET_O */
+uint8 l_u8StallCountA = 0;
+uint8 l_u8StallCountO = 0;														/* MMP140330-1 */
 #pragma space none
 
 /* ****************************************************************************	*
@@ -57,17 +55,19 @@ uint16 l_u16MotorCurrentStallThrshldxN;											/* Stall-detector current-thre
 
 #if _SUPPORT_STALLDET_O
 #if (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL)
-int8 l_i8StallIgnoreCount = 0U;
+int8 l_i8StallIgnoreCount = 0;
 #define C_CURROSC_SZ	(2*C_MICROSTEP_PER_FULLSTEP)
 uint16 l_au16CurrentCoilA[C_CURROSC_SZ];
 uint16 l_au16CurrentCoilB[C_CURROSC_SZ];
-uint16 g_u16CurrStallO = 0U;
+uint16 g_u16CurrStallO = 0;
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL) */
 #endif /* _SUPPORT_STALLDET_O */
 
 #if _SUPPORT_STALLDET_H
-uint8 l_u8StallCountH = 0U;
+uint8 l_u8StallCountH = 0;
+uint8 l_u8StallCountReboundH = 0;
 uint16 l_u16HallMicroStepThrshld;
+uint16 l_u16HallMicroStepIdxPre;
 #endif /* _SUPPORT_STALLDET_H */
 #pragma space none																/* __NEAR_SECTION__ */
 
@@ -80,7 +80,7 @@ void MotorStallInitA( void)
 {
 	g_u8StallTypeComm = (uint8) C_STALL_NOT_FOUND;								/* Used for communication */
 
-	l_u8StallCountA = 0U;														/* Stall-counter */
+	l_u8StallCountA = 0;														/* Stall-counter */
 
 } /* End of MotorStallInitA() */
 
@@ -98,7 +98,7 @@ void MotorStallInitA( void)
 uint16 MotorStallCheckA( void)
 {
 	uint16 u16Result = C_STALL_NOT_FOUND;
-	if ( (g_u16StartupDelay == 0) && (g_u16MotorCurrentMovAvgxN > (C_MIN_MOTORCURRENT << 4)) )
+	if ( (g_u16StartupDelay == 0) && (g_u16MotorCurrentMovAvgxN > (C_MIN_MOTORCURRENT << 4)) )	/* MMP130916-1 */
 	{
 		/* Running stall detection, based on current increase */
 		/* A actuator running at it's target speed, generate BEMF. When the rotor 
@@ -109,17 +109,17 @@ uint16 MotorStallCheckA( void)
 		uint16 u16Threshold;
 		if ( NVRAM_STALL_SPEED_DEPENDED )
 		{
-			u16Threshold = (NVRAM_STALL_CURR_THRSHLD + 120U) + (g_u8MotorStatusSpeed << 3);	/* Speed depended Threshold */
+			u16Threshold = (NVRAM_STALL_CURR_THRSHLD + 120) + (g_u8MotorStatusSpeed << 3);	/* Speed depended Threshold */
 		}
 		else
 		{
-			u16Threshold = (NVRAM_STALL_CURR_THRSHLD + 128U);					/* Fixed Threshold */
+			u16Threshold = (NVRAM_STALL_CURR_THRSHLD + 128);					/* Fixed Threshold */
 		}
 		l_u16MotorCurrentStallThrshldxN = (uint16)(((uint32)g_u16MotorCurrentLPFx64 * u16Threshold) >> (13 - C_MOVAVG_SSZ));
 		if ( g_u16MotorCurrentMovAvgxN > l_u16MotorCurrentStallThrshldxN )
 		{
 			l_u8StallCountA++;
-			if ( l_u8StallCountA >= 3U )
+			if ( l_u8StallCountA >= 3 )
 			{
 				/* Real stall */
 				u16Result = C_STALL_FOUND;
@@ -128,10 +128,6 @@ uint16 MotorStallCheckA( void)
 		else if ( l_u8StallCountA )
 		{
 			l_u8StallCountA--;
-		}
-		else
-		{
-			/* Nothing */
 		}
 	}
 	return ( u16Result );
@@ -145,9 +141,9 @@ uint16 MotorStallCheckA( void)
  * ****************************************************************************	*/
 void MotorStallInitO( void)
 {
-	l_u8StallCountO = 0U;
+	l_u8StallCountO = 0;														/* MMP140330-1 */
 #if (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL)
-	l_i8StallIgnoreCount = -C_CURROSC_SZ;										/* MMP170201-1 */
+	l_i8StallIgnoreCount = -C_CURROSC_SZ;
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL) */
 } /* End of MotorStallInitO() */
 
@@ -164,7 +160,7 @@ void MotorStallInitO( void)
  * ****************************************************************************	*/
 uint16 MotorStallCheckO()
 {
-	uint16 u16Result = C_STALL_NOT_FOUND;
+	uint16 u16Result = C_STALL_NOT_FOUND;										/* MMP140330-1 - Begin */
 
 #if (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL)
 	/* Dual motor-driver current measurement. Stall based on current per coil (A & B) */
@@ -183,8 +179,8 @@ uint16 MotorStallCheckO()
 		l_au16CurrentCoilA[l_i8StallIgnoreCount] = g_u16CurrentMotorCoilA;
 		u16CurrentCoilB_Prev = l_au16CurrentCoilB[l_i8StallIgnoreCount];	/* Coil B previous-current */
 		l_au16CurrentCoilB[l_i8StallIgnoreCount] = g_u16CurrentMotorCoilB;
-		l_i8StallIgnoreCount = ((l_i8StallIgnoreCount + 1U) & (C_CURROSC_SZ - 1U));
-		if ( g_u16StartupDelay == 0U )
+		l_i8StallIgnoreCount = ((l_i8StallIgnoreCount + 1) & (C_CURROSC_SZ - 1));
+		if ( g_u16StartupDelay == 0 )
 		{
 			if ( u16CurrentCoilA_Prev > g_u16CurrentMotorCoilA )
 			{
@@ -212,18 +208,10 @@ uint16 MotorStallCheckO()
 			{
 				uint16 u16Threshold = NVRAM_STALL_O_THRSHLD;
 				if ( g_u8MotorStatusSpeed == C_MOTOR_SPEED_LOW )
-				{
 					u16Threshold -= (u16Threshold >> 3);						/* 87.5% */
-				}
 				else if ( g_u8MotorStatusSpeed == C_MOTOR_SPEED_HIGH )
-				{
 					u16Threshold += (u16Threshold >> 2);						/* 125% */
-				}
-				else
-				{
-					/* Nothing */
-				}
-				u16Threshold = (uint16)(mulU32_U16byU16( g_u16MotorCurrentLPFx64, u16Threshold) >> (8U + 6U));
+				u16Threshold = muldivU16_U16byU16byU16( g_u16MotorCurrentMovAvgxN, u16Threshold, (256U * C_MOVAVG_SZ));
 				if ( g_u16CurrStallO > u16Threshold )
 				{
 					l_u8StallCountO++;											/* Suspect current oscillation due to stall */
@@ -232,24 +220,20 @@ uint16 MotorStallCheckO()
 						u16Result = C_STALL_FOUND;
 					}
 				}
-				else if ( l_u8StallCountO != 0U )
+				else if (l_u8StallCountO != 0)
 				{
 					l_u8StallCountO--;
-				}
-				else
-				{
-					/* Nothing */
 				}
 			}
 		}
 	}
 #else  /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL) */
 	/* Single motor-driver current measurement */
-	if ( (g_u16StartupDelay == 0U) && (g_u16MotorCurrentMovAvgxN > (C_MIN_MOTORCURRENT << 4)) )
+	if ( (g_u16StartupDelay == 0) && (g_u16MotorCurrentMovAvgxN > (C_MIN_MOTORCURRENT << 4)) )	/* MMP130916-1 */
 	{
-		uint16 u16LastIdx = (l_u16MotorCurrentRawIdx - 1U) & (C_MOVAVG_SZ - 1U);
+		uint16 u16LastIdx = (l_u16MotorCurrentRawIdx - 1) & (C_MOVAVG_SZ - 1);
 		uint16 u16LastCurr = l_au16MotorCurrentRaw[u16LastIdx];					/* Last current measured */
-		uint16 u16CompIdx = (l_u16MotorCurrentRawIdx - (8 << NVRAM_STALL_O_OFFSET) - 1U) & (C_MOVAVG_SZ - 1U);
+		uint16 u16CompIdx = (l_u16MotorCurrentRawIdx - (8 << NVRAM_STALL_O_OFFSET) - 1) & (C_MOVAVG_SZ - 1); /* MMP140428-1 */
 		uint16 u16CompCurr = l_au16MotorCurrentRaw[u16CompIdx];					/* One full-step back measured current */
 		uint16 u16DiffCurr;														/* (absolute) Difference between last current and one full-step back */
 		if ( u16LastCurr > u16CompCurr )
@@ -268,17 +252,13 @@ uint16 MotorStallCheckO()
 				u16Result = C_STALL_FOUND;
 			}
 		}
-		else if ( l_u8StallCountO != 0U )
+		else if (l_u8StallCountO != 0)
 		{
 			l_u8StallCountO--;
 		}
-		else
-		{
-			/* Nothing */
-		}
 	}
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL) */
-	return ( u16Result );
+	return ( u16Result );														/* MMP140330-1 - End */
 
 } /* End of MotorStallCheckO() */
 #endif /* _SUPPORT_STALLDET_O */
@@ -292,12 +272,16 @@ uint16 MotorStallCheckO()
 void MotorStallInitH( void)
 {
 	g_u8StallTypeComm = (uint8) C_STALL_NOT_FOUND;								/* Used for communication */
-	l_u8StallCountH = 0U;
-	g_u16HallMicroStepIdx = g_u16ActuatorActPos;
+	l_u8StallCountH = 0;
+	l_u8StallCountReboundH = 0;
+	//g_u16HallMicroStepIdx = g_u16MicroStepIdx;
+	g_u16HallMicroStepIdx = g_u16ActuatorActPos;//Ban
+	l_u16HallMicroStepIdxPre = g_u16HallMicroStepIdx;
 
-	/* Stepper-mode: Hall-sensor switches every 180 degrees/MAGNET_RING_POLE_PAIRS of a electric-rotation;
-	 * Set threshold at 150% (3/2) */
-	l_u16HallMicroStepThrshld = muldivU16_U16byU16byU16( g_u16MotorMicroStepsPerElecRotation, (3U * MOTOR_POLE_PAIRS), (2 * (2 * MAGNET_RING_POLE_PAIRS)));
+	/* Use NVRAM_STALL_CURR_THRSHLD as threshold offset */
+	/* Stepper-mode: Hall-sensor switches every 180 degrees of a electric-rotation;
+	 * Set threshold at 270 degrees (75% of a full electric rotation) */
+	l_u16HallMicroStepThrshld = muldivU16_U16byU16byU16( g_u16MotorMicroStepsPerElecRotation, 12, 4); /* MMP130819-3 */
 
 } /* End of MotorStallInitH() */
 
@@ -310,45 +294,169 @@ void MotorStallInitH( void)
  *
  *
  * ****************************************************************************	*/
+#if 0
 uint16 MotorStallCheckH( void)
 {
-	if ( g_u16StartupDelay == 0U )
+	if ( g_u16StartupDelay == 0 )
 	{
-		uint16 u16DeltaMicroSteps;
-		if ( g_u16HallMicroStepIdx > g_u16ActuatorActPos )
+		uint16 u16StallMicroStepThrshld;
+
+		if ( g_e8MotorDirectionCCW == FALSE )
 		{
-			u16DeltaMicroSteps = g_u16HallMicroStepIdx - g_u16ActuatorActPos;
+			/* Decreasing g_i16MicroStepIdx */
+			if ( g_u16HallMicroStepIdx < l_u16HallMicroStepThrshld )
+			{
+				u16StallMicroStepThrshld = (g_u16HallMicroStepIdx + g_u16MotorMicroStepsPerElecRotation) - l_u16HallMicroStepThrshld;
+			}
+			else
+			{
+				u16StallMicroStepThrshld = g_u16HallMicroStepIdx - l_u16HallMicroStepThrshld;
+			}
+			if ( u16StallMicroStepThrshld < g_u16HallMicroStepIdx )
+			{
+				if ( (g_u16MicroStepIdx < u16StallMicroStepThrshld) || (g_u16MicroStepIdx > g_u16HallMicroStepIdx) )
+				{
+					l_u8StallCountH++;
+					if ( l_u8StallCountH >= 3 )
+					{
+						/* Real stall */
+						return ( C_STALL_FOUND );
+					}
+				}
+				else if ( l_u8StallCountH )
+				{
+					l_u8StallCountH--;
+				}
+			}
+			else
+			{
+				if ( (g_u16MicroStepIdx < u16StallMicroStepThrshld) && (g_u16MicroStepIdx > g_u16HallMicroStepIdx) )
+				{
+					l_u8StallCountH++;
+					if ( l_u8StallCountH >= 3 )
+					{
+						/* Real stall */
+						return ( C_STALL_FOUND );
+					}
+				}
+				else if ( l_u8StallCountH )
+				{
+					l_u8StallCountH--;
+				}
+			}
 		}
 		else
 		{
-			u16DeltaMicroSteps = g_u16ActuatorActPos - g_u16HallMicroStepIdx;
+			/* Increasing g_i16MicroStepIdx */
+			u16StallMicroStepThrshld = g_u16HallMicroStepIdx + l_u16HallMicroStepThrshld;
+			if ( u16StallMicroStepThrshld >= g_u16MotorMicroStepsPerElecRotation )
+			{
+				u16StallMicroStepThrshld -= g_u16MotorMicroStepsPerElecRotation;
+			}
+			if ( u16StallMicroStepThrshld > g_u16HallMicroStepIdx )
+			{
+				if ( (g_u16MicroStepIdx > u16StallMicroStepThrshld) || (g_u16MicroStepIdx < g_u16HallMicroStepIdx) )
+				{
+					l_u8StallCountH++;
+					if ( l_u8StallCountH >= 3 )
+					{
+						/* Real stall */
+						return ( C_STALL_FOUND );
+					}
+				}
+				else if ( l_u8StallCountH )
+				{
+					l_u8StallCountH--;
+				}
+			}
+			else
+			{
+				if ( (g_u16MicroStepIdx > u16StallMicroStepThrshld) && (g_u16MicroStepIdx < g_u16HallMicroStepIdx) )
+				{
+					l_u8StallCountH++;
+					if ( l_u8StallCountH >= 3 )
+					{
+						/* Real stall */
+						return ( C_STALL_FOUND );
+					}
+				}
+				else if ( l_u8StallCountH )
+				{
+					l_u8StallCountH--;
+				}
+			}
 		}
-		if ( u16DeltaMicroSteps > g_u16HallMicroStepIdx )
+	}
+	else
+	{
+		/* During start-up delay, follow each micro-step */
+		g_u16HallMicroStepIdx = g_u16MicroStepIdx;
+	}
+
+	return ( C_STALL_NOT_FOUND );
+
+} /* End of MotorStallCheckH() */
+#endif
+uint16 MotorStallCheckH( void)
+{
+	if ( g_u16StartupDelay == 0 )
+	{
+		//stuck stall
+		uint16 u16DeltaPosition;
+		if(g_u16ActuatorActPos > l_u16HallMicroStepIdxPre)
+		{
+			u16DeltaPosition = g_u16ActuatorActPos - l_u16HallMicroStepIdxPre;
+		}
+		else
+		{
+			u16DeltaPosition = l_u16HallMicroStepIdxPre - g_u16ActuatorActPos;
+		}
+		if(u16DeltaPosition > l_u16HallMicroStepThrshld)
 		{
 			l_u8StallCountH++;
-			if ( l_u8StallCountH >= 3U )
+			if ( l_u8StallCountH >= 3 )
 			{
 				/* Real stall */
-				return ( C_STALL_FOUND );
+				return ( C_STALL_FOUND );//stuck stall
 			}
 		}
 		else if ( l_u8StallCountH )
 		{
 			l_u8StallCountH--;
 		}
-		else
+		//rebounding stall
+		if(l_u16HallMicroStepIdxPre != g_u16HallMicroStepIdx)
 		{
-			/* Nothing */
+			if(g_u16HallMicroStepIdx > l_u16HallMicroStepIdxPre)
+			{
+				u16DeltaPosition = g_u16HallMicroStepIdx - l_u16HallMicroStepIdxPre;
+			}
+			else
+			{
+				u16DeltaPosition = l_u16HallMicroStepIdxPre - g_u16HallMicroStepIdx;
+			}
+			if((u16DeltaPosition < 30) || (u16DeltaPosition > 34))
+			{
+				l_u8StallCountReboundH++;
+				if ( l_u8StallCountReboundH >= 5 )
+				{
+					return ( C_STALL_FOUND );//rebounding stall
+				}
+			}
+			else if(l_u8StallCountReboundH)
+			{
+				l_u8StallCountReboundH--;
+			}
+			l_u16HallMicroStepIdxPre = g_u16HallMicroStepIdx;
 		}
 	}
 	else
 	{
 		/* During start-up delay, follow each micro-step */
 		g_u16HallMicroStepIdx = g_u16ActuatorActPos;
+		l_u16HallMicroStepIdxPre = g_u16HallMicroStepIdx;
 	}
-
 	return ( C_STALL_NOT_FOUND );
-
 } /* End of MotorStallCheckH() */
 #endif /* _SUPPORT_STALLDET_H */
 

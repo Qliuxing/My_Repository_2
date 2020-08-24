@@ -74,7 +74,7 @@
 
 #define C_TEMPOFF					60											/* Temperature range: -60 to +195 (-C_TEMPOFF to +(255-C_TEMPOFF) */
 
-#define PLL_freq					(MCU_PLL_MULT * 250000UL)					/* PLL frequency RCOsc * 250kHz */
+#define PLL_freq					(MCU_PLL_MULT * 250000)						/* PLL frequency RCOsc * 250kHz */
 
 /* NOTE: Don't use below marco's with local stack-variables; The C-compiler doesn't "see" the psup/pop 
  * It's better to use ATOMIC_CODE() */
@@ -82,7 +82,7 @@
 #define END_CRITICAL_SECTION()		__asm__("pop M")	/*!< Restore priority */
 
 /* *** Section #1: Communication *** */						
-/* *** NOTE: rename the lib_lin to library (LIN) or lib_pwm to library (PWM) *** */
+/* *** NOTE: rename the lib_lin to lib (LIN) or lib_pwm to lib (PWM) *** */
 #define LIN_COMM					TRUE						/* <<<1<<< */	/* LIN-interface: FALSE: Disabled; TRUE: Enabled */
 
 #define NOLIN						(0x00U << 8)
@@ -98,22 +98,26 @@
 
 #define APP_ACT_COOLING_23			0xC2U										/* C2 = Cooling V2.3 */
 #define APP_ACT_AIRCO_44			0xA4U										/* A4 = Lastenheft Klima-Standardaktuator mit LIN-BUS-Schnittstelle 2.x V4.8 */
-#define APP_ACT_HVAC_VW				0x13U										/* 13 = VW HVAC V3.0 (10-APR-2015) */
-#define APP_ACT_VALVE_VW			0x21U										/* 23 = VW (Water)Valve V1.0 (07-APR-2016) */
+#define APP_ACT_HVAC_GM				0x13U										/* 13 = GM HVAC V3.0 (10-APR-2015) */
+#define APP_ACT_VALVE_GM			0x21U										/* 23 = GM (Water)Valve V1.0 (07-APR-2016) */
 
 #define LIN2X_ACT44					(LIN2X | APP_ACT_AIRCO_44)					/* LIN protocol according LIN 2.x/Actuator 4.8 */
-#define LIN2J_VALVE_VW				(LIN2J | APP_ACT_VALVE_VW)					/* LIN protocol according SAE J2602/VW valve 1.0 */
+#define LIN2J_VALVE_GM				(LIN2J | APP_ACT_VALVE_GM)					/* LIN protocol according SAE J2602/GM valve 1.0 */
 
 #if LIN_COMM
 /* LIN communication protocol */
 /* LIN2X_ACT44:		Select in lin2b_romtbl.S: #define LINPROT LIN2X_ACT44
  */
 /* #define LINPROT					LIN2X_ACT44		*/	/* lin2b_romtbl.S */	/* Select LIN 2.x with Klima Std-Actuators V4.8 protocol */
-#define LINPROT						LIN2J_VALVE_VW								/* Select LIN 2.0/SAE J2602 VW Valve V1.0 protocol */
+#define LINPROT						LIN2J_VALVE_GM								/* Select LIN 2.0/SAE J2602 GM Valve V1.0 protocol */
 
+#define _SUPPORT_DIG_LIN			FALSE										/* FALSE: Only LIN/PWM; TRUE: LIN as Low/High Digital pin */
 #else  /* LIN_COMM */
 #define LINPROT						NOLIN
 #endif /* LIN_COMM */
+
+#define LIN_AA_INFO					TRUE										/* Collect Ish1, Ish2 and Ish3 data for 10 measurements */
+#define LIN_AA_SCREENTEST			TRUE										/* Additional screening data CM1..3 & DM1..3 */
 
 #define PWM_COMM_NONE				0											/* No PWM-IN */
 #define PWM_COMM_TC1				1											/* PWM via LV TC1   (MLX81300B) */
@@ -126,15 +130,15 @@
 #define MCU_ASSP_MODE				TRUE
 
 /* Motor family	*/
-#define MF_TYPE						0xF0U										/* Upper 4 bits is Family Type */
-#define MF_SUBTYPE					0x0FU										/* Lower 4 bits is Sub-type */
-#define MF_DC						0x10U										/* DC */
-#define MF_DC_T0					0x10U										/* DC, Positioning: None */
-#define MF_DC_T1					0x11U										/* DC, Positioning: 3-wire (Phase1, P, Phase2) */
-#define	MF_DC_T2					0x12U										/* DC, Positioning: 3-wires (3V3, P, GND) */
-#define MF_BLDC						0x20U										/* BEMF, with startup in Stepper mode */
-#define MF_STEPPER					0x30U										/* Stepper */
-#define MF_RELUCTANCE				0x40U										/* Reluctance motor */
+#define MF_TYPE						0xF0										/* Upper 4 bits is Family Type */
+#define MF_SUBTYPE					0x0F										/* Lower 4 bits is Sub-type */
+#define MF_DC						0x10										/* DC */
+#define MF_DC_T0					0x10										/* DC, Pos: None */
+#define MF_DC_T1					0x11										/* DC, Pos: 3-wire (Phase1, P, Phase2) */
+#define	MF_DC_T2					0x12										/* DC, Pos: 3-wires (3V3, P, GND) */
+#define MF_BLDC						0x20										/* BEMF, with startup in Stepper mode */
+#define MF_STEPPER					0x30										/* Stepper */
+#define MF_RELUCTANCE				0x40										/* Reluctance motor */
 
 /* *** Section #2: Usage of NVRAM or Code Constants *** */
 #define MP_CONST					0											/* Use fixed constants for UniROM code (Shortest code size) */
@@ -145,33 +149,40 @@
 
 /* *** Section #3: Motor type *** */
 /* 0xxx = MLX81300/MLX81310 
- * x12x = ZH
+ * x12x = Sanhua HAVC
  */
-#define MT_ZH_HVAC				0x0120										/* ZH 4-phase Bi-polar (123R) */
-#define MT_ZH_EXVALVE			0x0121										/* ZH 4-phase Bi-Polar Expansion Valve (22R) */
-#define MT_ZH_WVALVE			0x0122										/* ZH 4-phase Bi-Polar Water-value */
+#define MT_SANHAU_HVAC				0x0120										/* Sanhua 4-phase Bi-polar (123R) */
+#define MT_SANHAU_EXVALVE			0x0121										/* Sanhua 4-phase Bi-Polar Expansion Valve (22R) */
+#define MT_SANHAU_WVALVE			0x0122										/* Sanhua 4-phase Bi-Polar Water-value */
 /* Active motor-type */
-#define MOTOR_TYPE					MT_ZH_WVALVE			/* <<<3<<< */
+#define MOTOR_TYPE					MT_SANHAU_EXVALVE			/* <<<3<<< */
 
 /* *** Section #5: Special *** */								/* <<<5<<< */
+#define USE_MULTI_PURPOSE_BUFFER			TRUE								/* FALSE: Separate buffers; TRUE: Space saving (RAM) */
+#define LINAA_NON_CHOPPER_MODE				FALSE								/* FALSE: Chopper-mode; TRUE: Non-chopper mode */
+#define LINAA_BSM_SNPD_R1p0					TRUE								/* FALSE: Cooling-mode; TRUE: LIN Bus Shunt Method Slave Node Position Detection (MMP140417-2) */
+
 #define _SUPPORT_NVRAM_BACKUP				TRUE								/* NVRAM User-page backup support */
 #define _SUPPORT_STALLDET_B					FALSE
-#define _SUPPORT_STALLDET_O					TRUE								/* Stall detector based on current oscillations */
-#define _SUPPORT_STALLDET_H					FALSE								/* Stall detector based on hall-sensor info (See also: _SUPPORT_HALL_SENSOR) (MMP160420-1) */
+#define _SUPPORT_STALLDET_O					FALSE//TRUE								/* Stall detector based on current oscillations */
+#define _SUPPORT_STALLDET_H					FALSE //FALSE								/* Stall detector based on hall-sensor info (See also: _SUPPORT_HALL_SENSOR) (MMP160420-1) */
 #define _SUPPORT_MLX_DEBUG_MODE				TRUE								/* Melexis Debug-mode */
-#define _SUPPORT_RAM_TEST					TRUE								/* Test RAM before MLX4 started (Approximate 1.67ms) */
-#define _SUPPORT_RAM_TEST_3LOOPS			TRUE								/* Test RAM in 3-loops (Approximate 5ms) */
+#define _SUPPORT_RAM_TEST					TRUE								/* Test RAM before MLX4 started (Approx. 1.67ms) */
+#define _SUPPORT_RAM_TEST_3LOOPS			TRUE								/* Test RAM in 3-loops (Approx. 5ms) */
 #define _SUPPORT_WD_RST_RECOVERY			TRUE								/* Support Watchdog reset fast recovery */
+#define _SUPPORT_LINCMD_WD_RST				FALSE								/* Support LIN-command to simulate Watchdog reset */
 #define _SUPPORT_CRASH_RECOVERY				TRUE								/* Support crash recovery */
+#define _SUPPORT_LINCMD_CRASH				FALSE								/* Support LIN-command to simulate application crash */
 #define _SUPPORT_TESTMODE_OFF				TRUE								/* MLX81300DC support test-mode switching */
-#define _SUPPORT_BUSTIMEOUT_SLEEP			FALSE		/* VW151010: TRUE */				/* FALSE: Only EmRun (if enabled), TRUE: EmRun (if enabled) followed by SLEEP (VW: 6.5.1) */
-#define _SUPPORT_TWO_LINE_TEMP_INTERPOLATION	TRUE							/* FALSE: One line linear interpolation; TRUE: Two lines linear interpolation */
-#define _SUPPORT_AMBIENT_TEMP				TRUE								/* FALSE: Use chip temperature for compensation; TRUE: Use estimated ambient temperature for compensation */
-#define _SUPPORT_CHIP_TEMP_PROFILE			TRUE								/* FALSE: No chip temperature profile check; TRUE: Chip temperature profile check (dT/dt) */
+#define _SUPPORT_BUSTIMEOUT_SLEEP			FALSE		/* GM151010: TRUE */				/* FALSE: Only EmRun (if enabled), TRUE: EmRun (if enabled) followed by SLEEP (GM: 6.5.1) */
+#define _SUPPORT_TWO_LINE_TEMP_INTERPOLATION	TRUE							/* FALSE: One line linear interpolation; TRUE: Two lines lineair interpolation */
+#define _SUPPORT_AMBIENT_TEMP				FALSE//Ban, TRUE								/* FALSE: Use chip temperature for compensation; TRUE: Use estimated ambient temperature for compensation */
+#define _SUPPORT_CHIP_TEMP_PROFILE			FALSE//TODO, new OBD TRUE								/* FALSE: No chip temperature profile check; TRUE: Chip temperature profile check (dT/dt) */
 #define _SUPPORT_LINNETWORK_LOADER			TRUE								/* FALSE: Flash-loading via point-to-point (0x7F); TRUE: Network Flash-loading support (NAD) */
 #define _SUPPORT_MLX16_HALT					TRUE								/* FALSE: MLX16 doesn't HALT; TRUE: MLX16 enters HALT during holding mode (power-safe) */
+#define _SUPPORT_VSFILTERED					FALSE								/* FALSE: Unfiltered Vs (ADC Channel 0); TRUE: Filtered Vs (ADC Channel 4) (MLX81310A) */
 #define _SUPPORT_VSMFILTERED				TRUE								/* FALSE: Unfiltered Vsm (ADC Channel 14); TRUE: Filtered Vsm (ADC Channel 4) (MLX81310C) */
-#define _SUPPORT_AUTO_BAUDRATE				FALSE								/* FALSE: Fixed baudrate; TRUE: Auto-detection of baudrate */
+#define _SUPPORT_AUTO_BAUDRATE				TRUE		/* GM151010: FALSE */			/* FALSE: Fixed baudrate; TRUE: Auto-detection of baudrate */
 #define _SUPPORT_MOTOR_SELFTEST				TRUE								/* FALSE: No motor driver check at POR; TRUE: Motor driver check at POR */
 #define _SUPPORT_LIN_UV						TRUE								/* FALSE: No LIN UV check; TRUE: LIN UV check (reset Bus-time-out) */
 #define _SUPPORT_IOREG_CHECK				TRUE								/* FALSE: No critical IO-Register check; TRUE: Critical IO-register check */
@@ -195,7 +206,7 @@
 																				 * 				|							|
 																				 * 				|							|
 																				 */
-#define BIPOLAR_PWM_SINGLE_MIRROR_GND		2									/* Each coil single PWM mirror, other HIGH */
+#define BIPOLAR_PWM_SINGLE_MIRROR_GND		2									/* Each coil single PWM mirror, other HIGH (MMP150312-1) */
 																				/* Phase 1 & 3: |	  +---------------+		|
 																				 * 				|	  |				  |		|
 																				 * 				|-----+				  +-----|
@@ -215,7 +226,7 @@
 																				 * 			|							|			|							|
 																				 * 			|							|			|							|
 																				 */
-#define BIPOLAR_PWM_SINGLE_INDEPENDED_GND	4									/* Each coil single PWM mirror/inverse mirror, other HIGH */
+#define BIPOLAR_PWM_SINGLE_INDEPENDED_GND	4									/* Each coil single PWM mirror/inverse mirror, other HIGH (MMP150312-1) */
 																				/* Phase 1	|	  +---------------+		|  Phase 3:	|----+				   +----|
 																				 * 			|	  |				  |		|			|	 |				   |	|
 																				 * 			|-----+				  +-----|			|	 +-----------------+	|
@@ -238,12 +249,8 @@
 #define _SUPPORT_PWM_MODE					BIPOLAR_PWM_SINGLE_INDEPENDED_GND
 #define _SUPPORT_PHASE_SHORT_DET			FALSE								/* FALSE: No phase-short-to-GND detection support; TRUE: Phase-short-to-GND detection supported */
 #define _SUPPORT_DOUBLE_MOTOR_CURRENT		TRUE								/* FALSE: Motor Current x 1; TRUE: Motor Current x 2 */
-#if (defined __MLX81315_A__)
-/* MLX81315 */
-#define _SUPPORT_QUADRUPLE_MOTOR_CURRENT	TRUE								/* FALSE: See: _SUPPORT_DOUBLE_MOTOR_CURRENT; TRUE: Motor Current x 4 (MMP141209-4) */
-#endif /* (defined __MLX81315_A__) */
 #define _SUPPORT_DOUBLE_USTEP				TRUE								/* FALSE: 32 or 48 micro-steps; TRUE: 64 or 96 micro-steps */
-#define _SUPPORT_PWM_DC_RAMPUP				TRUE								/* FALSE: Constant mPWM-DC; TRUE: Increasing mPWM-DC at ramp-up */
+#define _SUPPORT_PWM_DC_RAMPUP				FALSE								/* FALSE: Constant mPWM-DC; TRUE: Increasing mPWM-DC at ramp-up */
 #define _SUPPORT_PWM_DC_RAMPDOWN			TRUE								/* FALSE: Constant mPWM-DC; TRUE: Decrease mPWM-DC at ramp-down */
 #define _SUPPORT_PWM_100PCT					TRUE								/* FALSE: max. PWM duty-cycle: 97.5%; TRUE: max. PWM duty-cycle: 100% */
 #define _SUPPORT_DIAG_OC					TRUE								/* FALSE: Ignore OC; TRUE: Handle OC */
@@ -251,49 +258,32 @@
 #define _SUPPORT_LIN_BUS_ACTIVITY_CHECK		TRUE								/* FALSE: No MLX4/LIN-Bus activity check; TRUE: LIN-Bus activity check */
 #if (LINPROT == LIN2X_ACT44)
 /* Feature of HVAC 4.8 Actuator */
-#define _SUPPORT_HVAC_GROUP_ADDRESS			FALSE								/* FALSE: Function ID 0x0001; TRUE: Function ID 0x0002 */
-#define _SUPPORT_DEGRADE_DELAY				FALSE								/* FALSE: Resume immediately from UV/OV; TRUE: Add (variable) delay before resume from UV/OV */
+#define _SUPPORT_HVAC_GROUP_ADDRESS			FALSE								/* FALSE: Function ID 0x0001; TRUE: Function ID 0x0002 (MMP150125-1) */
+#define _SUPPORT_DEGRADE_DELAY				FALSE								/* FALSE: Resume immediately from UV/OV; TRUE: Add (variable) delay before resume from UV/OV (MMP150128-1) */
 #else  /* (LINPROT == LIN2X_ACT44) */
-#define _SUPPORT_HVAC_GROUP_ADDRESS			FALSE								/* FALSE: Function ID 0x0001; TRUE: Function ID 0x0002 */
-#define _SUPPORT_DEGRADE_DELAY				FALSE								/* FALSE: Resume immediately from UV/OV; TRUE: Add (variable) delay before resume from UV/OV */
+#define _SUPPORT_HVAC_GROUP_ADDRESS			FALSE								/* FALSE: Function ID 0x0001; TRUE: Function ID 0x0002 (MMP150125-1) */
+#define _SUPPORT_DEGRADE_DELAY				FALSE								/* FALSE: Resume immediately from UV/OV; TRUE: Add (variable) delay before resume from UV/OV (MMP150128-1) */
 #endif /* (LINPROT == LIN2X_ACT44) */
 #define _SUPPORT_SPEED_AUTO					FALSE								/* FALSE: No auto-speed support; Auto speed supported based on voltage and temperature */
-#define _SUPPORT_AUTO_CALIBRATION			FALSE								/* FALSE: No POR calibration; TRUE: Calibration at POR */
-#define _SUPPORT_HALL_SENSOR				FALSE								/* FALSE: Sensor-less; TRUE: Hall-sensor for stall (See also: _SUPPORT_STALLDET_H) (MMP160420-1) */
+#define _SUPPORT_AUTO_CALIBRATION			FALSE    //Ban TRUE								/* FALSE: No POR calibration; TRUE: Calibration at POR */
+#define _SUPPORT_HALL_SENSOR				FALSE //FALSE								/* FALSE: Sensor-less; TRUE: Hall-sensor for stall (See also: _SUPPORT_STALLDET_H) (MMP160420-1) */
+#define _SUPPORT_ENDSTOP_DETECTION			FALSE    //Ban for endstop detection
+#define _SUPPORT_COIL_RESISTANCE_CHECK		FALSE		//Ban for coil resistance check
 #define _SUPPORT_UNLIMITED_NVRAM_WRITE_CYCLES	TRUE							/* FALSE: Limit write-cycles to 65000/page; TRUE: Unlimited write-cycles */
 #define _SUPPORT_NVRAM_RECOVER_CYCLE_ONCE	TRUE								/* FALSE: Recover until okay; TRUE: Recover once */
-#define _SUPPORT_OVT_PED					FALSE								/* FALSE: OVT will not result in PED; TRUE: 5x OVT will result in PED (Permanent Electric Defect) */
 
-#define _SUPPORT_LOG_ERRORS					TRUE								/* FALSE: No error logging; TRUE: Error logging RAM/LIN-frame support */
-#define _SUPPORT_LOG_NVRAM					FALSE								/* FALSE: Don't save errors in NVRAM; TRUE: Save serious errors in NVRAM */
-
-/* LIN-AA Stuff */
-#if (LINPROT == LIN2X_ACT44)
-#define _SUPPORT_LIN_AA						TRUE								/* FALSE: No LIN-AA support; TRUE: LIN-AA support based on BSM */
 #define FORCE_LINAA_OLD						TRUE								/* FALSE: Support three types of BSM; TRUE: Support only one type of BSM "old" */
-#define USE_MULTI_PURPOSE_BUFFER			TRUE								/* FALSE: Separate buffers; TRUE: Space saving (RAM) */
-#define LINAA_NON_CHOPPER_MODE				FALSE								/* FALSE: Chopper-mode; TRUE: Non-chopper mode */
-#define LINAA_BSM_SNPD_R1p0					TRUE								/* FALSE: Cooling-mode; TRUE: LIN Bus Shunt Method Slave Node Position Detection */
-#define LIN_AA_INFO							TRUE								/* Collect Ish1, Ish2 and Ish3 data for 10 measurements */
-#define LIN_AA_SCREENTEST					TRUE								/* Additional screening data CM1..3 & DM1..3 */
-#elif (LINPROT == LIN2J_VALVE_VW)
-#define _SUPPORT_LIN_AA						FALSE								/* FALSE: No LIN-AA support; TRUE: LIN-AA support based on BSM */
-#define FORCE_LINAA_OLD						TRUE								/* FALSE: Support three types of BSM; TRUE: Support only one type of BSM "old" */
-#define USE_MULTI_PURPOSE_BUFFER			FALSE								/* FALSE: Separate buffers; TRUE: Space saving (RAM) */
-#define LINAA_NON_CHOPPER_MODE				FALSE								/* FALSE: Chopper-mode; TRUE: Non-chopper mode */
-#define LINAA_BSM_SNPD_R1p0					TRUE								/* FALSE: Cooling-mode; TRUE: LIN Bus Shunt Method Slave Node Position Detection */
-#define LIN_AA_INFO							FALSE								/* Collect Ish1, Ish2 and Ish3 data for 10 measurements */
-#define LIN_AA_SCREENTEST					FALSE								/* Additional screening data CM1..3 & DM1..3 */
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
-
+#define _SHRINK_CODE_SIZE					FALSE								/* Saves hundreds of Bytes totally */
 
 /* *** Section #6: Debug *** */									/* <<<6<<< */
 #define _DEBUG								FALSE								/* Set TRUE when one of below _DEBUG items is set TRUE */
 #define _DEBUG_SPI							FALSE								/* FALSE: I/O-toggling; TRUE: SPI data */
-#define DEBUG_SPI_BAUDRATE					1000000U							/* SPI Baudrate: 1.0MBaud (100k-1MBaud) */
+#define DEBUG_SPI_BAUDRATE					1000000								/* SPI Baudrate: 1.0MBaud (100k-1MBaud) */
 #define _DEBUG_COMMUT_ISR					FALSE
 
+#define _DEBUG_FATAL						FALSE								/* Save MLX-state in case of Fatal-error occurs in RAM */
 #define _DEBUG_MOTOR_CURRENT_FLT			FALSE								/* Motor current filter debug-buffers */
+#define _DEBUG_VOLTAGE_COMPENSATION			FALSE								/* Motor voltage compensation */
 
 
 #if MCU_ASSP_MODE

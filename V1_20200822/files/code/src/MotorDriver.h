@@ -24,7 +24,9 @@
 #ifndef MOTOR_DRIVER_H_
 #define MOTOR_DRIVER_H_
 
-#include "Build.h"
+#ifndef SYSLIB_H_
+#include "syslib.h"
+#endif /* SYSLIB_H_ */
 #include "MotorParams.h"
 #include "NVRAM_UserPage.h"
 
@@ -113,7 +115,7 @@ enum TACHO_MODES
 #define NVRAM_STALL_CURR_THRSHLD			((uint16) g_NvramUser.StallCurrentThreshold)
 #define NVRAM_STALL_SPEED_DEPENDED			((uint16) g_NvramUser.StallSpeedDepended)
 #define NVRAM_RESTALL_POR					((uint16) g_NvramUser.RestallPor)
-#define NVRAM_VDS_THRESHOLD					((uint16) (g_NvramUser.VdsThreshold * 25) >> 1)
+#define NVRAM_VDS_THRESHOLD					((uint16) (g_NvramUser.VdsThreshold * 25) >> 1)	/* MMP140428-1 */
 #define NVRAM_SPEED0						((uint16) g_NvramUser.Speed_0)
 #define NVRAM_SPEED1						((uint16) g_NvramUser.Speed_1)
 #define NVRAM_SPEED2						((uint16) g_NvramUser.Speed_2)
@@ -140,10 +142,7 @@ enum TACHO_MODES
 #define NVRAM_MOTOR_CONSTANT				((uint16) g_NvramUser.MotorConstant)
 #define NVRAM_MOTOR_COIL_RTOT				((uint16) g_NvramUser.MotorCoilRtot)
 #define NVRAM_HOLDING_CURR_LEVEL			((uint16) g_NvramUser.HoldingTorqueCurrent)
-#if (defined __MLX81315_A__) && _SUPPORT_QUADRUPLE_MOTOR_CURRENT
-#define NVRAM_RUNNING_CURR_LEVEL			((uint16) (4 * g_NvramUser.RunningTorqueCurrent))
-#define NVRAM_BOOST_CURR_LEVEL				((uint16) (4 * g_NvramUser.BoostTorqueCurrent))
-#elif (_SUPPORT_DOUBLE_MOTOR_CURRENT != FALSE)
+#if (_SUPPORT_DOUBLE_MOTOR_CURRENT != FALSE)
 #define NVRAM_RUNNING_CURR_LEVEL			((uint16) (2 * g_NvramUser.RunningTorqueCurrent))
 #define NVRAM_BOOST_CURR_LEVEL				((uint16) (2 * g_NvramUser.BoostTorqueCurrent))
 #else  /* (_SUPPORT_DOUBLE_MOTOR_CURRENT != FALSE) */
@@ -172,7 +171,7 @@ enum TACHO_MODES
 #define NVRAM_PID_COEF_P					((uint16) g_NvramUser.PidCoefP)
 #define NVRAM_PID_COEF_I					((uint16) g_NvramUser.PidCoefI)
 #define NVRAM_PID_COEF_D					((uint16) g_NvramUser.PidCoefD)
-#define NVRAM_PID_THRSHLDCTRL_PER			((uint16) ((g_NvramUser.PidThrshldCtrlPer << 8) >> 1))
+#define NVRAM_PID_THRSHLDCTRL_PER			((uint16) ((g_NvramUser.PidThrshldCtrlPer << 8) >> 1))	/* MMP140911-1 */
 #define NVRAM_MIN_HOLDCORR_RATIO			((uint16) ((((uint32)PWM_REG_PERIOD) * g_NvramUser.PidLowerHoldingLimit) >> (4 - PWM_PRESCALER_N)))
 #define NVRAM_MIN_CORR_RATIO				((uint16) ((((uint32)PWM_REG_PERIOD) * g_NvramUser.PidLowerLimit) >> (4 - PWM_PRESCALER_N)))
 #define NVRAM_MAX_CORR_RATIO				((uint16) ((((uint32)PWM_REG_PERIOD) * (g_NvramUser.PidUpperLimit + 1)) >> (4 - PWM_PRESCALER_N)))
@@ -185,12 +184,12 @@ enum TACHO_MODES
 #define NVRAM_STARTUP_CORR_RATIO			((uint16) ((((uint32)PWM_REG_PERIOD) * g_NvramUser.StartupLimit) >> (4 - PWM_PRESCALER_N)))
 #define NVRAM_SPEED_TOLERANCE				((uint16) g_NvramUser.SpeedTolerance)
 #define NVRAM_STALL_DETECTOR_DELAY			((uint16) (g_NvramUser.StallDetectorDelay << 3))
-#define NVRAM_LIN_UV						((uint16) g_NvramUser.LinUV)
-#define NVRAM_DECELERATION_STEPS			((uint16) g_NvramUser.DecelerationSteps + 1)
-#define NVRAM_AUTO_RECALIBRATE				((uint16) g_NvramUser.AutoRecalibration)
-#define NVRAM_BUSTIMEOUT_SLEEP				((uint16) g_NvramUser.BusTimeOutSleep)
-#define NVRAM_STALL_O						((uint16) g_NvramUser.StallO)
-#define NVRAM_STALL_O_OFFSET				((uint16) C_STALL_O_OFFSET)
+#define NVRAM_LIN_UV						((uint16) g_NvramUser.LinUV)				/* MMP131216-1 */
+#define NVRAM_DECELERATION_STEPS			((uint16) g_NvramUser.DecelerationSteps + 1) /* MMP130819-1 */
+#define NVRAM_AUTO_RECALIBRATE				((uint16) g_NvramUser.AutoRecalibration)	/* MMP130819-4 */
+#define NVRAM_BUSTIMEOUT_SLEEP				((uint16) g_NvramUser.BusTimeOutSleep)		/* MMP130819-2 */
+#define NVRAM_STALL_O						((uint16) g_NvramUser.StallO)				/* MMP140428-1 */
+#define NVRAM_STALL_O_OFFSET				((uint16) C_STALL_O_OFFSET)					/* MMP140428-1 */
 
 #else  /* (MOTOR_PARAMS == MP_NVRAM) */
 
@@ -213,6 +212,7 @@ enum TACHO_MODES
 #define NVRAM_VSUP_REF						((uint16) (C_VSUP_REF * 25) >> 1)
 #define NVRAM_VSUP_TEMP_COEF				( (int16) C_VSUP_TEMP_COEF)
 #define NVRAM_VSUP_TEMP_COEF2				( (int16) C_VSUP_TEMP_COEF2)
+#define NVRAM_LEAD_ANGLE					((uint16) C_LEAD_ANGLE)
 #define NVRAM_BROWNOUT_LEVEL				((uint16) C_BROWN_OUT_LEVEL)
 #define NVRAM_GEARBOX_RATIO					((uint16) MOTOR_GEAR_BOX_RATIO)
 #define NVRAM_POLE_PAIRS					((uint16) MOTOR_POLE_PAIRS)
@@ -223,7 +223,7 @@ enum TACHO_MODES
 #define NVRAM_STALL_CURR_THRSHLD			((uint16) C_STALL_COEF)
 #define NVRAM_STALL_SPEED_DEPENDED			((uint16) C_STALL_SPEED_DEPENDED)
 #define NVRAM_RESTALL_POR					((uint16) C_RESTALL_POR)
-#define NVRAM_VDS_THRESHOLD					((uint16) (C_VDS_THRESHOLD * 12.5))
+#define NVRAM_VDS_THRESHOLD					((uint16) (C_VDS_THRESHOLD * 12.5))	/* MMP140428-1 */
 #define NVRAM_SPEED0						((uint16) C_SPEED_0)
 #define NVRAM_SPEED1						((uint16) C_SPEED_1)
 #define NVRAM_SPEED2						((uint16) C_SPEED_2)
@@ -287,9 +287,9 @@ enum TACHO_MODES
 #define NVRAM_STARTUP_CORR_RATIO			((uint16) ((((uint32)PWM_REG_PERIOD) * C_STARTUP_CORR_RATIO) >> (4 - PWM_prescaler_N)))
 #define NVRAM_SPEED_TOLERANCE				((uint16) C_SPEED_TOLERANCE)
 #define NVRAM_STALL_DETECTOR_DELAY			((uint16) C_DETECTOR_DELAY)
-#define NVRAM_LIN_UV						((uint16) C_LIN_UV)
-#define NVRAM_STALL_O						((uint16) C_STALL_O)
-#define NVRAM_STALL_O_OFFSET				((uint16) C_STALL_O_OFFSET)
+#define NVRAM_LIN_UV						((uint16) C_LIN_UV)					/* MMP131216-1 */
+#define NVRAM_STALL_O						((uint16) C_STALL_O)				/* MMP140428-1 */
+#define NVRAM_STALL_O_OFFSET				((uint16) C_STALL_O_OFFSET)			/* MMP140428-1 */
 #endif /* (MOTOR_PARAMS == MOTOR_NVRAM) */
 
 /* Motor running average filter length */
@@ -303,7 +303,7 @@ enum TACHO_MODES
 #endif /* (defined __MLX81315_A__) */
 
 /* Enable the driver and the PWM phase W, V and U */
-#define DRVCFG_DIS()		{DRVCFG = (DRVCFG | DIS_DRV);}
+#define DRVCFG_DIS()		{DRVCFG = (DRVCFG | DIS_DRV);}						/* MMP140903-1 */
 /* 3-Phase: U, V and W */
 #define DRVCFG_DIS_UVW()	{DRVCFG = (DRVCFG & ~(DIS_DRV|DRV_CFG_W|DRV_CFG_V|DRV_CFG_U));}
 #define DRVCFG_DIS_UVWz()	{DRVCFG = (DRVCFG & ~(DRV_CFG_W|DRV_CFG_V|DRV_CFG_U));}
@@ -336,7 +336,7 @@ extern void MotorDriverSelfTest( void);
 extern void MotorDriverStart( void);
 extern void MotorDriverStop( uint16 u16Immediate);
 extern void MotorDriverCurrentMeasureInit( void);
-extern void MotorDriverCurrentMeasure( uint16 u16RunningMode);
+extern void MotorDriverCurrentMeasure( void);
 extern void MotorDriver_4PhaseStepper( void);
 extern void MotorDriver_EmergencyDrive( void);									/* Emergency motor driver firmware */
 
@@ -352,7 +352,7 @@ extern uint16 g_u16StartupDelay;
 extern uint16 g_u16MotorCurrentMovAvgxN;										/* Sum of last 16 motor-currents (x 4..16) */
 extern uint16 g_u16MotorCurrentLPFx64;											/* Low-pass filter (IIR-1) motor-current x 64 */
 extern uint8 g_u8MotorStopDelay;												/* Delay between drive stage from LS to TRI-STATE */
-
+/* MMP151118-2 */
 extern volatile uint16 g_u16ActuatorActPos __attribute__ ((section(".dp.noinit")));	/* (Motor-driver) Actual motor-rotor position [WD] */
 extern uint16 g_u16ActuatorTgtPos __attribute__ ((section(".dp.noinit")));		/* (Motor-driver) Target motor-rotor position [WD] */
 #pragma space none
@@ -371,15 +371,15 @@ extern uint16 l_au16MotorCurrentRaw[C_MOVAVG_SZ];
 #if _DEBUG_MOTOR_CURRENT_FLT
 #if (_SUPPORT_DOUBLE_USTEP == FALSE)
 #if _SUPPORT_STALLDET_O
-#define C_MOTOR_CURR_SZ		(20*32)												/* 20 electric rotations of 32 uSteps */
+#define C_MOTOR_CURR_SZ		(16*32)												/* 16 electric rotations of 32 uSteps */
 #else  /* _SUPPORT_STALLDET_O */
-#define C_MOTOR_CURR_SZ		(24*32)												/* 24 electric rotations of 32 uSteps */
+#define C_MOTOR_CURR_SZ		(20*32)												/* 20 electric rotations of 32 uSteps */
 #endif /* _SUPPORT_STALLDET_O */
 #else  /* (_SUPPORT_DOUBLE_USTEP == FALSE) */
 #if _SUPPORT_STALLDET_O
-#define C_MOTOR_CURR_SZ		(10*64)												/* 10 electric rotations of 64 uSteps */
+#define C_MOTOR_CURR_SZ		(8*64)												/*  8 electric rotations of 64 uSteps */
 #else  /* _SUPPORT_STALLDET_O */
-#define C_MOTOR_CURR_SZ		(12*64)												/* 12 electric rotations of 64 uSteps */
+#define C_MOTOR_CURR_SZ		(10*64)												/* 10 electric rotations of 64 uSteps */
 #endif /* _SUPPORT_STALLDET_O */
 #endif /* (_SUPPORT_DOUBLE_USTEP == FALSE) */
 extern uint8 l_au8MotorCurrRaw[C_MOTOR_CURR_SZ];								/* Raw (unfiltered) motor current measurement */

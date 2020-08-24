@@ -113,6 +113,7 @@ static __inline__ int16 mulI16_I16byI16RndDiv64(int16 a, int16 b)
 
     __asm__ __volatile__ (
          "muls YA, A, %w3\n\t"
+//       "add YA, #32\n\t"
          "asr YA, #6\n\t"
          "adc A, #0"
          : "=a" (result), "=y" (result2)

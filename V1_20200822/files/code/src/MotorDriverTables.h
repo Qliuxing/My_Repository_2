@@ -26,8 +26,8 @@
 
 /* Set-Test - Part A: Single FET ON */
 extern uint8 const c_au8DrvCfgSelfTestA[8];
-extern uint16 const c_au16DrvAdcSelfTestA[4][2];
+extern uint16 const c_au16DrvAdcSelfTestA[4][2];								/* MMP130919-1 */
 
-extern uint8 const c_au8DrvCfgSelfTestB4[10];
+extern uint8 const c_au8DrvCfgSelfTestB4[10];									/* MMP130916-2 */
 extern int16 const c_ai16MicroStepVector4PH[SZ_MICRO_VECTOR_TABLE_4PH];
 

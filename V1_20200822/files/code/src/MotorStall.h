@@ -62,15 +62,15 @@ extern uint16 MotorStallCheckH( void);
  * ****************************************************************************	*/
 #pragma space dp
 extern uint8  l_u8StallCountA;													/* only used for debugging */
+#pragma space none
+
 #if _SUPPORT_STALLDET_O
 extern uint8 l_u8StallCountO;													/* only used for debugging */
 #endif /* _SUPPORT_STALLDET_O */
-#pragma space none
 
-#pragma space nodp
+extern uint16 g_u16SumZPhaseV;
+extern uint16 g_u16AdcSampleCounter;
 extern uint16 l_u16MotorCurrentStallThrshldxN;									/* Stall-detector current-threshold (x 4..16) */
-extern uint16 g_u16CurrStallO;
-#pragma space none
 
 #endif /* MOTOR_STALL_H_ */
 

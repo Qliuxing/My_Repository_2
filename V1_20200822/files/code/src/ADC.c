@@ -38,7 +38,6 @@
 
 #include "Build.h"
 #include "ADC.h"
-#include "ErrorCodes.h"
 #include "main.h"
 #include "MotorDriver.h"
 #include "private_mathlib.h"
@@ -48,17 +47,16 @@
  *    NORMAL FAR IMPLEMENTATION	(@NEAR Memory Space >= 0x100)					*
  * ****************************************************************************	*/
 #pragma space nodp																/* __NEAR_SECTION__ */
-uint16 l_u16CurrentZeroOffset = 100U;											/* Zero-current ADC-offset */
-uint16 g_u16MCurrgain = 300U;													/* MMP160616-1 */
-#if _SUPPORT_LIN_AA
+uint16 l_u16CurrentZeroOffset = 100;											/* Zero-current ADC-offset */
+#if ((LINPROT & LINXX) != LIN2J)
 uint8 g_u8AdcIsrMode = C_ADC_ISR_NONE;											/* ADC ISR mode = None */
-#endif /* _SUPPORT_LIN_AA */
+#endif /* ((LINPROT & LINXX) != LIN2J) */
 uint8 l_u8AdcPowerOff = TRUE;
 
 T_ADC_MOTORRUN_STEPPER4 volatile g_AdcMotorRunStepper4;							/* ADC results Stepper mode */
 #if ((_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL))
-uint16 g_u16CurrentMotorCoilA = 0U;
-uint16 g_u16CurrentMotorCoilB = 0U;
+uint16 g_u16CurrentMotorCoilA = 0;
+uint16 g_u16CurrentMotorCoilB = 0;
 #endif /* ((_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL)) */
 
 #pragma space none																/* __NEAR_SECTION__ */
@@ -70,32 +68,49 @@ uint16 g_u16CurrentMotorCoilB = 0U;
 /* ****************************************************************************	*
  *    ROM-Code tables															*
  * ****************************************************************************	*/
+#define ADC_TJ		(ADC_CH1  | ADC_REF_2_50_V)									/*  1			2.5V	Internal Temperature Sensor */
+
+#if _SUPPORT_VSFILTERED
+#define ADC_VS		(ADC_CH4  | ADC_REF_2_50_V)									/*  4			2.5V	Vs-filtered (divided by 14) */
+#else  /* _SUPPORT_VSFILTERED */
+#define ADC_VS		(ADC_CH0  | ADC_REF_2_50_V)									/*  0			2.5V	Vs-unfiltered (divided by 14) */
+#endif /* _SUPPORT_VSFILTERED */
+#if _SUPPORT_VSMFILTERED
+#define ADC_VSM		(ADC_CH4  | ADC_REF_2_50_V)									/*  4			2.5V	Vs-filtered (divided by 14) */
+#else  /* _SUPPORT_VSMFILTERED */
+#define ADC_VSM		(ADC_CH14 | ADC_REF_2_50_V)									/* 14			2.5V	Vs-unfiltered (divided by 14) */
+#endif /* _SUPPORT_VSMFILTERED */
+
+#if (_SUPPORT_PWM_100PCT != FALSE) && ((_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL))
+/* In BIPOLAR_PWM_SINGLE_INDEPENDED_VSM or BIPOLAR_PWM_SINGLE_MIRRORSPECIAL mode:
+ * Maximum Motor PWM duty-cycle: 100% (using filtered current channel) */
+#define ADC_MCUR	(ADC_CH29 | ADC_REF_2_50_V)									/* Filtered Motor-driver Current */
+#else  /* (_SUPPORT_PWM_100PCT != FALSE) && ((_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL)) */
+/* In BIPOLAR_PWM_SINGLE_INDEPENDED_VSM or BIPOLAR_PWM_SINGLE_MIRRORSPECIAL mode:
+ * Maximum Motor PWM duty-cycle: 97.5% (using unfiltered current channel) */
+#define ADC_MCUR	(ADC_CH13 | ADC_REF_2_50_V)									/* Unfiltered Motor-driver Current */
+#endif /* (_SUPPORT_PWM_100PCT != FALSE) && ((_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL)) */
+
+#define ADC_PHU		(ADC_CH9  | ADC_REF_2_50_V)									/*  9			2.5V	Voltage on U Driver output (divided by 14) */
+#define ADC_PHV		(ADC_CH10 | ADC_REF_2_50_V)									/* 10			2.5V	Voltage on V Driver output (divided by 14) */
+#define ADC_PHW		(ADC_CH11 | ADC_REF_2_50_V)									/* 11			2.5V	Voltage on W Driver output (divided by 14) */
+#define ADC_PHT		(ADC_CH25 | ADC_REF_2_50_V)									/* 15			2.5V	Voltage on T Driver output (divided by 14) */
+
 /* ADC Vref disable */															/* Ch  Trigger	Vref	Description */
-uint16 const SBASE_VREF_OFF[2] = { (ADC_CH1  | ADC_REF_OFF), ADC_EOT};			/*  1	F/W		0.0V	Internal Temperature Sensor */
+uint16 const SBASE_VREF_OFF[2] = { (ADC_CH1  | ADC_REF_OFF), 0xFFFF};			/*  1	F/W		0.0V	Internal Temperature Sensor */
 
 /* Current offset measurement */												/* Ch  Trigger	Vref	Description */
-uint16 const SBASE_CURROFF[2] = {ADC_MCUR, ADC_EOT};							/* 13	 --%	2.5V	Unfiltered Current */
-uint16 const SBASE_VDDA[2] = { ADC_VDDA, ADC_EOT};								/*  3	F/W		2.5V	VDDA voltage (divided by 2) */
-uint16 const SBASE_VDDD[2] = { ADC_VDDD, ADC_EOT};								/*  2	F/W		2.5V	VDDD voltage */
-uint16 const SBASE_VIO[6][2] =
-{
-	{ ADC_IO0, ADC_EOT},
-	{ ADC_IO1, ADC_EOT},
-	{ ADC_IO2, ADC_EOT},
-	{ ADC_IO3, ADC_EOT},
-	{ ADC_IO4, ADC_EOT},
-	{ ADC_IO5, ADC_EOT}
-};	/* (MMP170302-1) */
+uint16 const SBASE_CURROFF[2] = {ADC_MCUR, 0xFFFF };							/* 13	 --%	2.5V	Unfiltered Current */
 
 /* Temperature measurement */													/* Ch  Trigger	Vref	Description */
-uint16 const SBASE_TEMP[2] = { ADC_TJ, ADC_EOT};								/*  1	F/W		2.5V	Internal Temperature Sensor */
+uint16 const SBASE_TEMP[2] = { ADC_TJ, 0xFFFF};									/*  1	F/W		2.5V	Internal Temperature Sensor */
 
 /* Supply voltage measurement */												/* Ch  Trigger	Vref	Description */
-uint16 const SBASE_SUPPLYVOLT[2] = { ADC_VS, ADC_EOT};							/*  0	F/W		2.5V	Voltage Vs */
-uint16 const SBASE_MOTORVOLT[2] = { ADC_VSM, ADC_EOT};							/* 14	F/W		2.5V	Voltage Vsm */
+uint16 const SBASE_SUPPLYVOLT[2] = { ADC_VS, 0xFFFF};							/*  0	F/W		2.5V	Voltage Vs */
+uint16 const SBASE_MOTORVOLT[2] = { ADC_VSM, 0xFFFF};							/* 14	F/W		2.5V	Voltage Vsm */
 
 /* Motor-driver current measurement */											/* Ch  Trigger	Vref	Description */
-uint16 const SBASE_CURRENT[2] = { ADC_MCUR, ADC_EOT};							/* 29   F/W		2.5V	Filtered Current */
+uint16 const SBASE_CURRENT[2] = { ADC_MCUR, 0xFFFF};							/* 29   F/W		2.5V	Filtered Current */
 
 /* Stepper-mode
  * ADC-duration: 1 x Motor PWM period
@@ -109,7 +124,7 @@ uint16 const SBASE_INIT_4PH_U[6] =												/* ADC Automated measurements */
 	(ADC_VS   | ADC_HW_TRIGGER_PWM3_CMP),										/*  0	 62%	2.5V	Voltage Vs-filtered (divided by 14) */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM4_CMP),										/*  1	 81%	2.5V	Internal Temperature Sensor */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM1_CNT),										/* 14	100%	2.5V	Voltage Vsm (divided by 14) */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 uint16 const SBASE_INIT_4PH_V[6] =												/* ADC Automated measurements */
 {																				/* Ch  Trigger	Vref	Description */
@@ -118,7 +133,7 @@ uint16 const SBASE_INIT_4PH_V[6] =												/* ADC Automated measurements */
 	(ADC_VS   | ADC_HW_TRIGGER_PWM3_CMP),										/*  0	 62%	2.5V	Voltage Vs-filtered (divided by 14) */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM4_CMP),										/*  1	 81%	2.5V	Internal Temperature Sensor */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM1_CNT),										/* 14	100%	2.5V	Voltage Vsm (divided by 14) */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 uint16 const SBASE_INIT_4PH_W[6] =												/* ADC Automated measurements */
 {																				/* Ch  Trigger	Vref	Description */
@@ -127,7 +142,7 @@ uint16 const SBASE_INIT_4PH_W[6] =												/* ADC Automated measurements */
 	(ADC_VS   | ADC_HW_TRIGGER_PWM3_CMP),										/*  0	 62%	2.5V	Voltage Vs-filtered (divided by 14) */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM4_CMP),										/*  1	 81%	2.5V	Internal Temperature Sensor */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM1_CNT),										/* 14	100%	2.5V	Voltage Vsm (divided by 14) */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 uint16 const SBASE_INIT_4PH_T[6] =												/* ADC Automated measurements */
 {																				/* Ch  Trigger	Vref	Description */
@@ -136,7 +151,7 @@ uint16 const SBASE_INIT_4PH_T[6] =												/* ADC Automated measurements */
 	(ADC_VS   | ADC_HW_TRIGGER_PWM3_CMP),										/*  0	 62%	2.5V	Voltage Vs-filtered (divided by 14) */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM4_CMP)										/*  1	 81%	2.5V	Internal Temperature Sensor */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM1_CNT),										/* 14	100%	2.5V	Voltage Vsm (divided by 14) */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 #else  /* _SUPPORT_PHASE_SHORT_DET */
 uint16 const SBASE_INIT_4PH[5] =												/* ADC Automated measurements */
@@ -145,7 +160,7 @@ uint16 const SBASE_INIT_4PH[5] =												/* ADC Automated measurements */
 	(ADC_VS   | ADC_HW_TRIGGER_PWM2_CMP),										/*  0	 50%	2.5V	Voltage VS-filtered (divided by 14) */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM3_CMP),										/*  1	 75%	2.5V	Internal Temperature Sensor */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM1_CNT),										/* 14	100%	2.5V	Vsm (divided by 14) */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 #endif /* _SUPPORT_PHASE_SHORT_DET */
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_DOUBLE_MIRROR) */
@@ -159,7 +174,7 @@ uint16 const SBASE_INIT_4PH_U[6] =												/* ADC Automated measurements */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM3_CMP),										/*  1	 60%	2.5V	Internal Temperature Sensor */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM4_CMP),										/* 14	 80%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM1_CNT),										/* 13	100%	2.5V	Unfiltered Current */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 uint16 const SBASE_INIT_4PH_V[6] =												/* ADC Automated measurements */
 {																				/* Ch  Trigger	Vref	Description */
@@ -168,7 +183,7 @@ uint16 const SBASE_INIT_4PH_V[6] =												/* ADC Automated measurements */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM3_CMP),										/*  1	 60%	2.5V	Internal Temperature Sensor */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM4_CMP),										/* 14	 80%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM1_CNT),										/* 13	 100%	2.5V	Unfiltered Current */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 uint16 const SBASE_INIT_4PH_W[6] =												/* ADC Automated measurements */
 {																				/* Ch  Trigger	Vref	Description */
@@ -177,7 +192,7 @@ uint16 const SBASE_INIT_4PH_W[6] =												/* ADC Automated measurements */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM3_CMP),										/*  1	 60%	2.5V	Internal Temperature Sensor */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM4_CMP),										/* 14	 80%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM1_CNT),										/* 13	 100%	2.5V	Unfiltered Current */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 uint16 const SBASE_INIT_4PH_T[6] =												/* ADC Automated measurements */
 {																				/* Ch  Trigger	Vref	Description */
@@ -186,7 +201,7 @@ uint16 const SBASE_INIT_4PH_T[6] =												/* ADC Automated measurements */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM3_CMP),										/*  1	 60%	2.5V	Internal Temperature Sensor */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM4_CMP),										/* 14	 80%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM1_CNT),										/* 13	 100%	2.5V	Unfiltered Current */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 #else  /* _SUPPORT_PHASE_SHORT_DET */
 uint16 const SBASE_INIT_4PH[5] =												/* ADC Automated measurements */
@@ -195,7 +210,7 @@ uint16 const SBASE_INIT_4PH[5] =												/* ADC Automated measurements */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM2_CMP),										/*  1	 50%	2.5V	Internal Temperature Sensor */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM3_CMP),										/* 14	 75%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM1_CNT),										/* 13	100%	2.5V	Unfiltered Current */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 #endif /* _SUPPORT_PHASE_SHORT_DET */
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRROR_VSM) */
@@ -209,7 +224,7 @@ uint16 const SBASE_INIT_4PH_U[6] =												/* ADC Automated measurements */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM3_CMP),										/* 13	 50%	2.5V	Unfiltered Current */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM4_CMP),										/* 14	 67%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM1_CNT),										/*  1	100%	2.5V	Internal Temperature Sensor */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 uint16 const SBASE_INIT_4PH_V[6] =												/* ADC Automated measurements */
 {																				/* Ch  Trigger	Vref	Description */
@@ -218,7 +233,7 @@ uint16 const SBASE_INIT_4PH_V[6] =												/* ADC Automated measurements */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM3_CMP),										/* 13	 50%	2.5V	Unfiltered Current */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM4_CMP),										/* 14	 67%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM1_CNT),										/*  1	100%	2.5V	Internal Temperature Sensor */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 uint16 const SBASE_INIT_4PH_W[6] =												/* ADC Automated measurements */
 {																				/* Ch  Trigger	Vref	Description */
@@ -227,7 +242,7 @@ uint16 const SBASE_INIT_4PH_W[6] =												/* ADC Automated measurements */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM3_CMP),										/* 13	 50%	2.5V	Unfiltered Current */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM4_CMP),										/* 14	 67%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM1_CNT),										/*  1	100%	2.5V	Internal Temperature Sensor */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 uint16 const SBASE_INIT_4PH_T[6] =												/* ADC Automated measurements */
 {																				/* Ch  Trigger	Vref	Description */
@@ -236,7 +251,7 @@ uint16 const SBASE_INIT_4PH_T[6] =												/* ADC Automated measurements */
 	(ADC_CH13 | ADC_HW_TRIGGER_PWM3_CMP),										/* 13	 50%	2.5V	Unfiltered Current */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM4_CMP),										/* 14	 67%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM1_CNT),										/*  1	100%	2.5V	Internal Temperature Sensor */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 #else  /* _SUPPORT_PHASE_SHORT_DET */
 uint16 const SBASE_INIT_4PH[5] =												/* ADC Automated measurements */
@@ -245,7 +260,7 @@ uint16 const SBASE_INIT_4PH[5] =												/* ADC Automated measurements */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM2_CMP),										/* 13	 50%	2.5V	Unfiltered Current */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM3_CMP),										/* 14	 75%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM1_CNT),										/*  1	100%	2.5V	Internal Temperature Sensor */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 #endif /* _SUPPORT_PHASE_SHORT_DET */
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRROR_GND) */
@@ -260,7 +275,7 @@ uint16 const SBASE_INIT_4PH_U[7] =												/* ADC Automated measurements */
 	(ADC_PHU  | ADC_HW_TRIGGER_PWM4_CMP),										/*  9	 67%	2.5V	Voltage on U Driver output (divided by 14) */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM5_CMP),										/* 14	 83%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM1_CNT),										/* 13	100%	2.5V	Unfiltered Current */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 uint16 const SBASE_INIT_4PH_V[7] =												/* ADC Automated measurements */
 {																				/* Ch  Trigger	Vref	Description */
@@ -270,7 +285,7 @@ uint16 const SBASE_INIT_4PH_V[7] =												/* ADC Automated measurements */
 	(ADC_PHV  | ADC_HW_TRIGGER_PWM4_CMP),										/* 10	 67%	2.5V	Voltage on V Driver output (divided by 14) */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM5_CMP),										/* 14	 83%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM1_CNT),										/* 13	100%	2.5V	Unfiltered Current */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 uint16 const SBASE_INIT_4PH_W[7] =												/* ADC Automated measurements */
 {																				/* Ch  Trigger	Vref	Description */
@@ -280,7 +295,7 @@ uint16 const SBASE_INIT_4PH_W[7] =												/* ADC Automated measurements */
 	(ADC_PHW  | ADC_HW_TRIGGER_PWM4_CMP),										/* 11	 67%	2.5V	Voltage on W Driver output (divided by 14) */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM5_CMP),										/* 14	 83%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM1_CNT),										/* 13	100%	2.5V	Unfiltered Current */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 uint16 const SBASE_INIT_4PH_T[7] =												/* ADC Automated measurements */
 {																				/* Ch  Trigger	Vref	Description */
@@ -290,7 +305,7 @@ uint16 const SBASE_INIT_4PH_T[7] =												/* ADC Automated measurements */
 	(ADC_PHT  | ADC_HW_TRIGGER_PWM4_CMP),										/* 25	 67%	2.5V	Voltage on T Driver output (divided by 14) */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM5_CMP),										/* 14	 83%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM1_CNT),										/* 13	100%	2.5V	Unfiltered Current */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 #else  /* _SUPPORT_PHASE_SHORT_DET */
 uint16 const SBASE_INIT_4PH[6] =												/* ADC Automated measurements */
@@ -300,7 +315,7 @@ uint16 const SBASE_INIT_4PH[6] =												/* ADC Automated measurements */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM3_CMP),										/* 13	 50%	2.5V	Unfiltered Current */
 	(ADC_VSM  | ADC_HW_TRIGGER_PWM4_CMP),										/* 14	 75%	2.5V	Voltage Vsm (divided by 14) */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM1_CNT),										/* 13	100%	2.5V	Unfiltered Current */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 #endif /* _SUPPORT_PHASE_SHORT_DET */
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL) */
@@ -309,32 +324,32 @@ uint16 const SBASE_INIT_4PH[6] =												/* ADC Automated measurements */
 uint16 const tAdcSelfTest4A[12] =
 {
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM1_CNT),										/*  1   100%	2.5V	Temperature */
-	(ADC_VPHU | ADC_HW_TRIGGER_PWM2_CMP),										/*  9	 50%	2.5V	Phase-U voltage (divided by 14) */
-	(ADC_VPHU | ADC_HW_TRIGGER_PWM1_CNT),										/*  9	100%	2.5V	Phase-U voltage (divided by 14) */
-	(ADC_VPHV | ADC_HW_TRIGGER_PWM2_CMP),										/* 10	 50%	2.5V	Phase-V voltage (divided by 14) */
-	(ADC_VPHV | ADC_HW_TRIGGER_PWM1_CNT),										/* 10	100%	2.5V	Phase-V voltage (divided by 14) */
-	(ADC_VPHW | ADC_HW_TRIGGER_PWM2_CMP),										/* 11	 50%	2.5V	Phase-W voltage (divided by 14) */
-	(ADC_VPHW | ADC_HW_TRIGGER_PWM1_CNT),										/* 11	100%	2.5V	Phase-W voltage (divided by 14) */
-	(ADC_VPHT | ADC_HW_TRIGGER_PWM2_CMP),										/* 25	 50%	2.5V	Phase-T voltage (divided by 14) */
-	(ADC_VPHT | ADC_HW_TRIGGER_PWM1_CNT),										/* 25	100%	2.5V	Phase-T voltage (divided by 14) */
+	(ADC_PHU  | ADC_HW_TRIGGER_PWM2_CMP),										/*  9	 50%	2.5V	Phase-U voltage (divided by 14) */
+	(ADC_PHU  | ADC_HW_TRIGGER_PWM1_CNT),										/*  9	100%	2.5V	Phase-U voltage (divided by 14) */
+	(ADC_PHV  | ADC_HW_TRIGGER_PWM2_CMP),										/* 10	 50%	2.5V	Phase-V voltage (divided by 14) */
+	(ADC_PHV  | ADC_HW_TRIGGER_PWM1_CNT),										/* 10	100%	2.5V	Phase-V voltage (divided by 14) */
+	(ADC_PHW  | ADC_HW_TRIGGER_PWM2_CMP),										/* 11	 50%	2.5V	Phase-W voltage (divided by 14) */
+	(ADC_PHW  | ADC_HW_TRIGGER_PWM1_CNT),										/* 11	100%	2.5V	Phase-W voltage (divided by 14) */
+	(ADC_PHT  | ADC_HW_TRIGGER_PWM2_CMP),										/* 25	 50%	2.5V	Phase-T voltage (divided by 14) */
+	(ADC_PHT  | ADC_HW_TRIGGER_PWM1_CNT),										/* 25	100%	2.5V	Phase-T voltage (divided by 14) */
 	(ADC_VS   | ADC_HW_TRIGGER_PWM2_CMP),										/*  0	 50%	2.5V	Voltage VS (divided by 14) */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM1_CNT),										/* 13	100%	2.5V	Unfiltered Current */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 uint16 const tAdcSelfTest4B[12] =
 {
 	(ADC_TJ   | ADC_HW_TRIGGER_PWM1_CNT),										/*  1   100%	2.5V	Temperature */
-	(ADC_VPHU | ADC_HW_TRIGGER_PWM2_CMP),										/*  9	 50%	2.5V	Phase-U voltage (divided by 14) */
-	(ADC_VPHU | ADC_HW_TRIGGER_PWM1_CNT),										/*  9	100%	2.5V	Phase-U voltage (divided by 14) */
-	(ADC_VPHV | ADC_HW_TRIGGER_PWM2_CMP),										/* 10	 50%	2.5V	Phase-V voltage (divided by 14) */
-	(ADC_VPHV | ADC_HW_TRIGGER_PWM1_CNT),										/* 10	100%	2.5V	Phase-V voltage (divided by 14) */
-	(ADC_VPHW | ADC_HW_TRIGGER_PWM2_CMP),										/* 11	 50%	2.5V	Phase-W voltage (divided by 14) */
-	(ADC_VPHW | ADC_HW_TRIGGER_PWM1_CNT),										/* 11	100%	2.5V	Phase-W voltage (divided by 14) */
-	(ADC_VPHT | ADC_HW_TRIGGER_PWM2_CMP),										/* 25	 50%	2.5V	Phase-T voltage (divided by 14) */
-	(ADC_VPHT | ADC_HW_TRIGGER_PWM1_CNT),										/* 25	100%	2.5V	Phase-T voltage (divided by 14) */
+	(ADC_PHU  | ADC_HW_TRIGGER_PWM2_CMP),										/*  9	 50%	2.5V	Phase-U voltage (divided by 14) */
+	(ADC_PHU  | ADC_HW_TRIGGER_PWM1_CNT),										/*  9	100%	2.5V	Phase-U voltage (divided by 14) */
+	(ADC_PHV  | ADC_HW_TRIGGER_PWM2_CMP),										/* 10	 50%	2.5V	Phase-V voltage (divided by 14) */
+	(ADC_PHV  | ADC_HW_TRIGGER_PWM1_CNT),										/* 10	100%	2.5V	Phase-V voltage (divided by 14) */
+	(ADC_PHW  | ADC_HW_TRIGGER_PWM2_CMP),										/* 11	 50%	2.5V	Phase-W voltage (divided by 14) */
+	(ADC_PHW  | ADC_HW_TRIGGER_PWM1_CNT),										/* 11	100%	2.5V	Phase-W voltage (divided by 14) */
+	(ADC_PHT  | ADC_HW_TRIGGER_PWM2_CMP),										/* 25	 50%	2.5V	Phase-T voltage (divided by 14) */
+	(ADC_PHT  | ADC_HW_TRIGGER_PWM1_CNT),										/* 25	100%	2.5V	Phase-T voltage (divided by 14) */
 	(ADC_MCUR | ADC_HW_TRIGGER_PWM2_CMP),										/* 13	 50%	2.5V	Unfiltered Current */
 	(ADC_VS   | ADC_HW_TRIGGER_PWM1_CNT),										/*  0	100%	2.5V	Voltage VS (divided by 14) */
-	ADC_EOT																		/* End-of-table marker */
+	0xFFFF																		/* End-of-table marker */
 };
 #endif /* (_SUPPORT_MOTOR_SELFTEST != FALSE) */
 
@@ -343,19 +358,19 @@ uint16 const tAdcSelfTest4B[12] =
  *
  * Start ADC measurement using Software trigger.
  * ****************************************************************************	*/
-void ADC_StartSoftTrig( void)
+void ADC_StartSoftTrig( void)													/* MMP140709-1 - Begin */
 {
 	PEND = CLR_ADC_IT;
 	ADC_CTRL = ADC_START;
-	if ( l_u8AdcPowerOff != FALSE )
+	if ( l_u8AdcPowerOff )
 	{
 		NopDelay( DELAY_50us); /*lint !e522 */
 	}
 	l_u8AdcPowerOff = FALSE;
 	NopDelay( ADC_SETTING); /*lint !e522 */
 	ADC_CTRL = (ADC_START | ADC_SOFT_TRIG);										/* Single shot */
-	while ( (ADC_CTRL & ADC_START) != 0U ) {}									/* Wait for ADC result */
-} /* End of ADC_StartSoftTrig() */
+	while (ADC_CTRL & ADC_START) /* lint -e{722} */ ;							/* Wait for ADC result */
+} /* End of ADC_StartSoftTrig() */												/* MMP140709-1 - End */
 
 /* ****************************************************************************	*
  * ADC_Init()
@@ -365,117 +380,28 @@ void ADC_StartSoftTrig( void)
  * ****************************************************************************	*/
 void ADC_Init( void)
 {
-	uint16 volatile u16VDDA;
 	uint16 volatile u16ZCO;
-
-	ADC_Stop();																	/* Clear the ADC control register */
-
-	/* VDDA and VDDD check (MMP170222-4) */
-	ADC_SBASE = (uint16) SBASE_VDDA;
-	ADC_DBASE = (uint16) ((uint16 *) &u16VDDA);
-	ADC_StartSoftTrig();
-	if ( (u16VDDA < C_MIN_VDDA) || (u16VDDA > C_MAX_VDDA) )
-	{
-		/* TODO[MMP]: What to do? E.g. enter SLEEP (below error is lost) */
-		g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;
-#if _SUPPORT_LOG_ERRORS
-		SetLastError( (uint8) C_ERR_VDDA);
-#endif /* _SUPPORT_LOG_ERRORS */
-	}
-
-	ADC_SBASE = (uint16) SBASE_VDDD;
-	ADC_DBASE = (uint16) ((uint16 *) &u16ZCO);
-	ADC_StartSoftTrig();
-	if ( (u16ZCO < C_MIN_VDDD) || (u16ZCO > C_MAX_VDDD) )
-	{
-		/* TODO[MMP]: What to do? E.g. enter SLEEP (below error is lost) */
-		g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;
-#if _SUPPORT_LOG_ERRORS
-		SetLastError( (uint8) C_ERR_VDDD);
-#endif /* _SUPPORT_LOG_ERRORS */
-	}
-
-	/* I/O Output check (MMP170302-1) */
-	if ( (ANA_OUTF & (IO5_ENA | IO4_ENA | IO3_ENA | IO2_ENA | IO1_ENA | IO0_ENA)) != 0U )
-	{
-		/* At least one or more I/O's are defined as output */
-		uint16 u16Idx;
-		for ( u16Idx = 0U; u16Idx < 6; u16Idx++ )
-		{
-			uint16 u16Mask = (IO0_ENA << u16Idx);
-			if ( (ANA_OUTF & u16Mask) != 0U )
-			{
-				uint16 u16OrgOutState = ANA_OUTN;
-
-				/* Check high level; May cause VDDA overload */
-				ANA_OUTN = u16OrgOutState | u16Mask;
-				ADC_SBASE = (uint16) &SBASE_VIO[u16Idx][0];
-				ADC_DBASE = (uint16) ((uint16 *) &u16ZCO);
-				ADC_StartSoftTrig();
-				ANA_OUTN = u16OrgOutState;
-				if ( u16ZCO < C_ADC_MAX )
-				{
-					/* ADC Vref=2.5V, I/O-output voltage is 3.3V */
-					g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;
-					ANA_OUTF &= ~u16Mask;										/* Disable I/O Output-mode */
-#if _SUPPORT_LOG_ERRORS
-					SetLastError( (uint8) (C_ERR_VIO_0 + u16Idx));
-#endif /* _SUPPORT_LOG_ERRORS */
-				}
-				else
-				{
-					/* Check low level */
-					ANA_OUTN = u16OrgOutState & ~u16Mask;
-					ADC_SBASE = (uint16) &SBASE_VIO[u16Idx][0];
-					ADC_DBASE = (uint16) ((uint16 *) &u16ZCO);
-					ADC_StartSoftTrig();
-					ANA_OUTN = u16OrgOutState;
-					if ( (u16ZCO > C_MAX_IO_LOW) )
-					{
-						g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_PERM;
-						ANA_OUTF &= ~u16Mask;										/* Disable I/O Output-mode */
-#if _SUPPORT_LOG_ERRORS
-						SetLastError( (uint8) (C_ERR_VIO_0 + u16Idx));
-#endif /* _SUPPORT_LOG_ERRORS */
-					}
-				}
-			}
-		}
-	}
-
-	{
-		uint16 u16DrvCfg = DRVCFG;												/* Save driver state (MMP170405-1 - Begin) */
-		DRVCFG &= ~DIS_DRV;														/* Enable driver to allow current measurement */
-		ADC_SBASE = (uint16) SBASE_CURROFF;
-		ADC_DBASE = (uint16) &u16ZCO;
-		ADC_StartSoftTrig();
-		l_u16CurrentZeroOffset = /* lint -e{530} */ u16ZCO;
-		ADC_CTRL = (ADC_START | ADC_SOFT_TRIG);									/* Single shot */
-		while ( (ADC_CTRL & ADC_START) != 0U) {}								/* Wait for ADC result */
-		l_u16CurrentZeroOffset = (l_u16CurrentZeroOffset + u16ZCO) >> 1;
-		DRVCFG = u16DrvCfg;														/* Restore Driver state (MMP170405-1 - End) */
-	}
-
-	g_u16MCurrgain = EE_GMCURR_NEW;												/* MMP160616-1 */
+	ADC_Stop();																	/* clear the ADC control register */
+	ADC_SBASE = (uint16) SBASE_CURROFF;
+	ADC_DBASE = (uint16) &u16ZCO;
+	ADC_StartSoftTrig();														/* MMP140709-1 */
+	l_u16CurrentZeroOffset = /* lint -e{530} */ u16ZCO;
+	ADC_CTRL = (ADC_START | ADC_SOFT_TRIG);										/* Single shot */
+	while (ADC_CTRL & ADC_START) /* lint -e{722} */ ;							/* Wait for ADC result */
+	l_u16CurrentZeroOffset = (l_u16CurrentZeroOffset + u16ZCO) >> 1;
 
 #ifdef SUPPORT_CALIBRATED_ZERO_CURRENT
 	/* Validate zero-offset current measurement against calibration */
 	uint16 u16Delta;
 	if ( l_u16CurrentZeroOffset > EE_OMCURR )
-	{
 		u16Delta = l_u16CurrentZeroOffset - EE_OMCURR;
-	}
 	else
-	{
 		u16Delta = EE_OMCURR - l_u16CurrentZeroOffset;
-	}
-	if ( u16Delta > 6U )														/* Need to define this value: 6 LSB's is approximate 5mA */
-	{
-		l_u16CurrentZeroOffset = EE_OMCURR;										/* Take calibrated current offset, instead of measured offset */
-	}
+	if ( u16Delta > 6 )															/* Need to define this value: 6 LSB's is approx. 5mA */
+		l_u16CurrentZeroOffset = EE_OMCURR;										/* Take calibrated current offset, insetad of measured offset */
 #endif /* SUPPORT_CALIBRATED_ZERO_CURRENT */
 
-	PRIO = (PRIO & ~(3U << 2)) | ((5U - 3U) << 2);								/* ADC IRQ Priority: 5 (3..6) */
+	PRIO = (PRIO & ~(3 << 2)) | ((5 - 3) << 2);									/* ADC IRQ Priority: 5 (3..6) (MMP150106-1) */
 
 } /* End of ADC_Init() */
 
@@ -499,7 +425,7 @@ void ADC_Start( void)
 	ADC_DBASE = (uint16) &g_AdcMotorRunStepper4;
 	ADC_CTRL  = (ADC_LOOP | ADC_TRIG_SRC | ADC_SYNC_SOC);						/* Loop cycle of conversion is done */
 	ADC_CTRL |= ADC_START;														/* Start ADC */
-	if ( l_u8AdcPowerOff != FALSE )												/* Add delay */
+	if ( l_u8AdcPowerOff )														/* MMP140618-1: Add delay */
 	{
 		NopDelay( DELAY_mPWM); /*lint !e522 */
 	}
@@ -514,27 +440,27 @@ void ADC_Start( void)
  * ****************************************************************************	*/
 void ADC_SetupShortDetection( uint16 u16Mode)
 {
-	if ( u16Mode == 0U )
+	if ( u16Mode == 0 )
 	{
 		/* Phase based on micro-step index */
 		u16Mode = g_u16MicroStepIdx;
-		if ( g_e8MotorDirectionCCW != (uint8) C_MOTOR_DIR_CW )
+		if ( g_e8MotorDirectionCCW )
 		{
 			u16Mode--;
 		}
 #if _SUPPORT_DOUBLE_USTEP
-		u16Mode = ((u16Mode + (1U << NVRAM_MICRO_STEPS)) >> (NVRAM_MICRO_STEPS + 1U));
+		u16Mode = ((u16Mode + (1 << NVRAM_MICRO_STEPS)) >> (NVRAM_MICRO_STEPS+1));
 #else  /* _SUPPORT_DOUBLE_USTEP */
-		u16Mode = ((u16Mode + ((1U << NVRAM_MICRO_STEPS) >> 1)) >> NVRAM_MICRO_STEPS);
+		u16Mode = ((u16Mode + ((1 << NVRAM_MICRO_STEPS) >> 1)) >> NVRAM_MICRO_STEPS);
 #endif /* _SUPPORT_DOUBLE_USTEP */
 	}
 	/* Phase based on u16Mode */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
-	if ( u16Mode == 1U )
+	if ( u16Mode == 1 )
 	{
 		ADC_SBASE = (uint16) SBASE_INIT_4PH_U;									/* Check U-phase voltage */
 	}
-	else if ( u16Mode == 2U )
+	else if ( u16Mode == 2 )
 	{
 #if (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_MIRRORSPECIAL)
 		ADC_SBASE = (uint16) SBASE_INIT_4PH_T;									/* Check T-phase voltage */
@@ -542,7 +468,7 @@ void ADC_SetupShortDetection( uint16 u16Mode)
 		ADC_SBASE = (uint16) SBASE_INIT_4PH_V;									/* Check V-phase voltage */
 #endif /* (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_MIRRORSPECIAL) */
 	}
-	else if ( u16Mode == 3U )
+	else if ( u16Mode == 3 )
 	{
 		ADC_SBASE = (uint16) SBASE_INIT_4PH_W;									/* Check W-phase voltage */
 	}
@@ -556,7 +482,7 @@ void ADC_SetupShortDetection( uint16 u16Mode)
 	}
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT)
-	if ( u16Mode == 1U )
+	if ( u16Mode == 1 )
 	{
 #if (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRROR_GND)
 		ADC_SBASE = (uint16) SBASE_INIT_4PH_W;									/* Check W-phase voltage */
@@ -564,7 +490,7 @@ void ADC_SetupShortDetection( uint16 u16Mode)
 		ADC_SBASE = (uint16) SBASE_INIT_4PH_T;									/* Check T-phase voltage */
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRROR_GND) */
 	}
-	else if ( u16Mode == 2U )
+	else if ( u16Mode == 2 )
 	{
 #if (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRROR_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL)
 		ADC_SBASE = (uint16) SBASE_INIT_4PH_U;									/* Check U-phase voltage */
@@ -572,7 +498,7 @@ void ADC_SetupShortDetection( uint16 u16Mode)
 		ADC_SBASE = (uint16) SBASE_INIT_4PH_V;									/* Check V-phase voltage */
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRROR_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL) */
 	}
-	else if ( u16Mode == 3U )
+	else if ( u16Mode == 3 )
 	{
 #if (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRROR_GND)
 		ADC_SBASE = (uint16) SBASE_INIT_4PH_T;									/* Check T-phase voltage */
@@ -590,11 +516,11 @@ void ADC_SetupShortDetection( uint16 u16Mode)
 	}
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UV_WT) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW)
-	if ( u16Mode == 1U )
+	if ( u16Mode == 1 )
 	{
 		ADC_SBASE = (uint16) SBASE_INIT_4PH_V;									/* Check V-phase voltage */
 	}
-	else if ( u16Mode == 2U )
+	else if ( u16Mode == 2 )
 	{
 #if (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_MIRRORSPECIAL)
 		ADC_SBASE = (uint16) SBASE_INIT_4PH_T;									/* Check T-phase voltage */
@@ -602,7 +528,7 @@ void ADC_SetupShortDetection( uint16 u16Mode)
 		ADC_SBASE = (uint16) SBASE_INIT_4PH_U;									/* Check U-phase voltage */
 #endif /* (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_MIRRORSPECIAL) */
 	}
-	else if ( u16Mode == 3U )
+	else if ( u16Mode == 3 )
 	{
 		ADC_SBASE = (uint16) SBASE_INIT_4PH_W;									/* Check W-phase voltage */
 	}
@@ -625,22 +551,30 @@ void ADC_SetupShortDetection( uint16 u16Mode)
  * ****************************************************************************	*/
 void ADC_Stop(void)
 {	
-	if ( (ADC_CTRL & ADC_START) != 0U )											/* In case ADC is active, wait to finish it */
+	if ( ADC_CTRL & ADC_START )													/* In case ADC is active, wait to finish it */
 	{
+#if 0
+		ADC_CTRL &= ~ADC_LOOP;													/* Stop looping (infinity) */
+		uint16 u16MaxDelay = 2*4;												/* Wait for max. 2 Motor PWM cycles (approx. 85us) */
+		while ( (ADC_CTRL & ADC_START) && (u16MaxDelay-- > 0) )
+		{
+			NopDelay( ADC_DELAY); /*lint !e522 */
+		}
+#endif
 		ADC_CTRL &= ~(ADC_LOOP | ADC_TRIG_SRC | ADC_SYNC_SOC);					/* Stop looping and HW-triggers */
-		while ( (ADC_CTRL & ADC_START) != 0U )									/* As long as the ADC is active ... */
+		while ( ADC_CTRL & ADC_START )											/* As long as the ADC is active ... */
 		{
 			ADC_CTRL |= ADC_SOFT_TRIG;											/* ... Set S/W trigger */
 			NopDelay( DELAY_7us); /*lint !e522 */
 		}
 	}
-	ADC_CTRL = 0U;																/* Clear the ADC control register */
+	ADC_CTRL = 0;																/* Clear the ADC control register */
 	BEGIN_CRITICAL_SECTION();
 	MASK &= ~EN_ADC_IT;															/* Disable ADC Interrupt */
 	END_CRITICAL_SECTION();
-#if _SUPPORT_LIN_AA
+#if ((LINPROT & LINXX) != LIN2J)
 	g_u8AdcIsrMode = C_ADC_ISR_NONE;
-#endif /* _SUPPORT_LIN_AA */
+#endif /* ((LINPROT & LINXX) != LIN2J) */
 } /* End of ADC_Stop() */
 
 
@@ -651,11 +585,8 @@ void ADC_Stop(void)
  * ****************************************************************************	*/
 void ADC_PowerOff( void)
 {
-	int16 u16Scratch;															/* MMP170404-2 */
-
 	ADC_Stop();																	/* Stop ADC conversion, and disable ADC-IRQ */
 	ADC_SBASE = (uint16) SBASE_VREF_OFF;
-	ADC_DBASE = (uint16) &u16Scratch;											/* MMP170404-2 */
 	PEND = CLR_ADC_IT;
 	ADC_CTRL = ADC_START;
 	ADC_Stop();
@@ -671,12 +602,12 @@ void ADC_PowerOff( void)
  * ****************************************************************************	*/
 __interrupt__ void ADC_IT(void) 
 {
-#if _SUPPORT_LIN_AA
+#if ((LINPROT & LINXX) != LIN2J)
 	if ( g_u8AdcIsrMode == C_ADC_ISR_LIN_AA ) 									/* LIN-AutoAddressing sequence */
 	{
 		AutoAddressingReadADCResult();											/* See MELEXIS doc */
 	}
-#endif /* _SUPPORT_LIN_AA */
+#endif /* ((LINPROT & LINXX) != LIN2J) */
 } /* End of ADC_IT() */
 
 /* ****************************************************************************	*
@@ -687,7 +618,11 @@ __interrupt__ void ADC_IT(void)
 void GetVsupply( void)
 {
 	uint16 u16FilteredSupplyVoltage = g_AdcMotorRunStepper4.FilteredSupplyVoltage;
+#if _SUPPORT_VSFILTERED
+	g_i16SupplyVoltage = (int16) ((mulI32_I16byU16( (int16)(u16FilteredSupplyVoltage - EE_OVOLTAGE), EE_GVOLTAGE) + (C_GVOLTAGE_DIV/2)) / C_GVOLTAGE_DIV);
+#else  /* _SUPPORT_VSFILTERED */
 	g_i16SupplyVoltage = (int16) ((mulI32_I16byI16( (int16)(u16FilteredSupplyVoltage - EE_OADC), EE_GADC) + (C_GVOLTAGE_DIV/2)) / C_GVOLTAGE_DIV);
+#endif /* _SUPPORT_VSFILTERED */
 } /* End of GetVsupply() */
 
 #if _SUPPORT_MLX_DEBUG_MODE
@@ -733,7 +668,7 @@ void GetPhaseMotor( void)
  * ****************************************************************************	*/
 void ResetChipTemperature( void)
 {
-	g_AdcMotorRunStepper4.IntTemperatureSensor = 0U;
+	g_AdcMotorRunStepper4.IntTemperatureSensor = 0;
 
 } /* End of ResetChipTemperature() */
 
@@ -742,7 +677,7 @@ void ResetChipTemperature( void)
  *
  * Get Chip temperature [C]
  * ****************************************************************************	*/
-void GetChipTemperature( uint16 u16Init)
+void GetChipTemperature( uint16 u16Init)										/* MMP131020-1 */
 {
 	uint16 u16ChipTemperatureSensor = g_AdcMotorRunStepper4.IntTemperatureSensor;
 	int16 i16ChipTemperature, i16ChipTempDelta;
@@ -751,20 +686,20 @@ void GetChipTemperature( uint16 u16Init)
 	if ( u16ChipTemperatureSensor < EE_OTEMP )
 	{
 		/* Temperature above 35C */
-		i16ChipTemperature = (int16) muldivU16_U16byU16byU16( (EE_OTEMP - u16ChipTemperatureSensor), (125U - 35U), (EE_OTEMP - EE_HIGHTEMP)) + EE_MIDTEMP;
+		i16ChipTemperature = (int16) muldivU16_U16byU16byU16( (EE_OTEMP - u16ChipTemperatureSensor), (125 - 35), (EE_OTEMP - EE_HIGHTEMP)) + EE_MIDTEMP;
 	}
 	else
 	{
 		/* Temperature below 35C */
-		i16ChipTemperature = EE_MIDTEMP - (int16) muldivU16_U16byU16byU16( (u16ChipTemperatureSensor - EE_OTEMP), (uint16) (35 - (-40)), (EE_LOWTEMP - EE_OTEMP));
+		i16ChipTemperature = EE_MIDTEMP - (int16) muldivU16_U16byU16byU16( (u16ChipTemperatureSensor - EE_OTEMP), (35 - (-40)), (EE_LOWTEMP - EE_OTEMP));
 	}
 #else  /* _SUPPORT_TWO_LINE_TEMP_INTERPOLATION */
 	i16ChipTemperature = (mulI32_I16byI16( (EE_OTEMP - u16ChipTemperatureSensor), EE_GTEMP) / C_GTEMP_DIV) + EE_MIDTEMP;
 #endif /* _SUPPORT_TWO_LINE_TEMP_INTERPOLATION */
 
-	if ( u16Init == FALSE )
+	if ( u16Init == FALSE )														/* MMP131020-1 */
 	{
-		i16ChipTempDelta = i16ChipTemperature - g_i16ChipTemperature;			/* Delta-temperature = new-temperature - previous-temperature */
+		i16ChipTempDelta = i16ChipTemperature - g_i16ChipTemperature;			/* Delta-temp = new-temp - previous-temp */
 		if ( i16ChipTempDelta < 0 )
 		{
 			i16ChipTempDelta = -i16ChipTempDelta;								/* Absolute temperature change */
@@ -780,7 +715,7 @@ void GetChipTemperature( uint16 u16Init)
 				i16ChipTemperature = g_i16ChipTemperature - 1;					/* Decrease by one degree */
 			}
 		}
-	}
+	}																			/* MMP131020-1 */
 	g_i16ChipTemperature = i16ChipTemperature;
 } /* End of GetChipTemperature() */
 
@@ -799,7 +734,7 @@ uint16 GetRawTemperature( void)
  * ****************************************************************************	*/
 uint16 GetRawMotorDriverCurrent( void)
 {
-	uint16 u16Current = 0U;
+	uint16 u16Current = 0;
 #if ((_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND) || (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL))
 	g_u16CurrentMotorCoilA = g_AdcMotorRunStepper4.UnfilteredDriverCurrent;
 	if ( g_u16CurrentMotorCoilA > l_u16CurrentZeroOffset )
@@ -829,7 +764,7 @@ uint16 GetRawMotorDriverCurrent( void)
 int16 GetMotorDriverCurrent( void)
 {
 	uint16 u16Current = GetRawMotorDriverCurrent();
-	u16Current = (uint16) ((mulU32_U16byU16( u16Current, g_u16MCurrgain) + (C_GMCURR_DIV / 2U)) / C_GMCURR_DIV);
+	u16Current = (uint16) ((mulU32_U16byU16( u16Current, EE_GMCURR) + (C_GMCURR_DIV/2)) / C_GMCURR_DIV);	/* MMP131117-1 */
 	return ( (int16) u16Current);
 } /* End of GetMotorDriverCurrent() */
 
@@ -843,15 +778,15 @@ void MeasureVsupplyAndTemperature( void)
 	ADC_Stop();
 	ADC_SBASE = (uint16) SBASE_MOTORVOLT;										/* switch ADC input source to Voltage */
 	ADC_DBASE = (uint16) &g_AdcMotorRunStepper4.FilteredDriverVoltage;
-	ADC_StartSoftTrig();
+	ADC_StartSoftTrig();														/* MMP140709-1 */
 
 	ADC_SBASE = (uint16) SBASE_SUPPLYVOLT;										/* switch ADC input source to Voltage */
 	ADC_DBASE = (uint16) &g_AdcMotorRunStepper4.FilteredSupplyVoltage;
-	ADC_StartSoftTrig();
+	ADC_StartSoftTrig();														/* MMP140709-1 */
 
 	ADC_SBASE = (uint16) SBASE_TEMP;											/* switch ADC input source to Temperature */
 	ADC_DBASE = (uint16) &g_AdcMotorRunStepper4.IntTemperatureSensor;
-	ADC_StartSoftTrig();
+	ADC_StartSoftTrig();														/* MMP140709-1 */
 } /* End of MeasureVsupplyAndTemperature() */
 
 /* ****************************************************************************	*
@@ -862,14 +797,9 @@ void MeasureVsupplyAndTemperature( void)
 void MeasureMotorCurrent( void)
 {
 	ADC_Stop();
-	uint16 u16DrvCfg = DRVCFG;													/* MMP170405-1 - Begin */
-	DRVCFG &= ~DIS_DRV;															/* Enable driver to allow current measurement */
-	g_AdcMotorRunStepper4.UnfilteredDriverCurrent = l_u16CurrentZeroOffset;
-	g_AdcMotorRunStepper4.UnfilteredDriverCurrent2 = l_u16CurrentZeroOffset;
-	ADC_SBASE = (uint16) SBASE_CURRENT;											/* Switch ADC input source to Motor-driver current */
+	ADC_SBASE = (uint16) SBASE_CURRENT;											/* switch ADC input source to Motor-driver current */
 	ADC_DBASE = (uint16) &g_AdcMotorRunStepper4.UnfilteredDriverCurrent;
-	ADC_StartSoftTrig();
-	DRVCFG = u16DrvCfg;															/* MMP170405-1 - End */
+	ADC_StartSoftTrig();														/* MMP140709-1 */
 
 } /* End of MeasureMotorCurrent() */
 
@@ -879,16 +809,16 @@ void MeasureMotorCurrent( void)
  *
  * Measure Phase voltage (single-shot, software triggered)
  * ****************************************************************************	*/
-void MeasurePhaseVoltage( uint16 u16AdcSbase)
+void MeasurePhaseVoltage( uint16 u16AdcSbase)									/* MMP130919-1 - Begin */
 {
 	uint16 u16PhaseVoltage;
 	ADC_Stop();
 	ADC_SBASE = (uint16) u16AdcSbase;											/* switch ADC input source to Motor-driver current */
 	ADC_DBASE = (uint16) &u16PhaseVoltage;
-	ADC_StartSoftTrig();
+	ADC_StartSoftTrig();														/* MMP140709-1 */
 	g_i16PhaseVoltage = (int16) mulI16_I16byI16RndDiv64((int16)(u16PhaseVoltage - EE_OADC), EE_GADC);
 
-} /* End of MeasurePhaseVoltage() */
+} /* End of MeasurePhaseVoltage() */											/* MMP130919-1 - End */
 #endif /* _SUPPORT_PHASE_SHORT_DET || (_SUPPORT_MOTOR_SELFTEST != FALSE) */
 
 /* EOF */

@@ -59,6 +59,14 @@ extern uint16 g_u16SelfHeatingCounter;											/* Self-heating counter */
 extern uint16 g_u16PidRunningThreshold;											/* Motor current threshold (running) */
 extern uint16 g_u16PidRunningThresholdADC;										/* Motor current threshold (running) (ADC) */
 extern uint16 g_u16PidHoldingThreshold;											/* Motor holding current threshold */
+extern uint16 g_u16MotorRefVoltage;												/* Motor reference voltage */
+
+#if _DEBUG_VOLTAGE_COMPENSATION
+#define SZ_MOTOR_VOLT_COMP	64
+extern int16 l_ai16MotorVolt[SZ_MOTOR_VOLT_COMP];
+extern uint16 u16MotorVoltIdx;
+#endif /* _DEBUG_VOLTAGE_COMPENSATION */
+
 #pragma space none																/* __NEAR_SECTION__ */
 
 #endif /* PID_CONTROL_H_ */

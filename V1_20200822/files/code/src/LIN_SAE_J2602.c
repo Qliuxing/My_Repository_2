@@ -16,7 +16,7 @@
  *				HandleActCfrCtrl()
  *				HandleActRfrSta()
  *				HandleBusTimeout()
- *				LIN2J_ErrorHandling()
+ *				
  *
  * MELEXIS Microelectronic Integrated Systems
  * 
@@ -50,12 +50,12 @@
  * ****************************************************************************	*/
 #pragma space dp
 uint8 g_u8NAD = C_DEFAULT_J2602_NAD;											/* Actual NAD */
-#if (LINPROT != LIN2J_VALVE_VW)
+#if (LINPROT != LIN2J_VALVE_GM)
 uint8 g_u8SAE_ErrorFlags = 0;
 uint8 g_u8SAE_SendErrorState = 0;												/* Copy of g_u8SAE_ErrorFlags */
-#else  /* (LINPROT != LIN2J_VALVE_VW) */
+#else  /* (LINPROT != LIN2J_VALVE_GM) */
 uint8 g_u8SAE_SendErrorState = FALSE;											/* Copy of g_u8ErrorCommunication */
-#endif /* (LINPROT != LIN2J_VALVE_VW) */
+#endif /* (LINPROT != LIN2J_VALVE_GM) */
 uint8 l_u8ActDirection = 0;
 #pragma space none
 
@@ -90,58 +90,13 @@ void LIN_SAE_J2602_Init( uint16 u16WarmStart)
 {
 	(void) u16WarmStart;
 
-#if (LINPROT == LIN2J_VALVE_VW)
+#if (LINPROT == LIN2J_VALVE_GM)
 	/* Check wake-up from SLEEP (MMP160613-2) */
 	if ( ANA_INB & WAKEUP_LIN )
 	{
-		/* Restore: NAD, Motor-direction, CPOS and Status */
 		g_u8NAD = g_NvramUser.NAD;
 		l_u8ActDirection = g_NvramUser.MotorDirectionCCW;
-
-		/* The valve shall attempt to move and hit the Link/Bypass end stop if
-		 * it was parked at 0%/100% position before sleep */
-		{
-			uint16 u16Pos = g_NvramUser.CPOS;
-			if ( l_u8ActDirection != FALSE )
-			{
-				u16Pos = C_MAX_POS - u16Pos;
-			}
-			if ( u16Pos == C_MIN_POS )
-			{
-				g_u16TargetPosition = 0;
-				g_u16ActualPosition = (2 * C_PERC_OFFSET);
-				g_e8CalibrationStep = (uint8) C_CALIB_START;
-				if ( g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_DEGRADED )
-				{
-					g_e8DegradedMotorRequest = (uint8) C_MOTOR_REQUEST_START;
-				}
-				else
-				{
-					g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_START;
-				}
-			}
-			else if ( u16Pos == C_MAX_POS )
-			{
-				g_u16TargetPosition = g_u16CalibTravel + (2 * C_PERC_OFFSET);
-				g_u16ActualPosition = g_u16CalibTravel;
-				g_e8CalibrationStep = (uint8) C_CALIB_START;
-				if ( g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_DEGRADED )
-				{
-					g_e8DegradedMotorRequest = (uint8) C_MOTOR_REQUEST_START;
-				}
-				else
-				{
-					g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_START;
-				}
-			}
-			else
-			{
-				/* Not Link/Bypass end stop */
-				g_u16ActualPosition = muldivU16_U16byU16byU16( u16Pos, g_u16CalibTravel, (C_MAX_POS - C_MIN_POS)) + C_PERC_OFFSET;
-				g_u16TargetPosition = g_u16ActualPosition;
-			}
-		}
-
+		g_u16ActualPosition = g_u16TargetPosition = g_NvramUser.CPOS;
 		{
 			uint8 u8AppStatus = g_NvramUser.AppStatus;
 			if ( u8AppStatus & 0x03 )
@@ -151,13 +106,11 @@ void LIN_SAE_J2602_Init( uint16 u16WarmStart)
 		}
 		g_u8ChipResetOcc = FALSE;
 	}
-	else if ( (g_NvramUser.NAD >= C_MIN_J2602_NAD) && (g_NvramUser.NAD <= C_MAX_J2602_NAD) && ((g_NvramUser.NAD & (C_STEP_J2602_NAD - 1)) == 0) ) /*lint !e587 */
+	else if ( (g_NvramUser.NAD >= C_MIN_J2602_NAD) && (g_NvramUser.NAD <= C_MAX_J2602_NAD) && ((g_NvramUser.NAD & (C_STEP_J2602_NAD - 1)) == 0) )
 	{
 		g_u8NAD = g_NvramUser.NAD;
 		l_u8ActDirection = g_NvramUser.MotorDirectionCCW;
-#if (LINPROT != LIN2J_VALVE_VW)
-		g_u8SAE_ErrorFlags = (1 << C_SAE_RESET_ERROR);
-#endif /* (LINPROT != LIN2J_VALVE_VW) */
+/*		g_u8SAE_ErrorFlags = (1 << C_SAE_RESET_ERROR);	MMP160613-1 */
 	}
 
 	if ( (g_u8NAD & 0x0F) != 0x0F )
@@ -169,7 +122,7 @@ void LIN_SAE_J2602_Init( uint16 u16WarmStart)
 		byFrameID = CalcProtectionBits( byFrameID);
 		(void) ml_AssignFrameToMessageID( mlxACT_STATUS, byFrameID);
 	}
-#else  /* (LINPROT == LIN2J_HVAC_VW) */
+#else  /* (LINPROT == LIN2J_HVAC_GM) */
 	if ( (g_NvramUser.NAD >= C_MIN_J2602_NAD) && (g_NvramUser.NAD <= C_MAX_J2602_NAD) )
 	{
 		g_u8NAD = g_NvramUser.NAD;
@@ -180,78 +133,46 @@ void LIN_SAE_J2602_Init( uint16 u16WarmStart)
 		SetLastError( (uint8) C_ERR_INV_NAD);
 	}
 	l_u8ActDirection = g_NvramUser.MotorDirectionCCW;
-#endif /* (LINPROT == LIN2J_HVAC_VW) */
+#endif /* (LINPROT == LIN2J_HVAC_GM) */
 
 	(void) ml_SetLoaderNAD( g_u8NAD);											/* Setup NAD at power-up */
 	
 } /* End of LIN_SAE_J2602_Init() */
 
-#if (LINPROT == LIN2J_VALVE_VW)
-/* ****************************************************************************	*
- * ConvertMicroStepPosToPct
- *
- * ****************************************************************************	*/
-uint8 ConvertMicroStepPosToPct( uint16 u16Position)
-{
-	if ( u16Position < (C_PERC_OFFSET + C_HALFPERC_OFFSET) )
-	{
-		u16Position = 0U;
-	}
-	else if ( g_u16ActualPosition > ((g_u16CalibTravel + C_PERC_OFFSET) - C_HALFPERC_OFFSET) )
-	{
-		u16Position = g_u16CalibTravel;
-	}
-	else
-	{
-		u16Position -= (C_PERC_OFFSET - (g_u16CalibTravel >> 9));
-	}
-	if ( l_u8ActDirection )
-	{
-		u16Position = g_u16CalibTravel - u16Position;
-	}
-	return ( (uint8) muldivU16_U16byU16byU16( u16Position, (C_MAX_POS - C_MIN_POS), g_u16CalibTravel) );
-} /* End of ConvertMicroStepPosToPct() */
-
+#if (LINPROT == LIN2J_VALVE_GM)
 /* ****************************************************************************	*
  * LIN_SAE_J2602_Store
  *
- * Before the actuator enters in Sleep, it saves in EEPROM/NVRAM the CPOS,
+ * Before the actuator enters in Sleep, it saves in EEPROM the CPOS,
  * the Status, and the NAD only if the value of cells is different as the RAM value.
  * MMP160613-2
  * ****************************************************************************	*/
 void LIN_SAE_J2602_Store( void)
 {
 	uint16 u16Store = FALSE;
-
-	uint8 u8Value = ConvertMicroStepPosToPct( g_u16ActualPosition);
-	/* Round actual position */
-	if ( g_NvramUser.CPOS != u8Value )
+	if ( g_u16ActualPosition != g_NvramUser.CPOS )
 	{
-		g_NvramUser.CPOS = u8Value;
+		g_NvramUser.CPOS = g_u16ActualPosition;
 		u16Store = TRUE;
 	}
+	{
+		uint8 u8AppStatus = 0x00U;
 
-	u8Value = g_NvramUser.AppStatus & 0x80U;
-	if ( g_e8ErrorElectric != (uint8) C_ERR_ELECTRIC_NO )
-	{
-		u8Value |= (g_e8ErrorElectric & 0x03);
+		if ( g_e8ErrorElectric != (uint8) C_ERR_ELECTRIC_NO )
+			u8AppStatus |= (g_e8ErrorElectric & 0x03);
+		if ( g_u8EmergencyRunOcc != FALSE )
+			u8AppStatus |= 0x08U;
+		if ( u8AppStatus != g_NvramUser.AppStatus )
+		{
+			g_NvramUser.AppStatus = u8AppStatus;
+			u16Store = TRUE;
+		}
 	}
-	if ( g_u8EmergencyRunOcc != FALSE )
-	{
-		u8Value |= 0x08U;
-	}
-	if ( u8Value != g_NvramUser.AppStatus )
-	{
-		g_NvramUser.AppStatus = u8Value;
-		u16Store = TRUE;
-	}
-
 	if ( g_u8NAD != g_NvramUser.NAD )
 	{
 		g_NvramUser.NAD = g_u8NAD;
 		u16Store = TRUE;
 	}
-
 	if ( u16Store != FALSE )
 	{
 		/* AppStatus.bit7 NVRAM Page1	Page 2
@@ -284,85 +205,58 @@ void LIN_SAE_J2602_Store( void)
  *	Byte 2	|		Reserved		|		TorqueLevel				| MovEn |
  *			+-----------------------+-------------------------------+-------+
  *
- * MMP160614-2 & MMP160614-3
  * ****************************************************************************	*/
 void HandleActCfrCtrl( void)
 {
 	ACT_CFR_CTRL *pCfrCtrl = &g_LinCmdFrameBuffer.cfrCtrl;
 
-	if ( (pCfrCtrl->byMovEn == C_CTRL_MOVE_ENA) && (pCfrCtrl->byTorqueLevel != C_CTRL_TORQUE_UNCHANGED) )
-	{
-		uint16 u16Pos = pCfrCtrl->byPosition;
-		if ( l_u8ActDirection != FALSE )
+		g_u16EXVTargetPositionTemp = (((uint16)pCfrCtrl->byPositionMSB & 0x03) << 8) | pCfrCtrl->byPositionLSB;
+		if((g_e8MotorStatusMode & ((uint8) C_MOTOR_STATUS_DEGRADED)) == 0) //not degrade mode, otherwise, just update the target position
 		{
-			u16Pos = C_MAX_POS - u16Pos;
-		}
-		if ( g_e8CalibrationStep != (uint8) C_CALIB_DONE )
-		{
-			/* Not initialised; Only allow to move towards the end-stops */
-			if ( u16Pos == C_MIN_POS )
-			{
-				g_u16TargetPosition = 0;
-				g_u16ActualPosition = g_u16CalibTravel + (2 * C_PERC_OFFSET);
-				g_e8CalibrationStep = (uint8) C_CALIB_START;
-				if ( g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_DEGRADED )
+			if(pCfrCtrl->byMovEn == C_CTRL_MOVE_ENA){
+				g_e8EXVMoveEnableRequestFlag = (uint8) C_EXV_MOVE_ENABLE;
+				if(((g_e8CalibrationStep == (uint8) C_CALIB_NONE) || (g_e8CalibrationStep == (uint8) C_CALIB_DONE)) && (g_u16EXVTargetPositionTemp == 0x3FF))
 				{
-					g_e8DegradedMotorRequest = (uint8) C_MOTOR_REQUEST_START;
+					g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_CALIBRATION;
+					g_e8CalibrationStep = (uint8) C_CALIB_START;
 				}
-				else
+				else if(g_e8CalibrationStep == (uint8) C_CALIB_DONE)
 				{
 					g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_START;
 				}
-			}
-			else if ( u16Pos == C_MAX_POS )
-			{
-				g_u16TargetPosition = g_u16CalibTravel + (2 * C_PERC_OFFSET);
-				g_u16ActualPosition = 0;
-				g_e8CalibrationStep = (uint8) C_CALIB_START;
-				if ( g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_DEGRADED )
+				else
 				{
-					g_e8DegradedMotorRequest = (uint8) C_MOTOR_REQUEST_START;
+					//TODO,Ban,what to do if during initalization?
+					g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_CALIBRATION;
+				}
+				if(pCfrCtrl->byStallEnable == C_CTRL_STALL_ENABLE)
+				{
+					g_e8StallDetectorEna = C_STALLDET_H;
 				}
 				else
 				{
-					g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_START;
+					g_e8StallDetectorEna = C_STALLDET_NONE;
 				}
+			}else{
+				g_e8EXVMoveEnableRequestFlag = (uint8) C_EXV_MOVE_DISABLE;
+				g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_STOP;
 			}
 		}
 		else
 		{
-			/* Initialised; Any position allowed */
-			g_u16TargetPosition = muldivU16_U16byU16byU16( u16Pos, g_u16CalibTravel, (C_MAX_POS - C_MIN_POS));
-			if ( u16Pos == C_MAX_POS )										/* Upper end-position: Stall-detection */
-			{
-				g_u16TargetPosition += C_PERC_OFFSET;
-			}
-			if ( u16Pos != C_MIN_POS )										/* Lower end-position: Stall-detection */
-			{
-				g_u16TargetPosition += C_PERC_OFFSET;
-			}
-			if ( g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_DEGRADED )
-			{
-				g_e8DegradedMotorRequest = (uint8) C_MOTOR_REQUEST_START;
-			}
-			else
-			{
-				g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_START;
-			}
+			g_u16TargetPosition = (((uint32)g_u16EXVTargetPositionTemp)*g_u16CalibTravel+128)/255 + C_EXV_ZERO_POS;//update the target position in degrade mode,
 		}
-		if ( (pCfrCtrl->byTorqueLevel >= C_CTRL_TORQUE_NOMINAL) && (pCfrCtrl->byTorqueLevel <= C_CTRL_TORQUE_BOOST_100PCT) )
+		if ( (pCfrCtrl->byTorqueLevel >= C_CTRL_TORQUE_NOMINAL) && (pCfrCtrl->byTorqueLevel <= C_CTRL_TORQUE_BOOST_40PCT) )
 		{
-			g_u8TorqueBoostRequest = (pCfrCtrl->byTorqueLevel - C_CTRL_TORQUE_NOMINAL) * 10U;	/* Percentage */
-			g_u16PidRunningThreshold = NVRAM_RUNNING_CURR_LEVEL + muldivU16_U16byU16byU16( NVRAM_RUNNING_CURR_LEVEL, g_u8TorqueBoostRequest, 100U);
-			g_u16PidRunningThresholdADC = muldivU16_U16byU16byU16( g_u16PidRunningThreshold, C_GMCURR_DIV, EE_GMCURR);	/* Convert [mA] to [ADC-lsb] */
+			g_u8TorqueBoostRequest = (pCfrCtrl->byTorqueLevel - C_CTRL_TORQUE_NOMINAL) * 10U;
 		}
-	}
-	else
-	{
-		g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_STOP;
-	}
+		else//undefined torque, just stop the motor
+		{
+			g_u8TorqueBoostRequest = C_CTRL_TORQUE_NO;
+			g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_STOP;
+		}
 
-	g_u8ChipResetOcc = FALSE;											/* Clear 'reset'-flag only after CFR_INI (4.2.6.3) */
+		g_u8ChipResetOcc = FALSE;											/* Clear 'reset'-flag only after CFR_INI (4.2.6.3) */
 
 } /* End of HandleActCfrCtrl() */
 
@@ -370,12 +264,14 @@ void HandleActCfrCtrl( void)
  * HandleActRfrSta
  *
  *			| Bit 7 | Bit 6 | Bit 5 | Bit 4 | Bit 3 | Bit 2 | Bit 1 | Bit 0 |
+ *			+-----------------------+---------------------------------------+
+ *	Byte 1	|		ERR State		|				APINFO status			| <-- Not used by GM; Removed (MMP160613-1)
+ *			+-----------------------+-------+-------+---------------+-------+
+ *	Byte 2	|			Torque-level		|  Move	|	  Fault		|LinErr	|
  *			+-------------------------------+-------+---------------+-------+
- *	Byte 1	|			Torque-level		|  Move	|	  Fault		|LinErr	|
- *			+-------------------------------+-------+---------------+-------+
- *	Byte 2	|					Actual position Actuator					|
+ *	Byte 3	|					Actual position Actuator					|
  *			+-------------------------------+---------------+---------------+
- *	Byte 3	|			Reserved			|	ArcState	|	InitState	|
+ *	Byte 4	|			Reserved			|	ArcState	|	InitState	|
  *			+-------------------------------+---------------+---------------+
  *
  * ****************************************************************************	*/
@@ -383,10 +279,7 @@ void HandleActRfrSta( void)
 {
 	ACT_RFR_STA *pRfrSta = (ACT_RFR_STA *)LinFrameDataBuffer;
 
-	/* Byte 2 */
-	pRfrSta->byActPosition = ConvertMicroStepPosToPct( g_u16ActualPosition);
-
-	/* Byte 1 */
+	/*	if ( g_u8SAE_ErrorFlags != 0 )		(MMP160613-1) */
 	if ( g_u8ErrorCommunication != FALSE )
 	{
 		pRfrSta->byLinErr = C_STATUS_LIN_ERR;
@@ -396,49 +289,49 @@ void HandleActRfrSta( void)
 		pRfrSta->byLinErr = C_STATUS_LIN_OK;
 	}
 	g_u8SAE_SendErrorState = g_u8ErrorCommunication;
-	if ( g_e8ErrorElectric == C_ERR_ELECTRIC_PERM )
-	{
-		pRfrSta->byFaultState = C_STATUS_FAULT;
-	}
-	else if ( (g_e8ErrorElectric != (uint8) C_ERR_ELECTRIC_NO) || (g_e8ErrorVoltage != (uint8) C_ERR_VOLTAGE_IN_RANGE) ||
-			  /* (g_u8ChipResetOcc != FALSE) || */ (g_e8ErrorOverTemperature != (uint8) C_ERR_OTEMP_NO) ||
-			  (g_u8MechError != FALSE) || (g_u8StallOcc != FALSE))
-	{
-		pRfrSta->byFaultState = C_STATUS_FAULT;
-	}
-	else
-	{
-		pRfrSta->byFaultState = C_STATUS_NO_FAULT;
-	}
+
+	pRfrSta->byFaultState = g_e8EXVStatusFaultState;
+
 	if ( (g_e8MotorStatusMode & C_MOTOR_STATUS_RUNNING) == 0 )
 	{
 		pRfrSta->byMoveState = C_STATUS_MOVE_IDLE;
-		pRfrSta->byTorqueLevel = 0U;
 	}
 	else
 	{
 		pRfrSta->byMoveState = C_STATUS_MOVE_ACTIVE;
-		pRfrSta->byTorqueLevel = (uint8) divU16_U32byU16( (uint32) g_u8TorqueBoostRequest, 10U) + C_CTRL_TORQUE_NOMINAL;
 	}
 
-	/* Byte #3 */
-	if ( g_e8CalibrationStep == (uint8) C_CALIB_DONE )
+	if ( (g_e8MotorStatusMode & C_MOTOR_STATUS_RUNNING) == 0 )
 	{
-		pRfrSta->byInitState = C_STATUS_INIT_DONE;
-	}
-	else if ( (g_e8CalibrationStep == (uint8) C_CALIB_NONE) || (g_e8CalibrationStep >= (uint8) C_CALIB_FAILED) )
-	{
-		pRfrSta->byInitState = C_STATUS_NOT_INIT;
+		pRfrSta->byTorqueLevel = (uint8)C_CTRL_TORQUE_NO;
 	}
 	else
 	{
-		pRfrSta->byInitState = C_STATUS_INIT_BUSY;
+		pRfrSta->byTorqueLevel = (uint8) divU16_U32byU16( (uint32) g_u8TorqueBoostRequest, 10U);
 	}
+
+	//Byte 2
+	pRfrSta->byActPositionLSB = g_u16EXVStatusCurrentPositon&0xFF;
+	pRfrSta->byActPositionMSB = (g_u16EXVStatusCurrentPositon>>8)&0x3;
+
+	//Byte 3
+	pRfrSta->byInitState = g_e8EXVStatusInitStat;
+
 	pRfrSta->byArcState = l_u8StaCounter;
 	l_u8StaCounter++;
-	pRfrSta->byReserved2_4 = 0;													/* Reserved field filled with '0' */
+
+	if(g_e8EXVErrorBlock == TRUE)
+	{
+		pRfrSta->byStallDetectStatus = TRUE;
+	}
+	else
+	{
+		pRfrSta->byStallDetectStatus = FALSE;
+	}
+
+	//pRfrSta->byReserved3_4 = g_e8ErrorCoil&0xF;
 } /* End of HandleActRfrSta() */
-#endif /* (LINPROT == LIN2J_VALVE_VW) */
+#endif /* (LINPROT == LIN2J_VALVE_GM) */
 
 /* ****************************************************************************	*
  *  Bus-timeout
@@ -466,7 +359,7 @@ void HandleBusTimeout( void)
 				g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_EMRUN;
 			}
 		}
-#if (_SUPPORT_BUSTIMEOUT_SLEEP != FALSE)
+#if (_SUPPORT_BUSTIMEOUT_SLEEP != FALSE)										/* MMP130626-8 */
 		else
 		{
 			g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_SLEEP;
@@ -479,7 +372,7 @@ void HandleBusTimeout( void)
 /* ****************************************************************************	*
  * LIN2J_ErrorHandling
  *
- *	LIN2.0/SAE-J2602 VW communication error handling.
+ *	LIN2.0/SAE-J2602 GM communication error handling.
  *	Only report an communication error, in case the LIN slave is addressed.
  *	To see if this slave is addressed, check the NAD in the LinFrame. The
  *	position within the LinFrame depends on the Frame-ID.
@@ -504,39 +397,27 @@ void LIN2J_ErrorHandling( ml_LinError Error)
 		/* switch to System Mode and reinitialise LIN module */
 	}
 	/* ---- ml_erIdParity -------------------------------------------------- */
-	else if ( (Error == ml_erIdParity) || (Error == ml_erIdFraming ) )
+	else if ( Error == ml_erIdParity )
 	{
-		/* Parity error in ID field received -or- Stop bit error of the ID field (SAE_J2602-2: 5.4.1.1) */
-//		if ( (u8FrameID == (((g_u8NAD & 0x0F) << 2) + 0x00)) ||					/* CONTROL_MSG */
-//			 (u8FrameID == (((g_u8NAD & 0x0F) << 2) + 0x01)) ||					/* STATUS_MSG */
-//			 ((u8FrameID == ML_MRF_ID) && (LinFrame[0] == g_u8NAD)) ||			/* DIAG_3C_MSG */
-//			 ((u8FrameID == ML_SRF_ID) && (g_u8BufferOutID == (uint8) QR_RFR_DIAG) && (g_DiagResponse.byNAD == g_u8NAD)) )	/* DIAG_3D_MSG */
+		/* Do NOT set response_error bit, because error occurred in a header */
+	}
+	else if ( u8FrameID == (((g_u8NAD & 0x0F) << 2) + 0x01) )
+	{
+		/* Status Frame */
+		if ( Error == ml_erIdFraming )
 		{
 			g_u8ErrorCommunication = TRUE;
 		}
 	}
-	else if ( (Error == ml_erCheckSum) || (Error == ml_erDataFraming) )
+	else if ( (u8FrameID == (((g_u8NAD & 0x0F) << 2) + 0x00)) ||			/* 1.3.4.2 */
+			  ((u8FrameID == ML_MRF_ID) && (LinFrame[0] == g_u8NAD)) ||		/* 1.3.4.3 */
+			  ((u8FrameID == ML_SRF_ID) && (LinFrame[0] == g_u8NAD)) )		/* 1.3.4.3 */
 	{
-		/* Checksum error in message received -OR- Stop or Start bit error while receiving data (SAE_J2602-2: 5.4.1.2 & 5.4.1.3) */
-		if ( (u8FrameID == (((g_u8NAD & 0x0F) << 2) + 0x00)) ||					/* CONTROL_MSG */
-			 ((u8FrameID == ML_MRF_ID) && (LinFrame[0] == g_u8NAD)) )			/* DIAG_3C_MSG */
+		/* Control frame or Diagnostics frame */
+		if ( (Error == ml_erCheckSum) || (Error == ml_erDataFraming) || (Error == ml_erIdFraming) )
 		{
 			g_u8ErrorCommunication = TRUE;
 		}
-	}
-	else if ( Error == ml_erSynchField )
-	{
-		/* Sync field timing error;
-		 * In case: BufferOutID is QR_RFR_DIAG, and NAD is real-NAD (SAE_J2602-2: 5.4.1.4) */
-		if ( (g_u8BufferOutID == (uint8) QR_RFR_DIAG) && (g_DiagResponse.byNAD == g_u8NAD) )
-		{
-			g_u8ErrorCommunication = TRUE;
-		}
-	}
-	else if ( Error == ml_erBit )
-	{
-		/* Data collision during the transmit cycle (SAE_J2602-2: 5.4.1.5) */
-		g_u8ErrorCommunication = TRUE;
 	}
 	return;
 } /* End of LIN2J_ErrorHandling() */
