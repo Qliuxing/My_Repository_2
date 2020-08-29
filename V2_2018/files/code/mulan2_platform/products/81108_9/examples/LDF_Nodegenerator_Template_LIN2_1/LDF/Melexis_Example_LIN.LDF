@@ -1,0 +1,119 @@
+// **************************************************************************
+// *                       LIN description file
+// **************************************************************************
+// * Target:  MLX_Node
+// * Project: Melexis Example LDF for LIN V2.1
+// * Number:  
+// * File:    Melexis_Example_LIN21.LDF
+// * Author:  H.Leutert
+// * Company: Melexis GmbH
+// * Version: V1.0
+// * Date:    15/11/2012
+// **************************************************************************
+LIN_description_file;
+LIN_protocol_version = "2.1";
+LIN_language_version = "2.1";
+LIN_speed = 19.200 kbps;
+//--------------------------------------------------------------------------
+Nodes {
+Master: Master_Node, 5 ms, 0.100 ms;
+Slaves: MLX_Node;
+}
+//--------------------------------------------------------------------------
+ 
+Signals {
+   SigADCIntVS: 8, 0, MLX_Node,Master_Node;
+
+   SigCommErr: 1, 0, MLX_Node,Master_Node;
+
+   SigPWM_HV0_DutyCycle: 8, 0, Master_Node,MLX_Node;
+   SigPWM_HV1_DutyCycle: 8, 0, Master_Node,MLX_Node;
+   SigPWM_HV2_DutyCycle: 8, 0, Master_Node,MLX_Node;
+   }
+//--------------------------------------------------------------------------
+ 
+Diagnostic_signals {
+        MasterReqB0:8,0;
+        MasterReqB1:8,0;
+        MasterReqB2:8,0;
+        MasterReqB3:8,0;
+        MasterReqB4:8,0;
+        MasterReqB5:8,0;
+        MasterReqB6:8,0;
+        MasterReqB7:8,0;
+        SlaveRespB0:8,0;
+        SlaveRespB1:8,0;
+        SlaveRespB2:8,0;
+        SlaveRespB3:8,0;
+        SlaveRespB4:8,0;
+        SlaveRespB5:8,0;
+        SlaveRespB6:8,0;
+        SlaveRespB7:8,0;
+        }
+ 
+Frames {
+ 
+ 
+MSG1 : 0x05, MLX_Node ,8 {
+   SigCommErr,47;
+   SigADCIntVS,48;
+   }
+ 
+MSG2 : 0x03, Master_Node ,8 {
+   SigPWM_HV0_DutyCycle,0;
+   SigPWM_HV1_DutyCycle,8;
+   SigPWM_HV2_DutyCycle,16;
+   }
+}
+//--------------------------------------------------------------------------
+Diagnostic_frames {
+        MasterReq: 60    {
+                MasterReqB0, 0;
+                MasterReqB1, 8;
+                MasterReqB2, 16;
+                MasterReqB3, 24;
+                MasterReqB4, 32;
+                MasterReqB5, 40;
+                MasterReqB6, 48;
+                MasterReqB7, 56;
+                }
+        SlaveResp: 61    {
+                SlaveRespB0, 0;
+                SlaveRespB1, 8;
+                SlaveRespB2, 16;
+                SlaveRespB3, 24;
+                SlaveRespB4, 32;
+                SlaveRespB5, 40;
+                SlaveRespB6, 48;
+                SlaveRespB7, 56;
+                }
+        }
+//--------------------------------------------------------------------------
+Node_attributes {
+       MLX_Node  {
+                LIN_protocol = "2.1";
+                configured_NAD = 0x01;
+                product_id = 0x0013, 0x0001;
+                response_error = SigCommErr;
+                P2_min  = 50 ms;
+                ST_min  = 20 ms;
+                configurable_frames {
+                        MSG1;
+                        MSG2;
+                }
+        }
+}
+//--------------------------------------------------------------------------
+Schedule_tables {
+  Normal_Schedule
+    {
+    MSG1      delay 20 ms;
+    MSG2      delay 20 ms;
+   }
+  MRF_schedule {
+    MasterReq      delay 20 ms;
+   }
+  SRF_schedule {
+    SlaveResp      delay 20 ms;
+   }
+}

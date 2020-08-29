@@ -1,0 +1,238 @@
+; Visulin Test Suite (c) ihr GmbH
+; Property Template for generic LIN 2.0 Slave IUT
+
+[IUT Type]
+SLAVE=1 ; Set either MASTER or SLAVE to 1;
+MASTER=0 ; Set either MASTER or SLAVE to 1;
+; General Data Link Layer Properties
+;=========================================================================
+
+[Baudrate and Timing]
+BR_2400=0; Support: set (0/1) for every supported baudrate;
+BR_9600=0; Support: set (0/1) for every supported baudrate;
+BR_10417=0; Support: set (0/1) for every supported baudrate;
+BR_19200=0; Support: set (0/1) for every supported baudrate;
+BR_20000=1; Support: set (0/1) for every supported baudrate;
+AUTOBAUD=0; Slave can detect new baudrate at any time on the fly.;
+BR_NOSYNC=0; Master Synchronization capability: Set either BR_NOSYNC or BR_SYNC to (1);
+BR_SYNC=1; Master Synchronization capability: Set either BR_NOSYNC or BR_SYNC to (1);
+BR_DEF=20000; Default Baudrate: Set the highest supported Lin Baudrate to be used as default;
+DEL_DEF=10; Default Scheduler Delay [ms] (80 at 2400, 20 at 9600/10400, 10 at 19200);
+DEL_EXP=40; Default "Expect" Timeout [ms]: Time to expect back a transmitted frame;
+DEL_DEF_192=10; Scheduler Delay 19200;
+DEL_EXP_192=40; "Expect" Timeout [ms]: Time to expect back a transmitted frame;
+DEL_DEF_104=20; Scheduler Delay 10400;
+DEL_EXP_104=50; "Expect" Timeout [ms]: Time to expect back a transmitted frame;
+DEL_DEF_96=20; Scheduler Delay 9600;
+DEL_EXP_96=50; "Expect" Timeout [ms]: Time to expect back a transmitted frame;
+DEL_DEF_24=80; Scheduler Delay 2400;
+DEL_EXP_24=110; "Expect" Timeout [ms]: Time to expect back a transmitted frame;
+DEL_PUP=100; delay for Power On Wakeup until first frame to send;
+MAX_WAKEUP=100; delay for Bus activity wakeup until first frame to send;
+
+
+
+
+
+
+; add the message processing time to the default scheduler delay;
+; DEL_EXP  = DEL_DEF + 10                                        ;
+
+;=========================================================================;
+
+[Event Triggered Frame]
+ETF_SUP=1; IUT supports an event triggered frame (0/1);
+ETF_DLEN=4; Data Length (2..8) of Unconditional and Event Triggered Frame;
+
+UNC_MID=0xC1, 0x40 ; Message Identifier of Unconditional Frame configurable message;
+UNC_FID=0x21       ; Frame ID (0..59) for assigning to Unconditional Frame;
+UNC_PID=0x61       ; Protected Identifier (including parity) for Unconditional Frame;
+
+ETF_MID=0xC0, 0x40 ; Message Identifier of Event Triggered Frame configurable message;
+ETF_FID=0x20       ; Frame ID (0..59) for assigning to Event Triggered Frame;
+ETF_PID=0x20       ; Protected Identifier (including parity) for Event Triggered Frame;
+
+
+; A pair of an Unconditional Frame and an assigned Event Triggered Frame 
+; must be defined here.
+
+; Unconditional Frame which belongs to the Event Triggered Frame
+
+; Event Triggered Frame 
+
+;=========================================================================
+ 
+[Command Frames Support]
+SID_WU=0x00       ; Service in Command Frame to be processed at wakeup (0=DeviceID, 1=SerialNumber);
+CFR_MREQ=1          ; Slave IUT supports receiving a MasterReq command frame (0/1);
+CFR_SRESP=1          ; Slave IUT supports transmitting a SlaveResp command frame (0/1);
+DEL_RESP=30         ; Delay [ms] between MasterReq and SlaveResp Frames (P2_min);
+DEL_RESP_192=30         ; Delay [ms] between MasterReq and SlaveResp Frames (P2_min) at 19200;
+DEL_RESP_104=40         ; Delay [ms] between MasterReq and SlaveResp Frames (P2_min) at 10400;
+DEL_RESP_96=40         ; Delay [ms] between MasterReq and SlaveResp Frames (P2_min) at 9600;
+DEL_RESP_24=100        ; Delay [ms] between MasterReq and SlaveResp Frames (P2_min) at 2400;
+
+; DEL_RESP = DEL_DEF + P2_min
+                
+
+;=========================================================================
+[User Frames]
+SUB_FID_ALT= 0x3A     ; Alternative Frame Identifier subscriber;
+
+;=========================================================================
+[Default Frame Identifier Assignment]
+AS_DFID  = 1          ; Assign Default Frame Identifier (0=do not assign before tests);
+
+SUB_NUM  = 1          ; Number of subscribed frames;
+
+SUB_MID1 = 0xD1, 0x40 ; Message Identifier subcriber;
+SUB_FID1 = 0x03       ; Frame Identifier subscriber;
+SUB_DTA1 ={0xFF, 0x7F};;
+SUB_DTA1_RED ={0xFF}; Reduced frame (just Data0);
+SUB_LEN1 =3 ;including checksum byte;
+
+SUB_DTA2 ={0x55, 0xFF};;
+SUB_DTA2_ALT={0xAA, 0xFF}; trigger an event;
+
+PUB_NUM  = 2          ; Number of publisher frames;
+
+PUB_MID1 =0xC1, 0x40 ;; 
+PUB_FID1 =0x21       ;; 
+PUB_LEN1 =5          ;; 
+
+PUB_MID2 = 0x51, 0x40 ; Message Identifier publisher;
+PUB_FID2 = 0x01       ; Frame Identifier publisher;
+PUB_LEN2 = 3          ; data length + 1 checksum byte, Status Management frame;
+
+;=========================================================================
+[Other Settings]
+WITH_IBS=0          ; 1=has interbyte space, 0=has no interbyte space;
+BC_DOM_BIT=0;	 1=Highside Driver available for test;
+
+;=========================================================================
+; Lin2.0 Specific Properties
+;=========================================================================
+
+;=========================================================================
+[Lin2.0 Slave Identification]
+IDW_SUP    = 0xFE, 0x5A ; Supplier ID (Lowbyte, Highbyte);
+IDW_FUNC   = 0x00, 0x10 ; Function ID (Lowbyte, Highbyte);
+IDB_VAR    = 0x01       ; Variant ;
+NAD_DEF    = 0x31       ; Default Node Address on Power Up;
+
+;=========================================================================
+[Lin2.0 Slave Status Management]
+SM_MID     = 0x51, 0x40 ; = PUB_MID2  Message Identifier of published message, which contains the Error-Bit;
+SM_LEN     = 3          ; = PUB_LEN2  Data Length (1..2) + 1 checksum byte;
+SM_FID     = 0x01       ; = PUB_FID2  Frame ID to be assigned to the status reporting message [0..59];
+SM_ERROR   = {%XXXXXXX1, , } ; Data pattern for Error-Bit is SET;
+SM_NOERROR = {%XXXXXXX0, , } ; Data pattern for Error-Bit is NOT SET;
+; The status reporting message is given a frame identifier upon initialization
+; The error bit location and message length must also be defined here; 
+
+
+
+;=========================================================================
+[Lin2.0 Slave Node Configuration Support]
+NC_AFIDPR=1 ; can answer to "AssignFrameID" with a positive response (0/1);
+NC_RBISER=1 ; can answer to "ReadByIdentifier(1)" with a positive response ("Serial Number") (0/1);
+NC_RBI16=0 ; can answer to ReadByIdentifier Message ID 1 with positive response;
+NC_RBI17=0 ; can answer to ReadByIdentifier Message ID 2 with positive response;
+NC_RBI18=0 ; can answer to ReadByIdentifier Message ID 3 with positive response;
+NC_RBI19=0 ; can answer to ReadByIdentifier Message ID 4 with positive response;
+NC_RBI20=0 ; can answer to ReadByIdentifier Message ID 5 with positive response;
+NC_RBI21=0 ; can answer to ReadByIdentifier Message ID 6 with positive response;
+NC_RBI22=0 ; can answer to ReadByIdentifier Message ID 7 with positive response;
+NC_RBI23=0 ; can answer to ReadByIdentifier Message ID 8 with positive response;
+NC_RBI24=0 ; can answer to ReadByIdentifier Message ID 9 with positive response;
+NC_RBI25=0 ; can answer to ReadByIdentifier Message ID 10 with positive response;
+NC_RBI26=0 ; can answer to ReadByIdentifier Message ID 11 with positive response;
+NC_RBI27=0 ; can answer to ReadByIdentifier Message ID 12 with positive response;
+NC_RBI28=0 ; can answer to ReadByIdentifier Message ID 13 with positive response;
+NC_RBI29=0 ; can answer to ReadByIdentifier Message ID 14 with positive response;
+NC_RBI30=0 ; can answer to ReadByIdentifier Message ID 15 with positive response;
+NC_RBI31=0 ; can answer to ReadByIdentifier Message ID 16 with positive response;
+NC_RBIMSG=0 ; does send responses on "ReadByIdentifier(16..31)" - Message IDs (0/1);
+NC_ANAD=1      ; supports the "AssignNAD(ADR)" command (0/1);
+NC_ANADPR=1      ; can answer to "AssignNAD(ADR)" with a positive response (0/1);
+NC_CCNAD=1      ; support the "Conditional Change NAD" command (0/1);
+NAD_NEW=55     ; Alternative NAD to be assigned;
+NAD_INI=0x0B   ; Initial NAD;
+NC_CCNADPR=1      ; can answer to "ConditionalChangeNAD" with a positive response (0/1);
+NC_CCNAD_ID=0    ; Id=0 ;
+NC_CCNAD_Byte=0x05 ; 5 is equivalent to Variant-Byte. The value of Variant see at IDB_VAR;
+NC_CCNAD_MASK=0xFF ; All Enable;
+NC_INVERT0=0x01; Check bit 1 ;
+NC_INVERT1=0x02; Check bit 2 ;
+NC_INVERT2=0x04; Check bit 3 ;
+NC_INVERT3=0x08; Check bit 4 ;
+NC_INVERT4=0x10; Check bit 5 ;
+NC_INVERT5=0x20; Check bit 6 ;
+NC_INVERT6=0x40; Check bit 7 ;
+NC_INVERT7=0x80; Check bit 8 ;
+ 
+
+;=========================================================================
+[Lin2.0 Slave Network Management properties]
+NM_LWAKE=1    ; can be triggered to start locally and generate a bus wakeup (0/1);
+NM_WURETRY=0    ; will send retries on wakeup when master does not respond (0/1);
+NM_SMGS=1   ; goes in Sleep Mode after GotoSleep command (0/1);
+NM_SMIDLE=1   ; goes in Sleep Mode after network idle (0/1);
+NM_SMIDOWN=0   ; current reduced in Sleep Mode (0/1);
+NM_SMPDOWN=1   ; supports Power Down (communication stops) in Sleep Mode (0/1);
+NM_TSMGS=100  ; max time to go to Sleep Mode after GotoSleep command [ms] (current settling time);
+NM_TSMIDLE=5000 ; max time to go to Sleep Mode after network idle [ms](current settling time);
+NM_ISLEEP_MAX=1 ; max current in Sleep Mode (10mA at 10 Ohm);
+NM_IWAKE_MIN=25 ; min current after Wakeup in Running Mode (24mA at 10 Ohm);
+
+; Local Wakeup
+
+; Power management
+
+// STS -> 60 uA
+// STS -> 25 mA
+ 
+
+;=========================================================================
+; IHR additional tests
+;=========================================================================
+[IHR extension]
+; BitCrush parameters for Status Management Frame (only unused, i.e. recessive bit shoudl be crashed);
+BC_BYTE_SM=5  ; Data byte starts from 4 (thus 4 is for Data0); 
+BC_BIT_SM=8   ; Data bit starts from 1 (0 - startbit, 1 - bit 0);
+WRONG_IDW_FUNC=0x55, 0xAA; wrong Function ID for SlaveResponse Negative Tests;
+WRONG_IDW_SUP=0xAA, 0x55; wrong Supplier ID for SlaveResponse Negative Tests;
+
+;
+;=========================================================================
+[Tester Control]
+
+; switching power supply for the IUT;
+
+;=========================================================================
+;=========================================================================
+; Constant Labels --- do not modify
+;=========================================================================
+;=========================================================================
+
+;=========================================================================
+
+POWER_SWITCH=HIO:DigitalOut_02  ; remotely switch the IUT power supply;
+CURRENT_SUP=0                  ; current measurement available;
+CURRENT_IN=HIO:AnalogIn5V_01  ; current sensing input;
+[CONST]
+ALLFRAMES=66  ; RxRequestFrame and TestFrame;
+NOFRAME=65  ;;
+ERR_NONE=0;;
+ERR_SYNC=1;;
+ERR_BYTE=2;;
+ERR_PARITY=3;;
+ERR_NORESPONSE=4;;
+ERR_TIMEOUT=5;;
+ERR_CHECKSUM=6;;
+ERR_BUSHI=7;;
+ERR_BUSLO=8;;
+ERR_COLLISION=9;;
+ERR_MASTER_TO=10;;
+#ALLFRAMES=66  ; RxRequestFrame and TestFrame;
+#NOFRAME=65;;

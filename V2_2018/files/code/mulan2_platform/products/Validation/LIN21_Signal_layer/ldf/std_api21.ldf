@@ -1,0 +1,238 @@
+/*
+ * Signal Interaction and Notification example
+ *
+ * Copyright (C) 2007 Melexis N.V.
+ */
+LIN_description_file;
+LIN_protocol_version = "2.1";
+LIN_language_version = "2.1";
+LIN_speed = 9.6 kbps;
+
+Nodes
+{
+    Master: USB_LIN_master, 10 ms, 1 ms;
+    Slaves: MLX_slave;
+}
+
+
+Signals 
+{
+    i1                  :  1,   0x00, USB_LIN_master, MLX_slave;
+    i2                  :  2,   0x00, USB_LIN_master, MLX_slave;
+    i3                  :  3,   0x00, USB_LIN_master, MLX_slave;
+    i4                  :  4,   0x00, USB_LIN_master, MLX_slave;
+    i5                  :  5,   0x00, USB_LIN_master, MLX_slave;
+    i6                  :  6,   0x00, USB_LIN_master, MLX_slave;
+    i7                  :  7,   0x00, USB_LIN_master, MLX_slave;
+    i8                  :  8,   0x00, USB_LIN_master, MLX_slave;
+    i9                  :  9, 0x0000, USB_LIN_master, MLX_slave;
+    i10                 : 10, 0x0000, USB_LIN_master, MLX_slave;
+    i11                 : 11, 0x0000, USB_LIN_master, MLX_slave;
+    i12                 : 12, 0x0000, USB_LIN_master, MLX_slave;
+    i13                 : 13, 0x0000, USB_LIN_master, MLX_slave;
+    i14                 : 14, 0x0000, USB_LIN_master, MLX_slave;
+    i15                 : 15, 0x0000, USB_LIN_master, MLX_slave;
+    i16                 : 16, 0x0000, USB_LIN_master, MLX_slave;
+
+
+    o1                  :  1,   0x01, MLX_slave, USB_LIN_master;
+    o2                  :  2,   0x00, MLX_slave, USB_LIN_master;
+    o3                  :  3,   0x07, MLX_slave, USB_LIN_master;
+    o4                  :  4,   0x00, MLX_slave, USB_LIN_master;
+    o5                  :  5,   0x1F, MLX_slave, USB_LIN_master;
+    o6                  :  6,   0x00, MLX_slave, USB_LIN_master;
+    o7                  :  7,   0x7F, MLX_slave, USB_LIN_master;
+    o8                  :  8,   0x00, MLX_slave, USB_LIN_master;
+    o9                  :  9, 0x01FF, MLX_slave, USB_LIN_master;
+    o10                 : 10, 0x0000, MLX_slave, USB_LIN_master;
+    o11                 : 11, 0x07FF, MLX_slave, USB_LIN_master;
+    o12                 : 12, 0x0000, MLX_slave, USB_LIN_master;
+    o13                 : 13, 0x1FFF, MLX_slave, USB_LIN_master;
+    o14                 : 14, 0x0000, MLX_slave, USB_LIN_master;
+    o15                 : 15, 0x7FFF, MLX_slave, USB_LIN_master;
+    o16                 : 16, 0x0000, MLX_slave, USB_LIN_master;
+
+    MstArray            : 56, {0, 0, 0, 0, 0, 0, 0}, USB_LIN_master, MLX_slave;
+    Cmd                 : 8, 0x00, USB_LIN_master, MLX_slave;
+    SlvArray            : 56, {0, 0, 0, 0, 0, 0, 0}, MLX_slave, USB_LIN_master;
+
+    Status              : 16, 0x0000, MLX_slave, USB_LIN_master;
+
+    Response_Error_s    :  1, 0x00, MLX_slave, USB_LIN_master;
+    Cnt                 :  8, 0x00, MLX_slave, USB_LIN_master;
+}
+
+Diagnostic_signals
+{
+    MasterReqB0: 8, 0;
+    MasterReqB1: 8, 0;
+    MasterReqB2: 8, 0;
+    MasterReqB3: 8, 0;
+    MasterReqB4: 8, 0;
+    MasterReqB5: 8, 0;
+    MasterReqB6: 8, 0;
+    MasterReqB7: 8, 0;
+    SlaveRespB0: 8, 0;
+    SlaveRespB1: 8, 0;
+    SlaveRespB2: 8, 0;
+    SlaveRespB3: 8, 0;
+    SlaveRespB4: 8, 0;
+    SlaveRespB5: 8, 0;
+    SlaveRespB6: 8, 0;
+    SlaveRespB7: 8, 0;
+}
+
+
+Frames {
+
+    M2S_1 : 0x30, USB_LIN_master, 8
+    {
+        i1,   0;
+        i2,   1;
+        i3,   3;
+        i4,   6;
+        i5,  10;
+        i6,  15;
+        i7,  21;
+        i8,  28;
+        i9,  36;
+        i10, 45;
+    }
+    
+    S2M_1 : 0x31, MLX_slave, 8
+    {
+        o10,  9;
+        o9,  19;
+        o8,  28;
+        o7,  36;
+        o6,  43;
+        o5,  49;
+        o4,  54;
+        o3,  58;
+        o2,  61;
+        o1,  63;
+    }
+    
+    M2S_2 : 0x32, USB_LIN_master, 8
+    {
+        i11,  0;
+        i12, 11;
+        i13, 23;
+        i14, 36;
+    }
+    
+    S2M_2 : 0x33, MLX_slave, 8
+    {
+        o14, 14;
+        o13, 28;
+        o12, 41;
+        o11, 53;
+    }
+    
+    M2S_3 : 0x34, USB_LIN_master, 8
+    {
+        i15,  0;
+        i16, 15;
+    }
+    
+    S2M_3 : 0x35, MLX_slave, 8
+    {
+        o16, 33;
+        o15, 49;
+    }
+    
+    byte_array_in  : 0x36, USB_LIN_master, 8
+    {
+        MstArray,  0;
+        Cmd,      56;    
+    }
+    
+    byte_array_out : 0x37, MLX_slave, 8
+    {
+        SlvArray, 8;
+    }
+
+    node_status    : 0x38, MLX_slave, 2
+    {
+        Status, 0;  
+    }
+    
+    counter        : 0x29, MLX_slave, 2
+    {
+        Response_Error_s, 0;
+        Cnt,              8;
+    }
+}
+
+Diagnostic_frames
+{
+    MasterReq: 60
+    {
+        MasterReqB0, 0;
+        MasterReqB1, 8;
+        MasterReqB2, 16;
+        MasterReqB3, 24;
+        MasterReqB4, 32;
+        MasterReqB5, 40;
+        MasterReqB6, 48;
+        MasterReqB7, 56;
+    }
+    SlaveResp: 61
+    {
+        SlaveRespB0, 0;
+        SlaveRespB1, 8;
+        SlaveRespB2, 16;
+        SlaveRespB3, 24;
+        SlaveRespB4, 32;
+        SlaveRespB5, 40;
+        SlaveRespB6, 48;
+        SlaveRespB7, 56;
+    }
+}
+
+Node_attributes
+{
+    MLX_slave
+    {
+        LIN_protocol = "2.1";
+        configured_NAD = 0x0B;
+        product_id = 0x5AFE, 0xBEAF, 1;
+        response_error = Response_Error_s;
+        P2_min = 20 ms;  /* TBD */
+        ST_min = 20 ms;  /* TBD */
+        N_As_timeout = 1000 ms; /* TBD */
+        N_Cr_timeout = 1000 ms; /* TBD */
+        configurable_frames
+        {
+            M2S_1;      /* index 0 */
+            S2M_1;      /* index 1 */
+            M2S_2;
+            S2M_2;
+            M2S_3;
+            S2M_3;
+            byte_array_in;
+            byte_array_out;
+            node_status;    /* index 8 */
+            counter;        /* index 9 */
+        }
+    }
+}
+
+Schedule_tables {
+    /* TBD */
+    normal_mode
+    {
+        counter     delay 20.000 ms;
+    }
+
+    config_mode
+    {
+        AssignNAD  {MLX_slave}                                  delay 20.000 ms;  /* Request is addressed to initial NAD */
+        ConditionalChangeNAD  {0x7F, 0, 5, 0xFF, 0x01, 0x0B}    delay 20.000 ms;
+
+        AssignFrameIdRange{MLX_slave, 0}                         delay 20.000 ms; /* use default PIDs */
+        AssignFrameIdRange{MLX_slave, 4}                         delay 20.000 ms; /* use default PIDs */
+        AssignFrameIdRange{MLX_slave, 8, 0x78, 0xE9, 0xFF, 0xFF} delay 20.000 ms; /* PIDs for node_status (index 8) and counter (index 9) */
+    }
+}
+

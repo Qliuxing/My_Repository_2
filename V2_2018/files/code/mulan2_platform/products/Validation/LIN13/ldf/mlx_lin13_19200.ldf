@@ -1,0 +1,161 @@
+LIN_description_file ;
+LIN_protocol_version = "1.3";
+LIN_language_version = "1.3";
+LIN_speed = 19.2 kbps;
+
+Nodes {
+          Master: BusMaster, 1 ms, 0.1 ms;
+          Slaves: MLX,Dummy;
+}
+
+Signals {
+
+        FRM_SLAVE_B0:   8, 0, MLX, BusMaster;
+        FRM_SLAVE_B1:   8, 0, MLX, BusMaster;
+
+        FRM_MASTER2_B0: 8, 0,  BusMaster, MLX;
+        FRM_MASTER2_B1: 8, 0,  BusMaster, MLX;
+
+        FRM_S2M_13_B0:  8, 0, MLX, BusMaster;
+        FRM_S2M_13_B1:  8, 0, MLX, BusMaster;
+
+        FRM_S2M_14_B0:  8, 0, MLX, BusMaster;
+        FRM_S2M_14_B1:  8, 0, MLX, BusMaster;
+
+        FRM_S2M_15_B0:  8, 0, MLX, BusMaster;
+        FRM_S2M_15_B1:  8, 0, MLX, BusMaster;
+
+        FRM_SLAVE4_B0:  8, 0, MLX, BusMaster;
+        FRM_SLAVE4_B1:  8, 0, MLX, BusMaster;
+        FRM_SLAVE4_B2:  8, 0, MLX, BusMaster;
+        FRM_SLAVE4_B3:  8, 0, MLX, BusMaster;
+
+        FRM_MASTER_B0:  8, 0,  BusMaster, MLX;
+        FRM_MASTER_B1:  8, 0,  BusMaster, MLX;
+        FRM_MASTER_B2:  8, 0,  BusMaster, MLX;
+        FRM_MASTER_B3:  8, 0,  BusMaster, MLX;
+
+        FRM_M2S_2A_B0:  8, 0,  BusMaster, MLX;
+        FRM_M2S_2A_B1:  8, 0,  BusMaster, MLX;
+        FRM_M2S_2A_B2:  8, 0,  BusMaster, MLX;
+        FRM_M2S_2A_B3:  8, 0,  BusMaster, MLX;
+
+        FRM_SLAVE8_B0:  8, 0, MLX, BusMaster;
+        FRM_SLAVE8_B1:  8, 0, MLX, BusMaster;
+        FRM_SLAVE8_B2:  8, 0, MLX, BusMaster;
+        FRM_SLAVE8_B3:  8, 0, MLX, BusMaster;
+        FRM_SLAVE8_B4:  8, 0, MLX, BusMaster;
+        FRM_SLAVE8_B5:  8, 0, MLX, BusMaster;
+        FRM_SLAVE8_B6:  8, 0, MLX, BusMaster;
+        FRM_SLAVE8_B7:  8, 0, MLX, BusMaster;
+}
+
+
+Frames {
+
+    FRM_SLAVE: 1, MLX {
+        FRM_SLAVE_B0,   0;
+        FRM_SLAVE_B1,   8;
+    }
+
+    FRM_MASTER2: 4, BusMaster {
+        FRM_MASTER2_B0, 0;
+        FRM_MASTER2_B1, 8;
+    }
+
+    FRM_S2M_13: 0x13, MLX {
+        FRM_S2M_13_B0,   0;
+        FRM_S2M_13_B1,   8;
+    }
+
+    FRM_S2M_14: 0x14, MLX {
+        FRM_S2M_14_B0,   0;
+        FRM_S2M_14_B1,   8;
+    }
+
+    FRM_S2M_15: 0x15, MLX {
+        FRM_S2M_15_B0,   0;
+        FRM_S2M_15_B1,   8;
+    }
+
+    FRM_SLAVE4: 0x20, MLX {
+        FRM_SLAVE4_B0,   0;
+        FRM_SLAVE4_B1,   8;
+        FRM_SLAVE4_B2,   16;
+        FRM_SLAVE4_B3,   24;
+    }
+
+    FRM_MASTER: 0x21, BusMaster {
+        FRM_MASTER_B0,   0;
+        FRM_MASTER_B1,   8;
+        FRM_MASTER_B2,   16;
+        FRM_MASTER_B3,   24;
+    }
+
+    FRM_M2S_2A: 0x2A, BusMaster {
+        FRM_M2S_2A_B0,   0;
+        FRM_M2S_2A_B1,   8;
+        FRM_M2S_2A_B2,   16;
+        FRM_M2S_2A_B3,   24;
+    }
+
+    FRM_SLAVE8: 0x32, MLX {
+        FRM_SLAVE8_B0,   0;
+        FRM_SLAVE8_B1,   8;
+        FRM_SLAVE8_B2,   16;
+        FRM_SLAVE8_B3,   24;
+        FRM_SLAVE8_B4,   32;
+        FRM_SLAVE8_B5,   40;
+        FRM_SLAVE8_B6,   48;
+        FRM_SLAVE8_B7,   56;
+    }
+    
+  **Pattern_Init :        0xF20, Dummy, 1 { }
+  **Pattern_AddDomBits :  0xF21, Dummy, 1 { }
+  **Pattern_AddRecBits :  0xF22, Dummy, 1 { }
+  **Pattern_AddDomTicks : 0xF23, Dummy, 1 { }
+  **Pattern_AddRecTicks : 0xF24, Dummy, 1 { }
+  **Pattern_AddDom10ths : 0xF25, Dummy, 1 { }
+  **Pattern_AddRec10ths : 0xF26, Dummy, 1 { }
+  **Pattern_AddDom16ths : 0xF27, Dummy, 1 { }
+  **Pattern_AddRec16ths : 0xF28, Dummy, 1 { }
+  **Pattern_AddBits :     0xF29, Dummy, 1 { }
+  **Pattern_AddByte :     0xF2A, Dummy, 1 { }
+  **Pattern_AddByte_CS :  0xF2B, Dummy, 1 { }
+  **Pattern_AddRawbyte :  0xF2C, Dummy, 1 { }
+  **Pattern_AddRawbyte_CS:0xF2D, Dummy, 1 { }
+  **Pattern_Checksum :    0xF2E, Dummy, 1 { }
+  **Pattern_Trigger :     0xF2F, Dummy, 1 { }
+}
+
+Schedule_tables {
+
+    Main_Schedule {
+        FRM_SLAVE       delay 10 ms;
+        FRM_MASTER2     delay 10 ms;
+        FRM_S2M_13      delay 10 ms;
+        FRM_S2M_14      delay 10 ms;
+        FRM_S2M_15      delay 10 ms;
+        FRM_SLAVE4      delay 10 ms;
+        FRM_MASTER      delay 10 ms;
+        FRM_M2S_2A      delay 10 ms;
+        FRM_SLAVE8      delay 10 ms;
+    }
+    Master4Slave2{
+        FRM_MASTER      delay 10 ms;
+        FRM_SLAVE       delay 10 ms;
+    }
+    
+    Master2Slave2{
+        FRM_MASTER2      delay 10 ms;
+        FRM_SLAVE       delay 10 ms;
+    }
+    Master2Slave4{
+        FRM_MASTER2      delay 10 ms;
+        FRM_SLAVE4       delay 10 ms;
+    }
+    Master2Slave8{
+        FRM_MASTER2      delay 10 ms;
+        FRM_SLAVE8       delay 10 ms;
+    }
+}

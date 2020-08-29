@@ -182,7 +182,7 @@
 #define _SUPPORT_MLX16_HALT					TRUE								/* FALSE: MLX16 doesn't HALT; TRUE: MLX16 enters HALT during holding mode (power-safe) */
 #define _SUPPORT_VSFILTERED					FALSE								/* FALSE: Unfiltered Vs (ADC Channel 0); TRUE: Filtered Vs (ADC Channel 4) (MLX81310A) */
 #define _SUPPORT_VSMFILTERED				TRUE								/* FALSE: Unfiltered Vsm (ADC Channel 14); TRUE: Filtered Vsm (ADC Channel 4) (MLX81310C) */
-#define _SUPPORT_AUTO_BAUDRATE				TRUE		/* GM151010: FALSE */			/* FALSE: Fixed baudrate; TRUE: Auto-detection of baudrate */
+#define _SUPPORT_AUTO_BAUDRATE				FALSE		/* GM151010: FALSE */			/* FALSE: Fixed baudrate; TRUE: Auto-detection of baudrate */
 #define _SUPPORT_MOTOR_SELFTEST				TRUE								/* FALSE: No motor driver check at POR; TRUE: Motor driver check at POR */
 #define _SUPPORT_LIN_UV						TRUE								/* FALSE: No LIN UV check; TRUE: LIN UV check (reset Bus-time-out) */
 #define _SUPPORT_IOREG_CHECK				TRUE								/* FALSE: No critical IO-Register check; TRUE: Critical IO-register check */

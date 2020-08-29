@@ -1,0 +1,88 @@
+-  Map-Datei (Lin Description File)
+-  
+Environment:
+-  Environment-structure at Pointeradress: 00000000
+-  Environment-strings at Pointeradress: 000002C0
+-  
+Nodes:
+-  Node-0-name = BusMaster at Pointeradress: 000002DC    DiagAdr :  0
+-  Node-1-name = MLX at Pointeradress: 000002E6    DiagAdr :  0
+-  
+Signals:
+-  Signal-0-structure at Pointeradress: 000002EA
+-  Signal-1-structure at Pointeradress: 000002F6
+-  Signal-2-structure at Pointeradress: 00000302
+-  Signal-3-structure at Pointeradress: 0000030E
+-  Signal-4-structure at Pointeradress: 0000031A
+-  Signal-5-structure at Pointeradress: 00000326
+-  Signal-6-structure at Pointeradress: 00000332
+-  Signal-7-structure at Pointeradress: 0000033E
+-  Signal-8-structure at Pointeradress: 0000034A
+-  Signal-9-structure at Pointeradress: 00000356
+-  Signal-10-structure at Pointeradress: 00000362
+-  Signal-11-structure at Pointeradress: 0000036E
+-  Signal-12-structure at Pointeradress: 0000037A
+-  Signal-13-structure at Pointeradress: 00000386
+-  Signal-14-structure at Pointeradress: 00000392
+-  Signal-15-structure at Pointeradress: 0000039E
+-  Signal-16-structure at Pointeradress: 000003AA
+-  Signal-17-structure at Pointeradress: 000003B6
+-  Signal-18-structure at Pointeradress: 000003C2
+-  Signal-19-structure at Pointeradress: 000003CE
+-  Signal-20-structure at Pointeradress: 000003DA
+-  Signal-21-structure at Pointeradress: 000003E6
+-  Signal-22-structure at Pointeradress: 000003F2
+-  Signal-23-structure at Pointeradress: 000003FE
+-  Signal-24-structure at Pointeradress: 0000040A
+-  Signal-25-structure at Pointeradress: 00000416
+-  Signal-26-structure at Pointeradress: 00000422
+-  Signal-names: 
+-  Signal-0-name = PUB1_B0 at Pointeradress: 0000042E
+-  Signal-1-name = PUB1_B1 at Pointeradress: 00000436
+-  Signal-2-name = SUB1_B0 at Pointeradress: 0000043E
+-  Signal-3-name = SUB1_B1 at Pointeradress: 00000446
+-  Signal-4-name = SUB1_B2 at Pointeradress: 0000044E
+-  Signal-5-name = SUB1_B3 at Pointeradress: 00000456
+-  Signal-6-name = SUB1_B4 at Pointeradress: 0000045E
+-  Signal-7-name = SUB1_B5 at Pointeradress: 00000466
+-  Signal-8-name = SUB1_B6 at Pointeradress: 0000046E
+-  Signal-9-name = SUB1_B7 at Pointeradress: 00000476
+-  Signal-10-name = RESP_ERR at Pointeradress: 0000047E
+-  Signal-11-name = MasterReqB0 at Pointeradress: 00000488
+-  Signal-12-name = MasterReqB1 at Pointeradress: 00000494
+-  Signal-13-name = MasterReqB2 at Pointeradress: 000004A0
+-  Signal-14-name = MasterReqB3 at Pointeradress: 000004AC
+-  Signal-15-name = MasterReqB4 at Pointeradress: 000004B8
+-  Signal-16-name = MasterReqB5 at Pointeradress: 000004C4
+-  Signal-17-name = MasterReqB6 at Pointeradress: 000004D0
+-  Signal-18-name = MasterReqB7 at Pointeradress: 000004DC
+-  Signal-19-name = SlaveRespB0 at Pointeradress: 000004E8
+-  Signal-20-name = SlaveRespB1 at Pointeradress: 000004F4
+-  Signal-21-name = SlaveRespB2 at Pointeradress: 00000500
+-  Signal-22-name = SlaveRespB3 at Pointeradress: 0000050C
+-  Signal-23-name = SlaveRespB4 at Pointeradress: 00000518
+-  Signal-24-name = SlaveRespB5 at Pointeradress: 00000524
+-  Signal-25-name = SlaveRespB6 at Pointeradress: 00000530
+-  Signal-26-name = SlaveRespB7 at Pointeradress: 0000053C
+-  
+Frames:
+-  Frame-ID(0)-structure at Pointeradress: 00000548
+-  Frame-ID(0) contains 3 Signals
+-  Frame-ID(1)-structure at Pointeradress: 00000556
+-  Frame-ID(1) contains 8 Signals
+-  Frame-ID(60)-structure at Pointeradress: 0000056E
+-  Frame-ID(60) contains 8 Signals
+-  Frame-ID(61)-structure at Pointeradress: 00000586
+-  Frame-ID(61) contains 8 Signals
+-  Frame-names: 
+-  Frame-ID(0)-name = PUB1 at Pointeradress: 0000059E
+-  Frame-ID(1)-name = SUB1 at Pointeradress: 000005A4
+-  Frame-ID(60)-name = MasterReq at Pointeradress: 000005AA
+-  Frame-ID(61)-name = SlaveResp at Pointeradress: 000005B4
+-  
+ScheduleTables:
+-  ScheduleTable-0-structure at Pointeradress: 000005BE
+-  ScheduleTable-0 contains 2 Frames
+-  ScheduleTable-names: 
+-  ScheduleTable-0-name = Normal at Pointeradress: 000005CA
+

@@ -311,7 +311,7 @@ typedef enum
 
 //EXV Position
 #if _SUPPORT_DOUBLE_USTEP
-#define	C_EXV_MICRO_STEP	(1 << (NVRAM_MICRO_STEPS + 1))						/* Number of micro-steps per full-step (2, 4, 8 or 16) */
+#define	C_EXV_MICRO_STEP	(1 << (NVRAM_MICRO_STEPS + 0))						/* Number of micro-steps per full-step (2, 4, 8 or 16) */
 #else  /* _SUPPORT_DOUBLE_USTEP */
 #define	C_EXV_MICRO_STEP	(1 << NVRAM_MICRO_STEPS)							/* Number of micro-steps per full-step (1, 2, 4 or 8) */
 #endif

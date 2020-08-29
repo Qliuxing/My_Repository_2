@@ -365,9 +365,9 @@ void noinit_section_init(void)
 void RteExv2Lin(void)
 {
 
-	g_e8CalibrationStep = (uint8)C_CALIB_DONE;
+//	g_e8CalibrationStep = (uint8)C_CALIB_DONE;
 
-	g_e8EXVStatusInitStat = C_STATUS_INIT_DONE;
+//	g_e8EXVStatusInitStat = C_STATUS_INIT_DONE;
 
 	if (g_e8CalibrationStep == (uint8)C_CALIB_NONE)
 	{
@@ -837,6 +837,8 @@ int16 main( void)
 		}
 #endif /* _SUPPORT_DIG_LIN */
 
+
+
 		/* ********************************* */
 		/* *** c. LIN(-IN) communication *** */
 		/* ********************************* */
@@ -852,6 +854,8 @@ int16 main( void)
 			continue;
 		}																		/* MMP140417-2 - End */
 #endif /* ((LINPROT & LINXX) == LIN2X) */
+
+
 
 		/* ******************************* */
 		/* *** d. Motor Driver current *** */
@@ -884,6 +888,8 @@ int16 main( void)
 				g_u16MotorCurrentMovAvgxN = 0;
 				MeasureVsupplyAndTemperature();										/* Perform Vbat/Temperature measurement incase motor is stopped */
 			}
+
+
 
 		/* ************************************************************** */
 		/* *** e. Chip and Motor Driver voltage (degraded-mode check) *** */
@@ -992,6 +998,8 @@ int16 main( void)
 		}																		/* MMP131216-1 - End */
 #endif /* _SUPPORT_LIN_UV */
 
+
+
 		/* ************************************************************* */
 		/* *** f. Chip and ambient temperature (degraded-mode check) *** */
 		/* ************************************************************* */
@@ -1051,6 +1059,8 @@ int16 main( void)
 			g_e8WarningOverTemperature = (uint8) C_WARNING_OTEMP_NO;
 		}
 
+
+
 		/* ****************************** */
 		/* *** g. Degraded-mode check *** */
 		/* ****************************** */
@@ -1104,6 +1114,8 @@ int16 main( void)
 			}
 			g_e8MotorStatusMode &= (uint8) ~C_MOTOR_STATUS_DEGRADED;
 		}
+
+//----------------------------------------------------------------------------------------------------------------
 
 		/* ************************************************* */
 		/* *** i. Handling Motor Request (Emergency Run) *** */
@@ -1165,12 +1177,15 @@ int16 main( void)
 			g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_SLEEP;
 		}
 
+//------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+
 		/* ********************************************************************************************* */
 		/* *** j. Handling Motor Request (resp. STOP, INIT, START, CALIBRATION, SLEEP, SPEED-CHANGE) *** */
 		/* ********************************************************************************************* */
 
-		g_e8MotorRequest = C_MOTOR_REQUEST_START;
-		g_e8CalibrationStep = C_CALIB_DONE;
+//		g_e8MotorRequest = C_MOTOR_REQUEST_START;
+//		g_e8CalibrationStep = C_CALIB_DONE;
 
 		if ( g_e8MotorRequest == (uint8) C_MOTOR_REQUEST_STOP )
 		{
@@ -1436,6 +1451,8 @@ int16 main( void)
 		}
 #endif /* LIN_COMM */
 
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
 		/* ************************ */
 		/* *** k. Status update *** */
 		/* ************************ */
@@ -1495,15 +1512,21 @@ int16 main( void)
 			g_u16ActualPosition = g_u16ActuatorActPos;
 		}
 
+//--------------------------------------------------------------------------------------------------------------------
+
 		/* ********************************************************** */
 		/* *** l. Threshold control (Stepper: Current-threshold) *** */
 		/* ********************************************************** */
 		ThresholdControl();													
 
+//------------------------------------------------------------------------------------------------------------------
+
 		/* ************************************************* */
 		/* *** m. PID control (Stepper: current-control) *** */
 		/* ************************************************* */
 		PID_Control();															/* PID-control (Current) */
+
+//----------------------------------------------------------------------------------------------------------------------------
 
 		/* ********************** */
 		/* *** n. MLX4 status *** */
@@ -1565,6 +1588,8 @@ int16 main( void)
 			}
 		}
 
+//--------------------------------------------------------------------------------------------------------------------------------
+
 		/* ********************************** */
 		/* *** o. Background System check *** */
 		/* ********************************** */
@@ -1613,6 +1638,8 @@ int16 main( void)
 			}
 		}
 		u8BackgroundSchedulerTaskID++; 
+
+//----------------------------------------------------------------------------------------------------------------------------------
 
 		/* *********************************************** */
 		/* *** p. Motor-phase shortage to ground check *** */

@@ -1,0 +1,40 @@
+*
+* SAE examples (Bus Master)
+*
+
+LINBAUDRATE=10417
+
+*
+* Diagnostic_frames
+*
+ReadByID(0)_ProductID    : M2S, $3C, $7F, $06, $B2, $00, $FF, $7F, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+ReadByID(1)_SerialNumber : M2S, $3C, $7F, $06, $B2, $01, $FF, $7F, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+ReadByID(2)_NegativeResponse : M2S, $3C, $7F, $06, $B2, $02, $FF, $7F, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+
+*
+*  NAD 65h
+*
+Assign_NAD_65h           : M2S, $3C, $6F, $06, $B0, $FF, $7F, $FF, $FF, $65, CK13; S2M, $3D, $08, CK13;
+TargetedReset_NAD_65h    : M2S, $3C, $65, $01, $B5, $FF, $FF, $FF, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+TargetedReset_Broadcast  : M2S, $3C, $7F, $01, $B5, $FF, $FF, $FF, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+
+*
+* NAD_65h_messages
+*
+Get_Message0_SAE_status  : S2M, $14, $02, CK20;
+Put_Message1_LED0        : M2S, $15, $4D, $45, $4C, $45, $58, $49, $53, $FF, CK20;
+
+*
+*  NAD 6Ah
+*
+Assign_NAD_6Ah           : M2S, $3C, $6F, $06, $B0, $FF, $7F, $FF, $FF, $6A, CK13; S2M, $3D, $08, CK13;
+TargetedReset_NAD_6Ah    : M2S, $3C, $6A, $01, $B5, $FF, $FF, $FF, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+TargetedReset_Broadcast  : M2S, $3C, $7F, $01, $B5, $FF, $FF, $FF, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+
+*
+* NAD_6Ah_messages
+*
+Get_Message0_SAE_status  : S2M, $28, $02, CK20;
+Put_Message1_LED0        : M2S, $29, $4D, $45, $4C, $45, $58, $49, $53, $FF, CK20;
+
+END

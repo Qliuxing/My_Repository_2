@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="0.1592312512.1101461947.1845508231.643257209.535951427.1244964100">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="0.1592312512.1101461947.1845508231.643257209.535951427.1244964100" moduleId="org.eclipse.cdt.core.settings" name="GCC_V1_12_3">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="GCC_V1_12_3" id="0.1592312512.1101461947.1845508231.643257209.535951427.1244964100" name="GCC_V1_12_3" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="0.1592312512.1101461947.1845508231.643257209.535951427.1244964100." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.109488770" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.109488770.1323111302" name=""/>
+							<builder buildPath="${workspace_loc:/MLX81300E_MLX_UniROM}/code/src" command="gmake" id="org.eclipse.cdt.build.core.settings.default.builder.1986905228" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.831452703" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.158980036" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.762604825" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1646399127" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.581708358" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.6100482" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.270811347" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="MCU_PLL_MULT=112"/>
+								</option>
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1124115499" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}\code\mulan2_platform\products\81310\include&quot;"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.259896521" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="MLX81310C_S03_VALVE [GitLab].null.1843523322" name="MLX81310C_S03_VALVE [GitLab]"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="0.557063814">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="GCC_V1_12_3">
+			<resource resourceType="PROJECT" workspacePath="/MLX81310C_S03_VALVE [GitLab]"/>
+		</configuration>
+		<configuration configurationName="Default">
+			<resource resourceType="PROJECT" workspacePath="/MLX81310C_S03_VALVE [GitLab]"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="Build (LIN 2.0/81310)" path="code/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildArguments/>
+				<buildTarget>PROFILE=81310-lin20-9600-loader PRODUCT=81310 all release</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="Clean (LIN 2.0/81310)" path="code/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildArguments/>
+				<buildTarget>PROFILE=81310-lin20-9600-loader PRODUCT=81310 clean</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="Clean Libs (LIN 2.0/81310)" path="code/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildArguments/>
+				<buildTarget>PROFILE=81310-lin20-9600-loader PRODUCT=81310 clean_libs</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="Lint" path="code/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildTarget>lint</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="Build (LIN 2.0-SAE/81310)" path="code/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildArguments/>
+				<buildTarget>PROFILE=81310-sae-loader PRODUCT=81310 all release</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="Clean (LIN 2.0-SAE/81310)" path="code/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildArguments/>
+				<buildTarget>PROFILE=81310-sae-loader PRODUCT=81310 clean</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="Clean Libs (LIN 2.0-SAE/81310)" path="code/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildArguments/>
+				<buildTarget>PROFILE=81310-sae-loader PRODUCT=81310 clean_libs</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="Build (LIN 2.0/81315)" path="code/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildTarget>PROFILE=81315-lin20-9600-loader PRODUCT=81315 all release</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="Clean (LIN 2.0/81315)" path="code/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildTarget>PROFILE=81315-lin20-9600-loader PRODUCT=81315 clean</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="Clean Libs (LIN 2.0/81315)" path="code/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildTarget>PROFILE=81315-lin20-9600-loader PRODUCT=81315 clean_libs</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="Build (LIN 2.0-SAE/81315)" path="code/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildArguments/>
+				<buildTarget>PROFILE=81315-sae-loader PRODUCT=81315 all release</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="Clean (LIN 2.0-SAE/81315)" path="code/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildArguments/>
+				<buildTarget>PROFILE=81315-sae-loader PRODUCT=81315 clean</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="Clean Libs (LIN 2.0-SAE/81315)" path="code/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildArguments/>
+				<buildTarget>PROFILE=81315-sae-loader PRODUCT=81315 clean_libs</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+		</buildTargets>
+	</storageModule>
+</cproject>

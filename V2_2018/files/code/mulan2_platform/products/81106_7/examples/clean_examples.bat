@@ -1,0 +1,4 @@
+@echo off
+
+gmake -s clean SUBMODULE="IO_EX1_STANDALONE_LOADER LIN_EX1 PWM_EX1 TIMER_CORE"
+

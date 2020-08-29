@@ -52,7 +52,7 @@
 #define C_MAX_J2602_NAD						0x6DU				/* Highest J2602 NAD */
 #define C_STEP_J2602_NAD					0x01U				/* All NAD's */
 #define C_DIAG_J2602_NAD					0x6EU				/* J2602 NAD may be used for 0x3C and 0x3E frame's */
-#define C_DEFAULT_J2602_NAD					0x6FU				/* Default (not programmed) J2602 NAD */
+#define C_DEFAULT_J2602_NAD					0x6CU				/* Default (not programmed) J2602 NAD */
 #define C_BROADCAST_J2602_NAD				0x7FU
 
 #define C_MIN_POS							0x00U

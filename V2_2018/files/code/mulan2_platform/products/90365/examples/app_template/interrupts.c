@@ -1,0 +1,15 @@
+void STACK_IT(void) {}
+void PROT_ERR_IT(void) {}
+void INV_AD_IT(void) {}
+void PROG_ERR_IT(void) {}
+void EXCHANGE_IT(void) {}
+void NOT_CONNECTED_IT(void) {}
+void WD_ATT_IT(void) {}
+void PWM_CYCLE_END_IT(void) {}
+void PWM_DC_IT(void) {}
+void PTC_SI_IT(void) {}
+void MT7V_IT(void) {}
+void MT7VB_IT(void) {}
+void SWI_IT(void) {}
+void TIMER_IT(void) {}
+void ADC_EOM_IT(void) {}

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="org.eclipse.cdt.cross.mlx.tc.202774739">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="org.eclipse.cdt.cross.mlx.tc.202774739" moduleId="org.eclipse.cdt.core.settings" name="Default">
+				<externalSettings/>
+				<extensions>
+					<extension id="com.melexis.mlxide.bfd.parser" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="org.eclipse.cdt.cross.mlx.tc.202774739" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+					<folderInfo id="org.eclipse.cdt.cross.mlx.tc.202774739.1905826615" name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.cross.mlx.tc.62351848" name="org.eclipse.cdt.cross.mlx.tc" superClass="org.eclipse.cdt.cross.mlx.tc">
+							<option id="org.eclipse.cdt.cross.mlx.tc.option.objdump.1148397431" name="Mlx object dumper" superClass="org.eclipse.cdt.cross.mlx.tc.option.objdump"/>
+							<option id="org.eclipse.cdt.cross.mlx.tc.option.objcopy.526230124" name="Mlx object transformer" superClass="org.eclipse.cdt.cross.mlx.tc.option.objcopy"/>
+							<targetPlatform archList="all" binaryParser="com.melexis.mlxide.bfd.parser" id="org.eclipse.cdt.cross.mlx.tc.Platform.2016785114" name="Elf platform" osList="all" superClass="org.eclipse.cdt.cross.mlx.tc.Platform"/>
+							<builder command="gmake" id="org.eclipse.cdt.cross.mlx.tc.builder.807171300" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Mlx Gnu Make Builder" superClass="org.eclipse.cdt.cross.mlx.tc.builder"/>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="test.null.25392549" name="test"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Default">
+			<resource resourceType="PROJECT" workspacePath="/test"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="clean_libs" path="src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildArguments/>
+				<buildTarget>clean_libs PROFILE=81315-sae-loader PRODUCT=81315</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="clean" path="src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildArguments/>
+				<buildTarget>clean PROFILE=81315-sae-loader PRODUCT=81315</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="all" path="src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>gmake</buildCommand>
+				<buildArguments/>
+				<buildTarget>all PROFILE=81315-sae-loader PRODUCT=81315</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+		</buildTargets>
+	</storageModule>
+</cproject>
