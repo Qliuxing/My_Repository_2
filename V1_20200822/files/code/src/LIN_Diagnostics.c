@@ -50,7 +50,7 @@
 /* ****************************************************************************	*
  *	NORMAL PAGE 0 IMPLEMENTATION (@TINY Memory Space < 0x100)					*
  * ****************************************************************************	*/
-
+#define LIN_2X_NO_USE   0
 /* ****************************************************************************	*
  *	NORMAL FAR IMPLEMENTATION	(@NEAR Memory Space >= 0x100)					*
  * ****************************************************************************	*/
@@ -483,6 +483,7 @@ void HandleDfrDiag( void)
 				}
 #endif /* (LINPROT == LIN2J_VALVE_GM) */
 #if ((LINPROT & LINXX) == LIN2X)
+#if LIN_2X_NO_USE
 				else if ( pDiag->byD1 == (uint8) C_VERIFY_NAD )
 				{
 					/* Last NAD, Frame-ID for Control message & Status-message
@@ -505,6 +506,8 @@ void HandleDfrDiag( void)
 #endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 					g_u8BufferOutID = (uint8) QR_RFR_DIAG;						/* LIN Output buffer is valid (RFR_DIAG) */
 				}
+#endif
+#if LIN_2X_NO_USE
 				else if ( pDiag->byD1 == (uint8) C_SW_HW_REF )
 				{
 					/* SW & HW reference
@@ -522,6 +525,8 @@ void HandleDfrDiag( void)
 					g_DiagResponse.byD2 = (uint8) g_NvramUser.HwRef;					/* HW-reference */
 					g_u8BufferOutID = (uint8) QR_RFR_DIAG;								/* LIN Output buffer is valid (RFR_DIAG) */
 				}
+#endif
+#if LIN_2X_NO_USE
 				else if ( pDiag->byD1 == (uint8) C_MLX_HW_SW_REF )
 				{
 					/* MLX-chip HW & SW ID
@@ -537,6 +542,8 @@ void HandleDfrDiag( void)
 					g_DiagResponse.byRSID = (uint8) C_RSID_READ_BY_ID;
 					StoreD1to2( *((uint16 *) C_ADDR_MLX_HWSWID));				/* Chip HW/SW-ID */
 				}
+#endif
+#if LIN_2X_NO_USE
 				else if ( pDiag->byD1 == (uint8) C_LIN_CUST_ID )
 				{
 					/* Customer ID
@@ -552,6 +559,8 @@ void HandleDfrDiag( void)
 					g_DiagResponse.byRSID = (uint8) C_RSID_READ_BY_ID;
 					StoreD1to2( g_NvramUser.CustomerID);						/* Customer-ID */
 				}
+#endif
+#if LIN_2X_NO_USE
 				else if ( pDiag->byD1 == (uint8) C_PROD_DATE )
 				{
 					/* Production Date
@@ -567,6 +576,7 @@ void HandleDfrDiag( void)
 					g_DiagResponse.byRSID = (uint8) C_RSID_READ_BY_ID;
 					StoreD1to2( g_NvramUser.ProductionDate);					/* Production Date */
 				}
+#endif 	//LIN_2X_NO_USE
 #endif /* ((LINPROT & LINXX) == LIN2X) */
 				else
 				{
@@ -1105,6 +1115,7 @@ void HandleDfrDiag( void)
 					SetLastError( (uint8) C_ERR_LIN2X_CB);
 				}
 			}
+#if LIN_2X_NO_USE
 			else if ( pDiag->byD1 == (uint8) C_LIN_CUST_ID )
 			{
 				/* Write Customer ID */
@@ -1142,6 +1153,8 @@ void HandleDfrDiag( void)
 					SetLastError( (uint8) C_ERR_LIN2X_CB);
 				}
 			}
+#endif
+#if LIN_2X_NO_USE
 			else if ( pDiag->byD1 == (uint8) C_PROD_DATE )
 			{
 				/* Write Customer ID */
@@ -1179,6 +1192,7 @@ void HandleDfrDiag( void)
 					SetLastError( (uint8) C_ERR_LIN2X_CB);
 				}
 			}
+#endif
 			else
 			{
 				/* Identifier not supported */

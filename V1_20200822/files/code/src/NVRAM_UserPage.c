@@ -79,14 +79,15 @@ const NVRAM_USER defNvramUser =
 #if (LINPROT == LIN2X_ACT44)
 	/* Actuator */
 	0,													/* 0x10: Motor rotational direction: 0=CW, 1=CCW */
-	0,													/* 0x10: Emergency-run: 0=Disabled, 1=Enabled */
+	1,													/* 0x10: Emergency-run: 0=Disabled, 1=Enabled */
 	1,													/* 0x10: Emergency-run end-stop: 0=Low, 1=High */
 	1,													/* 0x10: Stall-detector: 0=Disabled, 1=Enabled */
 	1,													/* 0x10: Motor holding-current: 0=Off, 1=On */
-	C_CTRL_SPEED_MID,									/* 0x10: Motor speed */
-	0,													/* 0x11: Reserved*/
-	0,													/* 0x12: Reserved */
-	0,													/* 0x14: Reserved */
+	0,													/* 0x10: Motor speed */
+	C_ENDSTOP_PAUSETIME,								/* 0x11: End-stop pause time */
+	C_DEF_TRAVEL,										/* 0x12: Default Travel */
+	C_DEF_TRAVEL_TOLERANCE,								/* 0x14: Default Travel Tolerance (Lower) */
+	C_DEF_TRAVEL_TOLERANCE,								/* 0x15: Default Travel Tolerance (Upper) */
 #endif /* (LINPROT == LIN2X_ACT44) */
 #endif /* ((LINPROT & LINXX) == LIN2X) */
 #if ((LINPROT & LINXX) == LIN2J)
@@ -620,18 +621,20 @@ void NVRAM_LoadUserPage( void)
 	(void)g_NvramUser.AASDMCM_delta;											/* 0x0A: LIN-AutoAaddressing Gain DifferentialMode-CommonMode delta */
 #endif /* ((LINPROT & LINXX) == LIN2J) */
 #if (LINPROT == LIN2X_ACT44)
-	(void)g_NvramUser.Speed;
-	(void)g_NvramUser.ActReserved_1;
-	(void)g_NvramUser.Reserved14;
+	(void)g_NvramUser.NAD;														/* 0x02: NAD */
+	(void)g_NvramUser.Variant;													/* 0x03: Variant-ID */
+	(void)g_NvramUser.ControlFrameID;											/* 0x06: Control-message Frame-ID */
+	(void)g_NvramUser.StatusFrameID;											/* 0x07: Status-message Frame-ID */
+	(void)g_NvramUser.ConfigurationID;											/* 0x08: Configuration ID */
 #endif /* (LINPROT == LIN2X_ACT44) */
 	(void)g_NvramUser.FunctionID;												/* 0x16: Function ID */
 	(void)g_NvramUser.CustomerID;												/* 0x18: Customer ID */
 	(void)g_NvramUser.ProductionDate;											/* 0x1A: Production Date: [15:9] Year (00-99), [8:5] Month (1-12), [4:0] Day (1-31) */
 #if (LINPROT != LIN2J_VALVE_GM)
 #if (_SUPPORT_HVAC_GROUP_ADDRESS == FALSE)										/* MMP150125-1 - Begin */
-	(void)g_NvramUser.Reserved1C;												/* 0x1C: Reserved */
+//	(void)g_NvramUser.Reserved1C;												/* 0x1C: Reserved */
 #endif /* (_SUPPORT_HVAC_GROUP_ADDRESS == FALSE) */								/* MMP150125-1 - End */
-	(void)g_NvramUser.Reserved1E;
+//	(void)g_NvramUser.Reserved1E;
 #endif /* (LINPROT != LIN2J_VALVE_GM) */
 	(void)g_NvramUser.Reserved20;												/* 0x20: Reserved */
 	(void)g_NvramUser.Reserved22;												/* 0x22: Reserved */

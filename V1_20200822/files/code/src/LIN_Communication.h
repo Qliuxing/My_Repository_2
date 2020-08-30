@@ -37,7 +37,7 @@
 #include <pltf_version.h>														/* MMP140408-1 */
 
 /* LIN Communication */
-#define LIN_BR					10415U
+#define LIN_BR					19200U
 #if (LIN_BR < 12000)
 #define LIN_BR_PRESCALER		3
 #else /* (LIN_BR < 10000) */

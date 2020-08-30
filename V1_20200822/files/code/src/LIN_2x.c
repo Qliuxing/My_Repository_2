@@ -48,6 +48,7 @@
 #include "Timer.h"																/* Periodic IRQ Timer support */
 #include "private_mathlib.h"
 #include <mathlib.h>															/* Use Melexis math-library functions to avoid compiler warnings */
+#include "LIN_2x.h"
 
 /* ****************************************************************************	*
  *	NORMAL PAGE 0 IMPLEMENTATION (@TINY Memory Space < 0x100)					*
@@ -65,8 +66,9 @@ volatile uint8 g_u8LinAAMode = 0;												/* LIN-AA mode (none) */
 uint8 g_u8LinAATimeout = 0;														/* LIN-AA Timeout counter (seconds) */
 uint16 g_u16LinAATicker = 0;													/* LIN-AA Ticker counter */
 uint8 l_e8PositionType = C_POSTYPE_INIT;										/* Status-flag position-type */
+uint8 l_u8StaCounter = 0;
 #if (LINPROT == LIN2X_ACT44)
-uint8 l_u8PrevProgramMode = C_CTRL_PROGRAM_INV;									/* Previous Programming mode flags (initial: Invalid) */
+//uint8 l_u8PrevProgramMode = C_CTRL_PROGRAM_INV;									/* Previous Programming mode flags (initial: Invalid) */
 #endif /* (LINPROT == LIN2X_ACT44) */
 #if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 uint8 l_u8GAD = C_INVALD_GAD;
@@ -74,6 +76,8 @@ uint8 l_u8GAD = C_INVALD_GAD;
 uint8 l_u8PctStatusFlagsSend = 0;												/* MMP130626-5 */
 #pragma space none																/* __NEAR_SECTION__ */
 
+uint8 g_u8SAE_ErrorFlags = 0;
+uint8 g_u8SAE_SendErrorState = 0;												/* Copy of g_u8SAE_ErrorFlags */
 
 /* ****************************************************************************	*
  * Convert actuator position into position based on direction
@@ -161,214 +165,65 @@ void LIN_2x_Init( uint16 u16WarmStart)
 #if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
 void HandleActCtrl( uint16 u16Group)
 #else  /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
+
+
 void HandleActCtrl( void)
 #endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
 {
-	if ( g_u8RewindFlags & (uint8) C_REWIND_REWIND )
-	{
-		g_u8LinInFrameBufState = (uint8) C_LIN_IN_POSTPONE;
-	}
-	else
-	{
-		ACT_CTRL *pCtrl = &g_LinCmdFrameBuffer.Ctrl;
-#if (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE)										/* MMP150125-1 - Begin */
-		/* Check for correct NAD (Broadcast) and not LIN-AA mode */
-		if ( (((u16Group == FALSE) && (pCtrl->byNAD == g_u8NAD)) ||
-			  ((u16Group != FALSE) && (pCtrl->byNAD == l_u8GAD)) ||
-			  (pCtrl->byNAD == (uint8) C_BROADCAST_NAD)) && (g_u8LinAAMode == 0) )
-#else  /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
-		/* Check for correct NAD (Broadcast) and not LIN-AA mode */
-		if ( ((pCtrl->byNAD == g_u8NAD) || (pCtrl->byNAD == (uint8) C_BROADCAST_NAD)) && (g_u8LinAAMode == 0) )
-#endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
-		{
-			uint8 u8EventMode;
-			/* Priority 1: Clear Event Flags */
-			if ( (pCtrl->byClearEventFlags != (uint8) C_CTRL_CLREVENT_NONE) && (pCtrl->byClearEventFlags != (uint8) C_CTRL_CLREVENT_INV) )
-			{
-				/* Clear one or more event flags */
-				if ( pCtrl->byClearEventFlags & (uint8) C_CTRL_CLREVENT_RESET )
-				{
-					/* Clear reset flag */
-					g_u8ChipResetOcc = FALSE;
-				}
-				if ( pCtrl->byClearEventFlags & (uint8) C_CTRL_CLREVENT_STALL )
-				{
-					/* Clear stall detected flag */
-					g_u8StallOcc = FALSE;
-					if ( g_e8StallDetectorEna != C_STALLDET_NONE )					/* MMP130916-1 - Begin */
-					{
-						g_u8StallTypeComm &= ~M_STALL_MODE;
-					}
-					else if ( (pCtrl->byStallDetector == (uint8) C_CTRL_STALLDET_ENA) && ((g_u8StallTypeComm & M_STALL_MODE) != 0) )
-					{
-						g_u8StallOcc = TRUE;
-						/* If actuator is still active, stop it */
-						if ( g_e8MotorStatusMode == (uint8) C_MOTOR_STATUS_RUNNING )
-						{
-							g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_STOP;		/* MMP130917-2 */
-						}
-					}																/* MMP130916-1 - End */
-				}
-				if ( pCtrl->byClearEventFlags & (uint8) C_CTRL_CLREVENT_EMRUN )
-				{
-					/* Clear emergency-run occurred flag */
-					if ( g_u8EmergencyRunOcc )
-					{
-						g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_STOP;			/* Stop actuator, in case of EmRun; See 4.6.2.1 */
-					}
-					g_u8EmergencyRunOcc = FALSE;
-				}
-				/* ( pCtrl->byClearEventFlags & C_CTRL_CLREVENT_RES ) is invalid */
-			}
-			u8EventMode = (g_u8ChipResetOcc | g_u8StallOcc | g_u8EmergencyRunOcc);
 
-			/* Priority 2: Change of mode (STOP, NORMAL) */
-			if ( u8EventMode == FALSE )
-			{
-				/* Only handled in case not in Event-mode */
-				if ( pCtrl->byStopMode == (uint8) C_CTRL_STOPMODE_NORMAL )
+	ACT_CTRL *pCfrCtrl = &g_LinCmdFrameBuffer.Ctrl;
+
+//		ACT_CTRL *pCtrl = &g_LinCmdFrameBuffer.Ctrl;
+
+		g_u16EXVTargetPositionTemp = (((uint16)pCfrCtrl->byPositionMSB & 0x03) << 8) | pCfrCtrl->byPositionLSB;
+				if((g_e8MotorStatusMode & ((uint8) C_MOTOR_STATUS_DEGRADED)) == 0) //not degrade mode, otherwise, just update the target position
 				{
-					g_e8MotorCtrlMode = (uint8) C_MOTOR_CTRL_NORMAL;
+					if(pCfrCtrl->byMovEn == C_CTRL_MOVE_ENA){
+						g_e8EXVMoveEnableRequestFlag = (uint8) C_EXV_MOVE_ENABLE;
+						if(((g_e8CalibrationStep == (uint8) C_CALIB_NONE) || (g_e8CalibrationStep == (uint8) C_CALIB_DONE)) && (g_u16EXVTargetPositionTemp == 0x3FF))
+						{
+							g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_CALIBRATION;
+							g_e8CalibrationStep = (uint8) C_CALIB_START;
+						}
+						else if(g_e8CalibrationStep == (uint8) C_CALIB_DONE)
+						{
+							g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_START;
+						}
+						else
+						{
+							//TODO,Ban,what to do if during initalization?
+							g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_CALIBRATION;
+						}
+						if(pCfrCtrl->byStallEnable == C_CTRL_STALL_ENABLE)
+						{
+							g_e8StallDetectorEna = C_STALLDET_H;
+						}
+						else
+						{
+							g_e8StallDetectorEna = C_STALLDET_NONE;
+						}
+					}else{
+						g_e8EXVMoveEnableRequestFlag = (uint8) C_EXV_MOVE_DISABLE;
+						g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_STOP;
+					}
 				}
-				else if ( pCtrl->byStopMode == (uint8) C_CTRL_STOPMODE_STOP )
+				else
 				{
+					g_u16TargetPosition = (((uint32)g_u16EXVTargetPositionTemp)*g_u16CalibTravel+128)/255 + C_EXV_ZERO_POS;//update the target position in degrade mode,
+				}
+				if ( (pCfrCtrl->byTorqueLevel >= C_CTRL_TORQUE_NOMINAL) && (pCfrCtrl->byTorqueLevel <= C_CTRL_TORQUE_BOOST_40PCT) )
+				{
+					g_u8TorqueBoostRequest = (pCfrCtrl->byTorqueLevel - C_CTRL_TORQUE_NOMINAL) * 10U;
+				}
+				else//undefined torque, just stop the motor
+				{
+					g_u8TorqueBoostRequest = C_CTRL_TORQUE_NO;
 					g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_STOP;
-					g_e8MotorCtrlMode = (uint8) C_MOTOR_CTRL_STOP;
 				}
-			}
-			
-			/* Priority 3: Store data into NVRAM */
-			if ( (pCtrl->byProgram == (uint8) C_CTRL_PROGRAM_ENA) && (g_e8MotorCtrlMode == (uint8) C_MOTOR_CTRL_STOP) && 
-				 (u8EventMode == FALSE) && (l_u8PrevProgramMode == (uint8) C_CTRL_PROGRAM_DIS) )	/* MMP130626-12 */
-			{
-				/* Store info into NVRAM (Rotational-direction, Emergency-run info), only in Stop-mode, and not Event-mode */
-				uint8 u8OrgActDirection = l_u8ActDirection;
-				if ( (pCtrl->byRotationDirection == (uint8) C_CTRL_DIR_CW) || (pCtrl->byRotationDirection == (uint8) C_CTRL_DIR_CCW) )
-				{
-					l_u8ActDirection = (pCtrl->byRotationDirection == (uint8) C_CTRL_DIR_CCW) ? TRUE : FALSE;
-					g_NvramUser.MotorDirectionCCW = l_u8ActDirection;
-				}
-				if ( (pCtrl->byEmergencyRun == (uint8) C_CTRL_EMRUN_DIS) || (pCtrl->byEmergencyRun == (uint8) C_CTRL_EMRUN_ENA) )
-				{
-					if ( pCtrl->byEmergencyRun == (uint8) C_CTRL_EMRUN_ENA )
-						g_NvramUser.EmergencyRunEna = TRUE;
-					else
-						g_NvramUser.EmergencyRunEna = FALSE;
-				}
-				if ( (pCtrl->byEmergencyEndStop == (uint8) C_CTRL_ENRUN_ENDSTOP_LO) || (pCtrl->byEmergencyEndStop == (uint8) C_CTRL_ENRUN_ENDSTOP_HI) )
-				{
-					if ( pCtrl->byEmergencyEndStop == (uint8) C_CTRL_ENRUN_ENDSTOP_HI )
-						g_NvramUser.EmergencyRunEndStopHi = TRUE;
-					else
-						g_NvramUser.EmergencyRunEndStopHi = FALSE;
-				}
-					
-				(void) NVRAM_Store( (uint16) C_NVRAM_USER_PAGE_ALL);			/* Store NVRAM */
-				g_e8MotorDirectionCCW = (uint8) C_MOTOR_DIR_UNKNOWN;			/* Direction is unknown (9.5.3.13) */
-				
-				if ( u8OrgActDirection != l_u8ActDirection )
-				{
-					g_u16ActualPosition = ActPosition( g_u16ActualPosition, 1);
-					g_u16TargetPosition = ActPosition( g_u16TargetPosition, 1);
-				}
-			}
-			if ( (pCtrl->byProgram == (uint8) C_CTRL_PROGRAM_DIS) || (pCtrl->byProgram == (uint8) C_CTRL_PROGRAM_ENA) )
-			{
-				l_u8PrevProgramMode = pCtrl->byProgram;
-			}
 
-			/* Priority 4: Stall detection enable/disable */
-			if ( (g_u8EmergencyRunOcc == FALSE) && ((pCtrl->byStallDetector == (uint8) C_CTRL_STALLDET_DIS) || (pCtrl->byStallDetector == (uint8) C_CTRL_STALLDET_ENA)) )
-			{
-				if ( ( g_e8StallDetectorEna == C_STALLDET_NONE ) &&				/* MMP130920-1 - Begin */
-					(pCtrl->byStallDetector == (uint8) C_CTRL_STALLDET_ENA) &&
-					((g_u8StallTypeComm & M_STALL_MODE) != 0) )
-				{
-					g_u8StallOcc = TRUE;
-					u8EventMode |= g_u8StallOcc;
-					/* If actuator is still active, stop it */
-					if ( g_e8MotorStatusMode == (uint8) C_MOTOR_STATUS_RUNNING )
-					{
-						g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_STOP;
-					}
-				}																/* MMP130920-1 - End */
-				g_e8StallDetectorEna = (pCtrl->byStallDetector == (uint8) C_CTRL_STALLDET_ENA) ? C_STALLDET_ALL : C_STALLDET_NONE;
-			}
+				g_u8ChipResetOcc = FALSE;											/* Clear 'reset'-flag only after CFR_INI (4.2.6.3) */
 
-			/* Priority 5: Speed change */
-#if (LINPROT == LIN2X_ACT44)
-			if ( (pCtrl->bySpeed >= (uint8) C_CTRL_SPEED_LOW) && (pCtrl->bySpeed <= (uint8) C_CTRL_SPEED_HIGH) )
-#endif /* (LINPROT == LIN2X_ACT44) */
-			{
-				if ( g_u8MotorCtrlSpeed != pCtrl->bySpeed )
-				{
-					if ( g_e8MotorRequest != (uint8) C_MOTOR_REQUEST_STOP )
-					{
-						g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_SPEED_CHANGE;
-					}
-					g_u8MotorCtrlSpeed = pCtrl->bySpeed;
-				}
-			} 
 
-			/* Priority 6: CPos/FPos update */
-			if ( u8EventMode == FALSE )												/* See 9.4.3.4 */
-			{
-				/* Only allow change of CPos or FPos in case not in Event-mode */
-				if ( pCtrl->byPositionType == (uint8) C_CTRL_POSITION_TARGET )
-				{
-					/* Accept (new) FPOS, in case not in Event-mode */
-					uint16 u16Value = (((uint16) pCtrl->byTargetPositionMSB) << 8) | ((uint16) pCtrl->byTargetPositionLSB);
-					if ( u16Value != 0xFFFFU )										/* Check for a valid FPos */
-					{
-						g_u16TargetPosition = ActPosition( u16Value, l_u8ActDirection);
-						l_e8PositionType = (uint8) C_POSTYPE_TARGET;
-						if ( g_e8MotorRequest != (uint8) C_MOTOR_REQUEST_STOP )
-						{
-							if ( g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_DEGRADED )
-							{
-								g_e8DegradedMotorRequest = (uint8) C_MOTOR_REQUEST_START;
-							}
-							else
-							{
-								g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_START;
-							}
-						}
-					}
-				}
-				else if ( (pCtrl->byPositionType == (uint8) C_CTRL_POSITION_INITIAL) && ((g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_RUNNING) == 0) )	/* See 9.4.3.6 */
-				{
-					/* Accept (new) CPOS, in case not normal-running and not in Event-mode */
-					uint16 u16Value = (((uint16) pCtrl->byStartPositionMSB) << 8) | ((uint16) pCtrl->byStartPositionLSB);
-					if ( u16Value != 0xFFFFU )											/* Check for a valid CPos */
-					{
-						g_u16ActualPosition = ActPosition( u16Value, l_u8ActDirection);
-						g_u16TargetPosition = g_u16ActualPosition;
-						l_e8PositionType = (uint8) C_POSTYPE_INIT;
-						g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_INIT;
-						if ( g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_DEGRADED )
-						{
-							g_e8DegradedMotorRequest = (uint8) C_MOTOR_REQUEST_NONE;
-						}
-					}
-				}
-			}
-
-			/* Priority 7: Holding current enable/disable */
-			if ( (pCtrl->byHoldingCurrent == (uint8) C_CTRL_MHOLDCUR_DIS) || (pCtrl->byHoldingCurrent == (uint8) C_CTRL_MHOLDCUR_ENA) )
-			{
-				uint8 u8HoldingCurrEna = (pCtrl->byHoldingCurrent == (uint8) C_CTRL_MHOLDCUR_ENA) ? TRUE : FALSE;
-				if ( g_u8MotorHoldingCurrEna != u8HoldingCurrEna )
-				{
-					/* Change of motor holding current setting */
-					if ( (g_e8MotorRequest == (uint8) C_MOTOR_REQUEST_NONE) && ((g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_RUNNING) == 0) )	/* MMP150825-1 */
-					{
-						g_e8MotorRequest = (uint8) C_MOTOR_REQUEST_STOP;
-					}
-					g_u8MotorHoldingCurrEna = u8HoldingCurrEna;
-				}
-			}
-		}
-	}
 } /* End of HandleActCtrl() */
 
 /* ****************************************************************************	*
@@ -402,357 +257,90 @@ void HandleActCtrl( void)
 #define METHOD_BYTE			1
 #define FUNC_ACT_STATUS		METHOD_BYTE
 
-#if (FUNC_ACT_STATUS == METHOD_STRUCT)
-void HandleActStatus( void)
-{
-	if ( g_u8LinAAMode & C_SNPD_METHOD_2 )
-	{
-		(void) ml_DiscardFrame();												/* Do not respond on ACT_STATUS during LIN-AA */
-	}
-	else
-	{
-		volatile ACT_STATUS *pStatus = &((PLINOUTBUF) LinFrameDataBuffer)->Status;
-		/* Byte 1 */
-		if ( g_u8ErrorCommunication != FALSE )
-		{
-			pStatus->byResponseError = TRUE;
-		}
-		else
-		{
-			pStatus->byResponseError = FALSE;
-		}
-		g_u8ErrorCommunication = FALSE;											/* Data requested; No longer communication error */
-		pStatus->byReserved1 = 0;
-		if ( g_e8ErrorOverTemperature )
-		{
-			pStatus->byOverTemperature = (uint8) C_STATUS_OTEMP_YES;
-		}
-		else
-		{
-			pStatus->byOverTemperature = (uint8) C_STATUS_OTEMP_NO;
-		}
-		pStatus->byElectricDefect = (uint8) (g_e8ErrorElectric & 0x03);
-		if ( g_e8ErrorElectric == (uint8) C_ERR_ELECTRIC_YES )
-		{
-			g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_NO;						/* Only "clear" Electric Error if not permanent */
-		}
-		pStatus->byVoltageError = (uint8) (g_e8ErrorVoltage & 0x03);
-		if ( (pStatus->byVoltageError == 0) && (g_e8ErrorVoltageComm != 0) )
-		{
-			pStatus->byVoltageError = (uint8) (g_e8ErrorVoltageComm & 0x03);
-		}
-		g_e8ErrorVoltageComm = g_e8ErrorVoltage;								/* 9.5.3.4 */
-		/* Byte 2 */
-		if ( g_u8EmergencyRunOcc )
-		{
-			pStatus->byEmergencyOccurred = (uint8) C_STATUS_EMRUNOCC_YES;
-		}
-		else
-		{
-			pStatus->byEmergencyOccurred = (uint8) C_STATUS_EMRUNOCC_NO;
-		}
-		if ( g_e8StallDetectorEna != (uint8) C_STALLDET_NONE )
-		{
-			pStatus->byStallDetector = (uint8) C_STATUS_STALLDET_ENA;
-		}
-		else
-		{
-			pStatus->byStallDetector = (uint8) C_STATUS_STALLDET_DIS;
-		}
-		if ( g_u8StallOcc )
-		{
-			pStatus->byStallOccurred = (uint8) C_STATUS_STALLOCC_YES;
-		}
-		else
-		{
-			pStatus->byStallOccurred = (uint8) C_STATUS_STALLOCC_NO;
-		}
-		if ( g_u8ChipResetOcc )
-		{
-			pStatus->byReset = (uint8) C_STATUS_RESETOCC_YES;
-		}
-		else
-		{
-			pStatus->byReset = (uint8) C_STATUS_RESETOCC_NO;
-		}
-		/* Byte 3 */
-		if ( g_u8MotorHoldingCurrEna )
-		{
-			pStatus->byHoldingCurrent = (uint8) C_STATUS_MHOLDCUR_ENA;
-		}
-		else
-		{
-			pStatus->byHoldingCurrent = (uint8) C_STATUS_MHOLDCUR_DIS;
-		}
-		if ( l_e8PositionType == (uint8) C_POSTYPE_INIT )
-		{
-			pStatus->byPositionTypeStatus = (uint8) C_STATUS_POSITION_INIT;
-		}
-		else
-		{
-			pStatus->byPositionTypeStatus = (uint8) C_STATUS_POSITION_ACTUAL;
-		}
-		if ( g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_RUNNING )
-		{
-			pStatus->bySpeedStatus = g_u8MotorStatusSpeed;
-		}
-		else
-		{
-			pStatus->bySpeedStatus = 0;
-		}
-		/* Byte 4..5 */
-		{
-			uint16 u16CopyPosition = ActPosition( g_u16ActualPosition, l_u8ActDirection);
-			pStatus->byActualPositionLSB = (uint8) (u16CopyPosition & 0xFF);
-			pStatus->byActualPositionMSB = (uint8) (u16CopyPosition >> 8);
-		}
-		/* Byte 6 */
-		if ( g_e8MotorDirectionCCW == (uint8) C_MOTOR_DIR_UNKNOWN )
-		{
-			pStatus->byActualRotationalDir = (uint8) C_STATUS_ACT_DIR_UNKNOWN;
-		}
-		else if ( (g_e8MotorDirectionCCW & 1) ^ l_u8ActDirection )
-		{
-			pStatus->byActualRotationalDir = (uint8) C_STATUS_ACT_DIR_CLOSING;
-		}
-		else
-		{
-			pStatus->byActualRotationalDir = (uint8) C_STATUS_ACT_DIR_OPENING;
-		}
-		pStatus->bySelfHoldingTorque = (uint8) C_STATUS_HOLDING_TORQUE_INV;
-		if ( g_u8RewindFlags & (uint8) C_REWIND_ACTIVE )
-		{
-			pStatus->bySpecialFunctionActive = (uint8) C_STATUS_SFUNC1_ACTIVE_YES;
-		}
-		else
-		{
-			pStatus->bySpecialFunctionActive = (uint8) C_STATUS_SFUNC_ACTIVE_NO;
-		}
-		pStatus->byReserved = 3;
-		/* Byte 7 */
-		pStatus->byNAD = g_u8NAD;
-		/* Byte 8 */
-		if ( g_NvramUser.EmergencyRunEna )										/* NVRAM stored state (MMP130626-2) */
-		{
-			pStatus->byEmergencyRun = (uint8) C_STATUS_EMRUN_ENA;
-		}
-		else
-		{
-			pStatus->byEmergencyRun = (uint8) C_STATUS_EMRUN_DIS;
-		}
-		if ( g_NvramUser.EmergencyRunEndStopHi )								/* NVRAM stored state (MMP130626-2) */
-		{
-			pStatus->byEmergencyRunEndStop = (uint8) C_STATUS_EMRUN_ENDPOS_HI;
-		}
-		else
-		{
-			pStatus->byEmergencyRunEndStop = (uint8) C_STATUS_EMRUN_ENDPOS_LO;
-		}
-		if ( g_NvramUser.MotorDirectionCCW )									/* NVRAM stored state (MMP130626-2) */
-		{
-			pStatus->byRotationDirection = (uint8) C_STATUS_DIRECTION_CCW;
-		}
-		else
-		{
-			pStatus->byRotationDirection = (uint8) C_STATUS_DIRECTION_CW;
-		}
-		{
-			if ( g_e8MotorCtrlMode == (uint8) C_MOTOR_CTRL_STOP )
-			{
-				pStatus->byStopMode = (uint8) C_STATUS_STOPMODE_STOP;
-			}
-			else
-			{
-				pStatus->byStopMode = (uint8) C_STATUS_STOPMODE_NORMAL;
-			}
-		}
-
-		(void) ml_DataReady( ML_END_OF_TX_DISABLED);
-	}
-} /* End of HandleActStatus() */
-#endif /* (FUNC_ACT_STATUS == METHOD_STRUCT) */
-
 #if (FUNC_ACT_STATUS == METHOD_BYTE)
 void HandleActStatus( void)
 {
-	if ( g_u8LinAAMode & C_SNPD_METHOD_2 )
-	{
-		(void) ml_DiscardFrame();												/* Do not respond on ACT_STATUS during LIN-AA */
-	}
-	else
-	{
-		volatile ACT_STATUS *pStatus = &((PLINOUTBUF) LinFrameDataBuffer)->Status;
-		uint8 u8Data = 0x00U;
-		/* Byte 1 */
+//	if ( g_u8LinAAMode & C_SNPD_METHOD_2 )
+//	{
+//		(void) ml_DiscardFrame();												/* Do not respond on ACT_STATUS during LIN-AA */
+//	}
+//	else
+//	{
+//		volatile ACT_STATUS *pStatus = &((PLINOUTBUF) LinFrameDataBuffer)->Status;
+//		uint8 u8Data = 0x00U;
+//		/* Byte 1 */
+//		((uint8 *)pStatus)[0] = u8Data;
+//		/* Byte 2 */
+//		((uint8 *)pStatus)[1] = u8Data;
+//		/* Byte 3 */
+//		((uint8 *)pStatus)[2] = u8Data;
+//		/* Byte 4..5 */
+//		/* Byte 6 */
+//		((uint8 *)pStatus)[5] = u8Data;
+//		/* Byte 7 */
+//		pStatus->byNAD = g_u8NAD;
+//		/* Byte 8 */
+//		u8Data = 0x00U;
+//		((uint8 *)pStatus)[7] = u8Data;
+//		(void) ml_DataReady( ML_END_OF_TX_DISABLED);
+//	}
+
+
+	ACT_STATUS *pRfrSta = (ACT_STATUS *)LinFrameDataBuffer;
+
+		/*	if ( g_u8SAE_ErrorFlags != 0 )		(MMP160613-1) */
 		if ( g_u8ErrorCommunication != FALSE )
 		{
-			u8Data |= 1;
+			pRfrSta->byLinErr = C_STATUS_LIN_ERR;
 		}
 		else
 		{
-			u8Data |= 0;
+			pRfrSta->byLinErr = C_STATUS_LIN_OK;
 		}
-		g_u8ErrorCommunication = FALSE;											/* Data requested; No longer communication error */
-		u8Data |= (0 << 1);
-		if ( g_e8ErrorOverTemperature )
-		{
-			u8Data |= (uint8) (C_STATUS_OTEMP_YES << 2);
-		}
-		else
-		{
-			u8Data |= (uint8) (C_STATUS_OTEMP_NO << 2);
-		}
-		u8Data |= (uint8) ((g_e8ErrorElectric & 0x03) << 4);
-		if ( g_e8ErrorElectric == (uint8) C_ERR_ELECTRIC_YES )
-		{
-			g_e8ErrorElectric = (uint8) C_ERR_ELECTRIC_NO;						/* Only "clear" Electric Error if not permanent */
-		}
-		u8Data |= (uint8) ((g_e8ErrorVoltage & 0x03) << 6);
-		if ( ((u8Data & 0xC0) == 0) && (g_e8ErrorVoltageComm != 0) )
-		{
-			u8Data |= (uint8) ((g_e8ErrorVoltageComm & 0x03) << 6);
-		}
-		g_e8ErrorVoltageComm = g_e8ErrorVoltage;								/* 9.5.3.4 */
-		((uint8 *)pStatus)[0] = u8Data;
+		g_u8SAE_SendErrorState = g_u8ErrorCommunication;
 
-		/* Byte 2 */
-		u8Data = 0x00U;
-		if ( g_u8EmergencyRunOcc )
-		{
-			u8Data |= (uint8) C_STATUS_EMRUNOCC_YES;
-		}
-		else
-		{
-			u8Data |= (uint8) C_STATUS_EMRUNOCC_NO;
-		}
-		if ( g_e8StallDetectorEna != (uint8) C_STALLDET_NONE )
-		{
-			u8Data |= (uint8) (C_STATUS_STALLDET_ENA << 2);
-		}
-		else
-		{
-			u8Data |= (uint8) (C_STATUS_STALLDET_DIS << 2);
-		}
-		if ( g_u8StallOcc )
-		{
-			u8Data |= (uint8) (C_STATUS_STALLOCC_YES << 4);
-		}
-		else
-		{
-			u8Data |= (uint8) (C_STATUS_STALLOCC_NO << 4);
-		}
-		if ( g_u8ChipResetOcc )
-		{
-			u8Data |= (uint8) (C_STATUS_RESETOCC_YES << 6);
-		}
-		else
-		{
-			u8Data |= (uint8) (C_STATUS_RESETOCC_NO << 6);
-		}
-		((uint8 *)pStatus)[1] = u8Data;
+		pRfrSta->byFaultState = g_e8EXVStatusFaultState;
 
-		/* Byte 3 */
-		u8Data = 0x00U;
-		if ( g_u8MotorHoldingCurrEna )
+		if ( (g_e8MotorStatusMode & C_MOTOR_STATUS_RUNNING) == 0 )
 		{
-			u8Data |= (uint8) C_STATUS_MHOLDCUR_ENA;
+			pRfrSta->byMoveState = C_STATUS_MOVE_IDLE;
 		}
 		else
 		{
-			u8Data |= (uint8) C_STATUS_MHOLDCUR_DIS;
+			pRfrSta->byMoveState = C_STATUS_MOVE_ACTIVE;
 		}
-		if ( l_e8PositionType == (uint8) C_POSTYPE_INIT )
-		{
-			u8Data |= (uint8) (C_STATUS_POSITION_INIT << 2);
-		}
-		else
-		{
-			u8Data |= (uint8) (C_STATUS_POSITION_ACTUAL << 2);
-		}
-		if ( g_e8MotorStatusMode & (uint8) C_MOTOR_STATUS_RUNNING )
-		{
-			u8Data |= ((g_u8MotorStatusSpeed & 0x0F) << 4);
-		}
-		else
-		{
-			u8Data |= (0 << 4);
-		}
-		((uint8 *)pStatus)[2] = u8Data;
 
-		/* Byte 4..5 */
+		if ( (g_e8MotorStatusMode & C_MOTOR_STATUS_RUNNING) == 0 )
 		{
-			uint16 u16CopyPosition = ActPosition( g_u16ActualPosition, l_u8ActDirection);
-			pStatus->byActualPositionLSB = (uint8) (u16CopyPosition & 0xFF);
-			pStatus->byActualPositionMSB = (uint8) (u16CopyPosition >> 8);
-		}
-		/* Byte 6 */
-		u8Data = (3U << 6);	/* Reserved */
-		if ( g_e8MotorDirectionCCW == (uint8) C_MOTOR_DIR_UNKNOWN )
-		{
-			u8Data |= (uint8) C_STATUS_ACT_DIR_UNKNOWN;
-		}
-		else if ( (g_e8MotorDirectionCCW & 1) ^ l_u8ActDirection )
-		{
-			u8Data |= (uint8) C_STATUS_ACT_DIR_CLOSING;
+			pRfrSta->byTorqueLevel = (uint8)C_CTRL_TORQUE_NO;
 		}
 		else
 		{
-			u8Data |= (uint8) C_STATUS_ACT_DIR_OPENING;
+			pRfrSta->byTorqueLevel = (uint8) divU16_U32byU16( (uint32) g_u8TorqueBoostRequest, 10U);
 		}
-		u8Data |= (uint8) (C_STATUS_HOLDING_TORQUE_INV << 2);
-		if ( g_u8RewindFlags & (uint8) C_REWIND_ACTIVE )
-		{
-			u8Data |= (uint8) (C_STATUS_SFUNC1_ACTIVE_YES << 4);
-		}
-		else
-		{
-			u8Data |= (uint8) (C_STATUS_SFUNC_ACTIVE_NO << 4);
-		}
-		((uint8 *)pStatus)[5] = u8Data;
 
-		/* Byte 7 */
-		pStatus->byNAD = g_u8NAD;
+		//Byte 2
+		pRfrSta->byActPositionLSB = g_u16EXVStatusCurrentPositon&0xFF;
+		pRfrSta->byActPositionMSB = (g_u16EXVStatusCurrentPositon>>8)&0x3;
 
-		/* Byte 8 */
-		u8Data = 0x00U;
-		if ( g_NvramUser.EmergencyRunEna )										/* NVRAM stored state (MMP130626-2) */
+		//Byte 3
+		pRfrSta->byInitState = g_e8EXVStatusInitStat;
+
+		pRfrSta->byArcState = l_u8StaCounter;
+		l_u8StaCounter++;
+
+		if(g_e8EXVErrorBlock == TRUE)
 		{
-			u8Data |= (uint8) C_STATUS_EMRUN_ENA;
+			pRfrSta->byStallDetectStatus = TRUE;
 		}
 		else
 		{
-			u8Data |= (uint8) C_STATUS_EMRUN_DIS;
+			pRfrSta->byStallDetectStatus = FALSE;
 		}
-		if ( g_NvramUser.EmergencyRunEndStopHi )								/* NVRAM stored state (MMP130626-2) */
-		{
-			u8Data |= (uint8) (C_STATUS_EMRUN_ENDPOS_HI << 2);
-		}
-		else
-		{
-			u8Data |= (uint8) (C_STATUS_EMRUN_ENDPOS_LO << 2);
-		}
-		if ( g_NvramUser.MotorDirectionCCW )									/* NVRAM stored state (MMP130626-2) */
-		{
-			u8Data |= (uint8) (C_STATUS_DIRECTION_CCW << 4);
-		}
-		else
-		{
-			u8Data |= (uint8) (C_STATUS_DIRECTION_CW << 4);
-		}
-		{
-			if ( g_e8MotorCtrlMode == (uint8) C_MOTOR_CTRL_STOP )
-			{
-				u8Data |= (uint8) (C_STATUS_STOPMODE_STOP << 6);
-			}
-			else
-			{
-				u8Data |= (uint8) (C_STATUS_STOPMODE_NORMAL << 6);
-			}
-		}
-		((uint8 *)pStatus)[7] = u8Data;
-		
-		(void) ml_DataReady( ML_END_OF_TX_DISABLED);
-	}
+
+
+
+
 } /* End of HandleActStatus() */
 #endif /* (FUNC_ACT_STATUS == METHOD_BYTE) */
 #endif /* (LINPROT == LIN2X_ACT44) */

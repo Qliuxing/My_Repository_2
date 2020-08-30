@@ -81,9 +81,10 @@ typedef struct _NVRAM_USER
 	uint16 StallDetectorEna		: 1;						/* 0x10: Stall-detector: 0=Disabled, 1=Enabled */
 	uint16 MotorHoldingCurrentEna:1;						/* 0x10: Motor holding-current: 0=Off, 1=On */
 	uint16 Speed				: 3;						/* 0x10: Motor speed */
-	uint16 ActReserved_1		: 8;						/* 0x11: Reserved*/
+	uint16 EndStopTime			: 8;						/* 0x11: Reserved*/
 	uint16 DefTravel;										/* 0x12: Default Travel */
-	uint16 Reserved14;										/* 0x14: Reserved */
+	uint16 DefTravelToleranceLo	: 8;						/* 0x14: Default Travel Tolerance (Lower) */
+	uint16 DefTravelToleranceUp	: 8;						/* 0x15: Default Travel Tolerance (Upper) */
 #endif /* (LINPROT == LIN2X_ACT44) */
 #endif /* ((LINPROT & LINXX) == LIN2X) */
 #if ((LINPROT & LINXX) == LIN2J)
@@ -127,9 +128,9 @@ typedef struct _NVRAM_USER
 	uint16 GAD					: 8;						/* 0x1C: Group-address */
 	uint16 GroupControlFrameID	: 8;						/* 0x1D: Group-Control-message Frame-ID */
 #else  /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */
-	uint16 Reserved1C;										/* 0x1C: Reserved */
+	uint16 CPOS;											/* 0x1C: Current Position (CPOS) */
 #endif /* (_SUPPORT_HVAC_GROUP_ADDRESS != FALSE) */								/* MMP150125-1 - End */
-	uint16 Reserved1E			: 8;						/* 0x1E: Reserved */
+	uint16 AppStatus			: 8;						/* 0x1E: Application Status */
 #endif /* (LINPROT == LIN2J_VALVE_GM) */
 	uint16 MotorFamily			: 8;						/* 0x1F: Motor Family */
 

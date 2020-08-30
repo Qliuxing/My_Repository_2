@@ -108,8 +108,8 @@
 /* LIN communication protocol */
 /* LIN2X_ACT44:		Select in lin2b_romtbl.S: #define LINPROT LIN2X_ACT44
  */
-/* #define LINPROT					LIN2X_ACT44		*/	/* lin2b_romtbl.S */	/* Select LIN 2.x with Klima Std-Actuators V4.8 protocol */
-#define LINPROT						LIN2J_VALVE_GM								/* Select LIN 2.0/SAE J2602 GM Valve V1.0 protocol */
+#define LINPROT					LIN2X_ACT44			/* lin2b_romtbl.S */	/* Select LIN 2.x with Klima Std-Actuators V4.8 protocol */
+//#define LINPROT						LIN2J_VALVE_GM								/* Select LIN 2.0/SAE J2602 GM Valve V1.0 protocol */
 
 #define _SUPPORT_DIG_LIN			FALSE										/* FALSE: Only LIN/PWM; TRUE: LIN as Low/High Digital pin */
 #else  /* LIN_COMM */

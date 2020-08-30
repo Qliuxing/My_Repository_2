@@ -84,6 +84,9 @@
 #include "SPI_Debug.h"
 #endif /* _DEBUG_SPI */
 
+#include "LIN_2x.h"
+
+
 #if ((__MLX16_GCC_MAJOR__ == 1) && (__MLX16_GCC_MINOR__ >= 10))
 /* OK */
 #else
@@ -1319,6 +1322,8 @@ int16 main( void)
 					g_u16TargetPosition = (uint16)C_EXV_RANGE_MAX + C_EXV_ZERO_POS;
 					l_e8GmcvInitDirection = (uint8)C_GMCV_INIT_DIR_OPEN_FIRST;
 				}
+
+//				DefTravelToleranceLo
 
 				if ( g_e8MotorStatusMode != (uint8) C_MOTOR_STATUS_STOP ) //stop the motor if it is running
 				{

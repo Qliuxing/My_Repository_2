@@ -13,7 +13,7 @@
 ; LIN 2.0 SAE J2602, GM Water-valve 1.0
 #define LIN2J_VALVE_GM	3
 ; Choose one of the above protocol's
-#define LINPROT			LIN2J_VALVE_GM
+#define LINPROT			LIN2X_ACT44
 
 
 ;Index table (ROM) : 32 bytes (32 x 8 x 2 = 64 ID)
