@@ -1,0 +1,9 @@
+*
+* Read by ID 0 (product ID)
+*
+
+LINBAUDRATE=9600
+
+ReadByID(0)_ProductID    : M2S, $3C, $7F, $06, $B2, $00, $FF, $7F, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+GetBaudrate		 : M2S, $3C, $7F, $06, $B2, $07, $FF, $7F, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+END

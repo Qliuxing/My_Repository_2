@@ -1,0 +1,1695 @@
+*
+* Copyright (C) 2009-2015 Melexis N.V.
+*
+* Software Platform
+*
+
+2015-11-27 <grm@melexis.com> release 4.1.0.0 ---------------------------------
+2015-11-27 <grm@melexis.com>
+    [*] \products\8110x\config\Extra.mk
+    Removed error producing for LIN13 profile
+    [*] \products\8110x\config\
+    Added LIN13 profiles
+
+2015-11-27 <grm@melexis.com>
+    [*] \products\8110x\config
+    Renamed 8110x-lin20-10400(-loader).mk --> 8110x-sae(-loader).mk
+
+2015-11-26 <grm@melexis.com>
+    [*] \products\81108_9\config
+    Changed Fast Loader baudrate 
+        - from 25000 to 75000 for LIN application (it can be reduced as flexible baudrate is supported)
+        - from 25000 to 50000 for Standalone   
+
+2015-11-26 <grm@melexis.com>
+    [+] \products\81108_9\examples
+    Added examples:
+        - IO_EX1_STANDALONE_LOADER
+        - PWM_EX1
+        - TIMER_CORE
+
+2015-11-18 <grm@melexis.com>
+    [*] \products\81300\include\ioports.h
+    Updated file according to 81300E version
+    [*] \products\813xx\
+    Renamed files: 
+        - lib_mlx81300(81310/81315).h       -> lib_mlx813xx.h
+        - lib_mlx81300(81310/81315)_bist.h  -> lib_mlx813xx_bist.h
+        - lib_mlx81300(81310/81315)_nvram.h -> lib_mlx813xx_nvram.h
+        - lib_mlx81300(81310/81315)_patch.h -> lib_mlx813xx_patch.h
+        - lib_mlx81300(81310/81315)_wdg.h   -> lib_mlx813xx_wdg.h
+        - lib_mlx81300(81310/81315)_bist.c  -> lib_mlx813xx_bist.c
+
+2015-11-13 <grm@melexis.com>
+    [*] \products\811xx\
+    LIN Loader: Added Loader protection with the key for 811xx products [PLTF-734]
+
+2015-11-09 <grm@melexis.com>
+    [*] \products\813xx\
+    Start-up updates:
+        - Changed NVRAM CRC-routine from C-code to inline ASM (4x faster)
+        - Changed TMTR-write into ASM too (20% faster) + Change copy routine to copy "blocks" of 4 words
+    
+2015-11-02 <grm@melexis.com>
+    [*] \products\LIN-products\src\sys_mlx16.c
+    The MLX16_RESET() has been updated to use digital WD as often as possible to produce device reset [PLTF-758]
+    (see MLX82050-20 describing the problem with analog WD)
+    
+    The digital WD can be used for device reset if
+        - Digital WD isn't enabled
+        - DWD Window mode is enabled
+        - DWD Intelligent mode is enabled
+        - DWD Timer mode is enabled with Timeout < 1ms
+    If DWD Timer mode is enabled with Timeout > 1ms, then analog WD with PLL disabling is used
+
+2015-10-30 <grm@melexis.com>    
+    [*] \products\LINLoader\config_ini\MLXLIN_default
+    Configuration file was updated [PLTF-672]
+        - TFastToLin=60000
+        - TLinToFast=40000
+        - TRestart=20000
+
+2015-10-07 <grm@melexis.com>
+    [*] \libsrc\LIN\flashupload.c
+    Added conditional reset support for Loader [PLTF-750]
+
+2015-10-01 <grm@melexis.com>
+    [*] \products\81106_7\(81108_9)
+    ----- Merge BU-ACT changes -----
+    
+2015-09-16 <grm@melexis.com>
+    [*] \products\81106_7\(81108_9)
+                  81150\
+                  813xx\
+                  LINLoader\
+                  Validation\
+    LIN API (MLX4 v4.1.0) support:
+        - The lin2b_romtbl.S files were updated according to MLX4 v4.1.0 changes
+        - The src\low_level_init.c files were updated as MLX4's RAM usage was desreased
+        - ld-files were updated
+
+2015-09-16 <grm@melexis.com>
+    [*] \libsrc\LIN\
+        \libsrc\Mlx4\
+    LIN API: Updated MLX4 up to version 4.1.0
+        - Frame mode is not more supported (removed ml_Transmit(), ml_Recieve(), mlu_HeaderRecieved())
+        - Most of swithes for Mlx4 were disabled. The 'switches.asm' contains details
+        - MLX4 private RAM reduced to 64 bytes
+        - _IDInitTbl and _IDInitTbl2 tables were removed from LIN_CONFIG_TABLE
+        - _AUTOADDtbl was moved to the end of LIN_CONFIG_TABLE
+        - LIN_CONFIG_TABLE_ADDR can be aligned on 64-byte boundary (prev. 128-byte)
+    LIN driver: Changes and optimisation as a part of update to MLX4 v4.1.0
+        - Removed HAS_LIN_SET_OPTIONS as Mlx4 permanently supports ml_SetOptions()     
+        - Removed HAS_LIN_GET_STATE option as since MLX4 v4.1 ml_GetState() permanently enabled
+        - Removed HAS_LIN_DYNAMIC_ID option as MLX4 v4.1 permanently supports configurable IDs
+    LIN driver rewiev:
+        - Changed error ml_erCommand to ml_erShortDone
+        - Renamed ml_WakeUpInit to ml_erWakeUpInit
+        - Removed ml_erNextFrameIDCode error
+        - Removed ml_FrameIDCode typedef
+        - included ml_stSHORT into enumeration ml_LinState
+
+2015-09-16 <grm@melexis.com>
+    [*] \libsrc\LIN\flashfunctions_c_cmp.c
+        \libsrc\LIN\flashupload.h
+        \products\813xx\scr\premain.c
+    LIN Loader: Added functionality to move Loader's page buffer on the stack.
+                The 128 bytes into RAM are released
+                The 'LDR_HAS_PAGE_BUFFER_ON_STACK' option was enabled for 813xx products      
+
+2015-09-16 <grm@melexis.com>
+    [*] \libsrc\LIN\flashupload.c
+        \libsrc\LIN\flashupload.h
+        \libsrc\LIN\ml_InitLinModule.c
+        \products\813xx\scr\premain.c
+    LIN Loader: Added functionality for reset on entering Programming mode.
+                Device will enter Programming mode after reset
+                The 'LDR_RESET_ON_ENTER_PROG_MODE' option was enabled for 813xx products
+
+2015-09-15 <grmn@melexis.com>
+    [*] \libsrc\LIN\api.S
+    LIN API: Added retry for SendCmnd [PLTF-733]
+    
+2015-09-10 <grm@melexis.com>
+    (Merge request from BU-Act repo – Implementation is contributed by Nico Bollen):
+    [*] \products\813xx\
+        – Changed start-up procedure (prestart.c)
+        – Updated product’s libraries
+        – Added bist for reset
+        – Updated examples
+        – Updated to support EX4_IT interrupts
+    [*] \libsrc\LIN\
+    LIN Loader: Improved ReadByID message support
+        - Changed functionality realisation:
+            Replaced isEnterProgModeMessage() -> ml_ldr_ReadByIdMessage()
+
+2015-08-27 <grm@melexis.com>
+    [*] \products\81106_7\src\it_ext0(1/2/3/4).c
+        \products\81108_9\src\it_ext0(1/2/3/4).c
+    Updated EXT_IT functions for 81106/7/8/9 products [PLTF-744]
+
+2015-08-19 <grm@melexis.com>
+    [*] \libsrc\products\81300\lib\
+    Added flash_crc section for 81300
+
+2015-08-19 <grm@melexis.com>     
+    [*] \libsrc\products\81310\config\Extra.mk
+        \libsrc\products\81315\config\Extra.mk
+    Added defines for Loader protection to 81310 and 81315 products:
+        #CPPFLAGS += -DLDR_HAS_PROTECTION_KEY                 # Loader protection mechanism enabling
+        CPPFLAGS += -DLDR_PROTECTION_KEY_LENGTH=32            # key length can be whether 32 or 64 bits
+        CPPFLAGS += -DLDR_PROTECTION_KEY_ADDR_FLASH=0xBF46    # protection key location into Flash
+        CPPFLAGS += -DLDR_UNLOCKING_KEY_ADDR_NVRAM=0x1080     # unlocking key location into NVRAM
+
+2015-08-19 <grm@melexis.com>
+    [*] \libsrc\products\81310\lib\
+        \libsrc\products\81315\lib\
+    Added 64-bit protection key section to 0xBF46 address for 81310 and 81315 products.
+
+2015-08-19 <grm@melexis.com>
+    [*] \libsrc\products\81300\lib\
+        \libsrc\products\81300\config\Extra.mk
+    Added 64-bit protection key section to 0xBF46 address for 81300 product.
+    Protection key address definition in Extra.mk was changed to 0xBF46:
+        CPPFLAGS += -DLDR_PROTECTION_KEY_ADDR_FLASH=0xBF46    # protection key location into Flash
+
+2015-08-19 <grm@melexis.com>
+    [*] \libsrc\LIN\flashupload.c
+    LIN Loader: Added Loader protection with the key [PLTF-734]
+    
+    The LDR_HAS_PROTECTION_KEY is used to enable Loader protection mechanism 
+    Protection key length (32 bits or 64 bits) is defined with LDR_PROTECTION_KEY_LENGTH=32/64.
+    Also address of protection key into Flash is defined by LDR_PROTECTION_KEY_ADDR_FLASH
+    and address of unlocking key into NVRAM is defined by LDR_UNLOCKING_KEY_ADDR_NVRAM.
+    
+    Application provides protection key which is hard coded to Flash.
+    Also application reserves space into NVRAM area for unlocking key. 
+    
+    Loader is protected with key if the following two cases are true:
+        1. If protection key’s high part is different from low part;
+        2. If unlocking key in NVRAM is different from protection key.
+    Otherwise, Loader isn’t protected with key, i.e. all commands available for executing.
+    
+    When Loader protected with key, the following commands can be executed only:
+        - Enter programming mode
+        - Read by identifier
+        - Set Key
+        - Restart
+    Device will reply with ‘incorrect operation’ error if forbidden operation was required.    
+    
+    [*] \libsrc\LIN\flashupload.c
+    LIN Loader: Added Set Key message implementation
+    
+    Set Key message sends unlocking key to the device enabling all Loader functions.
+    Unlocking key will be written to allocated NVRAM area on address defined by LDR_UNLOCKING_KEY_ADDR_NVRAM.
+    This massage is enabling with Loader protection mechanism (LDR_HAS_PROTECTION_KEY).
+    
+    [*] \libsrc\products\81300\config\Extra.mk
+    Added defines for Loader protection:
+        #CPPFLAGS += -DLDR_HAS_PROTECTION_KEY                 # Loader protection mechanism enabling
+        CPPFLAGS += -DLDR_PROTECTION_KEY_LENGTH=32            # key length can be whether 32 or 64 bits
+        CPPFLAGS += -DLDR_PROTECTION_KEY_ADDR_FLASH=0xBF40    # protection key location into Flash
+        CPPFLAGS += -DLDR_UNLOCKING_KEY_ADDR_NVRAM=0x1080     # unlocking key location into NVRAM
+        
+    Loader protection mechanism is disabled. LDR_HAS_PROTECTION_KEY should be added to enable it. 
+    
+    [*] \libsrc\products\81300\lib\81300-lin.ld
+                                  \81300-lin-loaderB.ld
+    Space reserved for 64-bit protection key
+    
+2015-08-19 <grm@melexis.com>
+    [*] \libsrc\LIN\flashupload.c
+                   \flashupload.h
+                   \lin.c
+    LIN Loader: Renamed functions:
+        - isEnterProgModeMessage() -> ldr_isEnterProgModeMessage;     
+        - isReadByIdMessage()      -> ldr_isReadByIdMessage;
+    
+    [*] \libsrc\LIN\flashupload.c
+    LIN Loader: Protocol Extension block was moved to the end of file.
+
+2015-08-17 <grm@melexis.com>
+    [*] \libsrc\startup\sys_srv.S
+    - mlx_enter_protected_mode function was changed: mov UPr, 0 was replaced with clrb MH.3. 
+      This function cleans User bit only. Priority value is keeping unchanged. 
+    
+    [*] \include\syslib.h
+    - Renamed ENTER_SYSTEM_MODE() to ENTER_SYSTEM_MODE_KEEP_PRIO() macros. 
+      According to the changes into sys_srv.S, it enters system mode keeping priority register value;
+    - Added ENTER_SYSTEM_MODE_PRIO_0() macros to enter system mode with zeroing of priority register value;
+    - Added SYSTEM_CODE(__code__) macros to execute __code__ into system mode keeping priority register value.
+    
+    Note: ENTER_SYSTEM_MODE() macros is deprecated. 
+          Please use ENTER_SYSTEM_MODE_KEEP_PRIO() or ENTER_SYSTEM_MODE_PRIO_0() instead.
+
+2015-07-21 <grm@melexis.com>
+    [*] \libsrc\LIN\flashupload.c
+        \libsrc\LIN\lin.c
+    LIN Loader: Added Read by identifier (ReadByID) message for LIN Loader [PLTF-673]
+
+    When device into programming mode or Loader state is not equal to zero 
+    then device answers to ReadByID message with the following identifiers:
+      > Supplier ID (Melexis) = 0x0013
+      > Function ID (Loader) = 0xCAFE
+      > Loader state
+
+2015-07-13 <grm@melexis.com>
+    [*] \include\syslib.h
+    Added emulated functionality to support __fsb() for mlx16 arch [PLTF-741]
+
+2015-06-15 <pas@melexis.com>
+    [*] \config\Config.mk updated to support utilities under the Linux OS
+
+2015-06-11 <grm@melexis.com>
+    [*] \libsrc\LIN\flashupload.c
+    LIN Loader: 
+    - Added functionality to support flexible setting of Fast Protocol baudrate by communication messages [PLTF-672];
+    - ML_FAST_BAUDRATE_K value is used as MAX baudrate value; Required baudrate will be saturated to ML_FAST_BAUDRATE_K;
+    - ML_MIN_FAST_BAUDRATE_K value is used as MIN baudrate value.
+    
+    [+] \libsrc\LIN\ml_SetFastBaudRate.c
+    LIN Loader: Added ml_SetFastBaudRate(baudrate) function to set custom baudrate for Fast Protocol on runtime.
+    
+    [*] \products\LINLoader\config_ini\MLXLIN_default
+    Configuration file was updated as time to switch between Fast and LIN is increased
+    - TFastToLin = 80000
+    - TLinToFast = 80000
+    
+    [*] \products\813xx\config
+    Changed LIN_APP profiles files: ML_FAST_BAUDRATE = 100000
+
+2015-06-09 <pas@melexis.com>
+    [*] \products\81106_7 and \products\81108_9 updated according to PLTF-737
+    Removed configurations 81106_7A, 81106_7B, 81108_9A and 81108_9B, changed 
+    existed sources and headers. 
+    Added templates for LIN2_0 and LIN2_1 Nodegen examples for 81106_7 and 81108_9.
+
+2015-05-14 <grm@melexis.com>
+    [*] \libsrc\LIN\flashfunctions_c_cmp.c
+    Added checking with 'kLinLoaderMode' global before flash erase/write operation (PLTF-732)
+
+2015-04-16 <grm@melexis.com>
+    [+] \products\Validation\ISR\
+    Added ISR validation test for 813xx products
+
+2015-02-17 <pas@melexis.com>
+   [*] Flag SUPPORT_LINNETWORK_LOADER was moved from direct definition in \libsrc\LIN\flashfunctions_c_cmp.c and 
+   \products\<PRODUCT>\src\premain.c to \products\<PRODUCT>\config\Extra.mk as CPPFLAGS += -DSUPPORT_LINNETWORK_LOADER for
+   enabling functionality of storing LIN NAD into STACK_IT segment between resets of chip (This same address is used by LoaderB 
+   premain). Functionlality was implemented and enabled in 81300, 81310, 81315, 81106/7/8/9 and 81150 projects. (PLTF-727)
+
+2015-02-05 <pas@melexis.com> release 4.0.0.0 ---------------------------------
+    Migration guide:
+    ----------------
+    To migrate application, that used LIN must chaged next points:
+     - For starting LIN on fixed baudrate - must be executed command ml_SetDefaultBaudRate
+       without any parameters or ml_SetBaudRate() with setting correct values of prescaller and divider.
+
+     - For starting LIN on autobaudrate - must be executed command ml_SetAutoBaudRateMode() with parameter:
+       ML_ABR_ON_FIRST_FRAME - for detecting baudrate on first frame and ML_ABR_ON_EACH_FRAME - on each frame.
+
+     - function ml_ReleaseBuffer() not need to be executed from application. Must be removed.
+
+     - For detectiong LIN_BUS_ACTIVITY_BIT, LIN_BUFFER_NOT_FREE_BIT or LIN_CMD_OVERFLOW_BIT must be executed command 
+       ml_GetState() with parameter - which bit's will be cleared: ML_CLR_BUS_ACT_AND_OVF - bus activity and overflow,
+       ML_CLR_LIN_CMD_OVERFLOW - overflow only, ML_CLR_LIN_BUS_ACTIVITY - only LIN bus activity, ML_NOT_CLEAR - nothing 
+       to clear, and after that - read value of variable LinStatus with mask: ML_LIN_BUS_ACTIVITY, ML_LIN_BUFFER_NOT_FREE,
+       ML_LIN_CMD_OVERFLOW.
+
+      - Functions ml_SetOptions and ml_SetSlewRate was divided to separate functions.
+        #if defined (HAS_LIN_SET_OPTIONS)
+         ml_SetOptions(1U, 0U, ML_ENABLED, ML_LIGHTSLEEP);
+         IDStopBitLength : 0 (default)/1/2/3 -> 1 / 1.5 / 2 / 2.5 stop bits
+         TXStopBitLength : 0 (default)/1     -> 1 / 2 stop bits
+         StateChangeSignal : enabled (default)/disabled
+         * SleepMode: ML_LIGHTSLEEP or ML_DEEPSLEEP  
+       #else
+        Default options are used for LIN Module:
+       - IDStopBitLength : 1 stop bits (code 0)
+       - TXStopBitLength : 1 stop bit (code 0)
+       - StateChangeSignal : enabled
+       - SleepMode: lightsleep with timeout (ML_LIGHTSLEEP)
+     
+      SlewRate:
+       ML_SLEWHIGH for baudrates above 15kbps
+       ML_SLEWLOW  for baudrates below 15kbps
+       ML_SLEWFAST for fast protocol mode
+      ml_SetSlewRate(ML_SLEWLOW);
+
+2015-02-05 <pas@melexis.com>
+    [+] \products\LINLoader\config_ini\MLXLIN_default.ini
+        Added ini-file of configuration for Melexis Programming Toolbox, which was used during the validation process.
+        By default the settings will be saved in MLXLIN_default.ini file in the active user's directory. 
+        E.g. "C:\Users\<user_name>\Application data\Melexis\MLXLIN\MLXLIN_default.ini"
+
+2015-02-05 <pas@melexis.com>
+    [*] \bin\ldf_nodegen.exe
+        Updated to version 1.3.0
+	- Supported changes in LIN API
+	- Added switch to choose baudrate mode -b<d|f|e> (d: default baudrate from ldf-file,
+          f: autobaudrate detection on first frame, e: autobaudrate detection on each frame)
+        - Function mlu_AutoAddressingStep got attribute weak (PLTF-724)
+        - Added callback for diagnostic messages with run-key -Sd (PLTF-712)
+
+2015-02-05 <grm@melexis.com>
+    [!] \libsrc\LIN\flashupload.c
+    LIN loader: Eliminated Loader ddErCFRAME error due to the permanent MLX4 evENDtx in Programming Mode
+    
+2015-01-20 <grm@melexis.com>
+    [*] \include\mathlib.h
+        \libsrc\math
+        \products\Validation\MATHLIB\
+    Integrated new version of MLX16 mathlib (2.4.0)
+    - ASM realizations of some functions were replaced by INLINE_ASM 
+    to optimize memory using and enhance calculation speed;
+    - Flag '__MATHLIB_NON_INLINE__' forces ASM functions using,
+    By default, INLINE_ASM is used
+
+    [+] include\mathlib_inline.h
+    [+] include\mathlib_non_inline.h
+    Declaration of INLINE_ASM / ASM functionality
+
+    [+] mul16_16by16_copr.S
+        mul32_16by16_copr.S
+        mulI16_I16byI16_copr.S
+        mulI32_I16byI16_copr.S
+    [*] mul16_16by16.S
+        mul32_16by16.S
+    Functions were splitted to different files to avoid linking with unused functions
+
+2015-01-20 <pas@melexis.com>
+    [!] \libsrc\LIN\api.S
+       Changed according to LIN 2.0 API of mlx4
+
+2015-01-20 <grm@melexis.com>
+    [*] \libsrc\LIN\
+    LIN loader: Added MarginRead functionality support
+    - Added 'mmMarginSetOffset' command for Flash Margin changing by +/- offset;
+    - Optimization of CRC response.
+
+2015-01-20 <pas@melexis.com>
+    [!] \libsrc\LIN\
+    \libsrc\Mlx4\
+    LIN: Updated MLX4 LIN FW to version 4.0.0 and LIN API
+           - Shared memory organization changed:
+           - two nibbles added in Linmess
+           - Linbaudrfu removed
+           - LINerrdbg removed
+           - LinBaudCtrl removed
+           - LINID updated with Protected ID at evMESSrqst and evMESSrcvd
+           - LINbr,prescA added in Linmess at evMESSrqst and evMESSrcvd
+           - Data Ready flag is fully handled by MLX4, set at pcTX and pcDTRDY, cleared at end of TX and start 
+             of RX (at writing first data byte to frame buffer). The bit is relocated to private memory (PLTF-372)
+           - Auto baudrate is enabled by pcCNFBR (second nibble <0xF : fixed Br; =0xF : Auto Br)
+             As a result baudrate detected flag is moved to private memory, it is cleared by MLX4 at receipt of
+             pcCNFBR request for enabling auto baudrate; set at request for fixed baudrate.
+           - Bus activity bit is toggled at every end of sync instead of set. MLX16 should monitor these changes
+             instead of clearing the bit
+           - Removed wait for event in updtbytcnt as this was already handled some further in TXreq
+           - Added a switch to dissable all mark instructions (PLTF-648)
+           - Removed coIRR_FRAME_REPORT switch and it's related code
+           - Renamed LINbusStatus to LINstatus
+           - Renamed LINtaskStatus to LINconfig
+           - No evMESSrqst is send if data ready is set
+           - Maximum length detection of ID bit 7 improved to detect a dominant stop bit
+           - cvT013 timeout detection corrected
+           - LINconfig, LINflashStatus, LINstatus removed from shared ram area. Mlx4 now now reports these bits on MLx16 Getst command
+           - LINresp (4 nibbles) added the the shared ram area. Mlx4 returns now the command number in LINresp and the status (ok/nok) in LINresp+1 after all command processing
+           - LINconfig removed (merged with LINstatus)
+           - LINactivity and EventOverflow bits are now read by a getst command and automatically reset after it
+           - check added in waiting for start procedure (PLTF-663)
+           - continuous setting / data_ready / discard_frame merged to a single set_frame command with parameters
+           - programing mode is now set with rel_buf command
+           - bug corrected when checking the disconnected state before to go to fast mode
+           - too long break check added at the delimiter rising edge (PLTF-675)
+           - bug corrected: stACTIVE was before generated very closed to the erSHORT error (probably never seen by Mlx16). The first event has been removed
+           - bus level check added in delimiter rising edge
+           - 15.6% Br deviation formula corrected. it was: Brdev = |Tbit - Tbitnom|/Tbit. it's now:  Brdev = |Tbitnom - Tbit|/Tbit
+           - individual SYNC bit check added
+           - bit/byte counters in TXcol parameters improved (PLTF-681)
+           - data_ready flag reset in case of error
+           - SYNC stop bit number of instruction needed reduced (to improve minimum frequency)
+           - bug corrected : Module was at some condition not able to write on the bus
+           - bug corrected in break length measurement after a collision
+           - bug corrected : after a short state from sleep, we now go back to sleep instead of active state
+           - buffer_free behavior change for safety improvement
+           - erSHORTDONE specific error is now generated at the end of a too long break
+           - dead code removed
+           - bug corrected: break length calculation in wakeup detection
+           - pcCHST command reshaped for more safety
+           - bug corrected : TX Mlx16 response timeout corrected if 2 stop bit mode option set (PLTF-685)
+           - Bug corrected : Break inside SYNC stop bit, stop bit length was not taken in consideration
+           - SYNC stop bit procedure optimized for execution time improvement (to improve minimum frequency)
+           - wstart procedure simplified
+           - autoaddressing procedure bug corrected
+           - evSTCH is now generated after deep sleep
+           - bug corrected : autoadrressing procedure not finished at the end of the break might lead to frame decoding issue
+           - minimum SYNC bit length check added
+           - Stop bit error procedure simplified
+           - Mlx4 is now loading SFTVER in LINmess+4/+5 before handshake with the Mlx16 for making version compatibility checking possible
+           - sleep mode disabled/enabled option removed, now always enabled
+           - data_ready is now reset at evMSRQST if continuous mode is not set (PLTF-682)
+           - autoaddressing force option has been removed
+           - reinit and restart commands have been removed (Mlx16 must now reset Mlx4)
+           - arg askapi IDfilt option removed (it was not implemented)
+           - SR setting is now only possible from dedicated set_slewrate command (removed from pcOPTION)
+           - bug corrected : Mlx4 was not able to respond to Mlx16 commands during wakeup detection in light sleep mode
+           - collision handling at the beginning of active state improved
+           - fast2b.asm reshaped according to new communication structure
+           - presca 8 special waiting added, but should not be reached
+           - lpBRKmin and lpHDRto constants removed
+           - Maximum Break+Length+InterID detection increased from 28 to 32 
+           - Minimum presca introduced again into cst tables, it should be 2 if PLL frequency is equal or more than 20MHz
+           - RX 1.3 timeout simplified, and margins increased
+           - TX timeout simplified, and margins increased
+           - break minimum length check is now done before SYNC stop bit error check
+           - dominant state when RX timeout is detected is now taken in consideration in new break length detection
+           - bug in MSBI settings corrected when Mlx4 was receiving 3C-00 go to sleep request (PLTF-709)
+           - 15.6% calculation made with more accuracy
+           - check for RX start dominant at 1/2 Tbit added
+           - minimum break length already checked at break rising edge if we are in fixed baud-rate to avoid SYNC check within data
+           - individual SYNC error are now generated in fixed baud-rate to be compliant with J2602 standard
+           - Dominant length at TX collision measurment improved
+           - Check added to avoid a missing falling edge during Sleep init
+           - comments updated
+           - variable added for endTX instead of Xtmp container
+           - an argument has been added to getst command to reset or not bus activity and overflow flags
+
+2015-01-20 <grm@melexis.com>
+    [*] \libsrc\LIN\flashupload.c
+    LIN loader: Added CRC verification
+    - Added 'ddProtExtension' command to extend LIN loader protocol functionality;
+    - Added 'peReadFlashModify' subcommand with 'rfmNormal' and 'rfmCrcCalc' values for Flash CRC verification procedure.
+
+    [*] \libsrc\Makefile
+    Changed uninstall target; no action on uninstall target any more 
+ 
+2015-01-09 <pas@melexis.com> patch release 3.3.5 -----------------------------
+2015-01-09 <pas@melexis.com>
+    [!] \libsrc\LIN\
+    \libsrc\Mlx4\
+    LIN: Updated MLX4 LIN FW to version 3.1.38 (2014-12-05):
+      - Bug corrected where frames with long delimiter can be dropped
+
+2014-11-20 <yso@melexis.com> patch release 3.3.4 -----------------------------
+2014-11-20 <yso@melexis.com>
+    [+] \libsrc\LIN\lin2b_v13_19200_12mhz.bin 
+    lin2b_v13_19200_18mhz.bin
+    lin2b_v13_19200_20mhz.bin
+    lin2b_v13_19200_24mhz.bin
+    lin2b_v13_19200_25mhz.bin
+    lin2b_v13_19200_28mhz.bin
+    lin2b_v13_9600_12mhz.bin
+    lin2b_v13_9600_18mhz.bin
+    lin2b_v13_9600_20mhz.bin
+    lin2b_v13_9600_24mhz.bin
+    lin2b_v13_9600_25mhz.bin
+    lin2b_v13_9600_28mhz.bin 
+    Restored LIN1.3 FW images which were removed in previous release
+
+2014-11-20 <yso@melexis.com>
+    [*] vectors.S
+    System exceptions (STACK_IT, PROT_ERR_IT, INV_AD_IT and PROG_ERR_IT)
+    are now executed in USER mode (see request PLTF-718 on Jira)
+
+2014-11-18 <yso@melexis.com>
+    [!] \libsrc\LIN\
+    \libsrc\Mlx4\
+    LIN: Updated MLX4 LIN FW to version 3.1.37
+    3.1.35   : (2014-08-27)
+        - Bug in erSTOP bit reporting corrected (PLTF-686)
+        - Timeout when waiting for data ready if stop bit requested = 2 corrected (PLTF-685)
+    3.1.36   : (2014-09-23)
+        - Maximum header length treshold increased to 30 Tbits (PLTF-708)
+        - bug in MSBI settings corrected when Mlx4 was receiving 3C-00 go to sleep request (PLTF-709)
+    3.1.37   : (2014-11-12)
+        - Bug corrected when collision during TX frame, next break was not measured correcly (PLTF-713)
+
+2014-08-06 <yso@melexis.com>
+    [*] libsrc/LIN/flashfunctions_c_cmp.c
+    Erase is performed two times in a row with (20ms each). See PLTF-700 request.
+
+2014-08-05 <yso@melexis.com>
+    [*] \libsrc\Mlx4\Makefile
+    Rearranged MLX4 assembler command line agruments to avoid
+    error 'Superfluous Command-line text' with mlx16-gcc 1.12.3 toolchain
+
+2014-04-30 <pas@melexis.com> patch release 3.3.1-----------------------------
+2014-04-30 <pas@melexis.com>
+    [*] Discarded removing the section with LIN Loader flags from the loaderB.hex
+	for supporting programming chips, programmed with application, based on older
+	version of SW platform. Jira PLTF-679
+    [*] Changed \products\81300\include\nvram_mlx81300.h according to PLTF-678
+    [*] Removed includes <string.h> and <stdbool.h> from LIN\flashfunctions_c_cmp.c
+
+2014-04-16 <pas@melexis.com> release 3.3.0.0 ---------------------------------
+
+2014-04-16 <yso@melexis.com>
+    [+] \config\Rules.mk
+    Added rules 'libs' and 'clean_libs' to build and clean profile's library.
+    Variable $(PRODUCT) and $(PROFILE) are used to decide which profile should
+    be build.
+    Usage example:
+    In the Makefile of the application, define $(PLTF_DIR) variable to
+    relatively point to the root directory of the SW Platform:
+
+    PLTF_DIR = ../../../..
+
+    Now application can be build as:
+    gmake libs all
+
+2014-04-11 <pas@melexis.com>
+    [+] Added new example for 81300 product:
+	\products\81300\examples\LIN_Signal_layer_2_1
+
+2014-04-04 <pas@melexis.com>
+    [*] Updated \bin\ldf_nodegen.exe 
+	according to PLTF-665 _AUTOADDtbl table in lin2b_romtbl.S is not empty now
+
+    [*] \libsrc\LIN\flashfunctions_c_cmp.c Flash_PageWriteFiltered (uint16_t addr)
+	moved to __MLX_TEXT__ section.
+	For validation this fix was updated ld-scripts in test examples:
+	\products\81106_7\examples\IO_EX1_STANDALONE_LOADER\81106_7-fast-hi-flash-test.ld
+	\products\81106_7\examples\LIN_EX1\81106_7-hi-flash-test.ld
+	\products\81300\examples\IO_EX1_STANDALONE_LOADER\81300-fast-hi-flash-test.ld
+	\products\81300\examples\LIN_EX1\81300-lin-hi-flash-test.ld
+
+    [*] Changed \products\81300\include\nvram_mlx81300.h and
+        \products\81300\include\ioports.h according to PLTF-666
+     
+    [*] Updated \products\81106_7\ and \products\81108_9\ according to PLTF-665
+
+    [!] For APP_TYPE equal to LIN21_APP generated warning for using LIN20_APP
+	and used the same MLX4 image.
+
+    [!] Configuration LIN13_APP is not supported for this release
+
+2014-03-14 <yso@melexis.com>
+    [!] \libsrc\LIN\
+    \libsrc\Mlx4\
+    LIN: Updated MLX4 LIN FW to version 3.1.34
+           - MinprescA removed (PLTF-650)
+           - LinBrcpt, Linbrhicpt carries removed (PLTF-641)
+           - LinBrcpt size increased from 4 to 5 nibbles (PLTF-641)
+           - LINprescA, LINbr, LINbrNom initialization added at startup
+           - LINspclid is cleared at start of frame detection (PLTF-647)
+           - Added LINpresc to be used with LINbr (PLTF-651)
+           - Collision bit is cleared when starting break (PLTF-653)
+           - Renamed LINstatus to LINerrStat
+           - Changed from 1/2Tbit count to CPT count for zero bits
+           - Frame flags and "data ready" cleared in case of an error
+           - Header maximum length detection corrected (PLTF-644)
+
+2014-03-13 <yso@melexis.com>
+    [+] \LIN\ml_SetAutoBaudRateMode.c
+    LIN: Added function to configure a mode of the LIN auto-baud rate.
+    Three modes are defined. 
+    1) ML_ABR_DISABLED: baud rate auto-detection is disabled and baud rate
+      shall be configured by ml_SetBaudRate function
+    2) ML_ABR_ON_EACH_FRAME baud rate is detected on each LIN frame
+    3) ML_ABR_ON_FIRST_FRAME mode (default): baud rate is detected only
+       once after calling this function
+
+    Note: Direct changing of LinBaudCtrl is deprecated!
+
+
+2014-03-03 <yso@melexis.com>
+    [!] \libsrc\LIN\
+    \libsrc\Mlx4\
+    LIN: Updated MLX4 LIN FW to version 3.1.33
+    - Fixed baudrate code has been removed (fixed Br is handled by Auto baudrate code now) (PLTF-642)
+    - Auto addressing is supported by auto baudrate code (PLTF-645)
+    - Auto addressing bug is solved (AA uses LINbr instead of LINbrNom now) (PLTF-614)
+    - Auto Baudrate support baudrates down to 1000 baud now (PLTF-641)
+
+2014-02-28 <yso@melexis.com>
+    [!] \libsrc\LIN\
+    \libsrc\Mlx4\
+    LIN: Updated MLX4 LIN FW to version 3.1.32
+    - Collision bug fixes for collision in ID and collision in data (PLTF-630)
+    - Bug fix for collision in data when auto baudrate on every frame is enabled (PLTF-636)
+    - Bug fix for RX uncomplete frame error report (PLTF-636)
+    - Cleaned up error events, frame in frame handling and corresponding events
+
+    Note: LIN auto-baudrate feature is enabled by default.
+
+2014-01-27 <yso@melexis.com>
+    [!] \libsrc\LIN\
+    \libsrc\Mlx4\
+    LIN: Updated MLX4 LIN FW to version 3.1.28
+    Different bug fixes and improvements to make the auto baudrate detection
+    more robust for different break+delimiter combinations (PLTF-616)
+
+2013-12-18 <yso@melexis.com>
+	[*] \bin\ldf_nodegen.exe
+	Updated to version 1.2.0
+	- Corrected for MISRA 2004 compliance
+	- Added support for Frame Mode of LIN driver
+
+2013-12-18 <yso@melexis.com> Implemented loader for H12 Flash
+
+    WARNING! The H12 Loader requires the following versions of the PC-host components:
+    - LIN Master firmware: 2.13 or above
+    - MPT/LIN Master PSF:  1.39 or above
+    - MPT/LIN Master UI:   1.27 or above
+    
+    The H12 loader also will work on H11 Flash by emulating sector erase
+    via 16 page erases.
+
+	[*] flashupload.c
+	LIN Loader: Added Table #8 (implemented as _mlx_loader_info structure)
+	to report to the host that loader supports dynamic programming delays 
+
+	[*] flashupload.c
+	LIN Loader: Optimized table operations: ddReadTable is an alias for
+	ddReadAdd
+
+	[*] flashupload_cfg.h
+	LIN loader: Removed an obsolete table operations
+
+    [*] \libsrc\LIN\flashupload.c
+    Loader optimization:
+    - Optimized address base and offset calculations (removed ddDataAddressRq)
+    - Optimized parsing of the command frame 
+    - Optimized ddDataAddress and ddDataSize calculations
+      
+	[-] \libsrc\LIN\lin_state.c
+	[+] \libsrc\LIN\loader_state.c 
+		- Renamed lin_state.c to loader_state.c
+
+	[*] libsrc\LIN\ml_InitLinModule.c
+	libsrc\LIN\lin.c
+	libsrc\LIN\flashupload.c
+	- Replaced direct reading of the LoaderState by LDR_GetState().
+	  Function LDR_GetState() calculates the loader state (0-3) based
+	  on app_disabled, app_enabled and ldr_rst_vect_state_   
+
+2013-12-18 <yso@melexis.com>
+    [+] products\81300\include\lib_mlx81300.h
+    Added NVRAM map as per [PLTF-625] request
+
+    [+] products\81300\include\lib_mlx81300.h
+    [PLTF-626]: Added digital watchdog acknowlegement in WDG_Manager()
+
+2013-11-29 <yso@melexis.com>
+	[*] flashupload.c
+	LIN Loader: Optimized table operations: ddReadTable is an alias for
+	ddReadAdd
+
+    [*] flashfunctions_c_cmp.c
+    Added offset masking to prevent buffer overlfow in Flash_PageBufferFill
+
+2013-11-29 <yso@melexis.com>
+    [*] libsrc\LIN\ml_InitLinModule.c
+	libsrc\LIN\lin.c
+	libsrc\LIN\flashupload.c
+    low_level_init.c
+    premain.c
+	Replaced direct reading of the LoaderState by LDR_GetState().
+
+2013-11-26 <yso@melexis.com>
+    [!] \libsrc\LIN\flashupload.c
+    \libsrc\LIN\lin.c
+    \libsrc\LIN\ml_InitLinModule.c
+    \libsrc\LIN\flashupload.h
+    Fixed issue with collision reporting during Multiple/Broadcast programming
+    (see Jira MPT-506)
+
+2013-11-26 <yso@melexis.com>
+    [!] low_level_init.c
+    Added 'noinline` attribute for MCU_Write_TM_TR() function to prevent inlining
+    at -O3 optimization level (see Jira PLTF-622)
+
+2013-11-26 <yso@melexis.com>
+    [+] Added dsp module to mathlib
+
+2013-10-18 <yso@melexis.com> release 3.1.0.0 ---------------------------------
+2013-10-18 <yso@melexis.com>
+    [*] \libsrc\LIN\flashfunctions_c_cmp.c
+    Added check for possible overflow in IREF calculations
+
+2013-09-24 <yso@melexis.com>
+    [+] \libsrc\LIN\lin_baudrate.c
+    \libsrc\LIN\lin.h
+    Added function ml_GetBaudRate to read out the current LIN baudrate from MLX4
+
+2013-09-24 <pas@melexis.com>
+    [*] bin\ldf_nodegen.exe
+    bin\ncf_nodegen.exe
+    Updated to version 1.1.0
+
+    [+] Added FRAME_MODE support (new enumeration type LIN_mode_t declaration in generate.h).
+    [+] Added command line switch for choose mode of LIN driver generation.
+    [+] Added command line switch for allowing overwriting existing files
+    [+] Added command line switch for partial warnings disabling
+        (warnings regarding the not used schedule table, the signal encoding and overwriting existing files).
+
+2013-09-17 <pas@melexis.com>
+    [*] bin\ldf_nodegen.exe
+    bin\ncf_nodegen.exe
+    Updated to version 1.0.0
+    
+    [*] Corrected generated driver for MISRA 2004 compliance (all deviation
+        are documented)
+
+2013-09-17 <yso@melexis.com>
+    [!] \libsrc\LIN\
+    \libsrc\Mlx4\
+    LIN: Updated MLX4 LIN FW to version 3.1.27
+    - Rearranged the position of LINprescA variable to be at the fixed offset (+3 bytes)
+    - Added option to execute LIN auto-baud rate procedure for each incoming
+      frame [request PLTF-584]
+    - Bug related to a shortcut (LIN bus = 0) is fixed [issue PLTF-600 on Jira]
+    - Size optimization: ~150 bytes for Id-Filtering mode and ~40 bytes for
+      Frame mode of the MLX4 LIN FW.
+    - activated MLX4 option to reduce the size of MLX4 LIN tables
+      (lin2b_romtbl.S), see coPARAMLT equ cvON
+    - disabled next Frame Id feature (off HAS_LIN_NEXT_FRAME_ID)
+    - format of the lin2b_romtbl.S tables has been changed;
+      each entry in _PARAMtbl now takes 1 byte instead of 4 bytes;
+      tables _FFiltTbl and _FLAGtbl have been removed
+    - disabled functions ml_Receive, ml_Transmit and mlu_HeaderReceived in ID Filtering mode
+    - disabled ml_EnableEndOfHeaderEvent, ml_DisableEndOfHeaderEvent
+      (off HAS_LIN_DISCARDED_HEADER)
+    - disabled ask API option is PARAMtbl
+    - deprecated funcion mlu_HeaderReceived (not used in ID-Filtering mode of the LIN driver)
+    - changed LIN API functions
+
+        from [old]:
+        extern void mlu_LinStateChanged(ml_LinState NewState, ml_LinState OldState, ml_StateReason Reason);
+    
+        to [new]:
+        extern void mlu_LinSleepMode(ml_StateReason Reason);
+
+    [*] libsrc\LIN\api.S
+    libsrc\LIN\lin.h
+    1. Changed type of LinProtectedID from ml_uint16 (word) to ml_uint8 (byte)
+       for optimization and safety.
+    2. Added LinBaudCtrl (ml_uint8) to control LIN autobaud-rate detection. 
+    3. Moved bit ML_LIN_BAUDRATE_DETECTED from LinBusStatus to LinBaudCtrl.
+    4. Added bit ML_LIN_AUTO_BAUD_ON_EACH_FRAME
+
+    1) By default baud rate detection is enabled only once after reset, i.e.
+    detection is executed on the Sync Field of the first received frame Header.
+
+    2) To switch to permanent baud rate detection (on each frame) bit 0
+    in variable LinBaudCtrl shall be set to 1 before a call to ml_Connect()
+    in the application LIN initialization procedure.
+
+    LinBaudCtrl |= ML_LIN_AUTO_BAUD_ON_EACH_FRAME;
+    ml_Connect();
+
+    3) To switch to the fixed baud rate the required baudrate shall be configured
+    via ml_SetBaudRate function and then bit 1 in LinBaudCtrl shall be set to 1
+    before a call to ml_Connect() in the application LIN initialization procedure.
+
+    ml_SetBaudRate(prescaler, baud_counter);
+    [...]
+    LinBaudCtrl |= ML_LIN_BAUDRATE_DETECTED;
+    ml_Connect();
+
+    WARNING!! 
+    Even in case of the auto-baud rate detection the initial baudrate shall be
+    specified by calling ml_SetBaudRate function. This initial baudrate is
+    used as a reference for a local wake-up sequence generation.
+    If initial baud rate is not configured (by calling ml_SetBaudRate), the 
+    local wake-up procedure (ml_WakeUp) might work incorrectly.
+
+2013-09-11 <yso@melexis.com>
+    [*] libsrc\LIN_LoaderB\mlu30.c
+    Changed state name from stSLEEP to ml_stSLEEP as per Melexis LIN API
+    documentation
+
+2013-09-11 <yso@melexis.com>
+	[*] bin\ldf_nodegen.exe
+    bin\ncf_nodegen.exe
+    Updated to version 0.9.0
+
+	[*] Changed IsSupplierIdValid and IsFunctionIdValid to remove a warning
+	of break strict-aliasing rules with getting value of current supplierId
+	and functionID.
+	
+    [*] Changed conditonal compilation of ml_SetLoaderNAD based on
+    HAS_SET_LOADER_NAD instead of LIN_PIN_LOADER
+
+    [*] \products\<mulan2_products>\config\Extra.mk
+    Added HAS_SET_LOADER_NAD definition
+
+2013-09-10 <yso@melexis.com>
+    [+] \include\static_assert.h
+    Added static (compile-time) assertion
+    Usage example:
+        ASSERT(sizeof(unsigned int) == 2);
+
+2013-09-10 <yso@melexis.com>
+    [*] include/pltf_version.h
+    libsrc/LIN/flashupload.c
+	libsrc/LIN/flashupload.h
+    Changed version number feature to support versions up to: 255.255.255.255
+
+2013-09-10 <yso@melexis.com>
+	[*] libsrc/MUPET
+	Integrated new version of MUPET SW module 1.0.1:  
+	- Implemented workaround for MLXCOMP-17 issue (volatile access optimization)
+	  during accessing PTC_STS port
+	- Added extra check that EEPROM write is done only in PTC mode (bit PTC_MODE,
+      see issue MLX16107-148)
+
+2013-09-10 <yso@melexis.com>
+    [!] \libsrc\LIN\flashupload.c
+    Fixed issue with incorrect behaviour when erase of more than one
+    Flash page is requested.
+
+2013-09-09 <yso@melexis.com>
+    [*] lin.h
+    lin_baudrate.h
+    lincst.h 
+    LIN driver include files are not copied to /include directory anymore to
+    avoid duplications. Compiler searches for them directly in libsrc/LIN
+    directory (directory is added to -I search in config\Config.mk)
+
+2013-09-09 <yso@melexis.com>
+    [!] \libsrc\sent\sent_cfg.c
+    \libsrc\sent\sent_cfg.h
+    Updated SENT component to version 0.1.1 (fixed bug PLTF-552)
+    
+2013-09-09 <yso@melexis.com>
+    [*] bin/srec_cat.exe
+    Updated srec_cat utility to version 1.60
+    - There are now several additional CRC-16 polynomials, plus the ability
+      to select a polynomial by name, rather than by value.
+
+2013-09-09  <yso@melexis.com>
+    [*] \config\Config.mk 
+    Optiization option, e.g. -Os, is added also to assembler flags:
+        OPTIMIZATION = -Os
+        [...]
+        ASFLAGS = $(OPTIMIZATION)
+
+    This enables more optimization in mathlib functions implemented in assembly
+
+    [*] \include\mathlib.h
+    \libsrc\math
+    Integrated new version of MLX16 mathlib (2.2.4)
+       - Added DSP sub-component
+
+	   - Optmized code size of divI32_I32byI16 function in case of co-processor
+	     compilation.
+	
+       - Added mapping of MLX16 CPU variant to HAS_MLX16_COPROCESSOR
+         and HAS_MLX16_FSB_SFB_INSTRUCTIONS defines which are further
+         used by the mathlib instead of __MLX16_X8__ etc 
+
+       - Form now on, conditional compilation in mathlib sources uses
+         HAS_MLX16_COPROCESSOR and HAS_MLX16_FSB_SFB_INSTRUCTIONS instead of
+        __MLX16_8__, __MLX16_X8__, __MLX16_FX__ etc to know which CPU instructions
+        are available. 
+     
+       - Removed deprecated functions:  int8 divI8hi_I8byI8(int8 n, int8 d) and 
+        int8 divI8hi_I8byU8(int8 n, uint8 d)
+
+      - Changed overflow storage initialization from "SC <reg>" instruction
+        to "MOV <reg>, #0" instruction to be compatible with MLX16-x8 and MLX16-FX
+        (issue MLXSIM-53 and MLXCOMP-266)
+
+      - Changed .include to #include in assembler files to be able to use -I <path>
+        specified diring compilation
+
+2013-06-17 <yso@melexis.com> patch release 3.0.15.2 ---------------------------
+2013-06-17 <pas@melexis.com>
+	[+] Added SAE J2602 validation examples:
+		\products\Validation\LIN_SAE_FIXED_DNN
+		\products\Validation\LIN_SAE_SOFTWARE_DNN  
+	
+2013-05-23 <yso@melexis.com> patch release 3.0.15.1 ---------------------------
+2013-05-23 <yso@melexis.com>
+    [!] \libsrc\LIN\
+    \libsrc\Mlx4\
+    LIN: Updated MLX4 LIN FW to version 3.1.23
+    Fixed issue with exiting sleep state [PLTF-577]
+
+2013-02-12 <yso@melexis.com> release 3.0.15.0 ---------------------------------
+
+2013-02-11 <yso@melexis.com>
+    [+] \libsrc\Mlx4\mlx4_loop
+    \products\81300\config\81300-loop.mk
+    \products\81300\lib\81300-nolin-mlx4-loop.ld
+    \products\81300\src\mlx4_loop_wrapper.S
+    \products\81300\src\mlx4_loop.bin
+
+    [*] \products\81300\config\Extra.mk
+    \products\81300\src\low_level_init.c
+    \products\81300\src\Makefile
+
+    81300: Integrated MLX4 FW for an empty loop application (request PLTF-547).
+    Implementation is contributed by Nico Bollen.
+
+2013-02-05 <yso@melexis.com>
+    [!] lin2b_12mhz.bin
+    lin2b_18mhz.bin
+    lin2b_20mhz.bin
+    lin2b_24mhz.bin
+    lin2b_25mhz.bin
+    lin2b_28mhz.bin
+    lin2b_v13_19200_12mhz.bin
+    lin2b_v13_19200_18mhz.bin
+    lin2b_v13_19200_20mhz.bin
+    lin2b_v13_19200_24mhz.bin
+    lin2b_v13_19200_25mhz.bin
+    lin2b_v13_19200_28mhz.bin
+    lin2b_v13_9600_12mhz.bin
+    lin2b_v13_9600_18mhz.bin
+    lin2b_v13_9600_20mhz.bin
+    lin2b_v13_9600_24mhz.bin
+    lin2b_v13_9600_25mhz.bin
+    lin2b_v13_9600_28mhz.bin 
+    LIN: Updated LIN FW to version 3.1.22
+    Bug in Stop bit corruption is fixed (fixed issued PLTF-546)
+
+2013-02-05 <yso@melexis.com>
+	[+] \libsrc\Mlx4\lin2b_18mhz.bin
+	\libsrc\Mlx4\lin2b_v13_9600_18mhz.bin
+	\libsrc\Mlx4\lin2b_v13_19200_18mhz.bin
+	LIN: Added MLX4 LIN FW images for 18 MHZ (requested by Marcel Braat)
+
+2013-02-05 <yso@melexis.com>
+    [*] \libsrc\LIN\flashfunctions_c_cmp.c
+    When Flash Page buffer is located in NVRAM SRAM (option HAS_FLASH_WRITE_BUFFER_IN_NVRAM_SRAM),
+    the start address of this buffer can be defined via via FLASH_WRITE_BUFFER_ADDR
+    (in \products\#####\config\Extra.mk)
+
+2013-01-29 <yso@melexis.com>
+    [!] lin2b.bin
+    lin2b_v13_19200.bin
+    lin2b_v13_9600.bin
+    lin2b_##mhz.bin
+    lin2b_v13_19200_##mhz.bin
+    lin2b_v13_9600_##mhz.bin
+    LIN: Updated LIN FW to version 3.1.21
+    Wakeup generator: Added PrescA initialization in wakeup generator
+    routing (fix PLTF-541 issue)
+
+	WARNING: In auto-baud rate mode, to generate correct LIN wake-up sequence
+             by ml_WakeUp function, an initial baud rate still shall be set
+             by calling  ml_SetDefaultBaudRate or ml_SetBaudRate function.
+
+2013-01-24 <yso@melexis.com> release 3.0.14.0 ---------------------------------
+2013-01-22 <yso@melexis.com>
+	[+] \libsrc\Mlx4\lin2b_12mhz.bin
+	\libsrc\Mlx4\lin2b_v13_9600_12mhz.bin
+	\libsrc\Mlx4\lin2b_v13_19200_12mhz.bin
+	\libsrc\Mlx4\lin2b_24mhz.bin
+	\libsrc\Mlx4\lin2b_v13_9600_24mhz.bin
+	\libsrc\Mlx4\lin2b_v13_19200_24mhz.bin  
+	LIN: Added MLX4 LIN FW images for 12 MHZ and 24 MHz
+	
+2013-01-18 <yso@melexis.com>
+	[*] \libsrc\LIN\flashfunctions_c_cmp.c
+	LIN: Added option (HAS_FLASH_WRITE_BUFFER_IN_NVRAM_SRAM) to allocate page write
+	buffer in NVRAM SRAM area to save some general RAM. Size of the buffer is
+	128 bytes and it is allocated at address 0x1100 (request PLTF-525)
+
+    WARNING: When option HAS_FLASH_WRITE_BUFFER_IN_NVRAM_SRAM is enabled, loader
+             uses NVRAM SRAM as a Flash Page buffer. That's why application
+             should check that loader is not running before accessing the
+             NVRAM SRAM. E.g. application can set a flag in mlu_ApplicationStop
+             and then check if this flag is not set before accessing NVRAM or
+             calling NVRAM functions like NVRAM_SavePage, NVRAM_SaveAll.
+	
+	[*] \libsrc\LIN\lin.c
+	LIN: Optimized access to LinCommand
+
+	[*] \include\mark.h
+	Optmized mark macro-functions
+	 	
+2013-01-16 <yso@melexis.com> release 3.0.13.2 ---------------------------------
+2013-01-16 <yso@melexis.com>
+	[!] \libsrc\MUPET\mupet.h
+	    \libsrc\MUPET\TEMPLATE\mupet_cbk.h
+	MUPET: Integrated new version of MUPET SW module 0.2.1:  
+	- Implemented workaround for MLXCOMP-17 issue (volatile access optimization)
+	  during accessing PTC_STS port
+	- Added extra check that EEPROM write is done only in PTC mode (bit PTC_MODE,
+      see issue MLX16107-148)
+	
+2012-12-06 <yso@melexis.com>
+    [*] \include\lin.h
+	LIN: Added ml_stINVALID state to ml_LinState (as per Melexis LIN API
+	specification)
+
+	[*] \libsrc\LIN\api.S
+	\products\81300\config\Extra.mk
+	LIN: Added timeout for MLX4 command acknowledgment (implementation
+	is contributed by Marcel Braat). Option is configured by
+	HAS_MLX4_CMD_ACK_TIMEOUT in Extra.mk and enabled by default
+	for MLX81300. Timeout is defined as	MLX4_CMD_ACK_TIMEOUT in api.S
+
+	[*] \libsrc\LIN\ml_InitLinModule.c
+	LIN: If MLX4 doesn't acknowledge resynchronization with MLX16 within
+	AWDG period, the MLX16 will be restarted by the watchdog.
+	
+2012-11-30 <yso@melexis.com> release 3.0.13.1 ---------------------------------
+2012-11-30 <yso@melexis.com>
+	[*] \products\81150\src\low_level_init.c
+	81150: Added initialization of ANA_OUTF port (contributed by Raik Frost)
+	 
+	[!] \libsrc\LIN\flashfunctions_c_cmp.c 
+	Fixed incorrect position of IREF during margin read test (contributed
+	by Raik Frost)
+	 
+2012-11-27 <yso@melexis.com>
+    [+] \libsrc\LIN\lin2b_25mhz.bin
+    \libsrc\LIN\lin2b_v13_19200_25mhz.bin
+    \libsrc\LIN\lin2b_v13_9600_25mhz.bin
+    \libsrc\LIN\mlx4_prog.S
+    LIN: Added LIN FW images for 25 MHz clock
+
+2012-11-21 <yso@melexis.com> release 3.0.13 ----------------------------------
+2012-11-21 <yso@melexis.com>
+    [*] \libsrc\LIN\flashupload.c
+    \libsrc\LIN\flashupload.c
+    LIN Loader: Added margin read after flash page writing (PLTF-534)
+
+2012-11-16 <atn@melexis.com>
+    [!] \libsrc\LIN\flashupload.c
+    LIN Loader: Fixed issue with reporting incorrect size after in the status message (opcode 0x80)
+    after write NVRAM command.
+
+2012-11-15 <yso@melexis.com>
+    [*] \libsrc\LIN\lin.h
+    LIN: Specified shared RAM for MLX4/MLX16 as dp to speed up access for MLX16
+    (on MULAN2 the shared memory is mapped into dp segment)
+
+2012-11-12 <yso@melexis.com>
+    [!] include\adclib.h
+    ADC: Fixed ADC_TRIGGER_NEXT_CONVERSION() to clean interrupt flag _before_ starting
+    an ADC conversion (issue PLTF-531)
+
+2012-10-15 <yso@melexis.com>
+    [*] MUPET library 
+    MUPET: Updated MUPET library to version 0.2.0 from:
+    http://cvs.kiev.elex.be/cgi-bin/cvsweb/cvseseg/projects/feasibility/MUPeT_module
+
+2012-10-10 <yso@melexis.com> release 3.0.12 ----------------------------------
+
+2012-10-10 <yso@melexis.com>
+    [*] flashfunctions_c_cmp.c
+    flashfunctions_c.c
+    LIN Loader: Removed extra cycle with writing 0xff to flash page before erase/write
+    procedure (PLTF-526)
+
+2012-10-10 <yso@melexis.com>
+	[*] low_level_init.c
+    Start-up: Changed low_level_init procedure for MULAN2
+	- added initialization of TM_TR register for Flash trimming
+	- added initialization of Flash extra wait-cycle (of needed)
+	  and MLX16/MLX4 priority selection
+    - 1MHz core timer calibration procedure changed: ANA_OUTC bit 15 is set to "1",
+      independent of the NVRAM contents, and the CK_TRIM value is set to 64-PLL_Freq(MHz)   
+	- added RAM test (executed on PLL clock)
+		
+    [*] products\81300\include\ioports.h 
+    81300: Updated IO port description
+    
+2012-10-10 <yso@melexis.com>
+    [+]lin2b.bin
+    lin2b_v13_19200.bin
+    lin2b_v13_9600.bin
+    [+]lin2b_20mhz.bin
+    lin2b_v13_19200_20mhz.bin
+    lin2b_v13_9600_20mhz.bin
+    Renamed MLX4 LIN FW images for 20 MHz
+    
+    [+]lin2b_28mhz.bin
+    lin2b_v13_19200_28mhz.bin
+    lin2b_v13_9600_28mhz.bin 
+    Added MLX4 LIN FW images for 28 MHz
+	MLX4 LIN FW images is selected based on MCU_PLL_MULT (80 or 112) setting in the configuration
+	profile: products\81300\config
+
+2012-09-19 <yso@melexis.com>
+    [+] \libsrc\sent
+    \doc\SENTmodule_SWReleaseNotes.doc
+    \doc\SENTmodule_SWspecification.doc
+    \doc\SENTmodule_SWUserManual.doc
+    SENT: Integrated SENT module (version 0.1.0) from design repository:
+    http://cvs.kiev.elex.be/cgi-bin/cvsweb/cvseseg/projects/feasibility/SENT_module/soft/libsrc/sent
+
+2012-08-14 <yso@melexis.com>
+    [*] pltf_version.h
+    Added SW Platform version string __MLX_PLTF_VERSION_STRING__ to simplify
+    version identification from Makefile
+	
+2012-08-08 <yso@melexis.com>
+    [*] lin2b_v13_19200.bin
+    lin2b_v13_9600.bin
+    lin2b.bin
+    \libsrc\Mlx4\mlx4_fw_images.bat
+    \libsrc\Mlx4\Makefile
+    81150-lin.ld
+    81300-lin.ld
+    loader.ld
+    - Reconfigured LIN FW (version 3.1.20) to enable auto-addressing for LIN1.3
+    - Increased region for MLX4 FW to 6 KBytes (6144 bytes) and changed start
+      address of LIN tables to 0x5800
+
+2012-08-07 <yso@melexis.com>
+    [*] \include\mathlib.h
+    Added version numbering for mathlib (2.2.3)
+
+    /* SW component version */
+    #define MLX_MATHLIB_SW_MAJOR_VERSION    2
+    #define MLX_MATHLIB_SW_MINOR_VERSION    2
+    #define MLX_MATHLIB_SW_PATCH_VERSION    3
+
+2012-08-03  <yso@melexis.com> release 3.0.10 ----------------------------------
+
+2012-08-03 <yso@melexis.com>
+    Introduced file <pltf_version.h> instead of <version.h>
+
+2012-08-01 <yso@melexis.com>
+    Updated bin/srec_cat utility to version 1.59
+
+2012-07-26  <yso@melexis.com>
+	[+] /libsrc/MUPET
+    \doc\MUPeT_API.doc
+    Integrated MUPET SW module (version 0.1.0) from design repository:
+    http://cvs.kiev.elex.be/cgi-bin/cvsweb/cvseseg/projects/feasibility/MUPeT_module/
+	
+2012-07-26  <yso@melexis.com>
+	[*] syslib.h
+	Added DELAY_US macro-function
+	
+2012-06-19  <yso@melexis.com>
+    [*] libsrc/startup/startup.c
+    Moved CPU priority setting command SET_PRIORITY(7) from a common part of
+    the SW Platform libsrc/startup/startup.c to project specific part: 
+    products/<nnnnn>/src/premain.c
+
+    Migration guide:
+    ----------------
+    Projects which override default premain.c should add CPU priority setting
+    as a last command in the premain function:
+
+          SET_PRIORITY(7);  /* Protected mode, low priority (7) */
+    
+
+2012-02-08  <yso@melexis.com> release 3.0.9 -----------------------------------
+
+2012-06-01 <yso@melexis.com>
+    Added HAS_LIN_MODULE_VERSION configuration define which enable linking
+    of ml_LinModuleVersion function (requires coCMD_SFTVER equ cvON in MLX4 FW)
+
+2012-06-01 <yso@melexis.com>
+    [*] lin2b.bin
+    fast2b.bin
+    lin2b.bin
+    lin2b_v13_19200.bin
+    lin2b_v13_9600.bin 
+    Updated LIN FW to version 3.1.20
+    - Edit Number added in soft version (instead of flash version)
+      Response to CMD_SFTVER changed to resolve a bug due to addressing
+      of ROM tables jmp instruction replaced by a call before ev_hshk (Mlx4
+      waiting for an event acknowledge) but if the call occurs there will be
+      a problem
+    - Collision error flag cleared when collision ends (fixed issue PLTF-510)
+
+2012-04-24 <yso@melexis.com>
+	[+] lin2b_v13_19200.bin
+	lin2b_v13_9600.bin 
+	Added LIN1.3 MLX4 FW images
+
+2012-04-24 <yso@melexis.com>
+	[*] mlx4_prog.S
+	Extra.mk
+	Removed MLX4_LIN_FW_BIN. From now on, image file is selected by
+	checking MLX4_FW_LIN2X, MLX4_FW_LIN13_9600, MLX4_FW_LIN13_19200
+	or MLX4_FW_STANDALONE_LOADER define generated by Extra.mk 
+	
+2012-04-06 <yso@melexis.com>
+	[*] Header files (*.h)
+	Changed pattern __XXX_H__ to XXX_H_ (according to MISRA C 2004 Rule:20.2)
+
+2012-04-06 <yso@melexis.com>
+	[*] bin\ldf_nodegen.exe
+    bin\ncf_nodegen.exe
+    Updated to version 0.8se.16
+    [*] Generates pattern XXX_H_ instead of __XXX_H__ in header files
+
+2012-04-06 <yso@melexis.com>
+    [*] \include\mathlib.h
+    \libsrc\math\
+    \projects\Validation\MATHLIB\
+    Integrated new version (2.2.2) of mathlib
+    MISRA C 2004 corrections
+
+2012-03-13  <yso@melexis.com>
+    [*] \libsrc\LIN\lin2b.bin
+    Updated MLX4 LIN FW to version 3.1.18
+        - task1vects unused area filled with 0
+
+2012-03-12  <yso@melexis.com>
+
+    [*] \include\mathlib.h
+    \libsrc\math\
+    \projects\Validation\MATHLIB\
+    Integrated new version (2.2.1) of mathlib
+    	[*] Added __MLX_FX__ variant
+		
+		[!] \libsrc\div8_8by8.S
+		\libsrc\div8hi_8by8.S
+		Changed functions divI8_I8byI8, divI8_I8byU8, divU8_U8byU8, divI8hi_I8byI8,
+		divI8hi_I8byU8 and divU8hi_U8byU8 to extend sign of return value for
+		int8/uint8 types (see Jira MLXCOMP-193)
+
+		[*] mathlib.h 
+		Function divI8hi_I8byI8 and divI8hi_I8byU8 are declared deprecated
+		and	will be removed in the next release.
+
+        [*] Reworked \test\div_test.c to align with spec
+
+
+2012-02-08  <yso@melexis.com> release 3.0.5.2 --------------------------------
+
+2012-02-08  <yso@melexis.com>
+    [*] \config\Config.mk
+    Removed GCCDIR and GCC_PATH. The binary directories (/bin and /cygwin/bin)
+    of the compiler should be in an environment path
+
+    [*] \config\Config.mk
+    Changed option -gdwarf2 to -gdwarf-2 to be compiled by 4.5.x based gcc
+
+2012-01-12  <yso@melexis.com>
+    [*] \libsrc\LIN\flashfunctions_c_cmp.c
+    Updated flash driver according to new requirements from IHA
+    (write 0xFFFF first then data, enable charged pump bit)
+
+
+2011-12-05  <yso@melexis.com>
+    [*] \libsrc\LIN\lin.c
+    \libsrc\LIN\lin.h
+    Added function to set NAD in loader (ml_SetLoaderNAD, ml_GetLoaderNAD).
+    Required to support multiple slave on one LIN bus.
+
+    Added usage example:
+    \products\81300\examples\LIN_Unique_Loader_NAD 
+
+
+2011-11-24  <yso@melexis.com>
+    [*] bin\ldf_nodegen.exe
+    bin\ncf_nodegen.exe
+    Updated to version 0.8se.14
+    Added call to ml_SetLoaderNAD to notify loader about application's NAD
+
+
+2011-11-16  <yso@melexis.com> release 3.0.4 -----------------------------------
+    [*] \include\version.h
+    MULAN2/MMC SW Platform will use __MLX_PLTF_VERSION_MAJOR__ eqaul to 3 from
+    now on
+
+2011-11-16 <yso@melexis.com>
+    [*] \libsrc\LIN\lin2b.bin
+    Updated MLX4 LIN FW to version 3.1.17 (Autobaudrate stable version)
+    - Auto-baudrate is detected only once after power-on using Synchronization
+      Field of the first frame.
+
+2011-11-11 <yso@melexis.com>
+	[*] api.S
+	lin.h
+	Splitted LinTaskStatus (16-bit) into LinTaskStatus (8-bit) and
+	LinBusStatus (8-bit). Optimized access to the memory
+
+    [*] bin\ldf_nodegen.exe
+    bin\ncf_nodegen.exe
+    Updated to version 0.8se.13
+    Bit ML_LIN_BUS_ACTIVITY is moved to LinBusStatus (was in LinTaskStatus)
+
+2011-11-03 <yso@melexis.com>
+    [*] \libsrc\LIN\lin2b.bin
+    fast2b.bin 
+    Updated MLX4 LIN FW to version 3.1.13 (with coFastStdAlne disabled)
+
+2011-11-02 <yso@melexis.com>
+    [*] \libsrc\LIN\lin2b.bin
+    Updated MLX4 LIN FW to version 3.1.13 (with Autobaudrate enabled)
+    [*] *.ld
+    LIN tables are moved to 0x5780
+
+2011-11-01 <yso@melexis.com>
+    [!] bin\ldf_nodegen.exe
+    bin\ncf_nodegen.exe
+    Updated to version 0.8se.12
+    [*] Removed INLINE attribute from functions in lin_diag.c and mlu30.c
+        to allow compiling with -O0 optimization (see Jira PLTF-474)
+    [*] Renamed attribute __packed__ to packed for consistency
+
+2011-11-01 <yso@melexis.com>
+    [*] \libsrc\LIN\lin2b.bin
+    Updated MLX4 LIN FW to version 3.1.13 (with disabled Autobaudrate)
+
+2011-10-21 <yso@melexis.com>
+    [*] \libsrc\LIN\lin2b.bin
+    Updated MLX4 LIN FW to version 3.1.12
+
+2011-10-18 <yso@melexis.com>
+    [*] \libsrc\LIN\lin2b.bin
+    Updated MLX4 LIN FW to version 3.1.11
+
+2011-10-14 <yso@melexis.com>
+    [*] \libsrc\LIN\lin2b.bin
+    Updated MLX4 LIN FW to version 3.1.9
+    
+2011-10-14 <yso@melexis.com>
+    [*] \libsrc\LIN\lin2b.bin
+    Updated MLX4 LIN FW to version 3.1.8
+    
+2011-10-10 <yso@melexis.com>
+    [*] \libsrc\LIN\lin2b.bin
+    Updated MLX4 LIN FW to version 3.1.7
+
+2011-09-23 <yso@melexis.com>
+	*.ld files for LIN applications
+    Increased MLX4 flash region by 128 bytes
+
+2011-09-23 <yso@melexis.com>
+    [!] \libsrc\LIN\lin2b.bin
+    Updated MLX4 LIN FW to version 3.1.5 (fixed bugs PLTF-476 and PLTF-477)
+    	
+2011-09-19 <yso@melexis.com>
+    [*] nvram.h
+    nvram.c
+    Added NVRAM_SavePage function, removed NVRAM_Save
+
+2011-09-18 <yso@melexis.com>
+    [*] version.h
+    Changed version numberin. For MULAN2/MMC16 from now on the
+    __MLX_PLTF_VERSION_MAJOR__ will be 3. Currentl version is 3.0.1
+
+    [*] nvram.h
+    nvram.c
+    Added function NVRAM_BufferFill to write bytes into NVRAM buffer
+
+    [*] flashfunctions.h
+    flashfunctions_c_cmp.c
+    flashupload.c
+    flashfunctions_c.c
+    Changed Flash Driver API names: FlashRead to Flash_PageRead, FlashWrite
+    to Flash_PageWrite, FlashDataWrite to Flash_PageBufferFill. Added
+    Flash_PageErase.
+
+    [+] flash_cfg.h
+    flashfunctions_c_cmp.c
+    Makefile
+    [-] flashfunctions_wv.c
+    Added Flash Driver which compare buffer with Flash Page after write/erase
+    operation
+
+    [+] flashfunctions_c.c
+    [-] flashfunctions.c
+    Makefile
+    Added simple Flash driver w/o write/erase verification
+
+    [*] flashupload_cfg.h
+    flashupload.c
+    Renamed LDR_HAS_FLASH_BLOCK_VERIFICATION to
+    LDR_HAS_FLASH_WRITE_STATUS_REPORTING. Now this switch controls reporting
+    of the write/erase status back to PC programming tool. Write/erase
+    versification is configured separately by selecting appropriate
+    Flash Driverin in libsrc/LIN/Makefile (e.g. flashfunctions_c_cmp.c)
+
+    [*] flashupload.c
+    1. Loader variables are moved to dp space.
+    2. Optimized function ml_ReadData.
+    3. Chip reports SW Platform Version instead of MLX4 LIN FW version in
+       response to "Enter programming mode" frame (added ml_GetPlatformVersion)
+    4. Optimized frame counter calculation for S2M CF frames.
+    5. Renamed ml_TableAddress to _mlx_TableAddress and ml_TableSize to
+       _mlx_TableSize for correct constant linking (constants should start
+       with _mlx_ to be linked in first half of the flash)
+
+    [*] flashupload.c
+    1. Removed commands  ddExit, ddSlowProt (not used by programming tool anymore;
+    command ddRestart is sent instead, see record MPT-111 on Jira)
+    2. Added ddFlashPageErase command
+
+
+2011-09-14  <atn@melexis.com>
+    [*] flashupload.c
+    Implemented EEPROM operations ddEeWrite and ddEeRead (controlled by
+    LDR_HAS_EEPROM_COMMANDS switch)
+
+    [*] flashupload.c
+    lin.c
+    lin.h
+    ml_InitLinModule.c
+    [+] lin_nad.h
+    Added configuration of the loader's NAD (functions ml_SetLoaderNAD and
+    ml_GetLoaderNAD)
+
+    [*] Linker scripts
+    Added ram_lin_fixed region/section
+
+2011-06-21  <yso@melexis.com> release 0.9.3 -----------------------------------
+
+2011-06-21 <yso@melexis.com>
+    [!] \libsrc\LIN\lin2b.bin
+    \libsrc\LIN\lin2b_v13_19200.bin
+    \libsrc\LIN\lin2b_v13_9600.bin
+    \libsrc\Mlx4\
+    Updated LIN FW to version 2.6.60
+    - Fixed issue PLTF-469 (No response for dynamically configured S2M message
+      with index 0 after M2S frame)
+
+2011-06-20  <yso@melexis.com> release 0.9.2 -----------------------------------
+    [!] \libsrc\LIN\lin2b.bin
+    \libsrc\LIN\lin2b_v13_19200.bin
+    \libsrc\LIN\lin2b_v13_9600.bin
+    \libsrc\Mlx4\
+    Revert back to version 2.6.50 due to PLTF-469 issue
+
+2011-06-15 <yso@melexis.com>
+    [*] config\Config.mk
+    Removed "$(GCCDIR)/bin" prefix for binutils (sh, cp, rm etc)
+    Starting from version 1.10 of mlx16-gcc the bunutils are moved to
+    directory C:\mlx16-gcc\cygwin\bin, which must be is a system PATH.
+    To summarize:
+    Directories C:\mlx16-gcc\bin;C:\mlx16-gcc\cygwin\bin
+    MUST be in a system PATH for correct building
+
+2011-06-06 <yso@melexis.com>
+    [*] Linker scripts
+    Added NOLOAD type to .noinit section
+
+2011-06-03 <yso@melexis.com>
+    [+] LIN loader is built automatically for each profile which
+    conainins HAS_LOADER := 1 setting
+
+2011-06-02 <yso@melexis.com>
+    [*] libsrc\startup\startup.c
+    Added PRIO port initialization (undefined at reset)
+
+2011-06-02 <yso@melexis.com>
+    Added standalone loader
+
+2011-06-02 <yso@melexis.com>
+    [!] \libsrc\LIN\lin2b.bin
+    \libsrc\LIN\lin2b_v13_19200.bin
+    \libsrc\LIN\lin2b_v13_9600.bin
+    \libsrc\Mlx4\
+    Updated LIN FW to version 2.6.59
+
+2011-06-01 <yso@melexis.com>
+    [*] eeprom.c
+    Fixed issue with incorrect EEPROM size detection if no variables defined
+    in .ep section
+
+2011-05-31 <yso@melexis.com>
+    [*] Fixed issue MLXCOMP-139 (No check on initialization data size)
+
+2011-05-19 <yso@melexis.com>
+	[*] lin.h
+	ml_LinInterruptHandler.c
+	Added linit as an alias for ml_LinInterruptHandler LIN interrupt handler
+	to be compatible with definitions in vectors.S  
+
+2011-05-18 <yso@melexis.com>
+	[+] Added __MLX_TEXT__ section
+	
+2011-04-29 <yso@melexis.com>
+    [+] coretimerlib.h
+    Added CORE_TIMER_INT_CLEAR function
+
+2011-03-16 <yso@melexis.com>
+    [!] \libsrc\LIN\lin2b.bin
+    \libsrc\LIN\lin2b_v13_19200.bin
+    \libsrc\LIN\lin2b_v13_9600.bin
+    \libsrc\Mlx4\
+    Updated LIN FW to version 2.6.50
+    SYNC bit check modified (coCHKSYNC). Fix for PLTF-462 issue.
+
+2011-01-31 <yso@melexis.com>
+	[*] Config.mk
+	Added space escaping in a path (fix PLTF-391)
+
+    [*] Extra.mk
+	Makefiles of SST examples
+    Use relative pathes for directories which will be used in a lists
+    (fix PLTF-391)
+
+2011-01-26 <yso@melexis.com>
+    [*] *.ld
+    Added .ramfunc section to create RAM functions (see usage example
+    at \products\Examples\RAM_function)
+
+2011-01-21 <yso@melexis.com>
+    [*] lin.c
+    lin.h
+    Moved LinFrameDataBuffer[8] to dp section to reduce access time and
+    optimize ROM space usage (PLTF-459)
+
+2011-01-20 <yso@melexis.com>
+	[*] api.S, lin.c
+	Removed IDdecode function and replaced it by direct LinID exctracting
+	for optimization purposes
+	
+	[*] lin.c, lin.h
+	[+] ml_InitLinModule.c, ml_LinInterruptHandler.c
+	Splitted LIN event aknowledgement and LIN event processing in order to
+	adapt the LIN driver for RTOS environment. Added functions
+	ml_GetLinEventData and ml_ProccessLinEvent.  
+
+2011-01-20 <yso@melexis.com>
+    [*] api.S
+    Added conditional compilation (HAS_KEY_CHECK) for IsKey function (saved
+    14 bytes)
+
+2011-01-18 <yso@melexis.com>
+    [+] Added RAM application profile
+
+2011-01-18 <yso@melexis.com>
+    [*] Config.mk, Extra.mk
+	Compiler switches -mwith-itc-bug-workaround and -mdpage-explicit are moved
+    from common configuration file (Config.mk) to product specific
+    configuration file (Extra.mk)
+	
+2011-01-18 <yso@melexis.com>
+    [*] Config.mk, Extra.mk
+    Profiles are now included from Extra.mk after defining product specific
+    settings. So, we have the following hierarchy now:
+    Common settings -Product settings - Profile settings - Application settings
+    The latest settings override previous ones. Thus Application settings could
+    override profile and product settings.
+    Removed EXTRA_DEF variable. All defines are assigned directly to CPPFLAGS.
+
+2011-01-18 <yso@melexis.com>
+	[*] adclib.h
+	Changed ADC_IS_BUSY function to use pending bit (CLR_ADC_IT) instead of
+	checking ADC_EOC bit (see issue MMC16-42 for details). The second
+	implementation based on analysis of both ADC_EOC and ADC_SOFT_TRIG can be
+	used for MMC16 core >= 1.3
+
+2010-12-28 <yso@melexis.com>
+	[*] Moved profiles (*.mk) from top level /config directory to the product
+	directories: /products/$(PRODUCT)/config to improve product incapsulation
+	(request PLTF-444 on Jira).
+	NB!!! Now in order to build application variables PRODUCT and PROFILE must
+	be specified either in command line or in application's Makefile  
+	E.g.:
+		gmake PRODUCT=<product_name> PROFILE=<profile_name> all
+	
+2010-12-02 <yso@melexis.com>
+    [*] Linker scripts
+    Removed loading data for Extra Page (.ep.data)
+
+2010-11-09 <yso@melexis.com>
+	[!] syslib.h 
+	Changed name of local variable 'status' in ATOMIC_CODE to '_mreg_saved'
+	This is to avoid possible conflict with reusing variable name in subscopes. 
+
+2010-09-02 <yso@melexis.com>
+    [!] bin\ldf_nodegen.exe
+    bin\ncf_nodegen.exe
+    Updated to version 0.8se.9
+
+
+2010-07-20 <yso@melexis.com>
+    [!] \libsrc\LIN\lin2b.bin
+    \libsrc\LIN\lin2b_v13_19200.bin
+    \libsrc\LIN\lin2b_v13_9600.bin
+    \libsrc\Mlx4\
+    Updated LIN FW to version 2.6.49
+    - frameIDs 0x3C and 0x3D could be preconfigured in MLX4 code.
+      If MLX4 LIN FW is compiled with coSPECIALID cvON and
+      coQR0_USED_BY_3D_FRAME equ cvOFF. Thus:
+      1) 0x3C frame is assigned to message id 0x10 and confugured as
+      master-to-slave, 8 bytes, classic checksum;
+      2) 0x3D frame is assigned to message id 0x11 and configured as
+      slave-to-master, 8 bytes, classic checksum;
+      Values specified in LIN Confiruation tables (lin2b_romtbl.S)
+      for 0x3c/0x3d frame IDs and 0x10/0x11 message indices have no effect
+      Note that for current release this feature is disabled
+      coSPECIALID is cvOFF and coQR0_USED_BY_3D_FRAME is cvOFF
+    - fixed issue with watchdog reset after start bit error in TX mode (PLTF-485, PLTF-431)
+	- erCRASH subcode set to 0 for attention interrupt (PLTF-485, PLTF-431)
+
+2010-02-15 
+    [!] \libsrc\LIN\ml_LinModuleVersion.c
+    Corrected to accomodate to new address of mlx4_flash section
+
+
+2010-01-12 <yso@melexis.com>
+	[*] include\82050\uartlib.h
+	Added new functions (see issue PLTF-410 on Jira)
+		UART<n>_PUT_RAW -- to put raw unframed data to UART
+	Set of functions to put frame data with start and stop bits:
+		UART<n>_PUT_FRAME_7N1
+		UART<n>_PUT_FRAME_8N1
+		UART<n>_PUT_FRAME_9N1
+		UART<n>_PUT_FRAME_10N1
+		UART<n>_PUT_FRAME_11N1
+		UART<n>_PUT_FRAME_12N1
+		UART<n>_PUT_FRAME_13N1
+		UART<n>_PUT_FRAME_14N1
+
+	Function UART<n>_PUT is now deprecated.
+
+2009-12-29   <yso@melexis.com>
+	[!] include\syslib.h
+	Added NOP instruction to macro functions MLX16_HALT
+	(issue MLX90363-92) 
+
+2009-12-17   <yso@melexis.com>
+    [*] products/12126/include/ioports.h
+    Added ANA_CNT_NO_LSBIT_MASK mask
+    Added ANA_CNT_MASK mask
+
+2009-12-11  <yso@melexis.com>
+    [*] adclib.h
+    Corrected typo's in comments
+2009-12-08  <yso@melexis.com>
+    [*] mmc16_io.h
+    Renamed EE_VEE1 and EE_VEE0 to EE_VEE2 and EE_VEE1 as these are the 
+    write use names
+2009-11-30   <yso@melexis.com>
+    [*] Config.mk 
+    Added Trhex utility
+2009-08-05   <yso@melexis.com>
+    [*] Config.mk 
+    Added compiler switch -mwith-itc-bug-workaround to fix [MULAN-5] issue
+
+    [*] ioports.h
+    mulan2_io.h
+    Changed __SYS_ENTER_PROTECTED_MODE when preprocessor symbol
+    __WITH_ITC_BUG_WORKAROUND__ is defined to fix [MULAN-5] issue
+
+2009-07-20  <yso@melexis.com>
+    [*] \include\syslib.h
+    Added __always_inline__ to functions SYS_getCpuStatus, SYS_setCpuStatus and
+    __statusCleanup to avoid function call with -O0 optimization level
+    Added function SYS_clearCpuStatus to clear M register (SYS_setCpuStatus(0)
+    created local variable with -O0 which is not acceptable)
+
+2009-02-13  <yso@melexis.com>
+    Initial outline
+
+    

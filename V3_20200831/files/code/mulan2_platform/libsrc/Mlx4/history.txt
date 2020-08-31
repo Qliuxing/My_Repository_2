@@ -1,0 +1,457 @@
+; ---------------------------------------------------------------------------
+;
+; Description:
+;  LIN Firmware revision history
+;
+;
+; Copyright (c) Melexis Digital Competence Center
+;
+; ---------------------------------------------------------------------------
+;
+;rev 0.2 :  sleepb set at startup
+;           Command check for each wait
+;rev 0.3 :  New cmdrcvd switch
+;           Released to MMT on June 9th ------------------------------
+;rev 0.4 :  Mess / Sleep timer for sleep timeout and wake-up
+;rev 0.5 :  Index compare : was only comparing the 5 first bits!
+;           Special ID decoding disabled for now
+;           Released to MMT June 14th 2005 ---------------------------
+;rev 0.6 :  Sleep Timeout and Wake-Up procedure changed
+;           Break detection inside a frame
+;           TX collision detection (compare the input with the output)
+;           sleepb reset when entering sleep mode <---
+;           ROM tables used (frames data is now in ROM)
+;rev 0.7 :  Sleep mode disabled (hardware not ready for it yet)
+;rev 0.8 :  en_auto support added (pcCONFIG command added)
+;rev 0.9 :  coSLEEPMODE switch added to enable or disable Sleep Mode support
+;           ml_AutoCfg 'auto' option added
+;           coBRCOOL switch used to enable or disable Cooling pulse generation during breaks
+;           (if enabled by en_auto)
+;           LINoptions3 register added (removed in rev 12)
+;           LINbrNom added
+;           IntBr read in wbr_init to solve a sync filed detection pb
+;rev 0.10 : Release Sept 2, 2005 -------------------------------------
+;           (coBRCOL = cvOFF)
+;rev 0.11 : ID parity bits removed for access to ID ROM table
+;rev 0.12 : Pulses generated for Cooling auto-addressing
+;           AutoAddMode register added for auto addressing
+;           Auto addressing mode fully fonctionnable
+;           ver 1.0.2 - sent to gde on Sept 9th ----------------------
+;rev 0.13 : Message timeout calculation (RX and TX) - spec 2.0
+;           Break inside a frame signaled to the application
+;           Enabled/disabled option in pcCNFID supported
+;           pcCNFGRP command added
+;           Group processing --- started <---------------------------------------------
+;           Ask_api option for index messages
+;           ID processing split in 3 for faster processing (see comments in IDbyte)
+;           LINindex register (2 nibbles) created for use with Frame Processing and ID Filtering
+;           LINparam2,3 removed (replaced by LINindex) <- check special ID for Frame Filtering
+;           Event set just after TX identification for faster response from the application
+;           Details added for erSYNC error
+;           Fine tuning (baudrate correction) for RX and TX
+;           AutoAddMode bug fixed (enabled mode)
+;           Stop bit insertion (0 or 1) during TX
+;           ver 1.0.3 - sent to gde on Oct 18 ------------------------
+;rev 0.14 : Option for 8/16 configurable IDs (coIDBANK2)
+;           coNADFILT switch and LIN_NAD added
+;           erIRRfrm corrected
+;           pcCNFGRP replaced by pcFCNFIG for Functional Filtering Configuration
+;           ID Table Initialization for ROM Table added, coIDINIT switch
+;           Option added to AutoAddMode : force
+;           Option added to pcDTRDY to ignore a TX request : dtDISCRD
+;           ver 1.0.4 - sent to gde on Oct 25 ------------------------
+;rev 0.15 : erTORESP bug corrected - sent to gde on Oct 31 -----------
+;rev 0.16 : Start bit lost bug
+;           Stop bit missing sometimes in TX frames
+;           *** DEBUG VERSION : LIN OUTPUT ALWAYS SET TO DOMINANT (0) ***
+;rev 0.17 : QR Code (coFILTQR switch)
+;           LIN_QRcode added
+;           Data ready bit added in LINtaskStatus shared register (msb)
+;           ID reception and processing reorganised to handle fonctional filtering
+;           Flag filtering implemented
+;-------------------------------------------------------------------
+;ver 2.0 : preliminary released on November 25th, 2005 -------------
+;ver 2.1 : QR Code bug corrected
+;ver 2.2 : evMESSrcvd event doesn't wait for application response : ready earlier
+;          for the next start bit
+;          QR response for any TX frame recognized bug corrected
+;          erBRFRM flag not cleared bug corrected
+;          ver 2.2 - released on November 30th, 2005 on SoftDist --------------------
+;ver 2.3 : stop bit processing modified for faster start bit detection
+;          sleep and wake-up functions enabled for ile/ggs - sent on Dec 2
+;ver 2.4 : sleep mode timeout detected
+;          sleep mode timeout value corrected
+;ver 2.5 : SleepModeEn option added in LINoptions2
+;          timeout from msbi disabled in sleep state
+;ver 2.6 : race condition between LEvExt and BrEv corrected
+;          QR response when break in frame bug recognized
+;          last stop bit error was not detected in TX messages
+;          break in TX were not recognized after collision because bits are counted instead of half bits
+;          don't wait for ack from the API after sending an event, test handshake and
+;          signal overflow in LINtaskStatus
+;          check MessStatus (formerly LIN_ACTst) when receiving config command
+;          QR selected flag was not reset if data was not ready before the end of the TX ID
+;          Autoaddressing : problem with the first pulse solved
+;          autoadd_pls function created, possibility to get an autoaddressing pulse right after the break
+;---
+;02/01/06 : test of the mutex
+;           LIN2verFLSH, LIN2revFLSH, LIN2dvtFLASH added for the flash loader version
+;           LIN2verASM, LIN2revASM, LIN2dvtASM and SoftVersion edited
+;           LINflashStatus added
+;06/04/06 : flash loading protocol detection (coFLSHLD switch added)
+;           special test for QR code flag reset (to allow continuous frames)
+;06/04/11 : end TX event generated for continuous frames in flash uploading mode
+;06/04/24 : mutex tests removed
+;06/05/05 : coAUTOBR switch added
+;           flash loader ver 0.2
+;06/05/19 : data ready flag bug corrected in cmndtx (for emulation of Frame Filtering mode) using
+;           LINtaskStatus (see api.S)
+;---
+;2.6.1    : (06/05/23) added edit number for revision control
+;           slewrate configuration integrated in options register programmation
+;           Slow Clock/Fast Clock config added - Slow Clock request in SLEEP state, Fast Clock in ACTIVE and WAKE-UP
+;           ml_TxDiscard command removed (dtDISCRD), use ml_Discard instead
+;           coDBGTXDOM switch added
+;           coSLEEPAUTO switch added
+;           3C/3D bit added in LINparam (bit 0) -> combine this bit and RX/TX to differentiate betwee the 2 IDs <- removed in 2.6.4
+;2.6.2    : (06/08/17) sleep timeout signaled to the application (coSLEEPTO)
+;           Timer dcom used to start stop and reload the Sleep Timer, Message Timer disabled
+;2.6.3    : (06/10/17) coDBGSQWAVE switch added for test
+;           dcom MemTab loaded with a global instead of a constant in MSBi initialization (tables address can be moved,
+;           change the address in lincst.asm also)
+;           (06/10/26) sleep state : detect the first frame to get out of sleep state
+;2.6.4    : (06/11/21) Sleep State reshaped: difference between 'deep' sleep mode and 'light' sleep mode
+;           deep/light sleep option is in LINoptions2
+;           LINspclid added, automatic sleep command detection implemented (coSLEEPAUTO), SleepDelay constant used
+;           (to do : Baudrate correction not done for the stop bit anymore)
+;           slTO, slMST or slAPP parameters added to identify the source of a transition to the sleep state
+;           slWKUP parameter added to signal a wake-up pulse
+;2.6.5    : LINbrNom used in wbr_init (instead of LINbr)
+;           #include "lin2b_test.asm" added to separate emc testing routines
+;2.6.6    : coPLLCHK switch added - check the status of the PLL
+;2.6.7    : first message not processed when in sleep mode
+;           check of the maximum length of a wake up pulse
+;2.6.7    : (07/01/05) MSBi baudrate counter stopped between frames (to save power)
+;2.6.8    : changes on wake-up and sleep mode
+;2.6.9    : wake-up pulses length modified
+;           slWKUPabort argument added after 1.5 seconds of inactivity following a wake-up sequence
+;2.6.10   : sleep_tmr, sleep_tmr_dis subroutines added to initialize, enable and disable the sleep timer
+;           baudrate counter stopped in wbr_init
+;2.6.11   : PLL checked (see coPLLCHK switch)
+;           Tframe_maximum not checked anymore for master-to-slave frames as per the LIN spec 2.1
+;           Added a test on the LIN bus before signaling a short (problem if there is no SYNC after a BREAK field)
+;2.6.12   : Fast Flash Loading (coFASTFLASH)
+;           Fast protocol requested bit added in LINflashStatus
+;           Subfunction added, used in common with the fast mode
+;           coTIMEOUT switch added to choose between timeouts v1.3 and v2.x
+;           DataTransmittedEvent argument added to pcDTRDY: send evENDtx if enabled (PLTF60)
+;           Bug in TX fixed: timeout while processing a command (SONC13)
+;           Transition to stSLEEP is done in the gotosleep part, not in chstcmnd (PLTF51)
+;           CheckBreakLen subroutine added, short replaced by BusShort
+;           WakeUp: 4th pulse not generated before sending a slWKUPabort (PLTF81)
+;           PLL dependent delays for sleep pulse calculation moved to lincst.asm (PLTF57)
+;           Sleep timer enabled while waiting for a start bit inside a message (PLTF74)
+;           CheckSleepTmr subroutine added to check the sleep timer timeout
+;           Initialization problem with coIDINIT solved
+;2.6.13   : When a false wake-up pulse is received, do not signal a state change if already in sleep mode (PLTF56-1)
+;           Goto sleep if there is a dominant level on the bus for too long (4s) (PLTF66)
+;           Check the bus when entering the active state (go to short eventualy)
+;           For TX frame signal a QR error only if a QR code has been selected before (PLTF79)
+;           Introduction of constants for the slew rate (PLTF86)
+;           TX section reorganized, use of full bit intervals instead of half bits. Use of SplRbErr to detect collisions.
+;           Added bit and byte arguments in erTXCOL (PLTF70)
+;           LIN 1.3 response timeout and message timeout error reported, coTIMEOUT has to be set to cvTO13 (PLTF29)
+;2.6.14   : Detection of Break and Sync field separated (act_wait)
+;           Use half-bit time for break detection (remove difference between cooling and lin), use caBRKmax2 instead of caBRKmax
+;           CheckBreakLen included in UpdateBreakLen
+;           LIN_ACTst partialy removed
+;           test of MSBi cell removed (assume cell B)
+;           Square wave generator included (was in lin2b_test.asm) in an inaccessible area of the code, still
+;           with coDBGSQWAVE switch, parameters in RAM
+;           Mark instructions (xdcom, xdma) with constants in lincst.asm
+;2.6.15   : Update zero counter with half bits for detection of a break inside a frame (UpdateZeroCnt)
+;           Bug corrected when ExEvt and TimeOut where occuring at the same time at the start of the SYNC field
+;2.6.16   : (07/07/13)
+;           Break length min corrected (use half bits)
+;           False (too short) break counter (ShortBrCnt) added when a break too short is detected
+;           erSYNChead error introduced for a header too long (during recessive states)
+;           LINID added in the shared memory to store the LIN protected identifier
+;           LINbusStatus register added in the shared memory, LIN bus activity flag (set by Mlx4, should be cleared by Mlx16)
+;           QR codes use can be enabled(0) or disable(1) with flag in LINflashStatus (PLTF47)
+;2.6.17   : (07/07/17)
+;           Add access to analog periphery for MelexCM bug (Mlx16 stack overflow) with sleep timer SleepTimeOut divided by 128
+;           with AnalogAccess macro
+;2.6.18   : Added flag in LINstatus to not process the first frame after a wake-up pulse
+;2.6.19   : (07/07/24)
+;           Corrections done for processing Timeout and EvExt in active state
+;2.6.20   : (07/08/01)
+;           LINID stored with the parity bits
+;           Use of constants for the slew rate (PLTF86)
+;2.6.21   : erBRFRM argument 1 for break inside a frame, 0 for break too short
+;2.6.22   : erBRFRM arguments inlcude byte number (LINbytcnt in LINmess+3)
+;2.6.23   : stop bit length incresed by 0.5 Tbit before a TX (min is now 1.5 Tbit)
+;           break inside a wake-up pulse detected (in wakeup_pause)
+;           short not detected for long wake-up pulses (PLTF68)
+;2.6.24   : Reset the data ready flag and set the buffer free when a TX collision is detected (PLTF52)
+;2.6.25   : stSHORT state introduced (PLTF68)
+;           Wake-up pulse read back error : see wakeup_pause
+;           Fast protocol : TX abort detected, erTXCOL sent to the application
+;           Data sent added with mark instruction (in GetByte procedure)
+;2.6.26   : (07/08/31)
+;           Fast protocol : Settings of MSBi changed (F reset before TX)
+;           Problem with first bit not transmitted resolved
+;2.6.27   : Propagation delay included in TX (coPROPMEAS switch) and wake-up pulse
+;           slWKUPbreak argument added when a break starts during a wake-up pulse
+;           SONC13 : baudrate counter stopped before changing the MSBi settings for TX
+;2.6.28   : (07/09/12)
+;           Problem with propagation delay at different baudrates corrected
+;2.6.29   : Problem with number of wake-up pulses corrected (counter was not initialized correctly)
+;2.6.30   : The LIN buffer is freed in case of an error (no need to call ml_ReleaseBuffer in
+;           mlu_ErrorDetected)
+;           Stop the PLL in the DISCONNECT state (PLTF85), restart it when leaving
+;           LINmessb buffer introduce to avoid event being mixed when the Mlx16 is reading one
+;2.6.31   : (07/09/24)
+;           Added remaining time of header to toref for LIN 1.3 (coTIMEOUT eq cvTO13) - (PLTF29)
+;           Added LINtocnt as a parameter for erTORESP
+;           Values of TO14tbl and TO10tbl tables increased by 1 to match exact timeout (0 when compare)
+;2.6.32   : Bug with toerr label resolved for (coTIMEOUT eq cvTO2x)
+;2.6.33   : Bug with break in frame detection resolved
+;           For LIN 1.3 (coTIMEOUT eq cvTO13) erTORESP argument replaced by the number of data bytes
+;           received. Error code 2B00 will be a No Response error, 2Bx0 a Last Frame Response too Short
+;           Introduced coSTOPBREAK to enable to skip the stop bit error signaling in case a valid break
+;           is detected (PLTF67)
+;2.6.34   : Bug with break in frame detection resolved (Br and IntBr values changed)
+;2.6.35   : erSTOP following an erTXCOL removed (added flag in LINstatus)
+;-----------------------------------------------------------------------------------------------
+;--- MelexCM SW Platform RELEASE 1.5 -----------------------------------------------------------
+;-----------------------------------------------------------------------------------------------
+;2.7.1    : (07/11/22)
+;           Allow change of parameters without going to the DISCONNECTED state (PLTF)
+;           LIN_ACTst changed and used - parameters change only allowed if LIN_ACTst is less than 2
+;           Added cmdOK and cmdINVALID as return arguments for API commands (pcCNFID, pcCONFIG, pcFCNFIG)
+;           erCSYNC removed
+;           Added command support in TXwaitbit and TXend
+;           Added mark for autoaddressing (dcAUTOADD)
+;2.7.2    : Put some constants of lincst.asm in ROM tables (ConstantTbl and ConstantTbl2)
+;           BusShort moved to leave some space for called functions (address needs to be on 10 bits)
+;           Added programming mode flag in ffSTATUS (not used) and in LINflashStatus
+;           Added support for 'enter programming mode' frame in fast mode
+;           Added stFAST and stEXIT
+;           coNADFILT switch and LIN_NAD removed
+;           coFILTGRP switch removed
+;2.7.3    : Bug with collision while waiting to calculate propagation delay in TX solved (080220) (SONC19)
+;           erCRASHTX signaled if propagation delay is too long
+;           (changes done in 2.6.36 - tagged with "bem 080220" - Released as 1.5.1)
+;2.7.4    : stFAST removed (not used) - stEXIT kept for stand alone
+;           Baudrate configurable from the application for the fast protocol. Same command as LIN is used.
+;           State changed to stDISC in TXer_delay to solve IHR bug of no response after collision in TX
+;2.7.5    : stFAST added again
+;2.7.6    : Checking of LINflashStatus to enter the fast protocol obsolete
+;           SoftVersion and EditNumber moved at address 0x000C for compatibility with fast2b.asm
+;2.7.7    : coFILTQR switch added in places to solve PLTF-331
+;2.7.8    : Problem with checksum calculation at RX solved (PLTF-345)
+;2.7.9    : erSTOP following an erIDSTOP removed (added flag in LINstatus) (PLTF-354)
+;2.7.10   : Error in code corrected (was causing erSTOP)
+;           Preset parameters for user-defined frames removed after usrframe label. It is still possible to
+;           add them in lin2b_usr.asm
+;           Wrong timing for entering sleep state while bus was dominant corrected
+;           CheckSleepTmr routine modified, result returned in C
+;           MSBi counter stopped when in short mode
+;           Transition from short to sleep state when bus is dominant done
+;           Check Traffic instead of bus level when entering deep sleep mode
+;           Allow transition from short to deep sleep
+;2.7.11   : (100518) Set output after start bit error in TX mode
+;2.7.12   : ID 3C and 3D don't need ROM table access - request from loader for 81215. Switch coSPECIALID
+;           coQR0_USED_BY_3D_FRAME switch added to enable or disable QR code 0 for special ID 3D
+;2.7.13   : SYNC bit check modified (coCHKSYNC) for PLTF-462
+;           coCMD_SFTVER and coCMD_GETST switches added
+;           Unique parameter slREG added for change state event (for stACT)
+;2.7.14	  : coCMD_OPTION switch added to enable or disable the pcOPTION command supported
+;           coCSTINROM switch added - default value for MelexCM is cvON
+;2.7.15   : Updated cvFRAME mode
+;           MessStatus replace LIN_ACTst, which is not used anymore
+;           Parameter added in chst
+;           coPARAMLT switch added, by enabling it, ROM tables parameters are reduced to 1 byte (PLTF-428)
+;           Moved LINmessb to use dma access.
+;           coCMD_ACK switch added - default value for MelexCM is cvON
+;           coDEFHDRTO switch added
+;           coRSVD5AA5 switch added - default value for MelexCM is cvOFF
+;           coREDUCERAM switch added - default value for MelexCM is cvOFF
+;           Optional registers packed to reduce RAM usage, LINmessb can be accessed by dma
+;           Removed coDEFHDRTO and coTIMEOUT switches, they are defined in the assembly command line
+;           Added constants for when coCSTINROM is cvOFF
+;3.0.0    : Common version for MelexCM and Mulan platforms
+;3.0.1    : Added test for start bit: no processing done
+;3.1.0    : (CVS 2.2) Autobaudrate detection. First draft, errors are not completely processed, the Mlx4 won't recover 
+;           from a break too long or too short.
+;3.1.1    : Autobaudrate detection: min and max break length checked, break inside a frame ok.
+;3.1.2    : Autobaudrate detection: break inside a frame and collisions handled.
+;3.1.3    : Autobaudrate detection: first frame is used for baudrate detection, then following frames use the same baudrate
+;           Bug fixed when event and timeout come at the same time (in abr_sbevent)
+;3.1.4    : Bug fixed when measuring break length after TX collision (PLTF-475)
+;3.1.5    : Added a test to check that the break delimiter is no longer than twice the break length (PLTF-476)
+;3.1.6    : Autobaudrate detection: Added a bit in shared memory to signal that a baudrate has been found, and to eventually reset it
+;           Moved wbr_init and short procedure to solve addressing problems (PLTF-479)
+;           In fast2b.asm, removed unused references to INDXtable
+;3.1.7    : Autobaudrate detection: Changed error processing in sync field detection for autobaudrate to prevent undetected edges
+;3.1.8    : Autobaudrate detection: Grouped wait for break, break delimiter and sync field processing for autobaudrate
+;3.1.9    : Autobaudrate detection: Added second overflow processing for break and break delimiter
+;           Corrected mismatches between sub/cmp and subcz/cmpcz
+;3.1.10   : Autobaudrate detection: Correction in autobaudrate break processing
+;3.1.11   : Autobaudrate detection: Added second overflow processing for break and break delimiter
+;3.1.12   : Autobaudrate detection: Changed processing of autobaudrate to capture edges arriving after or simultaneously with an overflow
+;3.1.13   : Autobaudrate detection: Changed processing of autobaudrate
+;3.1.14   : Autobaudrate detection: cmd_cnfbr added in case autobaudrate is enabled (for fast protocol)
+;3.1.15   : Autobaudrate detection: Initialization of PrescA in case autobaudrate is enabled
+;3.1.16   : Autobaudrate detection: SYNC error not sent until the baudrate as been detected
+;3.1.17   : Match slow/fast edges with slow/fast setting of traffic bit
+;           Autobaudrate detection: reset IntBr after each capture
+;3.1.18   : task1vects unused area filled with 0
+;3.1.19   : Edit Number added in soft version (instead of flash version)
+;           Response to CMD_SFTVER changed to resolve a bug due to addressing of ROM tables
+;           jmp instruction replaced by a call before ev_hshk (Mlx4 waiting for an event acknowledge) but if the call occurs there will be a problem
+;3.1.20   : Collision error flag cleared when collision ends
+;3.1.21   : Bug in WU signal generation in AutoBaudRate mode: there was no update of Prescaler after baud rate set. Prescaler update is added in WU pulse generation section
+;3.1.22   : Bug in Stop bit corruption is fixed
+;3.1.23   : After "sleep_pulse" label initialization of MSBI was made. 
+;           It seems that without msbi init instruction "wait" (below) will not receive TimeOut exit event, 
+;           so the duration of pulse will not be measured and program will stuck: the FW will indicate 
+;           the duration of pause = 0, i.e. too short and we will stay in the loop forever
+;           For some reason the initialization of a sleep timer as suggested by DCC does not work
+;           or is not enough
+;3.1.24   : (2013.07.03)
+;           A new option Detect BaudRate always is added. When activated, FW just clears BaudrateDetected flag
+;           A new byte LinBaudCtrl is declared in a shared memory
+;3.1.25   : (2013.09.17)
+;           Bug related to a shortcut (LIN bus = 0) is fixed [issue PLTF-600 on Jira]
+;3.1.26   : (2013.09.17)
+;           Code size optimization:
+;              - switches.asm : Added option coIRR_FRAME_REPORT to removed reporting of irrelevant frames via evIRRfrm event (deprecated feature)
+;              - rearranged conditional compilation to remove unused functionality
+;3.1.27   : (2013.09.24)
+;           Swap position in the MLX4 RAM of variable LINtmp (2 nibbles) with [ LINtxbytlen (1 nibble) and LINprescA (1 nibble) ] in oreder to have
+;           fixed offset for LINprescA; otherwise, offset of LINprescA depends on the configuration defined in switches.asm
+;           Currently an offset of LINprescA is +6 nibbles (or +3 bytes, low-nibble) and offset of LINbr is +2 nibbles (+1 byte)
+;3.1.28   : (2014.01.08)
+;           Different bug fixes and improvements to make the auto baudrate detection more robust for different break+delimiter combinations (PLTF-616)
+;           Removed coCSTINROM switch and cst_defines.asm file, coCSTINROM was always cvON
+;3.1.29	  : (2014.01.21)
+;	        Collision bug fixes for collision in ID and collision in data (PLTF-630)
+;3.1.30   : (2014.01.31)
+;           Bug fix for collision in data when auto baudrate on every frame is enabled (PLTF-636)
+;3.1.31   : (2014.02.04)
+;	        Bug fix for RX uncomplete frame error report (PLTF-636). switch coSTOPBREAK turned OFF for error report
+;3.1.32   : (2014-02-17)
+;           Cleaned up error events, frame in frame handling and corresponding events, coSTOPBREAK turned back ON
+;3.1.33   : (2014-02-28)
+;           - Fixed baudrate code has been removed (fixed Br is handled by Auto baudrate code now) (PLTF-642)
+;           - AutoBr switch has been removed
+;           - Auto addressing is supported by auto baudrate code (PLTF-645)
+;           - Auto addressing bug is solved (AA uses LINbr instead of LINbrNom now) (PLTF-614)
+;           - Auto Baudrate support baudrates down to 1000 baud now (PLTF-641)
+;3.1.34	  : (2014-03-03)
+;           - Unused variable removed
+;           - test of too long Delimiter updated with carries taken in consideration
+;           (2014-03-05)
+;           - MinprescA removed (PLTF-650)
+;           - LinBrcpt, Linbrhicpt carries removed (PLTF-641)
+;           - LinBrcpt size increased from 4 to 5 nibbles (PLTF-641)
+;           - LINprescA, LINbr, LINbrNom initialization added at startup
+;           - LINspclid is cleared at start of frame detection (PLTF-647)
+;           - Added LINpresc to be used with LINbr (PLTF-651)
+;           - Collision bit is cleared when starting break (PLTF-653)
+;           - Renamed LINstatus to LINerrStat
+;           - Changed from 1/2Tbit count to CPT count for zero bits
+;           - Frame flags and "data ready" cleared in case of an error
+;           - Header maximum length detection corrected (PLTF-644)
+;4.0.0    : (2014-10-28)
+;           - Shared memory organization changed:
+;           - two nibbles added in Linmess
+;           - Linbaudrfu removed
+;           - LINerrdbg removed
+;           - LinBaudCtrl removed
+;           - LINID updated with Protected ID at evMESSrqst and evMESSrcvd
+;           - LINbr,prescA added in Linmess at evMESSrqst and evMESSrcvd
+;           - Data Ready flag is fully handled by MLX4, set at pcTX and pcDTRDY, cleared at end of TX and start 
+;             of RX (at writing first data byte to frame buffer). The bit is relocated to private memory (PLTF-372)
+;           - Auto baudrate is enabled by pcCNFBR (second nibble <0xF : fixed Br; =0xF : Auto Br)
+;             As a result baudrate detected flag is moved to private memory, it is cleared by MLX4 at receipt of
+;             pcCNFBR request for enabling auto baudrate; set at request for fixed baudrate.
+;           - Bus activity bit is toggled at every end of sync instead of set. MLX16 should monitor these changes
+;             instead of clearing the bit
+;           - Removed wait for event in updtbytcnt as this was already handled some further in TXreq
+;           - Added a switch to dissable all mark instructions (PLTF-648)
+;           - Removed coIRR_FRAME_REPORT switch and it's related code
+;           - Renamed LINbusStatus to LINstatus
+;           - Renamed LINtaskStatus to LINconfig
+;           - No evMESSrqst is send if data ready is set
+;           - Maximum length detection of ID bit 7 improved to detect a dominant stop bit
+;           - cvT013 timeout detection corrected
+;           - LINconfig, LINflashStatus, LINstatus removed from shared ram area. Mlx4 now now reports these bits on MLx16 Getst command
+;           - LINresp (4 nibbles) added the the shared ram area. Mlx4 returns now the command number in LINresp and the status (ok/nok) in LINresp+1 after all command processing
+;           - LINconfig removed (merged with LINstatus)
+;           - LINactivity and EventOverflow bits are now read by a getst command and automatically reset after it
+;           - check added in waiting for start procedure (PLTF-663)
+;           - continuous setting / data_ready / discard_frame merged to a single set_frame command with parameters
+;           - programing mode is now set with rel_buf command
+;           - bug corrected when checking the disconnected state before to go to fast mode
+;           - too long break check added at the delimiter rising edge (PLTF-675)
+;           - bug corrected: stACTIVE was before generated very closed to the erSHORT error (probably never seen by Mlx16). The first event has been removed
+;           - bus level check added in delimiter rising edge
+;           - 15.6% Br deviation formula corrected. it was: Brdev = |Tbit - Tbitnom|/Tbit. it's now:  Brdev = |Tbitnom - Tbit|/Tbit
+;           - individual SYNC bit check added
+;           - bit/byte counters in TXcol parameters improved (PLTF-681)
+;           - data_ready flag reset in case of error
+;           - SYNC stop bit number of instruction needed reduced (to improve minimum frequency)
+;           - bug corrected : Module was at some condition not able to write on the bus
+;           - bug corrected in break length measurement after a collision
+;           - bug corrected : after a short state from sleep, we now go back to sleep instead of active state
+;           - buffer_free behavior change for safety improvement
+;           - erSHORTDONE specific error is now generated at the end of a too long break
+;           - dead code removed
+;           - bug corrected: break length calculation in wakeup detection
+;           - pcCHST command reshaped for more safety
+;           - bug corrected : TX Mlx16 response timeout corrected if 2 stop bit mode option set (PLTF-685)
+;           - Bug corrected : Break inside SYNC stop bit, stop bit length was not taken in consideration
+;           - SYNC stop bit procedure optimized for execution time improvement (to improve minimum frequency)
+;           - wstart procedure simplified
+;           - autoaddressing procedure bug corrected
+;           - evSTCH is now generated after deep sleep
+;           - bug corrected : autoadrressing procedure not finished at the end of the break might lead to frame decoding issue
+;           - minimum SYNC bit length check added
+;           - Stop bit error procedure simplified
+;           - Mlx4 is now loading SFTVER in LINmess+4/+5 before handshake with the Mlx16 for making version compatibility checking possible
+;           - sleep mode disabled/enabled option removed, now always enabled
+;           - data_ready is now reset at evMSRQST if continuous mode is not set (PLTF-682)
+;           - autoaddressing force option has been removed
+;           - reinit and restart commands have been removed (Mlx16 must now reset Mlx4)
+;           - arg askapi IDfilt option removed (it was not implemented)
+;           - SR setting is now only possible from dedicated set_slewrate command (removed from pcOPTION)
+;           - bug corrected : Mlx4 was not able to respond to Mlx16 commands during wakeup detection in light sleep mode
+;           - collision handling at the beginning of active state improved
+;           - fast2b.asm reshaped according to new communication structure
+;           - presca 8 special waiting added, but should not be reached
+;           - lpBRKmin and lpHDRto constants removed
+;           - Maximum Break+Length+InterID detection increased from 28 to 32 
+;           - Minimum presca introduced again into cst tables, it should be 2 if PLL frequency is equal or more than 20MHz
+;           - RX 1.3 timeout simplified, and margins increased
+;           - TX timeout simplified, and margins increased
+;           - break minimum length check is now done before SYNC stop bit error check
+;           - dominant state when RX timeout is detected is now taken in consideration in new break length detection
+;           - bug in MSBI settings corrected when Mlx4 was receiving 3C-00 go to sleep request (PLTF-709)
+;           - 15.6% calculation made with more accuracy
+;           - check for RX start dominant at 1/2 Tbit added
+;           - minimum break length already checked at break rising edge if we are in fixed baud-rate to avoid SYNC check within data
+;           - individual SYNC error are now generated in fixed baud-rate to be compliant with J2602 standard
+;           - Dominant length at TX collision measurment improved
+;           - Check added to avoid a missing falling edge during Sleep init
+;4.1.0    : (2014-11-20)
+;           - Most of the switches has been removed
+;           - Private RAM area has been reduced to 0x40 bytes
+;           - Mlx4 is now mapping the shared RAM area to 0x40 byte address, overall RAM needed by the Mlx4 is 0x50 bytes 
+;           - MLx4 rom tables has been reduced, only INDXtbl, AutoAddtbl and PARAMtbl has been kept
+;           - Mlx4 reads INDXtbl at ROM_TABLE address
+;           - Mlx4 reads PARAMtbl at ROM_TABLE address+0x64 (byte)
+;           - Mlx4 reads AutoAddtbl at ROM_TABLE address+0x128 (byte)
+;           - Bug corrected when a command is sent after data_ready but before Mlx4 began to TX
+;           - an argument has been added to getst command to reset or not bus activity and overflow flags

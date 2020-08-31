@@ -1,0 +1,112 @@
+LIN_description_file;
+LIN_protocol_version = "J2602_1_1.0";
+LIN_language_version = "J2602_3_1.0";
+LIN_speed = 10.417 kbps;
+
+Nodes {
+        Master: BusMaster, 10 ms, 1 ms, 34 bits, 1 %; 
+        Slaves: MLX;                    //??     ??
+}
+
+Node_attributes {
+        MLX {
+                LIN_protocol = "J2602";
+                configured_NAD = 0x65;
+                product_id = 0x5AFE, 0xFEED, 0x01;
+                response_error = RESP_ERR;
+                P2_min = 0.000 ms;
+                ST_min = 0.000 ms;
+                configurable_frames {
+                        PUB1 = 0x1300;
+                        SUB1 = 0x1301;
+                }
+                 //response_tolerance = 35 %; ??
+        }
+}
+
+Signals {
+        PUB1_B0: 7, 0, MLX, BusMaster;
+        PUB1_B1: 8, 0, MLX, BusMaster;
+        
+        SUB1_B0: 8, 0, BusMaster, MLX;
+        SUB1_B1: 8, 0, BusMaster, MLX;
+        SUB1_B2: 8, 0, BusMaster, MLX;
+        SUB1_B3: 8, 0, BusMaster, MLX;
+        SUB1_B4: 8, 0, BusMaster, MLX;
+        SUB1_B5: 8, 0, BusMaster, MLX;
+        SUB1_B6: 8, 0, BusMaster, MLX;
+        SUB1_B7: 8, 0, BusMaster, MLX;
+        
+        RESP_ERR: 1, 0, MLX, BusMaster;
+}
+
+Diagnostic_signals {
+        MasterReqB0: 8,0;
+        MasterReqB1: 8,0;
+        MasterReqB2: 8,0;
+        MasterReqB3: 8,0;
+        MasterReqB4: 8,0;
+        MasterReqB5: 8,0;
+        MasterReqB6: 8,0;
+        MasterReqB7: 8,0;
+
+        SlaveRespB0: 8,0;
+        SlaveRespB1: 8,0;
+        SlaveRespB2: 8,0;
+        SlaveRespB3: 8,0;
+        SlaveRespB4: 8,0;
+        SlaveRespB5: 8,0;
+        SlaveRespB6: 8,0;
+        SlaveRespB7: 8,0;
+}
+
+Frames {
+        PUB1 : 0x00, MLX, 2 {
+                PUB1_B0,  0;    
+                RESP_ERR, 7;
+                PUB1_B1, 8;        
+        }
+
+        SUB1 : 0x01, BusMaster, 8 {
+                SUB1_B0, 0;        
+                SUB1_B1, 8;        
+                SUB1_B2, 16;        
+                SUB1_B3, 24;        
+                SUB1_B4, 32;        
+                SUB1_B5, 40;        
+                SUB1_B6, 48;        
+                SUB1_B7, 56;        
+        }
+}
+
+Diagnostic_frames {
+    MasterReq: 60 {
+            MasterReqB0,    0;
+            MasterReqB1,    8;
+            MasterReqB2,    16;
+            MasterReqB3,    24;
+            MasterReqB4,    32;
+            MasterReqB5,    40;
+            MasterReqB6,    48;
+            MasterReqB7,    56;
+    }
+
+    SlaveResp: 61 {
+            SlaveRespB0,    0;
+            SlaveRespB1,    8;
+            SlaveRespB2,    16;
+            SlaveRespB3,    24;
+            SlaveRespB4,    32;
+            SlaveRespB5,    40;
+            SlaveRespB6,    48;
+            SlaveRespB7,    56;
+    }
+}
+
+Schedule_tables {
+        Normal {
+                PUB1        delay   20.000 ms;
+                SUB1        delay   20.000 ms;   
+        }
+}
+

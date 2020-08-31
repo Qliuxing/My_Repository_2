@@ -1,0 +1,398 @@
+;---Visulin Test Suite (c) ihr GmbH---------------------------------------;
+;---Property Template for generic LIN 2.1 Slave IUT-----------------------;
+;=========================================================================;
+[IUT Type]
+;
+SLAVE=1;			Set either MASTER or SLAVE to 1;
+MASTER=0;			Set either MASTER or SLAVE to 1;
+CLASS_B =0;         Set (0/1)µC based Device, IUT as Master or Slave with RxD and TxD connectors;
+CLASS_C =1;         Set (0/1)Integrated Devices (ECU) with µC and Transceiver IUT as Master or Slave with analog LIN bus connector available;
+;=========================================================================;
+
+;=========================================================================;
+[Baudrate and Timing]
+;
+BR_2400=0;			Support: set (0/1) for every supported baudrate;
+BR_4800=0;			Support: set (0/1) for every supported baudrate;
+BR_9600=1;			Support: set (0/1) for every supported baudrate;
+BR_10417=0;			Support: set (0/1) for every supported baudrate;
+BR_19200=0;			Support: set (0/1) for every supported baudrate;
+BR_20000=0;			Support: set (0/1) for every supported baudrate;
+AUTOBAUD=0;			Slave can detect new baudrate at any time on the fly;
+BR_NOSYNC=0;		Master Synchronization capability: Set either;
+BR_SYNC=1;			Master Synchronization capability: Set either;
+BR_DEF=19200;		Default Baudrate: Set the highest supported Lin Baudrate to be used as default;
+
+BR_DEF_MAX =19296;  TC 3.11.x Dafault maximal baud rate = baud rate + 0.5% master deviation; 
+BR_DEF_MIN =19104;  TC 3.11.x Dafault minimal baud rate = baud rate - 0.5% master deviation;
+
+DEL_DEF=10;		    Default Scheduler Delay [ms] (80@2400, 20@9600/10400, 10@19200);
+DEL_EXP=40;		    Default "Expect" Timeout [ms]: Time to expect back a transmitted frame;
+DEL_DEF_192=10;		Scheduler Delay 19200;
+DEL_EXP_192=40;		"Expect" Timeout [ms]: Time to expect back a transmitted frame;
+DEL_DEF_104=20;		Scheduler Delay 10400;
+DEL_EXP_104=50;		"Expect" Timeout [ms]: Time to expect back a transmitted frame;
+DEL_DEF_96=20;		Scheduler Delay 9600;
+DEL_EXP_96=50;		"Expect" Timeout [ms]: Time to expect back a transmitted frame;
+DEL_DEF_24=80;		Scheduler Delay 2400;
+DEL_EXP_24=110;		"Expect" Timeout [ms]: Time to expect back a transmitted frame;
+DEL_PUP=80;		    Delay for power up until first frame to send;
+;DEL_IDLE=4000;	   10s Max time to go to Sleep Mode after network idle [ms];
+DEL_GotoSleep=200;	Max time to go to Sleep Mode after GotoSleep command [ms];
+DEL_WAKEUP=100;		Max time for IUT wake up;
+
+
+;---Add the message processing time to the default scheduler delay--------;
+;=========================================================================;
+
+;=========================================================================;
+[Event Triggered Frame]
+;
+ETF_SUP=0;		IUT does not support event triggered frames (0/1);
+ETF_IDX=0xFF;		No MessageIndex for an event triggered frame available;
+ETF_FID=0x3F;;
+ETF_DLEN=0;;
+
+;=========================================================================;
+
+;=========================================================================;
+[Command Frames Support]
+;
+SID_WU=0x00;		Service in Command Frame to be processed at wakeup (depends on what supported -> 0 is mandatory);
+DEL_RESP=10;		Delay [ms] between MasterReq and SlaveResp Frames (P2_min);
+DEL_RESP_192=10;		Delay [ms] between MasterReq and SlaveResp Frames (P2_min) @19200;
+DEL_RESP_104=20;		Delay [ms] between MasterReq and SlaveResp Frames (P2_min) @10400;
+DEL_RESP_96=40;		Delay [ms] between MasterReq and SlaveResp Frames (P2_min) @9600;
+DEL_RESP_24=80;		Delay [ms] between MasterReq and SlaveResp Frames (P2_min) @2400;
+
+;---DEL_RESP = DEL_DEF + P2_min-------------------------------------------;
+;=========================================================================;
+
+;=========================================================================;
+[User Frames]
+
+SUB_FID_ALT=0x10;      Alternative subscribed Frame Identifier;
+PUB_FID_ALT=0x11;      Alternative published Frame Identifier;
+
+;=========================================================================;
+[Default Frame Identifier Assignment]
+;
+UNKNOWN_FID =0x20;              TC 2.1 and 3.9 Frame Identifier of an unknown frame;
+PUB_NUM=6;						TC 4.1.2 Number of publisher frames;
+SUB_NUM=4;						TC 4.1.3 Number of subscriber frames;
+PUB_NO_8BYTE=0;                 TC 3.15 There is no TST_FRAME_4_Tx available with the data length 8 byte;
+
+PUB_FID1=0x31;					Frame Identifier publisher;
+PUB_IDX1= 1;                    Frame index of publish frame;
+PUB_LEN1= 8;					Data length (without checksum byte);
+PUB_BIT1 = {%11111111,%XXXXXXX1, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX}; TC 4.3.2 Unused  data bits;
+PUB_DTA1={0, 0, 0, 0, 0, 0, 0, 0};				Length of frame;
+
+PUB_FID2=0x33;					Frame Identifier publisher;
+PUB_IDX2= 3;                    Frame index of publish frame;
+PUB_LEN2= 8;					Data length (without checksum byte);
+PUB_BIT2 = {%11111111, %XX111111, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX}; TC 4.3.2 Unused data bits;
+PUB_DTA2={0, 0, 0, 0, 0, 0, 0, 0};			Length of frame;
+
+PUB_FID3=0x35;					Frame Identifier publisher;
+PUB_IDX3= 5;                    Frame index of publish frame;
+PUB_LEN3= 8;					Data length (without checksum byte);
+PUB_BIT3 = {%11111111, %11111111, %11111111, %11111111, %XXXXXXX1, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX}; TC 4.3.2 Unused data bits;
+PUB_DTA3={0, 0, 0, 0, 0, 0, 0, 0};			Length of frame;
+
+PUB_FID4=0x37;					Frame Identifier publisher;
+PUB_IDX4= 7;                    Frame index of publish frame;
+PUB_LEN4= 8;					Data length (without checksum byte);
+PUB_BIT4 = {%11111111, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX, %XXXXXXXX}; TC 4.3.2 Unused data bits;
+PUB_DTA4={0, 0, 0, 0, 0, 0, 0, 0};			Length of frame;
+
+PUB_FID5=0x38;					Frame Identifier publisher;
+PUB_IDX5= 8;                    Frame index of publish frame;
+PUB_LEN5= 2;					Data length (without checksum byte);
+PUB_BIT5 = {%XXXXXXXX, %XXXXXXXX}; TC 4.3.2 Unused data bits;
+PUB_DTA5={0, 0};			Length of frame;
+
+PUB_FID6=0x29;					Frame Identifier publisher;
+PUB_IDX6= 9;                    Frame index of publish frame;
+PUB_LEN6= 2;					Data length (without checksum byte);
+PUB_BIT6 = {%1111111X, %XXXXXXXX}; TC 4.3.2 Unused data bits;
+PUB_DTA6={0, 0};			Length of frame;
+
+SUB_FID1=0x30;					Frame Identifier subscriber;
+SUB_IDX1 = 0;                   Frame index of subscribe frame;
+SUB_DTA1={0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};;
+
+SUB_FID2=0x32;					Frame Identifier subscriber;
+SUB_IDX2 = 2;                   Frame index of subscribe frame;
+SUB_DTA2={0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};;
+
+SUB_FID3=0x34;					Frame Identifier subscriber;
+SUB_IDX3 = 4;                   Frame index of subscribe frame;
+SUB_DTA3={0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};;
+
+SUB_FID4=0x36;					Frame Identifier subscriber;
+SUB_IDX4 = 6;                   Frame index of subscribe frame;
+SUB_DTA4={0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};;
+
+
+;=========================================================================;
+[Frame ID range assignment]
+;
+SM_FID_ALT = 59;                CONSTANT VALUE, SHOULD NOT BE MODIFIED! TC 9.1.x Alternative Frame ID to be assigned to the status reporting message;
+IDX_A      =  0;                CONSTANT VALUE, SHOULD NOT BE MODIFIED! TC 9.1.x Start index. Default value = 0;
+IDX_B      =  1;                CONSTANT VALUE, SHOULD NOT BE MODIFIED! TC 9.1.x Start index. Default value = 1;
+FID_A      = 58;                CONSTANT VALUE, SHOULD NOT BE MODIFIED! TC 9.1.x Frame Identifier for start index = 0;
+FID_B      = 57;                CONSTANT VALUE, SHOULD NOT BE MODIFIED! TC 9.1.x Frame Identifier for start index = 1;
+
+IDX_NUM    =  10;                TC 9.1 Number of publisher and subsciber frames (1..);
+FID_A_IsPublishFrame = 0;       TC 9.1.x Set 1 when start index IDX_A is the index of a Transmit Frame (IUT is publisher);
+FID_B_IsPublishFrame = 1;       TC 9.1.x Set 0 when start index IDX_B is the index of a Receive Frame (IUT is subscriber);
+DTA_IDX_B  = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};      TC 9.1.x Data for initializing of frame length in Emulin; 
+DTA_IDX_A  = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};      TC 9.1.x Data for initializing of frame length in Emulin; 
+;=========================================================================;
+
+;=========================================================================;
+[Other Settings]
+;
+WITH_IBS    =  0;             1=has interbyte space, 0=has no interbyte space;
+PRE_CFG     =  0;             The IUT is preconfigure before test (0/1);
+SaveConfig  =  1;             The IUT supports optional service "Save Configuration"; 
+NOReadByID  =  0;             The IUT does not support the Read By ID(x) command;
+AS_FID = 1;                   The IUT supports Assign frame ID range;               
+TESTLOOPS   = 20;		      normal=20;
+HIGHSIDE_DRIVER=0;	          Highside Driver available for test;
+;=========================================================================;
+; Lin2.1 Specific Properties;
+;=========================================================================;
+
+;=========================================================================;
+[Lin2.1 Slave Identification]
+;
+IDW_SUP= 0xFE, 0x5A;	Supplier ID (Lowbyte, Highbyte);
+IDB_SUP_LSB  = 0xFE;    Supplier ID (Lowbyte);
+IDB_SUP_MSB  = 0x5A;    Supplier ID (Highbyte);
+
+IDW_FUNC=0xAF, 0xBE;	Function ID (Lowbyte, Highbyte);
+IDB_FUNC_LSB = 0xAF;    Function ID (Lowbyte);
+IDB_FUNC_MSB = 0xBE;	Function ID (Highbyte);
+
+IDB_SUP_LSB_incorrect  = 0x00;  TC 11.2.3 Incorrect Supplier ID (Lowbyte)  first bit is inverted;
+IDB_SUP_MSB_incorrect  = 0x40;  TC 11.2.2 Incorrect Supplier ID (Highbyte) first bit is inverted;
+IDB_FUNC_LSB_incorrect = 0x43;  TC 11.2.5 Incorrect Function ID (Lowbyte)  first bit is inverted;
+IDB_FUNC_MSB_incorrect = 0xF0;  TC 11.2.4 Incorrect Function ID (Highbyte) first bit is inverted;
+
+IDB_VAR=0x01;			Variant;
+NAD_DEF=0x0B;			Configured Node Adress on Power Up;
+NAD_INI=0x0B;           Initial Node Adress on Power Up;
+;=========================================================================;
+
+;=========================================================================;
+[Lin2.1 Slave Status Management]
+;
+SM_IDX   = 9;           Frame index of the staus frame;
+SM_FID   = 0x29;	    Frame ID to be assigned to the status reporting message (0..59);
+SM_LEN   = 3;			Data Length (1..8) + 1 checksum byte;
+SM_DTA   = {0xFF, 0xFF}; Default data to allow Emulin determines the length of status frame; 
+
+SM_ERROR   = {%XXXXXXX1,}; Data pattern for Error-Bit is SET;
+SM_NOERROR = {%XXXXXXX0,}; Data pattern for Error-Bit is NOT SET;
+
+;=========================================================================;
+
+;=========================================================================;
+[Lin2.1 Slave Read by Identifier command]
+;
+SerialNum =1;           TC 11.1 The IUT can answer to Read by Identifier(1) with a positive response ("Serial Number") (0/1);
+
+ReadByID16=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID  1 with positive response;
+ReadByID17=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID  2 with positive response;
+ReadByID18=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID  3 with positive response;
+ReadByID19=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID  4 with positive response;
+ReadByID20=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID  5 with positive response;
+ReadByID21=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID  6 with positive response;
+ReadByID22=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID  7 with positive response;
+ReadByID23=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID  8 with positive response;
+ReadByID24=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID  9 with positive response;
+ReadByID25=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID 10 with positive response;
+ReadByID26=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID 11 with positive response;
+ReadByID27=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID 12 with positive response;
+ReadByID28=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID 13 with positive response;
+ReadByID29=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID 14 with positive response;
+ReadByID30=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID 15 with positive response;
+ReadByID31=0;           TC 11.1 The LIN2.0 IUT can answer to Read by Identifier Message ID 16 with positive response;
+;
+ReadByID32=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID33=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID34=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID35=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID36=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID37=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID38=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID39=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID40=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID41=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID42=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID43=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID44=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID45=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID46=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID47=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID48=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID49=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID50=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID51=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID52=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID53=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID54=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID55=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID56=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID57=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID58=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID59=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID60=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID61=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID62=0;           TC 11.1 The LIN2.1 IUT can answer to Read by Identifier(32) with positive response;
+ReadByID63=2;           TC 11.1 The LIN2.1 IUT cann't answer to Read by Identifier(3F);
+;
+PCI_ByID32=6;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID33=6;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID34=6;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID35=6;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID36=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID37=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID38=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID39=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID40=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID41=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID42=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID43=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID44=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID45=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID46=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID47=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID48=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID49=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID50=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID51=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID52=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID53=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID54=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID55=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID56=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID57=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID58=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID59=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID60=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID61=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID62=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+PCI_ByID63=2;           TC 11.1 The Length (2..6)of numbers of used data bytes plus one (for the RSID);
+
+;=========================================================================;
+[Lin2.1 Slave NAD Assignment]
+;
+AssignNAD  = 1;		    TC 12.1 The IUT supports the AssignNAD command (0/1);
+NAD_NEW    = 0x60;       TC 12.1 Alternative NAD to be assigned;
+CondChangeNAD= 1;       TC 12.3 The IUT supports the Conditional Change NAD command;
+
+ID         = 0;		    TC 12.3 Id=0;
+Byte       = 0x05;	    TC 12.3 5 is equivalent to Variant-Byte. The value of Variant see at IDB_VAR;
+MASK       = 0xFF;	    TC 12.3 All Enable;
+INVERT0    = 0x01;	    TC 12.3 Check bit 1;
+INVERT1    = 0x02;	    TC 12.3 Check bit 2;
+INVERT2    = 0x04;	    TC 12.3 Check bit 3;
+INVERT3    = 0x08;	    TC 12.3 Check bit 4;
+INVERT4    = 0x10;	    TC 12.3 Check bit 5;
+INVERT5    = 0x20;	    TC 12.3 Check bit 6;
+INVERT6    = 0x40;	    TC 12.3 Check bit 7;
+INVERT7    = 0x80;	    TC 12.3 Check bit 8;
+;=========================================================================;
+
+
+;=========================================================================;
+[Lin2.1 Slave Sleep / Wake up]
+;
+WakeUp_Local=0;		The IUT can be triggered to start locally and generate a bus wakeup (0/1);
+WakeUp_Retry=1;     The IUT will send retries on wake up when the Master does not respond (0/1);
+GotoSleep=1;		The IUT goes in Sleep Mode after GotoSleep command (0/1);
+BusIdle  =1;        The IUT goes in Sleep Mode after network idle (0/1);
+CURRENT_RED=0;	    Current measurement is available;
+CURRENT_MIN_RUNNING  = 70;  Min current after Wakeup in Running Mode [Bit] (Current{63.8mA} * Shunt{10Ohm} / 4,88mV/Bit);
+CURRENT_MAX_SLEEPING = 20;  Max current in Sleep Mode [Bit] (Current{61.1mA} * Shunt{10Ohm} / 4,88mV/Bit);
+;=========================================================================;
+
+;=========================================================================;
+[Lin2.1 Transport Layer]
+TL_SEGM_REQ=0;         1=supports receiving a segmented request message;
+TL_SEGM_RSP=0;         1=supports transmitting a segmented response message;
+;=========================================================================;
+
+;=========================================================================;
+; IHR additional tests;
+;=========================================================================;
+[IHR extension]
+BC_BYTE_SM=5;		byte number according to SYS:LIN_BitcrushByteNr;
+BC_BIT_SM=1;		bit number according to SYS:LIN_BitcrushBitNr;
+BC_BYTE_SUB=4;	byte number according to SYS:LIN_BitcrushByteNr ;
+BC_BIT_SUB=1;    bit number according to SYS:LIN_BitcrushBitNr;
+BC_POLARITY=0;	polarity (0=dominant, 1=recessive);
+SUB1_RED_LEN=1;	reduced datalength for Subscriber Frame SUB_FID1;
+UNASS_FID=0x10;	FrameID that is not assigned to MessageID;
+WRONG_IDW_FUNC=0x55, 0xAA; wrong Function ID for SlaveResponse Negative Tests;
+WRONG_IDW_SUP=0xAA, 0x55; wrong Supplier ID for SlaveResponse Negative Tests;
+;---BitCrush parameters for Status Management Frame-----------------------;
+;---BitCrush parameters for Subscriber Frame 1 (SUB_FID1)-----------------;
+;---Subscriber Frame 1(SUB_FID1)------------------------------------------;
+;---Unassigned FrameID----------------------------------------------------;
+
+;=========================================================================;
+;=========================================================================;
+[PATTERNGEN]
+;
+PATTERN_INIT=0xF20;       Initialize player;
+PATTERN_DOMBITS=0xF21;    Output n bit periods. Starts with dominant bit; 
+PATTERN_RECBITS=0xF22;    Output n bit periods. Starts with recessive bit;
+PATTERN_DOMTICKS=0xF23;   Output n ticks periods. Starts with dominant tick;
+PATTERN_RECTICKS=0xF24;   Output n ticks periods. Starts with recessive tick;
+PATTERN_DOM10THS=0xF25;   Output n 1/10 bit periods. Starts with dominant;
+PATTERN_REC10THS=0xF26;   Output n 1/10 bit periods. Starts with recessive;
+PATTERN_DOM16THS=0xF27;   Output n 1/16 bit periods. Starts with dominant;
+PATTERN_REC16THS=0xF28;   Output n 1/16 bit periods. Starts with recessive;
+PATTERN_BITS=0xF29;       Output a sequence of up to 8 [0,1] bits;
+PATTERN_BYTE=0xF2A;       Output a byte with start and stopbit;
+PATTERN_BYTE_CS=0xF2B;    Output a byte with start and stopbit, add to checksum;
+PATTERN_RBYTE=0xF2C;      Output a byte (bits only);
+PATTERN_RBYTE_CS=0xF2D;   Output a byte (bits only), add to checksum;
+PATTERN_CHECKSUM=0xF2E;   Modify or output checksum byte;
+PATTERN_TRIGGER=0xF2F;    Output trigger signal [0, 1] on DigOut1;
+CHECK_INIT=0;             Initialize checksum;
+PATTERN_DOMTICKSW=0xF30;  Output n ticks periods with max. 4 word parameters Starts with dominant;
+PATTERN_RECTICKSW=0xF31;  Output n ticks periods with max. 4 word parameters Starts with recessive;
+CHECK_BYTE=1;             Put byteframe in buffer;
+CHECK_RAWBYTE=2;          Put bits without start/stop;
+CHECK_XOR=3;              Xor with const;
+CHECK_ADD=4;              Add to checksum;
+;=========================================================================;
+;=========================================================================;
+[Tester Control]
+POWER_SWITCH=HIO:DigitalOut_02; remotely switch the IUT power supply;
+CURRENT_IN=HIO:AnalogIn5V_01; current sensing input;
+;---Switching power supply for the IUT------------------------------------;
+;=========================================================================;
+
+;=========================================================================;
+[CONST]
+ALLFRAMES=66;RxRequestFrame and TestFrame;
+NOFRAME=65;;
+ERR_NONE=0;;
+ERR_SYNC=1;;
+ERR_BYTE=2;;
+ERR_PARITY=3;;
+ERR_NORESPONSE=4;;
+ERR_TIMEOUT=5;;
+ERR_CHECKSUM=6;;
+ERR_BUSHI=7;;
+ERR_BUSLO=8;;
+ERR_COLLISION=9;;
+ERR_MASTER_TO=10;;
+
+FRM_SLAVE =0x15;;

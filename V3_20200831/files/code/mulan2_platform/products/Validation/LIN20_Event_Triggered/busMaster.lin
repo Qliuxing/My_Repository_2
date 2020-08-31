@@ -1,0 +1,74 @@
+*
+* Event-triggered frame
+* 
+
+LINBAUDRATE=9600
+
+wake-up  : WKU;
+
+*
+* Assign_FrameIDs to node Node_doorFrontLeft (NAD=0x31):
+*
+FID_01h_to_doorFrontLeft_status_MID_4051h       : M2S, $3C, $31, $06, $B1, $FF, $7F, $51, $40, $C1, CK13; S2M, $3D, $08, CK13;
+FID_21h_to_doorFrontLeft_feedback_MID_40C1h     : M2S, $3C, $31, $06, $B1, $FF, $7F, $C1, $40, $61, CK13; S2M, $3D, $08, CK13;
+FID_20h_to_doorAll_feedback_MID_40C0h           : M2S, $3C, $31, $06, $B1, $FF, $7F, $C0, $40, $20, CK13; S2M, $3D, $08, CK13;
+FID_03h_to_doorFrontLeft_setBackLight_MID_40D1h : M2S, $3C, $31, $06, $B1, $FF, $7F, $D1, $40, $03, CK13; S2M, $3D, $08, CK13;
+
+*
+* Assign_FrameIDs to node Node_doorFrontRight (NAD=0x32):
+*
+FID_02h_to_doorFrontRight_status_MID_4151h       : M2S, $3C, $32, $06, $B1, $FF, $7F, $51, $41, $42, CK13; S2M, $3D, $08, CK13;
+
+
+FID_22h_to_doorFrontRight_feedback_MID_41C1h     : M2S, $3C, $32, $06, $B1, $FF, $7F, $C1, $41, $E2, CK13; S2M, $3D, $08, CK13;
+FID_20h_to_doorAll_feedback_MID_41C0h            : M2S, $3C, $32, $06, $B1, $FF, $7F, $C0, $41, $20, CK13; S2M, $3D, $08, CK13;
+FID_04h_to_doorFrontRight_setBackLight_MID_41D2h : M2S, $3C, $32, $06, $B1, $FF, $7F, $D1, $41, $C4, CK13; S2M, $3D, $08, CK13;
+
+*
+* Get status (free unconditional frames)
+*
+doorFrontLeft_status     : S2M, $01, $02, CK20;
+doorFrontRight_status    : S2M, $02, $02, CK20;
+
+*
+* Send doorFrontXXX_setBackLight frame which cause slave to update
+* signals in doorFrontXXX_feedback frames which associated to
+* event-triggered frame doorAll_feedback
+*
+doorFrontLeft_setBackLight  : M2S, $03, $AA, $FF, CK20;
+doorFrontRight_setBackLight : M2S, $04, $AA, $FF, CK20;
+
+*
+* Request of doorAll_feedback event-triggered frame
+*
+doorAll_feedback        : S2M, $20, $04, CK20;
+
+*
+* Request of unconditional frames associated
+* with event-triggered frame doorAll_feedback
+*
+doorFrontLeft_feedback   : S2M, $21, $04, CK20;
+doorFrontRight_feedback  : S2M, $22, $04, CK20;
+
+*
+* Again send doorFrontXXX_setBackLight (value 0x55) followed by
+* event-triggered frame doorAll_feedback
+*
+doorFrontLeft_setBackLight  : M2S, $03, $55, $FF, CK20;
+doorFrontRight_setBackLight : M2S, $04, $55, $FF, CK20;
+doorAll_feedback            : S2M, $20, $04, CK20;
+
+*
+* Identification frames NAD 0x31
+*
+ReadByID(0)_ProductID    : M2S, $3C, $31, $06, $B2, $00, $FF, $7F, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+ReadByID(1)_SerialNumber : M2S, $3C, $31, $06, $B2, $01, $FF, $7F, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+
+
+*
+* Diagnostic frames NAD 0x32
+*
+ReadByID(0)_ProductID    : M2S, $3C, $32, $06, $B2, $00, $FF, $7F, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+ReadByID(1)_SerialNumber : M2S, $3C, $32, $06, $B2, $01, $FF, $7F, $FF, $FF, CK13; S2M, $3D, $08, CK13;
+
+END

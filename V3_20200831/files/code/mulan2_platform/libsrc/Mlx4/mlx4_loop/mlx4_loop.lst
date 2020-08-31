@@ -1,0 +1,63 @@
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Mon Feb 11 17:49:12 2013
+Page 1  Win32 Assembler
+                                MLX4_LOOP.ASM
+
+                      1  Mlx4di    
+                      2  
+                      3  ; ---------------------------------------------------------------------------
+                      4  ;
+                      5  ; Description:
+                      6  ;  Endless Loop firmware for MLX4
+                      7  ;
+                     15  ;
+                     16  ; Copyright (c) Melexis Digital Competence Center
+                     17  ;
+                     18  ; ---------------------------------------------------------------------------
+                     19  
+0000                 20            words     
+                     21  
+                     22  ;--------------- linker informations --------------
+                     23            segment   word at 0-FFF 'all' ;The total memory map consist of:
+0000                 24            contains  'reserved'         ;- reserved locations (at 0..3)
+0000                 25            contains  'task0vects'       ;- vectors of task 0 (at 4..7)
+0000                 26            contains  'task1vects'       ;- vectors of task 1 (at 8..0Bh)
+0000                 27            contains  'code'             ;- normal code (no placement requirements)
+                     28  
+                     29  ;--------------- reserved memory locations and vector table
+                     30  
+0000                 31            words                        ;ROM addresses are 16 bits wide
+                     32  
+                     33            segment   word at 0 'reserved' ;reserved memory locations in ROM
+                     34  
+                     35                                         ; 5AA5h is a signature of valid program in extrnal memory (RAM)
+                     36                                         ; Image with such signature can be put into both RAM and ROM
+0000   5AA5          37            dc.w      5AA5h              ;ROM address 0 -- signature of valid image (MLX16 reads this as 0xA55A word)
+0001   A55A          38            dc.w      0A55Ah             ;ROM address 1
+0002   0000          39            dc.w      0                  ;ROM address 2 is reserved
+0003   0000          40            dc.w      0                  ;ROM address 3 is reserved
+                     41  
+                     42            segment   word at 4 'task0vects' ;vector table of task 0
+0004 U 0020          43            jmp       sleep              ;power-on reset vector of task 0
+0005 U 0020          44            jmp       sleep              ;task reset vector of task 0
+0006 U 0020          45            jmp       sleep              ;external interrupt vector of task 0
+0007 U 0020          46            jmp       sleep              ;attention interrupt vector of task 0
+     U               47  
+                     48            segment   word at 8 'task1vects' ;vector table of task 1
+0008   0000          49            dc.w      0 
+0009   0000          50            dc.w      0 
+000A   0000          51            dc.w      0 
+000B   0000          52            dc.w      0 
+                     53  
+                     54  ;--------------- ROM tables -----------------------
+                     55            segment   word at 0C 'code'  ;normal code (no calls into this code)
+                     56  
+000C   0000          57  sleep     nop       
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Mon Feb 11 17:49:12 2013
+Page 2  Win32 Assembler
+                                MLX4_LOOP.ASM
+
+000D   0C20          58            jmp       sleep 
+                     59  
+                     60  ;--------------- program end ------------------------------------------------------------------------------------------
+000E                 61  prog_end  end       
+	No errors on assembly of 'MLX4_LOOP.ASM' 60 lines

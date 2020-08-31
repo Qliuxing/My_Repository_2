@@ -1,0 +1,2278 @@
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 1  Win32 Assembler
+                                FAST2B.ASM
+
+                      1  Mlx4di    
+                      2  
+                      3  ; ---------------------------------------------------------------------------
+                      4  ;
+                      5  ; Description:
+                      6  ;  Fast Protocol Handler for the Mlx4
+                      7  ;
+                      8  ; File:        $Source: /var/cvsmucontrol/Projects/lin/mls_sw/source/fast2b.asm,v $
+                      9  ; Created:     November 22nd, 2007
+                     10  ;      by:     Benoit Michel, Melexis (bem@melexis.com)
+                     11  ; Updated:     $Date: 2014/12/19 15:37:58 $
+                     12  ;              $Author: beh $
+                     13  ; Revision:    $Revision: 1.6 $
+                     14  ;              $Name: MLX4_LIN_FW_4_1_0 $
+                     15  ;
+                     16  ; Copyright (c) Melexis Digital Competence Center
+                     17  ;
+                     18  ; ---------------------------------------------------------------------------
+                     19  
+0000                 20            intel                        ;make sure the default settings are Intel radix and words format
+                     21  
+                     22  ;LIN Software
+0002                 23  LIN2verASM  equ       2                ;revision code of this file
+0007                 24  LIN2revASM  equ       7                ; format : x xxx xxxx x xxx xxxx
+0000                 25  LIN2dvtASM  equ       0                ;                    \ \   \    \
+                     26                                         ;                     \ \   \    rev (0 to 15) -> for the LIN software : ver.rev [LIN2revASM]
+                     27                                         ;                      \ \   ver (0 to 7) [LIN2verASM]
+                     28                                         ;                       \ stable (1) / in dvt (0) [LIN2dvtASM]
+                     29                                         ;                        same thing for the flash loader [LIN2verFLSH, LIN2revFLSH, LIN2dvtFLSH]
+                     30  ;Flash Loader
+0001                 31  LIN2verFLSH  equ       1               ; ver 0 is in the regular LIN firmware, ver 1 is for the stand alone loader
+0000                 32  LIN2revFLSH  equ       0               ; LIN software stays at 2.7 because it was the last common base for fast2b.asm and lin2b.asm
+0000                 33  LIN2dvtFLSH  equ       0 
+                     34  
+0000                 35  EditNbr   equ       0 
+                     36  
+                     37  ;--------------- MelexCM constant definitions -----
+0000                  0            #include  "periphery.asm"    ;dcom, dma and IO ports definitions for the Mlx4 periphery (for easier reading of the code ah ah!)
+                      1  ; ---------------------------------------------------------------------------
+                      2  ;
+                      3  ; Description:
+                      4  ;  MelexCM Constant Definitions
+                      5  ;  DCOM, DMA and IO ports definitions for the Mlx4 periphery
+                      6  ;
+                      7  ; File:        $Source: /var/cvsmucontrol/Projects/lin/platform/libsrc/Mlx4/periphery.asm,v $
+                      8  ; Created:     May 9th, 2005
+                      9  ;      by:     Benoit Michel, Melexis (bem@melexis.com)
+                     10  ; Updated:     $Date: 2014/08/18 15:17:01 $
+                     11  ;              $Author: beh $
+                     12  ; Revision:    $Revision: 1.1 $
+                     13  ;              $Name: MLX4_LIN_FW_4_0_0 $
+                     14  ;
+                     15  ; Copyright (c) Melexis Digital Competence Center
+                     16  ;
+                     17  ; ---------------------------------------------------------------------------
+                     18  
+                     19  ;--------------- MSBi DCOM ------------------------
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 2  Win32 Assembler
+                                PERIPHERY.ASM
+
+0000                 20  #define   WindCtrl0  0 
+0000                 21  #define   WindCtrl1  1 
+0000                 22  #define   WindCtrl2  2 
+0000                 23  #define   WindCtrl3  3 
+0000                 24  #define   StatCtrl  4 
+0000                 25  #define   InpCtrl   4 
+0000                 26  #define   OutCtrl   5 
+0000                 27  #define   AuxCtrl   6 
+0000                 28  #define   StuffCtrl  7 
+0000                 29  #define   PlsCtrl   7 
+0000                 30  #define   BrCtrl    8 
+0000                 31  #define   CkCtrl    9 
+                     32  ;--------------- MSBi I/O -------------------------
+0000                 33  #define   CmpCtrl   io:16h 
+0000                 34  #define   AuxIn     io:17h 
+0000                 35  #define   Stat1     io:18h 
+0000                 36  #define   Stat0     io:19h 
+0000                 37  #define   Cfg0      io:1Ah 
+0000                 38  #define   Cfg1      io:1Bh 
+0000                 39  #define   DbCnt     io:1Ch 
+0000                 40  #define   IdIdx     io:1Dh 
+0000                 41  #define   PrescA    io:1Eh 
+0000                 42  #define   PrescB    io:1Fh 
+                     43  ;--------------- MSBi DMA -------------------------
+0000                 44  #define   Br        0 
+0000                 45  #define   IntBr     0 
+0000                 46  #define   CmpRW     1 
+0000                 47  #define   CmpSetId  1 
+0000                 48  #define   CmpChk    2 
+0000                 49  #define   CmpTst    2 
+                     50  ;--------------- Mlx4 Dig I/0 ---------------------
+0000                 51  #define   XcgStat   io:0h 
+0000                 52  #define   XcgDr1    io:1h 
+0000                 53  #define   XcgDr3    io:2h 
+0000                 54  #define   AnalogStat  io:3h 
+0000                 55  #define   ComDout   io:4h 
+0000                 56  #define   RamRxt    io:5h 
+0000                 57  #define   SleepStat  io:6h 
+0000                 58  #define   MessStat  io:7h 
+                     59  ;indexed I/O
+0000                 60  #define   WatchPre  io:7h 
+0000                 61  #define   WatchPreIdx  0 
+0000                 62  #define   WatchCnt  io:7h 
+0000                 63  #define   WatchCntIdx  1 
+0000                 64  #define   SleepPre  io:7h 
+0000                 65  #define   SleepPreIdx  2 
+0000                 66  #define   SleepCnt  io:7h 
+0000                 67  #define   SleepCntIdx  3 
+0000                 68  #define   MessPre   io:7h 
+0000                 69  #define   MessPreIdx  4 
+0000                 70  #define   MessCnt   io:7h 
+0000                 71  #define   MessCntIdx  5 
+0000                 72  #define   EeW0      io:7h 
+0000                 73  #define   EeW0Idx   6 
+0000                 74  #define   EeW1      io:7h 
+0000                 75  #define   EeW1Idx   7 
+0000                 76  #define   EeW2      io:7h 
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 3  Win32 Assembler
+                                PERIPHERY.ASM
+
+0000                 77  #define   EeW2Idx   8 
+0000                 78  #define   EeW3      io:7h 
+0000                 79  #define   EeW3Idx   9 
+                     80  ;--------------- Mlx4 Dig DCOM --------------------
+0000                 81  #define   MemRam    10 
+0000                 82  #define   Timer     11 
+0000                 83  #define   MemTab    11 
+0000                 84  #define   AnIo      12 
+0000                 85  #define   Int       13 
+0000                 86  #define   Flags     14 
+0000                 87  #define   System    15 
+0000                 88  #define   FSafe     15 
+                     89  ;--------------------------------------------------
+                     39  
+                     40  ;--------------- LIN and API constant definitions -------------
+0000 U               41            #IFDEF    USE_RELATIVE_PATH 
+0000                  0            #include  "lincst.asm" 
+                      1  ; ---------------------------------------------------------------------------
+                      2  ;
+                      3  ; Description:
+                      4  ;  LIN Firmware constants for the Mlx4
+                      5  ;
+                      6  ; File:        $Source: /var/cvsmucontrol/Projects/lin/mls_sw/source/lincst.asm,v $
+                      7  ; Created:     September 14th, 2004
+                      8  ;      by:     Benoit Michel, Melexis (bem@melexis.com)
+                      9  ; Updated:     $Date: 2015/04/01 14:20:28 $
+                     10  ;              $Author: abb $
+                     11  ; Revision:    $Revision: 1.9 $
+                     12  ;              $Name: MLX4_LIN_FW_4_1_0 $
+                     13  ;
+                     14  ; Copyright (c) Melexis Digital Competence Center
+                     15  ;
+                     16  ; ---------------------------------------------------------------------------
+                     17  
+                     18  ; lincst.asm : this file contains the constants used in the Mlx4 LIN software. Some of theses constants can be changed, depending
+                     19  ;on the application (particularly the time constants, which depends on the oscillator/PLL frequency).
+                     20  
+                     21  ; --- constansts are not used anymore since Phymd layout could depends on project
+                     22  ; Possible values for the LIN cell Slew Rate (Phymd)
+                     23  ;Refer to the Mlx4 periphery documentation for the values of your chip (see Phymd[1:0] in the FLASGS 1 dcom).
+                     24  ;Be aware that these constants need to be changed also in \libsrc\LIN\lincst.h
+                     25  ;SlewRate : (ML_SLEWHIGH=20kbps / ML_SLEWLOW=10kbps / ML_SLEWFAST=max (fast protocol))
+                     26  ;ML_SLEWHIGH equ 0
+                     27  ;ML_SLEWLOW equ 1
+                     28  ;ML_SLEWFAST equ 2
+                     29  
+0001                 30  cvON      equ       1 
+0000                 31  cvOFF     equ       0 
+                     32  
+0001                 33  cvFRAME   equ       1 
+0002                 34  cvIDFILT  equ       2 
+0003                 35  cvFUNCT   equ       3 
+                     36  
+                     37  ;coFILTMODE can be cvIDFILT or cvFRAME
+0002                 38  coFILTMODE  equ       cvIDFILT 
+                     39  
+                     40  ; ROM tables base addresses - if these addresses have to be changed, this should be done
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 4  Win32 Assembler
+                                LINCST.ASM
+
+                     41  ;by changing the ROM_TABLE constant in \setup\Chip.mk
+0000                 42  #IFDEF    5440      
+1540                 43  _INDXtbl  equ       5440 
+1580                 44  _PARAMtbl  equ       {5440 + 64} 
+15C0                 45  _AUTOADDtbl  equ       {5440 + 128} 
+0000                 46  #ELSE     
+                     49  
+                     50  ; Constants used in the Mlx4
+                     51  ; Values for coTIMEOUT
+0001                 52  cvTO13    equ       1 
+0002                 53  cvTO2x    equ       2 
+                     54  
+                     55  ;---------------------------
+                     56  ;Auto Baudrate Constants
+                     57  ;---------------------------
+0019                 58  abBRKOVF  equ       25                 ; Autobaudrate : overflow value to change the prescaler during break detection
+0035                 59  abSHORTOVF  equ       53               ;0x35 too long low state at worst case: 23MHz CPUCK, 800 b/s, presca 1 (higher CPUCK should use presca = 2)
+                     60  
+0001                 61  abMINPRESCA  equ       1 
+00BC                 62  abBRSTART  equ       188               ;0xBC, BR and Presca at start are chosen to have a valid wake up what ever the frequency is.
+0003                 63  abPRESCASTART  equ       3             ;0xBC, presca 3 -> 10K at 30MHz, 3K at 10 MHz -> 5Tbits are always within {250us,5000us}
+                     64  
+                     65  ; The following constants SHOULD NOT BE CHANGED, from them depends the communication between the Mlx4 and the MLX16.
+                     66  ;They should be consistent with \libsrc\LIN\lincst.h
+0000                 67  tx        equ       0 
+0001                 68  rx        equ       1 
+                     69  
+0000                 70  chk13     equ       0 
+0001                 71  chk20     equ       1 
+                     72  
+0001                 73  TRUE      equ       1 
+0000                 74  FALSE     equ       0 
+0001                 75  ENABLED   equ       TRUE 
+0000                 76  DISABLED  equ       FALSE 
+0002                 77  AUTORESET  equ       2 
+0003                 78  FORCE     equ       3 
+                     79  
+                     80  ;---------------------------
+                     81  ;MLX16 to MLX4 Command Codes
+                     82  ;---------------------------
+0000                 83  pcNONE    equ       0 
+0001                 84  pcSTCH    equ       1 
+0002                 85  pcCNFBR   equ       2 
+0003                 86  pcRX      equ       3 
+0004                 87  pcTX      equ       4 
+0005                 88  pcSETFRAME  equ       5 
+0006                 89  pcCNFID   equ       6 
+0007                 90  pcCNFSR   equ       7 
+000A                 91  pcSFTVER  equ       10 
+000B                 92  pcOPTION  equ       11 
+000C                 93  pcGETST   equ       12 
+000D                 94  pcCNFAUTO  equ       13 
+000E                 95  pcFCNFIG  equ       14 
+000F                 96  pcRELBUF  equ       15 
+                     97  
+                     98  ;---------------------------
+                     99  ;MLX16 to MLX4 Sub Command Codes
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 5  Win32 Assembler
+                                LINCST.ASM
+
+                    100  ;---------------------------
+0000                101  pcDISCARD  equ       0 
+0001                102  pcDATARDY  equ       1 
+0002                103  pcCONTINOUSF  equ       2 
+                    104  
+                    105  ;---------------------------
+                    106  ;MLX4 to MLX16 Event Codes
+                    107  ;---------------------------
+                    108  ;evNONE equ 0
+0001                109  evSTCH    equ       1 
+0002                110  evERR     equ       2 
+0003                111  evMESSrcvd  equ       3 
+0004                112  evMESSrqst  equ       4 
+0005                113  evENDtx   equ       5 
+0007                114  evCOOLAUTO  equ       7 
+                    115  
+                    116  ;---------------------------
+                    117  ;MLX4 States Codes
+                    118  ;---------------------------
+0000                119  stINIT    equ       0 
+0001                120  stDISC    equ       1 
+0002                121  stACT     equ       2 
+0004                122  stSLEEP   equ       4 
+0008                123  stWKUP    equ       8 
+000E                124  stSHORT   equ       14 
+000F                125  stFAST    equ       15 
+                    126  
+                    127  ;---------------------------
+                    128  ;Command Ack
+                    129  ;---------------------------
+0000                130  ackOK     equ       0 
+0001                131  ackERR    equ       1 
+                    132  
+                    133  ;---------------------------
+                    134  ;Sleep Codes
+                    135  ;---------------------------
+0001                136  slMST     equ       1 
+0002                137  slAPP     equ       2 
+0003                138  slWKUP    equ       3 
+0004                139  slWKUPabort  equ       4 
+0005                140  slWKUPresp  equ       5 
+0008                141  slWKUPbreak  equ       8 
+0006                142  slTO      equ       6 
+0007                143  slTODOM   equ       7 
+000A                144  slREG     equ       10 
+                    145  
+                    146  ;---------------------------
+                    147  ;Error Codes
+                    148  ;---------------------------
+0000                149  erNOERR   equ       0 
+0001                150  erSHORTDONE  equ       1 
+0002                151  erCRASH   equ       2 
+0003                152  erIDPAR   equ       3 
+0004                153  erCKSUM   equ       4 
+0005                154  erTXCOL   equ       5 
+0006                155  erRX      equ       6 
+0007                156  erIDSTOP  equ       7 
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 6  Win32 Assembler
+                                LINCST.ASM
+
+0008                157  erSYNC    equ       8 
+0009                158  erRXOVR   equ       9 
+000A                159  erSHORT   equ       10 
+000B                160  erTORESP  equ       11 
+000C                161  erBRFRM   equ       12 
+000F                162  erWKUPINIT  equ       15 
+                    163  
+0000                164  cnfAUTO   equ       0 
+0001                165  cnfSRATE  equ       1 
+                    166  
+                    167  ;---------------------------
+                    168  ;Error Sub Codes
+                    169  ;---------------------------
+0001                170  erSYNClo  equ       1 
+0002                171  erSYNChi  equ       2 
+0003                172  erSYNCsbhi  equ       3 
+0004                173  erSYNCbhi  equ       4 
+0005                174  erSYNChead  equ       5 
+                    175  
+0000                176  erCRASHIT  equ       0 
+0001                177  erCRASHPLL  equ       1 
+0002                178  erCRASHTX  equ       2 
+                    179  
+0001                180  erRXSTART  equ       1 
+0002                181  erRXSTOP  equ       2 
+                    182  
+0001                183  verLIN    equ       1 
+0002                184  verEDIT   equ       2 
+                    185  
+                    186  ;---------------------------
+                    187  ;Mark Instruction Codes
+                    188  ;---------------------------
+                    189  ;msb set if xdma is following the xdcom
+                    190  ;group A : errors, reset - x00x xxxx
+0001                191  dcRST     equ       1                  ;01h
+0002                192  dcWAIT    equ       2                  ;02h
+0083                193  dcERROR   equ       131                ;83h
+0004                194  dcBREAKER  equ       4                 ;04h
+0005                195  dcSLEEP   equ       5                  ;05h
+0006                196  dcERRORDEL  equ       6                ;06h
+0086                197  dcVER     equ       134                ;86h
+0087                198  dcEDIT    equ       135                ;87h
+                    199  ;group B : dialog Mlx4/Mlx16, unrecognized ID - x01x xxxx
+00A6                200  dcEVENT   equ       166                ;A6h
+00A7                201  dcCOMMAND  equ       167               ;A7h
+00A8                202  dcID      equ       168                ;A8h
+                    203  ;group C : break, sync, byte - x10x xxxx
+004A                204  dcBREAK   equ       74                 ;4Ah
+00CB                205  dcSYNC    equ       203                ;CBh
+004C                206  dcSTART   equ       76                 ;4Ch
+004D                207  dcSTOP    equ       77                 ;4Dh
+00CE                208  dcDATA    equ       206                ;CEh
+00CF                209  dcDATATX  equ       207                ;CFh
+                    210  ;fast protocol
+0050                211  dcFAST    equ       80                 ;50h: enter fast protocol
+0051                212  dcFASTSOF  equ       81                ;51h: start of frame received
+00D2                213  dcFASTBYTE  equ       210              ;D2h: byte received
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 7  Win32 Assembler
+                                LINCST.ASM
+
+00D3                214  dcFASTTX  equ       211                ;D3h: byte sent
+00D5                215  dcFASTPCI  equ       213               ;D5h: PCI received
+                    216  ;wake-up and auto-addressing
+0054                217  dcWAKEUP  equ       84                 ;54h: wake up pulse sent
+0055                218  dcAUTOADD  equ       85                ;55h: auto-addressing pulse sent
+                    219  ;debug
+00D4                220  dcDEBUG   equ       212                ;D4h
+                    221  
+                    222  ;---------------------------
+                    223  ;Tword access mode
+                    224  ;---------------------------
+0000 U              225  #IFDEF    COLIN_MODULE  
+00A0                228  regTword  equ       {0A0h or 00h}      ; 0 for other cases
+0000                229  #ENDIF    
+                    230            
+                    231  ;end
+0000                 45            #ENDIF    
+                     46  
+                     47  ;--------------- Compiler Switches ----------------
+                     48  ;enable or disable part of the code
+0000                  0            #include  "switches.asm" 
+                      1  ; ---------------------------------------------------------------------------
+                      2  ;
+                      3  ; Description:
+                      4  ;  LIN Firmware Compiler Switches for the Mlx4
+                      5  ;
+                      6  ; File:        $Source: /home/tester/cvs2git/cvs/mulan2_platform/libsrc/Mlx4/switches.asm,v $
+                      7  ; Created:     May 17th, 2011
+                      8  ;      by:     Benoit Michel, Melexis (bem@melexis.com)
+                      9  ; Updated:     $Date: 2014-03-14 17:12:05 $
+                     10  ;              $Author: yso $
+                     11  ; Revision:    $Revision: 1.15 $
+                     12  ;              $Name:  $
+                     13  ;
+                     14  ; Copyright (c) Melexis Digital Competence Center
+                     15  ;
+                     16  ; ---------------------------------------------------------------------------
+                     17  
+                     18  
+                     19  ; ---------------------------------------------------------------------------
+                     20  ;  These switches values can be configured
+                     21  ; ---------------------------------------------------------------------------
+                     22  ;coFastStdAlne           equ cvON\cvOFF              ;Enable/Disable Stand Alone 'Enter Programming Mode' Command in Fast Mode
+                     23  ;CFG_PLL_FREQ            equ 12\20\22\24[MHz]        ;Mlx4 clock frequency
+                     24  ;coTIMEOUT               equ TO13\TO2X               ;Decide to use 1.3 or 2.X standard for RX timeout detection
+                     25  ;CFG_SLEEP_TO            equ 13_9600\13_19200\LIN20  ;Define idle bus time before to fall asleep, the switch decide on the standard to follow
+                     26  ;coFASTFLASH             equ cvON\cvOFF              ;Enable the fast protocol for flash loading (include lin2b_fastflash.asm)
+                     27  ;coDEBUGMARK             equ cvON\cvOFF              ;Enable debugging by mark instructions
+                     28  
+0001                 29  coDEBUGMARK  equ       cvON            ;Enable debugging by mark instructions
+                     30  ; Other switches values defined into Makefile
+                     31  
+                     32  
+                     33  ; ---------------------------------------------------------------------------
+                     34  ;  These switches values are hard coded for MLX4 and can't be configured
+                     35  ; ---------------------------------------------------------------------------
+                     36  ;coFILTMODE              equ IDFILT  ;FRAME : no filtering, the application receives all the LIN ID and decides what to do
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 8  Win32 Assembler
+                                SWITCHES.ASM
+
+                     37  ;                                    ;IDFILT: mapping between LIN ID and INDEX, parameters of each INDEX and LIN ID are defined
+                     38  ;                                    ;in rom tables and can be partially changed into RAM."
+                     39  ;coREDUCERAM             equ cvOFF   ;Amount of space alocated to private Mlx4 RAM.
+                     40  ;                                    ;The final value will depends on the amount of switches removed and final value of each of them
+                     41  ;coBRCOOL                equ cvON    ;Enable AutoAddressing feature: cvON, cvOFF
+                     42  ;coSLEEPMODE             equ cvON    ;Sleep Mode enabled: cvON, cvOFF
+                     43  ;coSLEEPAUTO             equ cvON    ;Sleep Mode Command Auto-detect (3C-00): cvON, cvOFF
+                     44  ;coWAKEUP                equ cvON    ;Enable Wake-Up pulse generation capabilities: cvON, cvOFF
+                     45  ;coWAKEUPSHORT           equ cvON    ;Enable the detection of a short if a wake-up pulse is too long: cvON, cvOFF
+                     46  ;coBRCORR                equ cvON    ;Enable baudrate correction: cvON, cvOFF
+                     47  ;coIDBANK2               equ cvON    ;Enable the second set of configurable IDs in Identifier Filtering Mode: cvON, cvOFF
+                     48  ;                                    ;if coIDBANK2 is off, the configurable IDs are limited to 8, if it is on, to 16.
+                     49  ;coFUNCFILT              equ cvOFF   ;Enable Functional Filtering : Enable/Disable Flag and/or QR Messages: cvON, cvOFF
+                     50  ;coFILTQR                equ cvOFF   ;Enable QR Messages: cvON, cvOFF (assumes coFUNCFILT eq cvON)
+                     51  ;coPARAMLT               equ cvON    ;Enable light parameters: no filtering (assumes coFUNCFILT eq cvOFF)
+                     52  ;coIDINIT                equ cvOFF   ;ID Table Initialization for ROM Table: cvON, cvOFF
+                     53  ;coBRFRM                 equ cvON    ;Signal a Break in Frame (this is always detected, even if the switch is off): cvON, cvOFF
+                     54  ;coFLSHLD                equ cvON    ;Enable Flash Loading Protocol detection: cvON, cvOFF
+                     55  ;coPROPMEAS              equ cvON    ;Enable the measurement of the propagation time during TX: cvON, cvOFF
+                     56  ;coSTOPBREAK             equ cvON    ;Enable to skip the stop bit error signaling in case a valid break is detected: cvON, cvOFF
+                     57  ;
+                     58  ;coRSVD5AA5              equ cvON    ;First code word is 5AA5 (cvON) or A55A (cvOFF)
+                     59  ;
+                     60  ;coPLLCHK                equ cvOFF   ;Enable the check of the PLL status: cvON, cvOFF
+                     61  ;coCMD_OPTION            equ cvON    ;Enable the pcOPTION command support
+                     62  ;coCMD_SFTVER            equ cvON    ;Enable the pcSFTVER command support
+                     63  ;coCMD_GETST             equ cvON    ;Enable the pcGETST command support
+                     64  ;coCMD_ACK               equ cvON    ;Do an acknowledge of the commands from the Mlx16 (cvON) or use the erCSYNC message (cvOFF)
+                     65  ;
+                     66  ;coSPECIALID             equ cvOFF   ;Enable processing of special ID (3D, 3D, 3E, 3F) without accessing the rom tables: cvON, cvOFF
+                     67  ;coQR0_USED_BY_3D_FRAME  equ cvOFF   ;Enable use for QR code for special IF 3D
+                     68  ;
+                     69  ;coFASTFLASHCK           equ cvON    ;Checksum of the Fast Protocol checked or not - DEBUG, default is cvON
+                     70  ;coFASTFLASHCKTX         equ cvOFF   ;Checksum of the Fast Protocol checked or not for TX messages - DEBUG, default is cvOFF
+                     71  ;coFASTFLASHDBG          equ cvOFF   ;Flash Loading Fast Protocol - DEBUG, default is cvOFF
+                     72  ;coFastDb                equ cvON    ;Enable/Disable Fast Edges
+                     73  ;coFastCmd               equ cvON    ;Enable/Disable the reception of commands during the RX loop
+                     50  
+                     51  ;--------------------------------------------------
+                     52  
+0000                 53            words     
+                     54  
+                     55  ;--------------- linker informations --------------
+                     56            segment   word at 0-FFF 'all' ;The total memory map consist of:
+0000                 57            contains  'reserved'         ;- reserved locations (at 0..3)
+0000                 58            contains  'task0vects'       ;- vectors of task 0 (at 4..7)
+0000                 59            contains  'task1vects'       ;- vectors of task 1 (at 8..0Bh)
+0000                 60            contains  'code'             ;- normal code (no placement requirements)
+                     61  
+                     62  ;--------------- RAM mapping ----------------------  <- mapping to review!!
+0000                 63            bytes                        ;RAM addresses are 8 bits wide
+                     64  
+                     65                                         ;local variables of the LIN task:
+                     66            segment   byte at 0-1F 'LIN private' 
+                     67  
+0000                 68  unused    ds.b      1                  ;0x00 : unused
+0001                 69  LINst     ds.b      1                  ;0x01 : current state of the LIN task (4 bits)
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 9  Win32 Assembler
+                                FAST2B.ASM
+
+0002                 70  LINbr     ds.b      2                  ;0x02 : LIN Br register : 2 nibbles (8 bits) - even address so the lsb is 0
+0004                 71  LINtmp    ds.b      2                  ;0x04 : Temporary Byte for DMA accesses
+0006                 72  LINbytbuf  ds.b      2                 ;0x06 : Byte buffer
+0008                 73  LINchksum  ds.b      2                 ;0x08 : Message checksum temporary buffer
+000A                 74  LINdbg    ds.b      2                  ;0x0A : Debug (mark instructions)
+000C                 75  LINmesslen  ds.b      2                ;0x0C : Message length
+000E                 76  ClearByte  ds.b      2                 ;0x0E : byte used to clear registers with a dma
+0010                 77  LINindex  ds.b      2                  ;0x10 : LIN index for ID Filtering Mode, or LIN ID for Frame Processing Mode
+                     78  
+                     79            
+0012                 80  Atmp      ds.b      1                  ;0x12 : temporary buffer
+0013                 81  Btmp      ds.b      1                  ;0x13 : temporary buffer
+0014                 82  Xtmp      ds.b      1                  ;0x14 : temporary buffer
+0015                 83  ffSTATUS  ds.b      1                  ;0x15 : Fast Flash Loading Status
+                     84                                         ;x x xx
+                     85                                         ; \ \  \
+                     86                                         ;  \ \  break detection step nr (3=found)
+                     87                                         ;   \ 1 : protocol setting
+                     88                                         ;    1 : response requested
+0016                 89  LINbytcnt  ds.b      1                 ;0x16 : counter used to know how many data bytes have been received
+0017                 90  LINframeflag  ds.b      1              ;0x17 : LIN Frame Flags
+                     91                                         ;x x x x
+                     92                                         ; \ \ \ \
+                     93                                         ;  \ \ \ special ID received (3C, 3D, 3E or 3F)
+                     94                                         ;   \ \ sleep command received (ID 3C + first byte 00)
+                     95                                         ;    \ discard the frame
+                     96                                         ;     frame data ready for transmit
+0018                 97  LINflashStatus  ds.b      1            ;0x18 :
+                     98                                         ;x x x x
+                     99                                         ; \ \ \ \
+                    100                                         ;  \ \ \ programming mode
+                    101                                         ;   \ \ continuous frames coming up
+                    102                                         ;    \ not used
+                    103                                         ;     not used
+                    104  
+                    105  ;0x20 ---------- locations used for inter-task communication -------
+                    106            segment   byte at 20-2F 'LIN API' 
+                    107  
+0020                108  LINresp   ds.b      4                  ;0x20 : MLX4 -> MLX16 Command Response
+0024                109  LINcmnd   ds.b      4                  ;0x24 : MLX16 -> MLX4 Command
+0028                110  LINmess   ds.b      6                  ;0x28 : MLX4 -> MLX16 Events
+002E                111  LINID     ds.b      2                  ;0x2E : MLX4 -> MLX16 LIN Protected Identifier
+                    112  
+                    113            segment   byte at 30-3F 'LIN Frame' ;for indexed access purposes, the base address has to end with 0000b
+0030                114  LINframe  ds.b      16                 ;0x30 (0xE118) : LIN frame : up to 8 bytes (checksum calculated automaticaly)
+                    115                                         ;0x34 (0xE11A)
+                    116                                         ;0x38 (0xE11C)
+                    117                                         ;0x3C (0xE11E)
+                    118  
+                    119  ;0x3F ---------- end of inter-task memory space ----------------------
+                    120  
+                    121  ;--------------- reserved memory locations and vector table
+                    122  
+0040                123            words                        ;ROM addresses are 16 bits wide
+                    124  
+                    125            segment   word at 0 'reserved' ;reserved memory locations in ROM
+0000   A55A         126            dc.w      0A55Ah             ;ROM address 0 should hold 0xA55A
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 10  Win32 Assembler
+                                FAST2B.ASM
+
+0001   5AA5         127            dc.w      5AA5h              ;ROM address 1 should hold 0xA55A
+0002   0000         128            dc.w      0                  ;ROM address 2 is reserved
+0003   0000         129            dc.w      0                  ;ROM address 3 is reserved
+                    130  
+                    131            segment   word at 4 'task0vects' ;vector table of task 0
+0004 U 0020         132            jmp       task0_por          ;power-on reset vector of task 0
+0005 U 0020         133            jmp       task0_rst          ;task reset vector of task 0
+0006 U 0020         134            jmp       task0_it           ;external interrupt vector of task 0
+0007 U 0020         135            jmp       task0_att          ;attention interrupt vector of task 0
+     U              136  
+                    137            segment   word at 8 'task1vects' ;vector table of task 1
+                    138  
+                    139  ;--------------- ROM tables -----------------------
+                    140            segment   word at 0C 'code'  ;normal code (no calls into this code)
+                    141  
+                    142  ;--------------------------------------------------
+                    143  ;Mlx4 Software Version
+                    144  ;LIN Software
+                    145  ;LIN2verASM    equ 2        ;revision code of this file
+                    146  ;LIN2revASM    equ 7        ; format : x xxx xxxx x xxx xxxx
+                    147  ;LIN2dvtASM    equ 0        ;                    \ \   \    \
+                    148  ;            ;                     \ \   \    rev (0 to 15) -> for the LIN software : ver.rev [LIN2revASM]
+                    149  ;            ;                      \ \   ver (0 to 7) [LIN2verASM]
+                    150  ;            ;                       \ stable (1) / in dvt (0) [LIN2dvtASM]
+                    151  ;            ;                        same thing for the flash loader [LIN2verFLSH, LIN2revFLSH, LIN2dvtFLSH]
+                    152  ;Flash Loader            ;
+                    153  ;LIN2verFLSH    equ 1        ; ver 0 is in the regular LIN firmware, ver 1 is for the stand alone loader
+                    154  ;LIN2revFLSH    equ 0        ; LIN software stays at 2.7 because it was the last common base for fast2b.asm and lin2b.asm
+                    155  ;LIN2dvtFLSH    equ 0        ;
+                    156  ;            ;
+                    157  ;EditNbr    equ 0        ; 
+                    158  
+000C                159            %assert   LIN2revASM le 15 
+000C                160            %assert   LIN2verASM le 7 
+000C                161            %assert   LIN2dvtASM le 1 
+000C                162            %assert   LIN2revFLSH le 15 
+000C                163            %assert   LIN2verFLSH le 7 
+000C                164            %assert   LIN2dvtFLSH le 1 
+000C   1027         165  SoftVersion  dc.w      {{LIN2dvtFLSH shl 15} or {LIN2verFLSH shl 12} or {LIN2revFLSH shl 8} or {LIN2dvtASM shl 7} or {LIN2verASM shl 4} or LIN2revASM} 
+000D   0000         166  EditNumber  dc.w      EditNbr 
+000E   0000         167            dc.w      0000h              ; alignment ..
+000F   0000         168            dc.w      0000h              ; ..
+                    169  
+                    170  ;--------------------------------------------------
+                    171  ;Constant tables
+0010                  0            #include  "cst_rom_tables.asm" 
+                      1  ; ---------------------------------------------------------------------------
+                      2  ;
+                      3  ; Description:
+                      4  ;   Timing constant defined in ROM-tables (link-time configuration)
+                      5  ;   Fosc = 250 kHz (fixed)
+                      6  ;
+                      7  ; File:        $Source: /home/tester/cvs2git/cvs/mulan2_platform/libsrc/Mlx4/cst_rom_tables.asm,v $
+                      8  ; Created:     June 13th, 2005
+                      9  ;      by:     Benoit Michel, Melexis (bem@melexis.com)
+                     10  ; Updated:     $Date: 2014-03-14 17:12:06 $
+                     11  ;              $Author: yso $
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 11  Win32 Assembler
+                                CST_ROM_TABLES.ASM
+
+                     12  ; Revision:    $Revision: 1.8 $
+                     13  ;              $Name:  $
+                     14  ;
+                     15  ; Copyright (c) Melexis Digital Competence Center
+                     16  ;
+                     17  ; ---------------------------------------------------------------------------
+                     18  
+                     19  ; Defines for CFG_SLEEP_TO
+0010                 20  #define   coLIN20_ANY  1 
+0010                 21  #define   coLIN13_9600  2 
+0010                 22  #define   coLIN13_19200  3 
+                     23  
+                     24  ; Defines for CFG_PLL_FREQ
+0010                 25  #define   coPLL_12MHZ  1 
+0010                 26  #define   coPLL_18MHZ  2 
+0010                 27  #define   coPLL_20MHZ  3 
+0010                 28  #define   coPLL_24MHZ  4 
+0010                 29  #define   coPLL_25MHZ  5 
+0010                 30  #define   coPLL_28MHZ  6 
+0010                 31  #define   coPLL_30MHZ  7 
+0010                 32  #define   coPLL_32MHZ  8 
+                     33  
+                     34  ;Constant tables
+                     35  
+                     36  ;--------------------------------------------------------------------------------------------------
+                     37  ; Sleep Timeout (depends on Fosc frequency)
+                     38  ;
+                     39  ; With an oscillator at Fosc, the formula is:
+                     40  ;	Sleep_timeout = (1/Fosc) * 2^(9+SleepPre_Val) * (16 + SleepCnt_Val) * (256 / SleepCntInc)
+                     41  ;
+                     42  ; Notes:
+                     43  ;   1. Use the biggest SleepCnt_Val possible -> (4 bits = 15)
+                     44  ;   2. Sleep timeout is not used by fast protocol
+                     45  ;
+                     46  ;SleepPre_Val or 8 (enable bit)	=> Rom:ConstantTbl shr 2[0]
+                     47  ;SleepCnt_Val                   => Rom:ConstantTbl shr 2[1]
+                     48  ;SleepCntInc	                => Rom:ConstantTbl shr 2[2]
+                     49  
+                     50  ConstantTbl  
+                     51  
+0010                 52  #IF       1         eq 0 
+                     67                                         ; not used for standalone (any value)
+0010   0000          68            dc.w      00000h             ;  [1][0][3][2]
+                     69  
+0011                 70  #ENDIF                                 ; COMPILE_STANDALONE_LOADER 
+                     71  
+                     72  
+0011                 73            %assert   {ConstantTbl and 3} eq 0 ;Make sure the last 2 bits of the table are 0
+                     74  
+                     75  ;--------------------------------------------------------------------------------------------------
+                     76  ; Wake-up detection (depends on F_PLL frequency)
+                     77  ;
+                     78  ; Use 50us as a base interval, i.e. set baudrate counter to 20 kbps in sleep mode
+                     79  ;
+                     80  ; ( 2^(SleepDelayPre + 1) * SleepDelayCnt) / F_PLL = 50 us
+                     81  ;
+                     82  ; SleepDelayPre is caPresc (value between 0 and 11)
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 12  Win32 Assembler
+                                CST_ROM_TABLES.ASM
+
+                     83  ; SleepDelayCnt is caBaud  (value is between 99 and 200)
+                     84  
+                     85  ;SleepDelayPre                  => Rom:ConstantTbl shr 2[4]
+                     86  ;SleepDelay                     => Rom:ConstantTbl shr 2[5]
+                     87  ;SleepDelayCnt                  => Rom:ConstantTbl shr 2[6] and Rom:ConstantTbl shr 2[7]
+                     88  
+                     89  ; Delay used before entering the sleep mode after reception of a sleep command (x50us)
+                     90  ; NOTE: it is possible to use 10kbps as baudrate and to double SleepDelay and WUPlsMinimum
+                     91  ;or to change each value idependantely
+                     92  ;SleepDelay		equ 5	= Rom:ConstantTbl shr 2[5]
+                     93  
+0011                 94  #IF       1         eq 0 
+                    125                                         ; not used for standalone (any value)
+0011   0000         126            dc.w      00000h             ; [5][4][7][6]
+                    127  
+0012                128  #ENDIF    
+                    129  
+                    130  ; Minimum length of a wake-up pulse (x50us)
+                    131  ;WUPlsMinimum	equ 3	;150us 	= Rom:ConstantTbl shr 2[8] and Rom:ConstantTbl shr 2[9]
+                    132  
+                    133  ; Maximum length of a wake-up pulse (x50us)
+                    134  ;WUPlsMaximum	equ 111 = 6Fh	;5ms	= Rom:ConstantTbl shr 2[A] and Rom:ConstantTbl shr 2[B]
+                    135  
+0012   036F         136            dc.w      0036Fh             ;   [9][8][B][A]; not used by fast protocol
+                    137  
+                    138  ;--------------------------------------------------------------------------------------------------
+                    139  ; MLX4 watchdog (depends on Fosc frequency)
+                    140  ; Wdg_timeout = (1/Fosc) * 2^(2+WatchPre_Val) * (16 + WatchPre_Cnt)
+                    141  ;
+                    142  ;WatchPre_Val	equ 7	= Rom:ConstantTbl shr 2[E] ; Since WatchPre_Val is used to enable the timer (msb to 1), set the msb -> 15
+                    143  ;WatchPre_Cnt	equ 15	= Rom:ConstantTbl shr 2[F]
+                    144  
+                    145  ;--------------------------------------------------------------------------------------------------
+                    146  ; Wake-up pulse generation (depends on baud-rate settings)
+                    147  ; -> Pulses width #WuPlsCnt# is 5Tbit (between 250us and 5ms)
+                    148  ;Pulses width : 5Tbit
+                    149  ;WuPlsCnt		equ 5	= Rom:ConstantTbl shr 2[C]
+                    150  
+                    151  ;--------------------------------------------------------------------------------------------------
+                    152  ; PLL config (if any)
+                    153  ;PLL: delay to check the PLL (see coPLLCHK switch)
+                    154  ; -- number of retries to start the PLL
+                    155  ;PLLattempt		equ 3	= Rom:ConstantTbl shr 2[D]
+                    156  
+0013   35FF         157            dc.w      035FFh             ;   [D][C][F][E]
+                    158  
+                    159  ; -- counter to wait for the PLL to lock
+                    160  ;PLLcnt_lo		equ 0	= Rom:ConstantTbl2 shr 2[0]
+                    161  ;PLLcnt_hi		equ 14	= Rom:ConstantTbl2 shr 2[1]
+                    162  ; -- counter to do a second check after the PLL has started
+                    163  ;PLLchk_lo		equ 0	= Rom:ConstantTbl2 shr 2[2]
+                    164  ;PLLchk_hi		equ 14	= Rom:ConstantTbl2 shr 2[3]
+                    165  
+0014   E0E0         166  ConstantTbl2  dc.w      0E0E0h         ;   [1][0][3][2]
+                    167  
+0015                168            %assert   {ConstantTbl2 and 3} eq 0 ;Make sure the last 2 bits of the table are 0
+                    169  
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 13  Win32 Assembler
+                                CST_ROM_TABLES.ASM
+
+                    170  ;--------------------------------------------------------------------------------------------------
+                    171  ; Wake-up request generation (depends on Fosc)
+                    172  ; -> Pulses width #WuPlsCnt# is 5Tbit (between 250us and 5ms)
+                    173  ; -> Pause 150 ms between two pulses #WuPause#
+                    174  ; -> Pause 1.5 s before another pulse sequence #WeSeq#
+                    175  ;
+                    176  ; WuPause = (1/Fosc) * 2^(9+WuPausePre_Val) * (16 + WuPauseCnt_Val)
+                    177  ;
+                    178  ; WeSeq   = (1/Fosc) * 2^(9+WuSeqPre_Val)   * (16 + WuSeqPre_Val)
+                    179  ;
+                    180  
+                    181  ;Pause Length : 150ms (exactly 180ms, i.e. +20%) - used with the Sleep Timer
+                    182  ;WuPauseCnt_Val	equ 6	= Rom:ConstantTbl2 shr 2[4]
+                    183  ;WuPausePre_Val	equ 2	= Rom:ConstantTbl2 shr 2[5] ;Since WuPausePre_Val is used to enable the timer (msb to 1), set the msb -> 10
+                    184  
+                    185  ;Sequence Pause Length : 1.5s (exactly 1.77s, i.e. +18%) - used with the Sleep Timer
+                    186  ;WuSeqCnt_Val	equ 11	= Rom:ConstantTbl2 shr 2[6]
+                    187  ;WuSeqPre_Val	equ 5	= Rom:ConstantTbl2 shr 2[7] ;Since WuSeqPre_Val is used to enable the timer (msb to 1), set the msb -> 14
+                    188  
+0015   A6DB         189            dc.w      0A6DBh             ;   [5][4][7][6]; not used by fast protocol
+                    190  
+0016   0000         191            dc.w      0                  ;   [9][8][B][A]
+                    192  
+                    193  ;not used                       => Rom:ConstantTbl2 shr 2[C]
+                    194  ;not used                       => Rom:ConstantTbl2 shr 2[D]
+                    195  ;MinPresc                       => Rom:ConstantTbl2 shr 2[E]
+                    196  ;not used                       => Rom:ConstantTbl2 shr 2[F]
+                    197  
+0017                198  #IF       1         eq 0 
+                    228                                         ; not used for standalone (any value)
+0017   0002         229            dc.w      00002h             ; [5][4][7][6]
+                    230  
+0018                231  #ENDIF    
+                    232  
+                    233  
+0018                234  #IF       cvON      eq cvON 
+                    235  ;--------------------------------------------------
+                    236  ;CRC Tables for the Fast Protocol
+                    237  ;index is 1032
+0018   A07D         238  ffCrcTblHi  dc.w      0A07Dh 
+0019   0AD7         239            dc.w      00AD7h 
+001A   E439         240            dc.w      0E439h 
+001B   4E93         241            dc.w      04E93h 
+001C   E0D3         242  ffCrcTblLo  dc.w      0E0D3h 
+001D   97A4         243            dc.w      097A4h 
+001E   1F2C         244            dc.w      01F2Ch 
+001F   685B         245            dc.w      0685Bh 
+                    246  
+0020                247            %assert   {ffCrcTblHi and 3} eq 0 ;Make sure the last 2 bits of the table are 0
+0020                248            %assert   {ffCrcTblLo and 3} eq 0 
+                    249  
+                    250                                         ;Constants
+                    251  ;ffPrescA		equ 15	= Rom:FastCstTbl shr 2[0]
+                    252  ;ffPrescB		equ 1	= Rom:FastCstTbl shr 2[1]
+                    253  
+                    254  ;Baudrate counter
+                    255  ;
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 14  Win32 Assembler
+                                CST_ROM_TABLES.ASM
+
+                    256  ; Note: fast protocol baud rate (values defined by ffPrescA, ffBaudCntLo and ffBaudCntHi)
+                    257  ;       is set at run time now. Values ffPrescA, ffBaudCntLo and ffBaudCntHi are not used anymore
+                    258  ;
+                    259  ;When the Split signal is set, the baudrate counter is divided in 2 parts : Cpt[5:0] and Cpt[7:6] (see MSBi spec)
+                    260  ;At 125kbps the baudrate value is 120, which is 3x40. We put 40 in Cpt[5:0] and 2 in Cpt[7:6] (so from 0 to 2 there are 3 increments)
+                    261  ;Br = 10 10 1000
+                    262  ;Br = 0xA8
+                    263  ;For IntBr, the higher part of the counter is 1 more than for Br. IntBr = 11 101000 = 0xE8
+                    264  ;ffBaudCntLo	equ  8	= Rom:FastCstTbl shr 2[2]
+                    265  ;ffBaudCntHi	equ 10	= Rom:FastCstTbl shr 2[3]
+                    266  ;ffIntBaudCntHi	equ ffBaudCntHi + 4	calculated
+                    267  
+0020   1FA8         268  FastCstTbl  dc.w      01FA8h           ;[1][0][3][2]; 125kpbs @ 30MHz
+                    269  
+                    270  
+0021                271            %assert   {FastCstTbl and 3} eq 0 ;Make sure the last 2 bits of the table are 0
+                    272  
+                    273  ;NAD : broadcast (0x7F)
+                    274  ;ffNADhi		equ 7	= Rom:FastCstTbl shr 2[5]
+                    275  ;ffNADlo		equ 15	= Rom:FastCstTbl shr 2[4]
+                    276  
+                    277  ;SID : B4 (Data Dump)
+                    278  ;ffSID_DDhi		equ 11	= Rom:FastCstTbl shr 2[7]
+                    279  ;ffSID_DDlo		equ 4	= Rom:FastCstTbl shr 2[6]
+                    280  
+0021   7FB4         281            dc.w      07FB4h             ; [5][4][7][6]
+                    282  
+                    283  ;SID : B2 (Read by Identifier)
+                    284  ;ffSID_RBIhi	equ 11	= Rom:FastCstTbl shr 2[9]
+                    285  ;ffSID_RBIlo	equ 2	= Rom:FastCstTbl shr 2[8]
+                    286  
+0022   B200         287            dc.w      0B200h             ; [9][8][B][A]
+0023                288  #ENDIF    
+                    289  
+                    290  ;--- EOF
+                    173  
+                    174  
+                    175  ;MACRO : access to analog periphery for MelexCM bug (Mlx16 stack overflow)
+0023 M              176  AnalogAccess  macro     
+     M              177                                         ;do an access to the analog
+     M              178            dcom      AnIo,11000011b     ;1 abc 0 hi j
+     M              179                                         ;            \
+     M              180                                         ;             RWB : read analog IO address 0hiabc
+0023                181  
+                    181            mend      
+                    182  
+                    183  ;--------------- parameters validity check (checked by the linker)
+0023                184            %assert   {LINbr and 1} eq 0 ;LINbr should be aligned at an even address
+0023                185            %assert   {LINtmp and 1} eq 0 ;LINtmp (temporary buffer) should be aligned at an even address
+0023                186            %assert   {LINbytbuf and 1} eq 0 ;LINbytbufl should be aligned at an even address
+0023                187            %assert   {LINchksum and 1} eq 0 ;LINchksum should be aligned at an even address
+                    188  
+                    189  ;-------------- FAST PROTOCOL -----------------------------------------------------------------------------------------
+                    190  fastprotocol                           ;FAST FLASH LOADING
+0023 U              191            #IFDEF    USE_RELATIVE_PATH 
+0023                  0            #include  "lin2b_fastflash.asm" 
+                      1  ; ---------------------------------------------------------------------------
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 15  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+                      2  ;
+                      3  ; Description:
+                      4  ;  Fast Flash Loading Protocol
+                      5  ;
+                      6  ; File:        $Source: /var/cvsmucontrol/Projects/lin/mls_sw/source/lin2b_fastflash.asm,v $
+                      7  ; Created:     August 31st, 2007
+                      8  ;      by:     Benoit Michel, Melexis (bem@melexis.com)
+                      9  ; Updated:     $Date: 2014/12/02 13:41:59 $
+                     10  ;              $Author: beh $
+                     11  ; Revision:    $Revision: 1.4 $
+                     12  ;              $Name:  $
+                     13  ;
+                     14  ; Copyright (c) Melexis Digital Competence Center
+                     15  ;
+                     16  ; ---------------------------------------------------------------------------
+                     17  
+                     18  ;RAM
+                     19  ;LINframeflag : x x x x
+                     20  ;                \ \ \ \
+                     21  ;                 \ \ \ not used
+                     22  ;                  \ \ not used
+                     23  ;                   \ discard the frame
+                     24  ;                    frame data ready for transmit
+                     25  ;ffSTATUS : x x xx (Fast Flash Loading Status)
+                     26  ;            \ \  \
+                     27  ;             \ \  break detection step nr (3=found)
+                     28  ;              \ 1 : protocol setting
+                     29  ;               1 : response requested
+                     30  ;LINflashStatus : x x x x
+                     31  ;                  \ \ \ \
+                     32  ;                   \ \ \ programming mode
+                     33  ;                    \ \ continuous frames coming up
+                     34  ;                     \ not used
+                     35  ;                      not used
+                     36  ;------------------------------------------------------------------------------------
+                     37  
+                     38                                         ;------------------------------------------------------------------------------------
+                     39                                         ;the PLL should be started
+                     40  
+                     41  ff_init                                ;set the MSBi cell
+                     42                                         ; Configuration Registers : Cfg0 (0x3A) and Cfg1 (0x3B)
+0023   87B7          43            mov       A,#7 
+0024   3A77          44            mov       io:1Ah,A           ;Cfg0 : 0111
+                     45                                         ; NoCk = 0
+                     46                                         ; Split = 1
+                     47                                         ; RptSync = 1
+                     48                                         ; Piped = 1
+0025   8EB7          49            mov       A,#14 
+0026   3B77          50            mov       io:1Bh,A           ;Cfg1 : 1110
+                     51                                         ; Mode 11 (PWM)
+                     52                                         ; FCan/Clkd/MArb = 1
+                     53                                         ; CanL/Diffm = 0
+                     54  
+                     55                                         ;stop the counter to stop outputting data
+0027   9037          56            dcom      7,90h              ;1 0 01 0000
+                     57                                         ;   \  \    \
+                     58                                         ;    \  \    nop
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 16  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+                     59                                         ;     \  clear Run
+                     60                                         ;      no capture
+                     61  
+                     62                                         ; Input Bloc : InpCtrl (dcom 4, msb 1), DbCpt (0x3C)
+0028   E934          63            dcom      4,0E9h             ;InpCtrl
+                     64                                         ;1 1 10 1 0 0 1
+                     65                                         ;   \ \    \ \ \
+                     66                                         ;    \ \    \ \ EnFdb=1: enable fast debounce (BusIn is debounced on a 2/3 majority vote scheme)
+                     67                                         ;     \ \    \ Fbin=0: flag reset (Bin = slow debounced BusIn))
+                     68                                         ;      \ \    AutoDb=0: flag set (DbCk devided by the 4 msb's of the Br register)
+                     69                                         ;       \ RbErr=10: flag reset (IntSplBin selected)
+                     70                                         ;        Rst=1
+                     71  
+                     72                                         ; Prescaler and Baudrate :
+                     73                                         ; SendBaudRate should have been called in the Mlx16 prior to switching to the fast loader mode
+                     74                                         ; - PrescA is already programmed
+                     75                                         ; - LINbr and LINbr+1 contain the baudrate values (ffBaudCntHi and ffBaudCntLo), the dmar should be called to
+                     76                                         ;   program the MSBi cell
+                     77  
+                     78                                         ; Prescaler Bloc : PrescA (0x3E) and PrescB (0x3F)
+0029   81B7          79            mov       A,#1 
+002A   63B7          80            mov       A,Rom:FastCstTbl shr 2[A] 
+002B   3F77          81            mov       io:1Fh,A           ;PrescB
+                     82  
+                     83                                         ; Baudrate generator
+002C   024C          84            dmar      #0,LINbr 
+002D   03B2          85            mov       B,LINbr+1 
+002E   03B3          86            mov       A,LINbr+1          ;save the initial value
+002F   8486          87            add       B,#4               ;ffIntBaudCntHi
+0030   0372          88            mov       LINbr+1,B          ;LINbr doesn't change for IntBr
+0031   034C          89            dmar      #0,LINbr+1 
+0032   0373          90            mov       LINbr+1,A          ;restore the correct value of LINbr
+0033   0E38          91            dcom      8,0Eh              ;00 00 1110
+                     92                                         ;      Edg[2:0]=010: Fast Falling Edge
+                     93                                         ;generates an ExEvt when a BrMatch occurs
+0034   0739          94            dcom      9,07h              ;00 00 0111
+                     95                                         ;  \  \    \
+                     96                                         ;   \  \    BrPls[1:0]=11: InBrCk-Halfmatch; BrCk-IntMatch; AuxCk-AuxMatch
+                     97                                         ;    \  RptCap : nop
+                     98                                         ;     Capt : nop
+                     99                                         ;Sync window
+0035   0A32         100            dcom      2,0Ah              ;10 00 00 1010
+                    101                                         ;  \  \  \    \
+                    102                                         ;   \  \  \    immediate load of SyncWindow with 1 - EnStrtEdg = 0
+                    103                                         ;    \  \  SiCk: nop
+                    104                                         ;     \  FlStRj: nop
+                    105                                         ;      StpCpt = 0
+                    106                                         ;StatCtrl - TimeOut source
+0036   0A34         107            dcom      4,0Ah              ;StatCtrl
+                    108                                         ;0 0 00 1010
+                    109                                         ;   \  \    \
+                    110                                         ;    \  \    load ToEn[2:0]=010 : LTimeOut driven only by IntBr (halfmatch)
+                    111                                         ;     \  reset Ftfr : nop
+                    112                                         ;      reset internal flags: nop
+                    113  
+                    114                                         ;initialize the periphery
+0037   AC3E         115            dcom      14,0ACh            ;Hspeed = 1 (set the Bypass signal)
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 17  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+                    116                                         ;dcom Flags,{04h or ML_SLEWFAST}    ;Phymod = ML_SLEWFAST - done on the Mlx16 or in fast2b.asm
+                    117  
+                    118                                         ;disable the timers from the periphery
+0038   163B         119            dcom      11,16h             ;00 01 01 10
+                    120                                         ;     \  \  \
+                    121                                         ;      \  \  Sleep Timer TimeOut setting
+                    122                                         ;       \  \   0x : no effect
+                    123                                         ;        \  \  10 : disable the timeout
+                    124                                         ;         \  \ 11 : enable the timeout
+                    125                                         ;          \  Message Timer :stop the message timer
+                    126                                         ;           Sleep Timer Run Command
+                    127                                         ;            00 : no effect
+                    128                                         ;            01 : stop the sleep timer
+                    129                                         ;            10 : restart the sleep timer
+                    130                                         ;            11 : reload and restart the sleep timer - clears SleepStat
+                    131  
+0039   3037         132            dcom      7,30h              ;StuffCtrl: set OutMd, ignore the stuffing part
+                    133                                         ;0 0 11 0000
+                    134                                         ;     \
+                    135                                         ;      OutMd loaded with '1'
+                    136  
+003A U 0060         137  ff_reinit  call      ff_msbi_rx        ;change the registers that have been changed during TX
+     U              138  
+     U              139  ff_rxinit                              ;initialize the registers
+003B   80B6         140            mov       B,#0               ;reset the following registers
+003C   1572         141            mov       ffSTATUS,B 
+                    142  
+                    143                                         ;call ReadStatus         ;A = {Traffic,LEvExt,Ovf,BrEv}, B = {Bin,SplBin,SyncErr,RunErr}
+                    144  
+                    145  ff_newstart                            ;B=0 when jumping here
+003D   0E4D         146            dmar      #1,ClearByte       ;use the dma to clear the byte
+003E   0849         147            dmaw      LINchksum,#1 
+003F   1672         148            mov       LINbytcnt,B 
+0040   1772         149            mov       LINframeflag,B 
+0041   82B5         150            mov       X,#2 
+0042   0C71         151            mov       LINmesslen,X       ;2 bytes : PCI + Command
+                    152                                         ;------------------------------------------------------------------------------------
+0043   88B5         153  ff_rxloopinit  mov       X,#8          ;X is used as a bit counter
+                    154                                         ;do not start the counter until there is a falling edge
+                    155                                         ;here, we must issue 2 stop instructions since if a Br match appens at the same time, the counter does not stop and it results to a fail of the communication.
+0044   9037         156            dcom      7,90h              ;1 0 01 0000
+                    157                                         ;   \  \    \
+                    158                                         ;    \  \    nop
+                    159                                         ;     \  clear run flag, stop the counter
+                    160                                         ;      no capture of Br into IntBr
+                    161            
+0045   0000         162            nop                          ;make sur the counter is stopped
+0046   0000         163            nop                          ;add 2 nops to be sure that the two stop instructions are executed at a different cnt value even if presca is 1.
+                    164            
+                    165                                         ;make sur the counter is stopped
+0047   9037         166            dcom      7,90h              ;1 0 01 0000
+                    167                                         ;   \  \    \
+                    168                                         ;    \  \    nop
+                    169                                         ;     \  clear run flag, stop the counter
+                    170                                         ;      no capture of Br into IntBr
+                    171                                         ;set the Sync window
+0048   0A32         172            dcom      2,0Ah              ;10 00 00 1010
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 18  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+                    173                                         ;  \  \  \    \
+                    174                                         ;   \  \  \    immediate load of SyncWindow with 1 - EnStrtEdg = 0
+                    175                                         ;    \  \  SiCk: nop
+                    176                                         ;     \  FlStRj: nop
+                    177                                         ;      StpCpt = 10: reset StpCpt
+                    178  
+                    179  ff_rxloop                              ;RX : this is the loop to receive the data bits
+                    180                                         ;X is used as a bit counter
+                    181                                         ;LINbytcnt is used to count the bytes received
+0049   0A58         182            wait      TimeOut,Event 
+004A U 0009         183            jtime     ff_rxto            ;Half bit match is generated
+004B U 0020         184            jmp       ff_cmd             ;command received
+     U              185  ff_rxto                                ;check the the bus (and reset the flags / acknowledge the event!)
+004C U 0060         186            call      ReadStatus         ;A = {Traffic,LEvExt,Ovf,BrEv}, B = {Bin,SplBin,SyncErr,RunErr}
+004D   1272         187            mov       Atmp,B 
+                    188                                         ; Auxiliary Input bloc
+004E   37B6         189            mov       B,io:17h           ;PWM=1 and NoCk=0
+                    190                                         ; x x x x
+                    191                                         ;  \ \ \ \
+                    192                                         ;   \ \ \ set at falling edge
+                    193                                         ;    \ \ on Brmatch, set with Bin
+                    194                                         ;     \ set at rising edge
+                    195                                         ;      SplBin: level on the bus
+004F   15B3         196            mov       A,ffSTATUS         ; x x xx : Fast Flash Loading Status
+                    197                                         ;  \ \  \
+                    198                                         ;   \ \  break detection step nr (3=found)
+                    199                                         ;    \ 1 : protocol setting
+                    200                                         ;     1 : response requested
+0050   83BF         201            and       A,#3 
+0051   83E7         202            cmp       A,#3               ;test if a start of frame has already been received
+0052 U 0011         203            jnz       ff_rxto_brk 
+0053 U 0020         204            jmp       ff_testbit 
+     U              205  
+     U              206  ff_rxto_brk                            ;Let's search for a valid break, pattern 0 0 1 at br match
+     U              207                                         ;Header Step 0: 0 --> B=xx0x
+     U              208                                         ;Header Step 1: 0 --> B=0000     1 --> B=11x0 --> DONE
+     U              209                                         ;Header Step 2: 1 --> B=11xx --> DONE
+0054   036C         210            switch    A 
+0055 U 0020         211            jmp       ff_rxto_brk_st0 
+0056 U 0020         212            jmp       ff_rxto_brk_st1 
+0057 U 0020         213            jmp       ff_rxto_brk_st2 
+0058   4320         214            jmp       ff_rxloopinit 
+                    215  
+0059   80E6         216  ff_rxto_brk_st1  cmp       B,#0 
+005A U 0011         217            jnz       ff_rxto_brk_st1b 
+005B   82B7         218            mov       A,#2 
+005C U 0020         219            jmp       ff_rxto_brk_end 
+005D   88A6         220  ff_rxto_brk_st1b  msk       B,#8 
+005E U 0011         221            jnz       ff_rxto_brk_err 
+005F   81B7         222            mov       A,#1 
+0060 U 0020         223            jmp       ff_rxto_brk_end 
+     U              224  
+     U              225  ff_rxto_brk_st0                        ;and B,#2
+     U              226                                         ;cmp B,#0
+0061   12B2         227            mov       B,Atmp 
+0062   88A6         228            msk       B,#8 
+0063 U 0011         229            jnz       ff_rxto_brk_err 
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 19  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+0064   81B7         230            mov       A,#1 
+0065 U 0020         231            jmp       ff_rxto_brk_end 
+     U              232  
+0066   8CBE         233  ff_rxto_brk_st2  and       B,#12 
+0067   8CE6         234            cmp       B,#12 
+0068 U 0011         235            jnz       ff_rxto_brk_err 
+0069 U 0020         236            jmp       ff_rxto_brk_fin 
+     U              237  
+006A   80B7         238  ff_rxto_brk_err  mov       A,#0 
+006B   1573         239            mov       ffSTATUS,A 
+006C   4320         240            jmp       ff_rxloopinit 
+                    241  
+006D   1573         242  ff_rxto_brk_end  mov       ffSTATUS,A 
+006E   4920         243            jmp       ff_rxloop 
+                    244  
+006F   83B7         245  ff_rxto_brk_fin  mov       A,#3 
+0070   1573         246            mov       ffSTATUS,A 
+                    247                                         ;do an access to the analog
+                    248            AnalogAccess  
+                    177                                         ;do an access to the analog
+0071   C33C         178            dcom      12,11000011b       ;1 abc 0 hi j
+                    179                                         ;            \
+                    180                                         ;             RWB : read analog IO address 0hiabc
+0072   4320         249            jmp       ff_rxloopinit 
+                    250  
+                    251  ff_cmd                                 ;check the command
+0073   24B3         252            mov       A,LINcmnd 
+0074   25B2         253            mov       B,LINcmnd+1 
+0075   2073         254            mov       LINresp,A 
+0076                255            #IF       coDEBUGMARK eq cvON 
+0076   0A73         256            mov       LINdbg,A           ;save for xdma
+0077   0B72         257            mov       LINdbg+1,B         ;save for xdma
+0078   A77C         258            xdcom     #dcCOMMAND         ;mark instruction
+0079   0A7D         259            xdma      LINdbg             ;send the command sent by the application
+007A                260            #ENDIF    
+                    261  
+007A   036C         262            switch    A 
+007B U 0020         263            jmp       ff_cmd_ack_ok      ;0 - pcNONE : No commands in the buffer
+007C U 0020         264            jmp       ff_cmd_stch        ;1 - pcSTCH : General command for LIN state changes
+007D U 0020         265            jmp       ff_cmd_ack_nok     ;2 - Command not supported
+007E U 0020         266            jmp       ff_cmd_ack_nok     ;3 - Command not supported
+007F U 0020         267            jmp       ff_cmd_ack_nok     ;4 - pcTX : Transmit the current message (Frame Processing Mode)
+0080 U 0020         268            jmp       ff_cmd_setframe    ;5 - pcSETFRAME : Discard the current message (Frame Processing Mode) / Set DATAREADY bit / modify continous frame flag
+0081 U 0020         269            jmp       ff_cmd_ack_nok     ;6 - Command not supported
+0082 U 0020         270            jmp       ff_cmd_ack_nok     ;7 - Command not supported
+0083 U 0020         271            jmp       ff_cmd_ack_nok     ;8 - Command not supported
+0084 U 0020         272            jmp       ff_cmd_ack_nok     ;9 - Command not supported
+0085 U 0020         273            jmp       ff_cmd_ack_nok     ;A - Command not supported
+0086 U 0020         274            jmp       ff_cmd_ack_nok     ;B - Command not supported
+0087 U 0020         275            jmp       ff_cmd_ack_nok     ;C - Command not supported
+0088 U 0020         276            jmp       ff_cmd_ack_nok     ;D - Command not supported
+0089 U 0020         277            jmp       ff_cmd_ack_nok     ;E - Command not supported
+008A U 0020         278            jmp       ff_cmd_rel_buf     ;F - pcRELBUF : Release frame buffer
+     U              279  
+     U              280  ff_cmd_rel_buf                         ;Release buffer command received ==> to set/reset programming mode bit
+008B   82A6         281            msk       B,#2 
+008C U 0011         282            jnz       ff_cmd_rel_buf_end 
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 20  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+008D   18B3         283            mov       A,LINflashStatus   ;x x x x
+                    284                                         ; \ \ \ \
+                    285                                         ;  \ \ \ programming mode
+                    286                                         ;   \ \ continuous frames coming up
+                    287                                         ;    \ not used
+                    288                                         ;     QR code disabled (1) or enabled (0)
+008E   8EBF         289            and       A,#14 
+008F   81A6         290            msk       B,#1 
+0090 U 0001         291            jz        ff_cmd_rel_buf_wr 
+0091   81F7         292            or        A,#1 
+                    293  ff_cmd_rel_buf_wr  
+0092   1873         294            mov       LINflashStatus,A 
+                    295  ff_cmd_rel_buf_end  
+0093 U 0020         296            jmp       ff_cmd_ack_ok 
+     U              297  
+     U              298  ff_cmd_setframe                        ;--- Set Frame Command -------------------------------------------------------
+     U              299                                         ;B=0 : discard frame
+     U              300                                         ;B=1 : data ready
+     U              301                                         ;B=2 : cont frame
+0094   82E6         302            cmp       B,#2 
+0095 U 0011         303            jnz       ff_cmd_stch_err 
+0096   26B2         304            mov       B,LINcmnd+2 
+                    305                                         ;set/reset continuous frame flag
+0097   18B3         306            mov       A,LINflashStatus   ;x x x x
+                    307                                         ; \ \ \ \
+                    308                                         ;  \ \ \ programming mode
+                    309                                         ;   \ \ continuous frames coming up
+                    310                                         ;    \ not used
+                    311                                         ;     QR code disabled (1) or enabled (0)
+0098   82F7         312            or        A,#2 
+0099   81E6         313            cmp       B,#1 
+009A U 0001         314            jz        ff_cmd_setfr_end 
+     U              315                                         ;clear continuous frame flag
+009B   8DBF         316            and       A,#13 
+                    317                                         ;reset the status flags as we came out of cont mode which does not do this
+009C   80B6         318            mov       B,#0 
+009D   1572         319            mov       ffSTATUS,B 
+                    320  ff_cmd_setfr_end  
+009E   1873         321            mov       LINflashStatus,A 
+009F U 0020         322            jmp       ff_cmd_ack_ok 
+     U              323  
+00A0   81E6         324  ff_cmd_stch  cmp       B,#stDISC       ;check if this is an exit command
+00A1 U 0011         325            jnz       ff_cmd_stch_err    ;invalid command
+00A2 U 0020         326            jmp       restart            ;stDISC - reinit for lin2b.asm
+00A3 U 0020         327  ff_cmd_stch_err  jmp       ff_cmd_ack_nok 
+     U              328  
+     U              329  ff_cmd_ack_ok                          ;Send acknowledge event to MLX16
+00A4   80B7         330            mov       A,#ackOK 
+00A5 U 0020         331            jmp       ff_cmd_respond     ;send event
+     U              332  
+     U              333  ff_cmd_ack_nok                         ;Send acknowledge event to MLX16
+00A6   81B7         334            mov       A,#ackERR 
+                    335  ff_cmd_respond                         ;release the command buffer to be ready for the next command
+00A7   2173         336            mov       LINresp+1,A 
+00A8   0454         337            ack       event 
+00A9   4920         338            jmp       ff_rxloop 
+                    339  
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 21  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+                    340  ff_testbit                             ;start bit already received : test if this is a valid bit
+00AA   81A6         341            msk       B,#1               ;B = AuxIn
+00AB U 0011         342            jnz       ff_getbit 
+     U              343                                         ;no falling edge detected : invalid bit
+00AC   12B2         344            mov       B,Atmp 
+00AD   88A6         345            msk       B,#8               ;test the bus level
+00AE U 0011         346            jnz       ff_jmprxloop       ;keep trying to receive a bit
+00AF   3B20         347            jmp       ff_rxinit          ;re-init the reception, probably we are receiving a new frame
+                    348  ff_getbit                              ;valid bit, store it
+00B0   9646         349            rlc       B                  ;get SplBin in the carry
+                    350                                         ;store the bit received in the byte buffer
+00B1 U 0060         351            call      shift_bytbuf       ;LINbytbuf+1 is in A, LINbytbuf in B
+     U              352                                         ;update the bit counter (register X)
+00B2   81C5         353            sub       X,#1 
+00B3 U 0001         354            jz        ff_bytrcvd         ;check if the byte has been received completely
+00B4   4920         355  ff_jmprxloop  jmp       ff_rxloop 
+                    356  ff_bytrcvd                             ;a byte has been received (it is in LINbytbuf (B) / LINbytbuf+1 (A)), send a mark and update the byte counter
+00B5                357            #IF       coDEBUGMARK eq cvON 
+                    358                                         ;xdcom #dcFASTBYTE      ;mark instruction
+                    359                                         ;xdma LINbytbuf         ;send the byte received
+00B5                360            #ENDIF    
+00B5   16B1         361            mov       X,LINbytcnt        ;update the byte counter
+00B6   0CE1         362            cmp       X,LINmesslen       ;test if the message has been completely received (in that case the data in LINbytbuf is the CRC)
+00B7 U 0011         363            jnz       ff_storedata 
+00B8 U 0020         364            jmp       ff_messrcvd        ;do not store the CRC
+     U              365  ff_storedata                           ;store the byte received
+00B9   9245         366            asl       X                  ;multiply the counter by 2
+00BA   CD76         367            mov       data:LINframe shr 4[X],B ;store the low nibble
+00BB   8185         368            add       X,#1 
+00BC   CD77         369            mov       data:LINframe shr 4[X],A ;store the high nibble
+00BD   1645         370            rrc       X                  ;restore the counter
+00BE   8185         371            add       X,#1               ;increment it
+00BF   1671         372            mov       LINbytcnt,X 
+                    373                                         ;update the CRC
+00C0 U 0060         374            call      ff_crc_calc        ;do CRC calculation, the high nibble just received is already in A, low nibble in B
+     U              375  
+00C1   81E5         376            cmp       X,#1               ;test if this is the first byte (PCI)
+00C2 U 0011         377            jnz       ff_jmp_rxinit 
+     U              378                                         ;the PCI has been received
+00C3                379            #IF       coDEBUGMARK eq cvON 
+                    380                                         ;send a mark and process it
+00C3   D57C         381            xdcom     #dcFASTPCI         ;mark instruction
+00C4   067D         382            xdma      LINbytbuf          ;send the byte received
+00C5                383            #ENDIF    
+                    384                                         ;restore A and X : the high nibble is in A, the low nibble in X
+00C5   06B2         385            mov       B,LINbytbuf        ;no need to restore the byte received, as if this is the PCI, LINchksum was 0
+00C6   07B3         386            mov       A,LINbytbuf+1 
+00C7   0473         387            mov       LINtmp,A           ;save the high part of the PCI (use LINtmp)
+00C8   83A7         388            msk       A,#3               ;test if this is a Single Frame
+00C9 U 0011         389            jnz       ff_pci_nosf 
+     U              390  
+     U              391                                         ;memorize if this is a protocol setting and if a response if requested
+00CA   8CBF         392            and       A,#12              ;discard the two LSBs
+00CB   15F3         393            or        A,ffSTATUS         ; x x xx : Fast Flash Loading Status
+                    394                                         ;  \ \  \
+                    395                                         ;   \ \  break detection step nr (3=found)
+                    396                                         ;    \ 1 : protocol setting
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 22  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+                    397                                         ;     1 : response requested
+00CC   1573         398            mov       ffSTATUS,A 
+00CD   0C72         399  ff_savelength  mov       LINmesslen,B  ;save the length (for SF and last frame), length/256 for FF, or frame counter for CF
+00CE   4320         400  ff_jmp_rxinit  jmp       ff_rxloopinit ;go get the next byte
+                    401  
+00CF   1372         402  ff_pci_nosf  mov       Btmp,B          ;save the low part of the PCI for later
+00D0   83BF         403            and       A,#3 
+00D1   81E7         404            cmp       A,#1               ;test if this is a First Frame
+00D2 U 0001         405            jz        ff_pci_ff 
+00D3   87B6         406            mov       B,#7               ;Continuous Frame or Last Frame
+00D4   CD20         407            jmp       ff_savelength 
+00D5   86B6         408  ff_pci_ff  mov       B,#6 
+00D6   CD20         409            jmp       ff_savelength 
+                    410                                         ;------------------------------------------------------------------------------------
+                    411  ff_messrcvd                            ;message received
+                    412                                         ;stop the counter (070830)
+00D7   9037         413            dcom      7,90h              ;1 0 01 0000
+                    414                                         ;   \  \    \
+                    415                                         ;    \  \    nop
+                    416                                         ;     \  stop the counter
+                    417                                         ;      no capture
+                    418                                         ;re-open the sync window for slow speed (50kbps) - bem 080221
+00D8   0A30         419            dcom      0,0Ah              ;00 00 00 1010
+                    420                                         ;  \  \  \    \
+                    421                                         ;   \  \  \    immediate load of SyncWindow with 1 - EnStrtEdg = 0
+                    422                                         ;    \  \  SiCk: nop
+                    423                                         ;     \  FlStRj: nop
+                    424                                         ;      StpCpt: nop
+                    425  
+                    426                                         ;check the CRC, CRC is in LINbytbuf (B) / LINbytbuf+1 (A)
+00D9 U 0060         427            call      ff_crc_calc        ;do CRC calculation, the high nibble just received is already in A, low nibble in B
+00DA   80EF         428            cmpcz     A,#0               ;the result should be zero if the CRC is correct (Z already contains the result of B)
+00DB U 0001         429            jz        ff_cksumok 
+     U              430                                         ;CRC error
+00DC   84B6         431            mov       B,#erCKSUM         ;CRC error
+00DD U 0060         432            call      errev              ;send the event
+00DE   2320         433            jmp       ff_init 
+                    434  ff_cksumok                             ;CRC valid, prepare the data to be sent to the application
+00DF   04B2         435            mov       B,LINtmp           ;the high part of the PCI is in LINtmp
+00E0   83BE         436            and       B,#3               ;test the two LSBs only, discard the two MSBs
+00E1   0472         437            mov       LINtmp,B 
+00E2   026C         438            switch    B 
+00E3 U 0020         439            jmp       ff_single          ;xx00 : single frame
+00E4 U 0020         440            jmp       ff_first           ;xx01 : first frame
+00E5 U 0020         441            jmp       ff_cont            ;xx10 : continuous frame
+00E6 U 0020         442            jmp       ff_last            ;xx11 : last frame (not in the LIN protocol)
+     U              443  ff_first                               ;First Frame
+     U              444                                         ;--------------------
+     U              445                                         ;byte 0 (index 0-1):   Special PCI -> NAD
+     U              446                                         ;byte 1 (index 2-3):   Length     -> PCI
+     U              447                                         ;byte 2 (index 4-5):   Command     -> LEN
+     U              448                                         ;byte 3 (index 6-7):   Data 1      -> SID
+     U              449                                         ;byte 4 (index 8-9):   Data 2      -> Command (Data 1)
+     U              450                                         ;byte 5 (index 10-11): Data 3      -> Data 1 (Data 2)
+     U              451                                         ;byte 6 (index 12-13):             -> Data 2 (Data 3)
+     U              452                                         ;byte 7 (index 14-15):             -> Data 3 (Data 4)
+     U              453                                         ;--------------------
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 23  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+     U              454                                         ;shift the data
+00E7   8BB7         455            mov       A,#11              ;index for data 3
+00E8   84B5         456            mov       X,#4               ;offset : 4 nibbles
+00E9   83B6         457            mov       B,#3               ;last nibble is nibble 3
+00EA U 0060         458            call      ff_buffloop 
+     U              459                                         ;store the SID
+00EB   87B7         460            mov       A,#7               ;index of the SID
+00EC U 0060         461            call      ff_sid             ;when returning, A=5
+     U              462                                         ;store the length
+00ED   83B7         463            mov       A,#3               ;index for length
+00EE   82B5         464            mov       X,#2               ;offset : 2 nibbles
+00EF   81B6         465            mov       B,#1               ;last nibble is nibble 1
+00F0 U 0060         466            call      ff_buffloop 
+     U              467                                         ;store the NAD and the PCI
+00F1   83B7         468            mov       A,#3 
+00F2 U 0020         469            jmp       ff_nadpci 
+     U              470  ff_last                                ;Last Frame - same as Continuous Frame but with less data
+     U              471                                         ;--------------------
+     U              472                                         ;byte 0 (index 0-1):   Special PCI -> NAD
+     U              473                                         ;byte 1 (index 2-3):   Data 1      -> PCI
+     U              474                                         ;byte 2 (index 4-5):   Data 2      -> Data 1
+     U              475                                         ;byte 3 (index 6-7):   Data 3      -> Data 2
+     U              476                                         ;byte 4 (index 8-9):   Data 4      -> Data 3
+     U              477                                         ;byte 5 (index 10-11): Data 5      -> Data 4
+     U              478                                         ;byte 6 (index 12-13): Data 6      -> Data 5
+     U              479                                         ;byte 7 (index 14-15):             -> Data 6
+     U              480                                         ;--------------------
+00F3   82B6         481            mov       B,#2 
+00F4   0472         482            mov       LINtmp,B           ;save the PCI as a Continuous Frame PCI (LIN compatible)
+                    483  ff_cont                                ;Continuous Frame
+                    484                                         ;--------------------
+                    485                                         ;byte 0 (index 0-1):   Special PCI -> NAD
+                    486                                         ;byte 1 (index 2-3):   Data 1      -> PCI
+                    487                                         ;byte 2 (index 4-5):   Data 2      -> Data 1
+                    488                                         ;byte 3 (index 6-7):   Data 3      -> Data 2
+                    489                                         ;byte 4 (index 8-9):   Data 4      -> Data 3
+                    490                                         ;byte 5 (index 10-11): Data 5      -> Data 4
+                    491                                         ;byte 6 (index 12-13): Data 6      -> Data 5
+                    492                                         ;byte 7 (index 14-15):             -> Data 6
+                    493                                         ;--------------------
+                    494                                         ;shift the data
+00F5   8DB7         495            mov       A,#13              ;index for data 6
+00F6   82B5         496            mov       X,#2               ;offset : 2 nibbles
+00F7   81B6         497            mov       B,#1               ;last nibble is nibble 1
+00F8 U 0060         498            call      ff_buffloop 
+00F9   83B7         499            mov       A,#3 
+00FA U 0020         500            jmp       ff_nadpci 
+     U              501  ff_single                              ;Single Frame
+     U              502                                         ;--------------------
+     U              503                                         ;byte 0 (index 0-1):   Special PCI -> NAD
+     U              504                                         ;byte 1 (index 2-3):   Command     -> PCI
+     U              505                                         ;byte 2 (index 4-5):   Data 1      -> SID
+     U              506                                         ;byte 3 (index 6-7):   Data 2      -> Command (Data 1)
+     U              507                                         ;byte 4 (index 8-9):   Data 3      -> Data 1 (Data 2)
+     U              508                                         ;byte 5 (index 10-11): Data 4      -> Data 2 (Data 3)
+     U              509                                         ;byte 6 (index 12-13):             -> Data 3 (Data 4)
+     U              510                                         ;byte 7 (index 14-15):             -> Data 4 (Data 5)
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 24  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+     U              511                                         ;--------------------
+     U              512                                         ;prepare the low part of the PCI (length)
+00FB   0CB2         513            mov       B,LINmesslen 
+00FC   1372         514            mov       Btmp,B             ;save it for later
+                    515  
+                    516                                         ;shift the data
+00FD   8BB7         517            mov       A,#11              ;index for data 4
+00FE   84B5         518            mov       X,#4               ;offset : 4 nibbles
+00FF   81B6         519            mov       B,#1               ;last nibble is nibble 3 (command)
+0100 U 0060         520            call      ff_buffloop        ;when returning, A=3
+     U              521                                         ;store the SID
+0101   85B7         522            mov       A,#5 
+0102 U 0060         523            call      ff_sid             ;when returning, A=3
+     U              524  
+     U              525  ff_nadpci                              ;NAD and PCI are at the same location for all frames (byter 0 and 1)
+     U              526                                         ;the NAD is a constant (ffNADhi, ffNADlo), the PCI is in (LINtmp, Btmp)
+     U              527                                         ;store the PCI - A should be 3 when jumping to ff_nadpci
+0103   04B2         528            mov       B,LINtmp           ;the high part of the PCI is in LINtmp
+0104   13B1         529            mov       X,Btmp             ;low part of the PCI (length, length/256 or frame counter) is in Btmp
+0105 U 0060         530            call      ff_fillbuff 
+     U              531                                         ;store the NAD
+0106   84B5         532            mov       X,#4 
+0107   61B5         533            mov       X,Rom:FastCstTbl shr 2[X] 
+0108   85B6         534            mov       B,#5 
+0109   62B6         535            mov       B,Rom:FastCstTbl shr 2[B] 
+010A U 0060         536            call      ff_fillbuff 
+     U              537  
+     U              538                                         ;send the message to the application (index 10h : 0x3C)
+010B   81B7         539            mov       A,#1 
+010C   80B6         540            mov       B,#0 
+010D   2B73         541            mov       LINmess+3,A 
+010E   2A72         542            mov       LINmess+2,B 
+010F   83B7         543            mov       A,#evMESSrcvd 
+0110   2873         544            mov       LINmess,A 
+0111   2972         545            mov       LINmess+1,B        ;(B=0)
+0112   0854         546            set       event              ;set the event and proceed while the application is responding
+                    547  
+                    548                                         ;check ffSTATUS to see if this is a protocol setting or if a response is expected
+0113   15B2         549            mov       B,ffSTATUS         ; x x xx : Fast Flash Loading Status
+                    550                                         ;  \ \  \
+                    551                                         ;   \ \  break detection step nr (3=found)
+                    552                                         ;    \ 1 : protocol setting
+                    553                                         ;     1 : response requested
+0114   88A6         554            msk       B,#8               ;if a response is requested, go to the TX routine
+0115 U 0011         555            jnz       ff_txrqst_ini 
+     U              556                                         ;test if this is a first frame
+0116   04B2         557            mov       B,LINtmp           ;the high part of the PCI is in LINtmp
+0117   81E6         558            cmp       B,#1 
+0118 U 0001         559            jz        ff_nosof 
+     U              560                                         ;test if we have some continuous frames
+0119   18B1         561            mov       X,LINflashStatus   ; x x x x
+                    562                                         ;  \ \ \ \
+                    563                                         ;   \ \ \ programming mode
+                    564                                         ;    \ \ continuous frames coming up
+                    565                                         ;     \ not used
+                    566                                         ;      not used
+011A   82A5         567            msk       X,#2 
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 25  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+011B U 0001         568            jz        ff_waitsof         ;go wait for the next start of frame
+011C   80B6         569  ff_nosof  mov       B,#0 
+011D   3D20         570            jmp       ff_newstart        ;continuous frames coming up : no start of frame
+011E   3B20         571  ff_waitsof  jmp       ff_rxinit 
+                    572                                         ;------------------------------------------------------------------------------------
+                    573  ff_txrqst_ini                          ;a response is expected
+                    574                                         ;initialize the MSBi to detect a falling edge
+011F   0638         575            dcom      8,06h              ;00 00 0110
+                    576                                         ;      Rst[1:0]=10: reset upon Edg[2:0]
+0120   0E38         577            dcom      8,0Eh              ;00 00 1110
+                    578                                         ;      Edg[2:0]=010: Fast Falling Edge
+                    579  ff_txrqst                              ;wait for the application to fill the buffer (8 bytes)
+                    580                                         ;watch the bus to avoid being stuck here
+0121   0C58         581            wait      Event,EvExt        ;command or event from the MSBi
+0122 U 0008         582            jxev      ff_edge            ;external event coming from the MSBi (edge)
+0123 U 0060         583            call      cmdrcvd            ;command from the Mlx16 : process it
+     U              584                                         ;check if the command indicated that the data is ready
+0124   17B3         585            mov       A,LINframeflag     ;x x x x
+0125   88A7         586            msk       A,#8               ; \ \ \ \
+                    587                                         ;  \ \ \ special ID received (3C, 3D, 3E or 3F)
+                    588                                         ;   \ \ sleep command received (ID 3C + first byte 00)
+                    589                                         ;    \ discard the frame
+                    590                                         ;     frame data ready for transmit
+0126 U 0011         591            jnz       ff_tx              ;the command was a pcDTRDY
+     U              592                                         ;the command was not a pcDTRDY, check if it is a discard TX command (ml_Discard)
+0127   84A7         593            msk       A,#4 
+0128 U 0011         594            jnz       ff_canceltx        ;discard command
+0129   2121         595            jmp       ff_txrqst          ;wait for the next command
+                    596  ff_edge                                ;an edge has been detected while the data was not ready, go to the RX area
+012A U 0060         597            call      ReadStatus         ;A = {Traffic,LEvExt,Ovf,BrEv}, B = {Bin,SplBin,SyncErr,RunErr}
+012B   84A7         598            msk       A,#4               ;test LEvExt
+012C U 0011         599            jnz       ff_canceltx        ;edge, cancel the TX and go back to RX
+012D   2121         600            jmp       ff_txrqst          ;it wasn't an edge, keep waiting
+012E   2320         601  ff_canceltx  jmp       ff_init 
+                    602                                         ;------------------------------------------------------------------------------------
+                    603  ff_tx                                  ;the data is in the LINframe buffer, it needs to be cleaned up (NAD, RSID removed)
+                    604                                         ;reset the CRC buffer - if the CRC was received correctly, it should alreay be 0 (otherwise there was a checksum error)
+012F   0E4D         605            dmar      #1,ClearByte       ;use the dma to clear the byte
+0130   0849         606            dmaw      LINchksum,#1 
+                    607                                         ;get the high nibble of the PCI to check the kind of frame that has to be sent
+0131   82B5         608            mov       X,#2 
+                    609  
+                    610                                         ;update the CRC
+0132 U 0060         611            call      GetByteFast        ;get the PCI (A contains LINbytbuf+1), which is the high nibble of the PCI
+0133 U 0060         612            call      ff_crc_calc        ;do CRC calculation for the PCI, low nibble is in B, high nibble is in A
+0134   06B2         613            mov       B,LINbytbuf        ;restore A and B
+0135   07B3         614            mov       A,LINbytbuf+1 
+0136   83BF         615            and       A,#3               ;keep only the last two bits (just in case)
+0137   036C         616            switch    A                  ;check the kind of frame
+0138 U 0020         617            jmp       ff_tx_single       ;0000: Single Frame
+0139 U 0020         618            jmp       ff_tx_first        ;0001: First Frame
+     U              619                                         ;0010: Continuous Frame ----------
+013A   88B6         620            mov       B,#8               ;frame length
+013B   81B5         621            mov       X,#1               ;byte counter
+013C U 0020         622            jmp       ff_txinit 
+     U              623  ff_tx_first                            ;0001: First Frame ---------------
+     U              624                                         ;check the RSID
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 26  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+013D   86B5         625            mov       X,#6               ;index of the RSID
+013E U 0060         626            call      ff_chk_rsid 
+     U              627                                         ;jz ff_rsid_err         ;if Z is set, the RSID is 0x7F, which means there is an error
+     U              628                                         ;move the length at the RSID place
+013F   84B5         629            mov       X,#4 
+0140   CDB6         630            mov       B,data:LINframe shr 4[X] ;get the LEN (low nibble)
+0141   8185         631            add       X,#1 
+0142   CDB7         632            mov       A,data:LINframe shr 4[X] 
+0143   8185         633            add       X,#1 
+0144   CD76         634            mov       data:LINframe shr 4[X],B 
+0145   8185         635            add       X,#1 
+0146   CD77         636            mov       data:LINframe shr 4[X],A 
+0147   86B6         637            mov       B,#6               ;frame length: 8-2=6, the byte counter is the same as in the single frames
+                    638  ff_tx_single                           ;0000: Single Frame --------------
+                    639                                         ;check the RSID
+0148   84B5         640            mov       X,#4               ;index of the RSID
+0149 U 0060         641            call      ff_chk_rsid        ;B is not modified, A and X are
+     U              642                                         ;jz ff_rsid_err         ;if Z is set, the RSID is 0x7F, which means there is an error
+014A   8286         643            add       B,#2               ;frame length offset
+014B   82B5         644            mov       X,#2               ;byte counter, the length is already in B
+                    645  
+014C   103E         646            dcom      14,10h             ;ForceR=0 : free the bus
+                    647  
+                    648  ff_txinit                              ;initialize the registers for TX
+014D   0C72         649            mov       LINmesslen,B       ;save the frame length
+014E   1671         650            mov       LINbytcnt,X        ;save the byte counter
+                    651                                         ;----------------------------
+                    652                                         ;stop the counter and clear all flags
+                    653                                         ;----------------------------
+014F   9037         654            dcom      7,90h              ;1 0 01 0000
+                    655                                         ;   \  \    \
+                    656                                         ;    \  \    nop
+                    657                                         ;     \  clear Run
+                    658                                         ;      no capture
+                    659                                         ;clear F[2:0], Edg[2:0] and SEdg[2:0]
+0150   C034         660            dcom      4,0C0h             ;1 1 00 0000
+                    661                                         ;   \
+                    662                                         ;    Rst=1
+                    663  
+0151 U 0060         664            call      ReadStatus         ;A = {Traffic,LEvExt,Ovf,BrEv}, B = {Bin,SplBin,SyncErr,RunErr}
+     U              665                                         ;----------------------------
+     U              666                                         ;re-initialize the LIN Module
+     U              667                                         ;----------------------------
+0152   B738         668            dcom      8,0B7h             ;10 11 0111
+                    669                                         ;  \  \    \
+                    670                                         ;   \  \    Rst[1:0]=11 : Re-Synch mode : reset upon selected edge or BrMatch pulse
+                    671                                         ;    \  load Mdiff and Togl with 1
+                    672                                         ;     Init=10: reset Capt
+0153   7B35         673            dcom      5,7Bh              ;OutCrtl: initialize the output bloc: X,Y,CpZ,NxZ,Z set - M,N cleared (recessive outputs)
+                    674                                         ;011 11 011
+                    675                                         ;  \  \   \
+                    676                                         ;   \  \   Y loaded with '1', X set
+                    677                                         ;    \  Z, Cpz and NxZ loaded with '1'
+                    678                                         ;     M and N loaded with '1'
+0154   6336         679            dcom      6,63h              ;AuxCtrl - Auxiliary Ouput bloc
+                    680                                         ;011 00 011
+                    681                                         ;  \  \   \
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 27  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+                    682                                         ;   \  \   V loaded with '1', U set - send pulses ('0' for continuous level) - (EscpB)
+                    683                                         ;    \  W, Wd unchanged
+                    684                                         ;     K and L loaded with '1'
+0155                685            #IF       coDEBUGMARK eq cvON 
+                    686                                         ;mark instruction for the first byte only
+0155   D37C         687            xdcom     #dcFASTTX          ;mark instruction
+0156   067D         688            xdma      LINbytbuf          ;send the byte just sent
+0157                689            #ENDIF    
+                    690  
+                    691                                         ;make sure the counter is stopped
+0157   9037         692            dcom      7,90h              ;1 0 01 0000
+                    693                                         ;   \  \    \
+                    694                                         ;    \  \    nop
+                    695                                         ;     \  clear Run
+                    696                                         ;      no capture
+                    697  ff_txnextbyte                          ;reset the bit counter
+0158   80B5         698            mov       X,#0 
+                    699  
+                    700                                         ;make sure the counter is stopped
+                    701                                         ;dcom PlsCtrl,90h        ;1 0 01 0000
+                    702                                         ;   \  \    \
+                    703                                         ;    \  \    nop
+                    704                                         ;     \  clear Run
+                    705                                         ;      no capture
+                    706                                         ;set the Sync window
+0159   0A33         707            dcom      3,0Ah              ;11 00 00 1010
+                    708                                         ;  \  \  \    \
+                    709                                         ;   \  \  \    immediate load of SyncWindow with 1 - EnStrtEdg = 0
+                    710                                         ;    \  \  SiCk: nop
+                    711                                         ;     \  FlStRj: nop
+                    712                                         ;      StpCpt = 1
+                    713  
+                    714                                         ;------------------------------------------------------------------------------------
+                    715  ff_txshift                             ;shift the data bits and get the bit to be sent in C
+015A   07B3         716            mov       A,LINbytbuf+1 
+015B   06B2         717            mov       B,LINbytbuf 
+015C   1647         718            rrc       A 
+015D   1646         719            rrc       B 
+                    720                                         ; THE FOLLOWING DCOM HAS TO OCCUR BEFORE THE BRCK PULSE !!!
+015E   6135         721            dcom      5,61h              ;OutCrtl
+                    722                                         ;011 00 001
+                    723                                         ;  \  \   \
+                    724                                         ;   \  \   Y loaded with CoutCpu, X set
+                    725                                         ;    \  Z, Cpz and NxZ unchanged
+                    726                                         ;     M and N loaded with '1'
+                    727                                         ;save the data in LINbytbuf
+015F   0672         728            mov       LINbytbuf,B 
+0160   0773         729            mov       LINbytbuf+1,A 
+                    730                                         ;check if we need to check the bus level
+0161   81A5         731            msk       X,#1 
+0162 U 0001         732            jz        ff_txwait 
+     U              733                                         ;check the bus level
+0163   14B2         734            mov       B,Xtmp 
+0164   88A6         735            msk       B,#8 
+0165 U 0001         736            jz        ff_txabort         ;the bus is low : this is a collision
+     U              737  
+     U              738  ff_txwait                              ;TX : this is the loop to send data on the bus
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 28  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+0166   0045         739            shift     X,00h              ;remove old carry bit
+0167   8445         740            shift     X,084h             ;maintain current carry bit
+0168   8285         741            add       X,#2               ;prepare X for next bit
+0169   0258         742            wait      TimeOut            ;wake up at Br halfmatch
+                    743  
+                    744                                         ;read status registers
+016A   39B7         745            mov       A,io:19h           ;read status register 0 (and clear the flags): {Traffic,LEvExt,Ovf,BrEv}
+016B   38B6         746            mov       B,io:18h           ;read status register 1 (and clear the flags): {Bin,SplBin,SyncErr,RunErr}
+016C   1472         747            mov       Xtmp,B 
+                    748  
+016D   37B7         749            mov       A,io:17h           ;PWM=1 and NoCk=0
+                    750                                         ; x x x x
+                    751                                         ;  \ \ \ \
+                    752                                         ;   \ \ \ set at falling edge
+                    753                                         ;    \ \ on Brmatch, set with Bin
+                    754                                         ;     \ set at rising edge
+                    755                                         ;      SplBin: level on the bus
+016E U 0000         756            jc        ff_bytesent        ;process the next byte
+016F   5A21         757            jmp       ff_txshift         ;send the next bit
+                    758  
+                    759  ff_txabort                             ;abort the transmit - signal it to the application
+0170   85B6         760            mov       B,#erTXCOL 
+0171 U 0060         761            call      errev 
+0172   3A20         762            jmp       ff_reinit 
+                    763  
+                    764                                         ;------------------------------------------------------------------------------------
+                    765  ff_bytesent                            ;bit 8 : a byte has been sent
+                    766                                         ;get the next byte (byte 0 has already been sent)
+0173 U 0060         767            call      GetByte            ;get the data byte
+0174 U 0000         768            jc        ff_endtx           ;if C is set, the transmit is finished
+0175 U 0011         769            jnz       ff_updtcrc         ;if Z is not set, this is a data byte
+     U              770                                         ;the CRC is going to be sent next, inverse LINbytbuf (which is in B) and LINbytbuf+1 (which is in A)
+0176   0673         771            mov       LINbytbuf,A 
+0177   0772         772            mov       LINbytbuf+1,B 
+                    773  
+                    774  ff_updtcrc                             ;update the CRC
+0178   06B2         775            mov       B,LINbytbuf 
+0179   07B3         776            mov       A,LINbytbuf+1 
+017A U 0060         777            call      ff_crc_calc        ;do CRC calculation, high nibble in A, low nibble in B
+017B   5821         778            jmp       ff_txnextbyte 
+                    779  
+                    780  ff_endtx                               ;end of transmit
+                    781                                         ;stop the counter to stop outputting data
+                    782                                         ;dcom PlsCtrl,90h        ;1 0 01 0000
+                    783                                         ;   \  \    \
+                    784                                         ;    \  \    nop
+                    785                                         ;     \  clear Run
+                    786                                         ;      no capture
+                    787  ff_endok                               ;clear data ready flag
+017C   17B1         788            mov       X,LINframeflag     ;x x x x
+017D   83BD         789            and       X,#3               ; \ \ \ \
+                    790                                         ;  \ \ \ special ID received (3C, 3D, 3E or 3F)
+                    791                                         ;   \ \ sleep command received (ID 3C + first byte 00)
+                    792                                         ;    \ discard the frame
+                    793                                         ;     frame data ready for transmit
+017E   1771         794            mov       LINframeflag,X 
+                    795                                         ;check if there is some continuous frames going on
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 29  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+017F   18B1         796            mov       X,LINflashStatus   ;LINflashStatus : x x x x
+                    797                                         ;                  \ \ \ \
+                    798                                         ;                   \ \ \ programming mode
+                    799                                         ;                    \ \ continuous frames coming up
+                    800                                         ;                     \ not used
+                    801                                         ;                      not used
+0180   82A5         802            msk       X,#2               ;test if we have some continuous frames
+0181 U 0011         803            jnz       ff_sendendtx 
+     U              804                                         ;go wait for another start of frame
+0182   2320         805            jmp       ff_init 
+                    806  ff_sendendtx                           ;send EndEvent to the mlx16
+0183   85B7         807            mov       A,#evENDtx 
+0184 U 0060         808            call      send_event         ;send the event (data is already ready)
+0185   2121         809            jmp       ff_txrqst          ;keep receiving some data
+                    810  
+                    811  ;-------------------- sub functions ------------------------------------------------------------------
+                    812  ;Initialize the MSBi cell for a reception. Only change the registers that have been changed during TX
+0186   B738         813  ff_msbi_rx  dcom      8,0B7h           ;10 11 0111
+                    814                                         ;  \  \    \
+                    815                                         ;   \  \    Rst[1:0]=11 : Re-Synch mode : reset upon selected edge (see above)
+                    816                                         ;    \  \                                           or BrMatch pulse
+                    817                                         ;     \  load Mdiff and Togl with 1
+                    818                                         ;      Init=10: reset Capt
+                    819                                         ; Output bloc
+0187   183E         820            dcom      14,18h             ;ForceR=1 : force a recessive state on the bus
+0188   7B35         821            dcom      5,7Bh              ;OutCrtl: initialize the output bloc: X,Y,CpZ,NxZ,Z set - M,N cleared (recessive outputs)
+                    822                                         ;011 11 011
+                    823                                         ;  \  \   \
+                    824                                         ;   \  \   Y loaded with '1', X set
+                    825                                         ;    \  Z, Cpz and NxZ loaded with '1'
+                    826                                         ;     M and N loaded with '1'
+                    827                                         ; Auxiliary Ouput bloc
+0189   7B36         828            dcom      6,7Bh              ;AuxCtrl: initialize the auxiliary output bloc: U,V,W,Wd set - K,L cleared
+018A   0068         829            rt        0,0 
+                    830  
+                    831  ;Update the CRC - the function should be called for each byte received (or sent)
+                    832  ;A : high nibble just received
+                    833  ;B : low nibble received
+                    834  ;A and B are modified, X not used
+018B   1273         835  ff_crc_calc  mov       Atmp,A          ;low nibble calculation
+018C   92B7         836            mov       A,B 
+018D   09D3         837            xor       A,LINchksum+1 
+018E   08B2         838            mov       B,LINchksum 
+018F   5BD6         839            xor       B,Rom:ffCrcTblHi shr 2[A] 
+0190   0972         840            mov       LINchksum+1,B 
+0191   5FB7         841            mov       A,Rom:ffCrcTblLo shr 2[A] 
+0192   0873         842            mov       LINchksum,A 
+0193   12B3         843            mov       A,Atmp             ;high nibble calculation
+0194   09D3         844            xor       A,LINchksum+1 
+0195   08B2         845            mov       B,LINchksum 
+0196   5BD6         846            xor       B,Rom:ffCrcTblHi shr 2[A] 
+0197   0972         847            mov       LINchksum+1,B 
+0198   5FB7         848            mov       A,Rom:ffCrcTblLo shr 2[A] 
+0199   0873         849            mov       LINchksum,A 
+019A   0068         850            rt        0,0 
+                    851  ;--------------------------------------------------
+                    852  ;Check the RSID <- the reuslt is not used for now
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 30  Win32 Assembler
+                                LIN2B_FASTFLASH.ASM
+
+                    853  ;X : index of the RSID nibble
+                    854  ;B is not modified
+                    855  ;Z is set if the RSID is 0x7F (error)
+019B   CDB7         856  ff_chk_rsid  mov       A,data:LINframe shr 4[X] ;get the low nibble
+019C   8185         857            add       X,#1 
+019D   8FE7         858            cmp       A,#15 
+019E   CDB7         859            mov       A,data:LINframe shr 4[X] ;get the high nibble
+019F   87EF         860            cmpcz     A,#7 
+01A0   0068         861            rt        0,0 
+                    862  ;--------------------------------------------------
+                    863  ;Move data within the LINframe buffer
+                    864  ;A : index of the highest nibble
+                    865  ;X : offset in nibbles between the source and the target
+                    866  ;B : last nibble to move
+01A1   1272         867  ff_buffloop  mov       Atmp,B 
+01A2   CFB6         868  ff_loop   mov       B,data:LINframe shr 4[A] ;get the nibble
+01A3   9187         869            add       A,X 
+01A4   CF76         870            mov       data:LINframe shr 4[A],B ;store the nibble
+01A5   91C7         871            sub       A,X 
+01A6   81C7         872            sub       A,#1 
+01A7   12E3         873            cmp       A,Atmp 
+01A8 U 0001         874            jz        ff_endsub 
+01A9   A221         875            jmp       ff_loop 
+                    876  ;--------------------------------------------------
+                    877  ;Store the SID
+                    878  ;A : index of the high nibble
+01AA   87B5         879  ff_sid    mov       X,#7 
+01AB                880            #IF       cvON eq cvON 
+01AB   18B2         881            mov       B,LINflashStatus   ; x x x x
+                    882                                         ;  \ \ \ \
+                    883                                         ;   \ \ \ programming mode
+                    884                                         ;    \ \ continuous frames coming up
+                    885                                         ;     \ not used
+                    886                                         ;      not used
+01AC   81A6         887            msk       B,#1 
+01AD U 0011         888            jnz       ff_sid_dd          ;insert the data dump SID
+     U              889                                         ;programming mode not entered, insert the read by identifier SID
+01AE   8285         890            add       X,#2               ;(9)
+01AF                891            #ENDIF                       ;end coFastStdAlne
+01AF   61B6         892  ff_sid_dd  mov       B,Rom:FastCstTbl shr 2[X] ;ffSID_DDhi or ffSID_RBIhi
+01B0   81C5         893            sub       X,#1               ;(6 or 8)
+01B1   61B5         894            mov       X,Rom:FastCstTbl shr 2[X] ;ffSID_DDlo or ffSID_RBIlo
+                    895  ;Store the content of B and X in the LINframe buffer
+                    896  ;A : index of the high nibble
+                    897  ;B : content of the high nibble
+                    898  ;X : content of the low nibble
+                    899  ;A is decreased by 2 when returning from the function
+01B2   CF76         900  ff_fillbuff  mov       data:LINframe shr 4[A],B 
+01B3   81C7         901            sub       A,#1 
+01B4   CF75         902            mov       data:LINframe shr 4[A],X 
+01B5   81C7         903            sub       A,#1 
+01B6   0068         904  ff_endsub  rt        0,0 
+                    905  
+01B7                195            #ENDIF    
+                    196  
+                    197  ;----------------------------------------------------------------------------------------------------------------------
+                    198  ;--------------- subroutines ------------------------------------------------------------------------------------------
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 31  Win32 Assembler
+                                FAST2B.ASM
+
+                    199  ;Get a data byte from the LINbytbuf
+                    200  ;X contains the updated byte counter, to be compared with LINmesslen
+                    201  ;LINchksum should contain the checksum or the CRC (for the fast protocol)
+                    202  ;Upon the procedure exit, the data byte is in A (high nibble) and B (low nibble) as well as in LINbytbuf
+                    203  ;C is set if all the data (and the checksum) has been sent
+                    204  ;Z is set if the current byte is the checksum
+                    205  ;The procedure can also be called from GetByteFast (with no processing done for LINbytcnt)
+01B7   16B1         206  GetByte   mov       X,LINbytcnt        ;get the byte counter
+01B8   8185         207            add       X,#1               ;increment it
+01B9   1671         208            mov       LINbytcnt,X        ;save the byte counter
+01BA   0CE1         209            cmp       X,LINmesslen       ;check if this is the last byte to send
+01BB U 0000         210            jc        GB_DataByte 
+01BC U 0001         211            jz        GB_CheckSum 
+01BD   5040         212            set       C                  ;set C to indicate that all the data has been sent
+01BE U 0020         213            jmp       GB_Done 
+     U              214  GB_CheckSum                            ;get the content of LINchksum
+01BF   08B2         215            mov       B,LINchksum 
+01C0   09B3         216            mov       A,LINchksum+1 
+01C1 U 0020         217            jmp       GB_SaveDataDma     ;Z is set; C is not set
+     U              218  GB_DataByte                            ;get a byte from the LINframe buffer
+01C2   9245         219            asl       X                  ;multiply the byte counter by 2 to have the pointer (we access bytes and not nibbles)
+01C3   CDB6         220  GetByteFast  mov       B,data:LINframe shr 4[X] ;get the low nibble
+01C4   8185         221            add       X,#1               ;Z and C are reset
+01C5   CDB7         222            mov       A,data:LINframe shr 4[X] ;get the high nibble
+                    223  GB_SaveDataDma                         ;save the data for the xdma
+01C6   0A72         224            mov       LINdbg,B 
+01C7   0B73         225            mov       LINdbg+1,A 
+01C8   0672         226  GB_SaveData  mov       LINbytbuf,B     ;save the data in LINbytbuf
+01C9   0773         227            mov       LINbytbuf+1,A 
+01CA   0068         228  GB_Done   rt        0,0                ;return, the data is in A (high nibble) and B (low nibble)
+                    229  
+                    230  ;--------------------------------------------------
+                    231  ;Shift LINbytbuf to the right, the bit shifted out (or in) is in C
+                    232  ;at the end LINbytbuf+1 is in A, LINbytbuf in B
+01CB   07B3         233  shift_bytbuf  mov       A,LINbytbuf+1 
+01CC   06B2         234            mov       B,LINbytbuf 
+01CD   1647         235            rrc       A 
+01CE   1646         236            rrc       B 
+01CF   C821         237            jmp       GB_SaveData        ;save the data in LINbytbuf
+                    238  
+                    239  ;----------------------------------------------------------------------------------------------------------------------
+                    240  ;Read the status registers of the MSBi cell
+                    241  ;Status register 0 is in A, status register 1 is in B
+                    242  ;A = {Traffic,LEvExt,Ovf,BrEv}, B = {Bin,SplBin,SyncErr,RunErr}
+01D0   39B7         243  ReadStatus  mov       A,io:19h         ;read status register 0 (and clear the flags): {Traffic,LEvExt,Ovf,BrEv}
+01D1   38B6         244            mov       B,io:18h           ;read status register 1 (and clear the flags): {Bin,SplBin,SyncErr,RunErr}
+01D2   0068         245            rt        0,0 
+                    246  
+                    247  ;----------------------------------------------------------------------------------------------------------------------
+                    248  ;Reset LINchksum and LINchksum+1
+                    249  ;X is changed (0)
+01D3   0E4D         250  ResetChkSum  dmar      #1,ClearByte    ;use the dma to clear the byte
+01D4   0849         251            dmaw      LINchksum,#1 
+01D5   0068         252            rt        0,0 
+                    253  
+                    254  ;--------------- errev : send an error to the application -------------------------------------------------------------
+                    255  ; parameters : error type in B
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 32  Win32 Assembler
+                                FAST2B.ASM
+
+                    256  ; result : same as setev
+                    257  errev                                  ;free the data buffer
+01D6   82B7         258            mov       A,#evERR           ;load the event code into A (the error type should already be in register B)
+                    259  
+                    260  ;--------------- setev : send an event to the application -------------------------------------------------------------
+                    261  ; The event will generate an interrupt on the Mlx16.
+                    262  ; parameters : event code in LINmessb, LINmessb+1, LINmessb+2, LINmessb+3
+                    263  ; result : C is set if an error occured
+                    264  ; A used
+                    265  send_event                             ;test if the event is free and signal a new one event
+01D7 U 000B         266            jhshk     send_event_ok      ;check if the previous event has been read
+01D8 U 0020         267            jmp       send_event_end 
+     U              268  
+     U              269  send_event_ok                          ;copied the LINmess buffer into LINmess
+01D9   2873         270            mov       LINmess,A 
+01DA   2972         271            mov       LINmess+1,B 
+01DB   2A71         272            mov       LINmess+2,X 
+01DC   80B7         273            mov       A,#0 
+01DD   2B73         274            mov       LINmess+3,A 
+                    275                                         ;send the event
+01DE   0854         276            set       event              ;set a new event
+                    277  send_event_end                         ;event set or mutex freed, the acknowledge will be done in the interrupt routine N_M4_SHEM of the Mlx16
+01DF   0068         278            rt        0,0 
+                    279  
+                    280  cmdrcvd                                ;an event has been received, get it
+01E0   24B3         281            mov       A,LINcmnd 
+01E1   25B2         282            mov       B,LINcmnd+1 
+01E2   26B1         283            mov       X,LINcmnd+2 
+01E3   2073         284            mov       LINresp,A 
+                    285  
+01E4                286            #IF       coDEBUGMARK eq cvON 
+01E4   0A73         287            mov       LINdbg,A           ;save for xdma
+01E5   0B72         288            mov       LINdbg+1,B         ;save for xdma    
+01E6   A77C         289            xdcom     #dcCOMMAND         ;mark instruction
+01E7   0A7D         290            xdma      LINdbg             ;send the command sent by the application
+01E8                291            #ENDIF    
+                    292  
+01E8   036C         293            switch    A 
+01E9 U 0020         294            jmp       cmd_ack_nok        ;0 - pcNONE : No commands in the buffer
+01EA U 0020         295            jmp       cmd_chst           ;1 - pcSTCH : General command for LIN state changes
+01EB U 0020         296            jmp       cmd_cnfbr          ;2 - pcCNFBR : Set the target baudrate/prescaler value
+01EC U 0020         297            jmp       cmd_ack_nok        ;3 - pcRX : Receive the current message (Frame Processing Mode)
+01ED U 0020         298            jmp       cmd_setframe       ;4 - pcTX : Transmit the current message (Frame Processing Mode)
+01EE U 0020         299            jmp       cmd_setframe       ;5 - pcSETFRAME : Discard the current message (Frame Processing Mode)
+01EF U 0020         300            jmp       cmd_ack_nok        ;6 - pcCNFID : Configure a LIN ID (Identifier Filtering Mode)
+01F0 U 0020         301            jmp       cmd_cnfsr          ;7 - pcCNFSR
+01F1 U 0020         302            jmp       cmd_ack_nok        ;8 - pcREINIT : ml_ReInit command - note : pcREINIT and pcRSTART codes SHOULD NOT change (8 and 9)
+01F2 U 0020         303            jmp       cmd_ack_nok        ;9 - pcRSTART : ml_Restart command - ;note : pcREINIT and pcRSTART codes SHOULD NOT change (8 and 9)
+01F3 U 0020         304            jmp       cmd_ack_nok        ;A - pcSFTVER : Software version request
+01F4 U 0020         305            jmp       cmd_ack_nok        ;B - pcOPTION : Set the option registers
+01F5 U 0020         306            jmp       cmd_ack_nok        ;C - pcGETST : Get the state of the Mlx4
+01F6 U 0020         307            jmp       cmd_ack_nok        ;D - pcCONFIG : Program a register or an IO port with value
+01F7 U 0020         308            jmp       cmd_ack_nok        ;E - pcFCNFIG : Configure a Group (Identifier Filtring Mode)
+01F8 U 0020         309            jmp       cmd_rel_buf        ;F - pcRELBUF : Release frame buffer
+     U              310  
+     U              311  cmd_cnfbr                              ;pcCNFBR: set the baudrate
+     U              312                                         ;B = caPresc (prescaler value) : PrescA
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 33  Win32 Assembler
+                                FAST2B.ASM
+
+     U              313                                         ;{LINcmnd+3, X} = caBaud : {LINbr+1, LINbr}
+01F9   3E76         314            mov       io:1Eh,B 
+01FA   0271         315            mov       LINbr,X 
+01FB   27B1         316            mov       X,LINcmnd+3 
+01FC   0371         317            mov       LINbr+1,X 
+01FD U 0020         318            jmp       cmd_ack_ok 
+     U              319  
+     U              320  cmd_cnfsr                              ;pcCNFSR : Program a register or an IO port with value
+01FE   9246         321            asl       B                  ;A=xSSx
+01FF   86BE         322            and       B,#6               ;0SS0
+0200   026C         323            switch    B 
+0201   043E         324            dcom      14,04h             ;0000 : Phymd = 00
+0202 U 0020         325            jmp       sr_done            ;0001
+0203   053E         326            dcom      14,05h             ;0010 : Phymd = 01
+0204 U 0020         327            jmp       sr_done            ;0011
+0205   063E         328            dcom      14,06h             ;0100 : Phymd = 10
+0206 U 0020         329            jmp       sr_done            ;0101
+0207   073E         330            dcom      14,07h             ;0110 : Phymd = 11
+0208 U 0020         331  sr_done   jmp       cmd_ack_ok         ;0111
+     U              332  
+     U              333  cmd_chst                               ;pcSTCH: General command for LIN state changes - Connect and Disconnect only
+0209   8FE6         334            cmp       B,#stFAST 
+020A U 0001         335            jz        cmd_chst_fenter 
+020B   82E6         336            cmp       B,#stACT 
+020C U 0011         337            jnz       cmd_chst_disc 
+     U              338  cmd_chst_fenter                        ;enter fast mode
+020D                339            #IF       coDEBUGMARK eq cvON 
+020D   507C         340            xdcom     #dcFAST            ;mark instruction
+020E                341            #ENDIF    
+020E   80B7         342            mov       A,#ackOK 
+020F   2173         343            mov       LINresp+1,A 
+0210   0454         344            ack       event 
+0211   2320         345            jmp       fastprotocol 
+                    346  cmd_chst_disc                          ;check if it is a state change to stDISC
+0212   81EE         347            cmpcz     B,#stDISC 
+0213 U 0011         348            jnz       cmd_chst_discno 
+     U              349                                         ;DISCONNECT: go into idle state
+0214 U 0020         350            jmp       idle 
+0215 U 0020         351  cmd_chst_discno  jmp       cmd_ack_ok 
+     U              352  
+     U              353  cmd_setframe                           ;--- Set Frame Command -------------------------------------------------------
+0216   81E6         354            cmp       B,#1 
+0217   26B2         355            mov       B,LINcmnd+2        ;Move LINcmnd+2 to B for further handling in TXdataready
+0218 U 0001         356            jz        cmd_setfr_dtrdy    ;B=1 : data ready
+0219 U 0010         357            jnc       cmd_setfr_cont     ;B>1 : set/reset continuous frame flag
+021A U 0020         358            jmp       cmd_discard        ;discard the frame
+     U              359  cmd_setfr_cont                         ;set/reset continuous frame flag
+021B   80E6         360            cmp       B,#0 
+021C   18B3         361            mov       A,LINflashStatus   ;x x x x
+                    362                                         ; \ \ \ \
+                    363                                         ;  \ \ \ programming mode
+                    364                                         ;   \ \ continuous frames coming up
+                    365                                         ;    \ not used
+                    366                                         ;     QR code disabled (1) or enabled (0)
+021D U 0001         367            jz        cmd_setfr_rcont 
+     U              368                                         ;set continuous frame flag
+021E   82F7         369            or        A,#2 
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 34  Win32 Assembler
+                                FAST2B.ASM
+
+021F   1873         370            mov       LINflashStatus,A 
+0220 U 0020         371            jmp       cmd_ack_ok 
+     U              372  cmd_setfr_rcont                        ;reset continuous frame flag
+0221   8DBF         373            and       A,#13 
+0222   1873         374            mov       LINflashStatus,A 
+0223 U 0020         375            jmp       cmd_ack_ok 
+     U              376  cmd_setfr_dtrdy                        ;Setting of data ready bit is needed
+0224   17B3         377            mov       A,LINframeflag     ;x x x x
+0225   88F7         378            or        A,#8               ; \ \ \ \
+                    379                                         ;  \ \ \ special ID received (3C, 3D, 3E or 3F)
+                    380                                         ;   \ \ sleep command received (ID 3C + first byte 00)
+                    381                                         ;    \ discard the frame
+                    382                                         ;     frame data ready for transmit
+0226   1773         383            mov       LINframeflag,A 
+0227 U 0020         384            jmp       cmd_ack_ok 
+     U              385  cmd_discard                            ;discard the frame
+0228   17B3         386            mov       A,LINframeflag     ;x x x x
+0229   84F7         387            or        A,#4               ; \ \ \ \
+                    388                                         ;  \ \ \ special ID received (3C, 3D, 3E or 3F)
+                    389                                         ;   \ \ sleep command received (ID 3C + first byte 00)
+                    390                                         ;    \ discard the frame
+                    391                                         ;     frame data ready for transmit
+022A   1773         392            mov       LINframeflag,A 
+022B U 0020         393            jmp       cmd_ack_ok 
+     U              394  cmd_rel_buf                            ;Clear buffer occupied flag
+022C   82A6         395            msk       B,#2 
+022D U 0011         396            jnz       cmd_rel_buf_end 
+022E   18B3         397            mov       A,LINflashStatus   ;x x x x
+                    398                                         ; \ \ \ \
+                    399                                         ;  \ \ \ programming mode
+                    400                                         ;   \ \ continuous frames coming up
+                    401                                         ;    \ not used
+                    402                                         ;     QR code disabled (1) or enabled (0)
+022F   8EBF         403            and       A,#14 
+0230   81A6         404            msk       B,#1 
+0231 U 0001         405            jz        cmd_rel_buf_wr 
+0232   81F7         406            or        A,#1 
+0233   1873         407  cmd_rel_buf_wr  mov       LINflashStatus,A 
+0234 U 0020         408  cmd_rel_buf_end  jmp       cmd_ack_ok 
+     U              409  
+     U              410  cmd_ack_ok                             ;Send acknowledge event to MLX16
+0235   80B7         411            mov       A,#ackOK 
+0236 U 0020         412            jmp       cmd_ack 
+     U              413  
+     U              414  cmd_ack_nok                            ;Send acknowledge event to MLX16
+0237   81B7         415            mov       A,#ackERR 
+                    416  cmd_ack                                ;release the command buffer to be ready for the next command
+0238   2173         417            mov       LINresp+1,A 
+0239   0454         418            ack       event 
+023A   0068         419            rt        0,0 
+                    420  
+                    421  ;---------------- check PLL -------------------------------------------------------------------------------------------
+                    422  ;Read PLLCH (put it in the Mlx4 carry) to see if the PLL changed. If it did, signal an error
+                    423  ;If it didn't, no register is modified
+                    424  pll_check                              ;clear PLLCH
+023B   023D         425            dcom      13,02h             ;xxxx xx1x
+                    426                                         ;        \
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 35  Win32 Assembler
+                                FAST2B.ASM
+
+                    427                                         ;         clear PllCh
+                    428                                         ;read PLLOK (put it in the Mlx4 carry)
+023C   803D         429            dcom      13,80h             ;10xx xxxx
+                    430                                         ;  \
+                    431                                         ;   load Mlx4 carry with PllOk
+023D U 0010         432            jnc       pll_fastck         ;if the carry is not set, the PLL is not ready - wait and check again
+023E U 0020         433            jmp       pll_ok             ;the PLL is already ok (it was probably set by the Mlx16)
+     U              434  pll_fastck                             ;disable the slow clock (ask for fast clock - request the PLL)
+023F   883F         435            dcom      15,88h             ;1xxx 10xx
+                    436                                         ;       \
+                    437                                         ;        SlowCk = 0 (FstCkRq = 1 : request PLL)
+0240   80B5         438            mov       X,#0 
+                    439  pll_counter                            ;start the counter: put the initial value in A and B
+0241   80B7         440            mov       A,#0 
+0242   57B7         441            mov       A,Rom:ConstantTbl2 shr 2[A] ;PLLcnt_lo
+0243   81B6         442            mov       B,#1 
+0244   56B6         443            mov       B,Rom:ConstantTbl2 shr 2[B] ;PLLcnt_hi
+0245   8187         444  pll_loop  add       A,#1               ;increment the counter
+0246   808E         445            addcz     B,#0 
+0247 U 0000         446            jc        pll_cntdone        ;the counter will exit at 0xFF
+0248   4522         447            jmp       pll_loop 
+                    448  
+                    449  pll_cntdone                            ;read PLLCH (put it in the Mlx4 carry)
+0249   C03D         450            dcom      13,0C0h            ;11xx xxxx
+                    451                                         ;  \
+                    452                                         ;   load Mlx4 carry with PllCh
+024A U 0000         453            jc        pll_clearch 
+024B   8DB6         454            mov       B,#13              ;index for PLLattempt
+024C   8185         455            add       X,#1 
+024D   52E5         456            cmp       X,Rom:ConstantTbl shr 2[B] ;check how many times the counter overflowed (PLLattempt)
+024E U 0001         457            jz        jmp_pll_error      ;if more than 3, signal an error
+024F   4122         458            jmp       pll_counter        ;else run the counter again
+                    459  jmp_pll_error                          ;PLL error: the PLL is still not running
+0250 U 0020         460            jmp       pll_error 
+     U              461  pll_clearch                            ;clear PLLCH
+0251   023D         462            dcom      13,02h             ;xxxx xx1x
+                    463                                         ;        \
+                    464                                         ;         clear PllCh
+                    465  pll_ok                                 ;the PLL has started - run a delay counter and check again: put the initial value in A and B
+0252   82B7         466            mov       A,#2 
+0253   57B7         467            mov       A,Rom:ConstantTbl2 shr 2[A] ;PLLchk_lo
+0254   83B6         468            mov       B,#3 
+0255   56B6         469            mov       B,Rom:ConstantTbl2 shr 2[B] ;PLLchk_hi
+0256   8187         470  pll_okloop  add       A,#1             ;increment the counter
+0257   808E         471            addcz     B,#0 
+0258 U 0000         472            jc        pll_okcheck        ;the counter will exit at 0xFF
+0259   5622         473            jmp       pll_okloop 
+                    474  pll_okcheck                            ;check if the PLL changed (put it in the Mlx4 carry)
+025A   C03D         475            dcom      13,0C0h            ;11xx xxxx
+                    476                                         ;  \
+                    477                                         ;   load Mlx4 carry with PllCh
+025B U 0010         478            jnc       pll_started 
+025C   3B22         479            jmp       pll_check 
+                    480  pll_started                            ;the PLL is running
+025D   0068         481            rt        0,0                ;if the PLL did not change, return
+                    482  
+                    483  pll_error                              ;PLL error: the PLLOK has changed !
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 36  Win32 Assembler
+                                FAST2B.ASM
+
+025E   81B5         484            mov       X,#erCRASHPLL 
+025F   82B6         485            mov       B,#erCRASH 
+0260   D661         486            call      errev              ;send an error to the application
+0261 U 0020         487            jmp       wtinit             ;go wait for a signal
+     U              488  
+     U              489  ;----------------------------------------------------------------------------------------------------------------------
+     U              490  ;--------------- interrupt and attention vectors ----------------------------------------------------------------------
+     U              491  ;interrupts are not used in the LIN task, if this code is executed that means there was a problem
+     U              492  ;in that case, send a {evERR,erCRASH} error to the application and reset the task
+     U              493  
+     U              494  task0_it                               ;interrupts should be disabled (except when terminating the reception of a frame ?)
+     U              495  
+     U              496  ;--------------- handler for critical errors ------
+0262   82B6         497  task0_att  mov       B,#erCRASH 
+0263   D661         498            call      errev              ;LIN_errev puts #evERR in A and send it to the application
+                    499                                         ;test C to see if the event for correctly handled
+                    500  
+                    501  ;--------------- soft reset -----------------------
+                    502  task0_rst  
+                    503  
+                    504  ;--------------- power on reset -------------------
+                    505  task0_por  
+0264                506            #IF       coDEBUGMARK eq cvON 
+0264   017C         507            xdcom     #dcRST             ;mark instruction
+0265                508            #ENDIF    
+                    509  
+0265   1850         510            ctrl      18h                ;disable interrupts
+0266   C054         511            task      0C0h               ;disable atm
+                    512  
+                    513                                         ;clear the registers used to clear the bytes with dma
+0267   80B7         514            mov       A,#0 
+0268   0E73         515            mov       ClearByte,A 
+0269   0F73         516            mov       ClearByte+1,A 
+                    517            
+026A   2058         518            wait      signal             ;handshake with the Mlx16
+                    519                                         ;when the Mlx16 respond (with an event) proceed to DISCONNECT (enter the state machine)
+                    520  
+026B   0154         521            exit      Mx                 ;- disable the Attention Interrupt
+                    522                                         ;- (don't set the event flag of the other task)
+                    523                                         ;- reset the event flag of the current task (handshake), in case it was set
+                    524                                         ;- (don't generate a Signal condition)
+                    525                                         ;- if permitted, reset the Mutex bit
+                    526  
+                    527                                         ; --- MLX4 PERIPHERY -----------
+                    528                                         ; Digital Bus Flags - SLEEPB
+026C   603E         529            dcom      14,60h             ;011 x xxxx
+                    530                                         ;   \
+                    531                                         ;    sleepb = 1
+                    532            
+                    533  ;--------------- LIN task initialisation ----------
+                    534  
+026D   80B7         535            mov       A,#0 
+026E   1873         536            mov       LINflashStatus,A   ;x x x x
+                    537                                         ; \ \ \ \
+                    538                                         ;  \ \ \ programming mode
+                    539                                         ;   \ \ continuous frames coming up
+                    540                                         ;    \ not used
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 37  Win32 Assembler
+                                FAST2B.ASM
+
+                    541                                         ;     not used
+                    542  
+                    543                                         ;Register initialization
+026F   0C73         544            mov       LINmesslen,A 
+                    545  
+                    546                                         ; Timers
+                    547                                         ; - Watchdog timer
+                    548                                         ; - Sleep timer
+                    549                                         ; - Message timer (not used)
+                    550  
+                    551                                         ;initialize the watchdog counter (Mlx4 Periphery)
+                    552                                         ;the watchdog monitors the LIN bus. If a dominant level is present on the bus for mode than WatchPre_Cnt/WatchPre_Val
+                    553                                         ;a Mlx4 reset is generated
+0270   8FB7         554            mov       A,#15 
+0271   53B7         555            mov       A,Rom:ConstantTbl shr 2[A] ;WatchPre_Cnt: watchdog timer value
+0272   81B6         556            mov       B,#1               ;watchdog timer value index
+0273   BC77         557            mov       io:7h[B],A 
+0274   8EB7         558            mov       A,#14 
+0275   53B7         559            mov       A,Rom:ConstantTbl shr 2[A] ;#WatchPre_Val or 8    
+                    560                                         ;1 xxx
+                    561                                         ; \   \
+                    562                                         ;  \   prescaler (WatchPre_Val)
+                    563                                         ;   timer enable
+0276   80B6         564            mov       B,#0               ;sleep timer prescaler index
+0277   BC77         565            mov       io:7h[B],A 
+                    566  
+0278   80B7         567            mov       A,#stINIT 
+0279   0173         568            mov       LINst,A            ;enter INIT state
+                    569  
+                    570  ;--------------- wait for init --------------------
+                    571  ; Initialization done, wait for application to be ready (Handshake)
+                    572  wtinit                                 ;wait signal            ;handshake with the Mlx16
+                    573                                         ;when the Mlx16 respond (with an event) proceed to DISCONNECT (enter the state machine)
+027A   80B7         574  restart   mov       A,#0 
+027B   0A73         575            mov       LINdbg,A           ;DEBUG
+027C   1073         576            mov       LINindex,A         ;reset the LIN index register
+027D   1773         577            mov       LINframeflag,A 
+                    578            
+027E   88B7         579            mov       A,#8 
+027F   1173         580            mov       LINindex+1,A       ;reset the LIN index register (ID not recognized)
+                    581  
+0280   3B62         582            call      pll_check          ;request the PLL
+                    583  
+0281   81B6         584  dscnct    mov       B,#stDISC          ;set the new state: disconnected
+0282   0172         585            mov       LINst,B            ;signal that the state changed
+                    586  
+                    587  ;--------------- wait for connect --------------
+0283   0958         588  wtcnct    waitpd    Event              ;wait for a command (signaled by an event)/allow power down
+0284   E061         589            call      cmdrcvd            ;process the command - commands are handled in cmdrcvd
+0285   8322         590            jmp       wtcnct 
+                    591            
+                    592  ;--------------- idle -------------------------------------------------------------------------------------------------
+                    593  idle                                   ;acknowledge the command (correctly executed)
+0286   80B7         594            mov       A,#ackOK 
+0287   2173         595            mov       LINresp+1,A        ;return argument
+0288   0454         596            ack       event              ;acknowledge the command
+                    597  
+Melexis Win32 Assembler 1.9.3 (c)2001 Melexis Ltd Thu Sep 24 13:51:26 2015
+Page 38  Win32 Assembler
+                                FAST2B.ASM
+
+                    598                                         ;reset the MSBi and loop to waitpd
+0289   C034         599            dcom      4,0C0h             ;InpCtrl
+                    600                                         ;1 1 00 0 0 0 0
+                    601                                         ;   \ 
+                    602                                         ;    Rst=1
+028A   C038         603            dcom      8,0C0h             ;11 00 0000
+                    604                                         ;  \ 
+                    605                                         ;   Init: reset
+028B   4034         606            dcom      4,040h             ;0 1 00 0000
+                    607                                         ;   \  
+                    608                                         ;    reset internal flags:
+028C   0158         609  idle_loop  waitpd    0 
+028D   0000         610            nop       
+028E   8C22         611            jmp       idle_loop 
+                    612  
+028F                613  prog_end  end       
+	No errors on assembly of 'FAST2B.ASM' 2210 lines

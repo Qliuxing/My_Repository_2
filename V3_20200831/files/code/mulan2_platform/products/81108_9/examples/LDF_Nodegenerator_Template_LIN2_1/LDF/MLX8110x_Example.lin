@@ -1,0 +1,44 @@
+*
+* Melexis LIN commander sequence file
+*
+* Example MLX81106/7/8/9 LDF_Nodegenerator_Template_LIN2_x
+*
+
+LINBAUDRATE=19200
+
+*
+*   S2M_MSG1: LIN ID 0x05
+*			        Byte0 - not used
+*             Byte1 - not used
+*             Byte2 - not used
+*             Byte3 - not used
+*             Byte4 - not used
+*             Byte5 - Bit 7 - mandatory LIN Response_Error 
+*             Byte6 - Vs 8bit ADC value (Vs divided by 14, reference voltage 2.5V )
+*             Byte7 - not used
+*
+*   M2S_MSG2: LIN ID 0x03
+*			        Byte0 - HV0 PWM Duty Cycle
+*             Byte1 - HV1 PWM Duty Cycle
+*             Byte2 - HV2 PWM Duty Cycle
+*             Byte3 - not used
+*             Byte4 - not used
+*             Byte5 - not used
+*             Byte6 - not used
+*             Byte7 - not used
+
+S2M_MSG1_ADC_VS  : S2M, $05, $08, CK20;
+
+M2S_MSG2_HV0_0x00 : M2S, $03, $00, $00, $00, $00, $00, $00, $00, $00, CK20;
+M2S_MSG2_HV0_0x7F : M2S, $03, $7F, $00, $00, $00, $00, $00, $00, $00, CK20;
+M2S_MSG2_HV0_0xFF : M2S, $03, $FF, $00, $00, $00, $00, $00, $00, $00, CK20;
+
+M2S_MSG2_HV1_0x00 : M2S, $03, $00, $00, $00, $00, $00, $00, $00, $00, CK20;
+M2S_MSG2_HV1_0x7F : M2S, $03, $00, $7F, $00, $00, $00, $00, $00, $00, CK20;
+M2S_MSG2_HV1_0xFF : M2S, $03, $00, $FF, $00, $00, $00, $00, $00, $00, CK20;
+
+M2S_MSG2_HV2_0x00 : M2S, $03, $00, $00, $00, $00, $00, $00, $00, $00, CK20;
+M2S_MSG2_HV2_0x7F : M2S, $03, $00, $00, $7F, $00, $00, $00, $00, $00, CK20;
+M2S_MSG2_HV2_0xFF : M2S, $03, $00, $00, $FF, $00, $00, $00, $00, $00, CK20;
+
+END

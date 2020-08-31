@@ -1,0 +1,34 @@
+*
+* LIN1.3 test
+*
+
+LINBAUDRATE=9600
+
+*
+* Expected reply: FRM_SLAVE-1: 01 | E0, FF, 1F
+* 
+FRM_MASTER_DEF : M2S, $21, $E0, $01, $02, $03, CK13;
+FRM_SLAVE      : S2M, $01, $02, CK13;
+
+*
+* Expected reply: FRM_SLAVE-1: 01 | A0, FF, 5F
+* 
+FRM_MASTER_ACT : M2S, $21, $A0, $01, $02, $03, CK13;
+FRM_SLAVE      : S2M, $01, $02, CK13;
+
+FRM_MASTER2_DEF2 : M2S, $04, $E0, $AA, CK13;
+FRM_SLAVE        : S2M, $01, $02, CK13;
+
+FRM_MASTER2_ACT2 : M2S, $04, $C0, $AA, CK13;
+FRM_SLAVE        : S2M, $01, $02, CK13;
+
+FRM_M2S_2A       : M2S, $2A, $00, $01, $02, $03, CK13;
+
+FRM_SLAVE4  : S2M, $20, $04, CK13;
+FRM_SLAVE8  : S2M, $32, $08, CK13;
+
+FRM_S2M_13  : S2M, $13, $02, CK13;
+FRM_S2M_14  : S2M, $14, $02, CK13;
+FRM_S2M_15  : S2M, $15, $02, CK13;
+
+END

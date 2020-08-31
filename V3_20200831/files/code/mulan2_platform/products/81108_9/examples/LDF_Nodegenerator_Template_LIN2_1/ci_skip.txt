@@ -1,0 +1,9 @@
+###############################################################################
+#---------------------------------SKIP-FILE-----------------------------------#
+###############################################################################
+
+
+If this file is available in the exmaple folder - it will be skiped during the 
+compilation validation, because so it's only a template of application, but not
+a finished application. To make it an finished application - please read the 
+Readme.txt file.
