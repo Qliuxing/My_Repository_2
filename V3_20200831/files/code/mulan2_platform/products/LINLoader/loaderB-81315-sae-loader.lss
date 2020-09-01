@@ -44,17 +44,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  17 .debug_info   00002f2b  00000000  00000000  00003ff7  2**0
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_line   0000302f  00000000  00000000  00006f22  2**0
+ 18 .debug_line   00002d2d  00000000  00000000  00006f22  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .debug_frame  0000072c  00000000  00000000  00009f52  2**1
+ 19 .debug_frame  0000072c  00000000  00000000  00009c50  2**1
                   CONTENTS, READONLY, DEBUGGING
- 20 .debug_pubnames 000005de  00000000  00000000  0000a67e  2**0
+ 20 .debug_pubnames 000005de  00000000  00000000  0000a37c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 21 .debug_aranges 00000234  00000000  00000000  0000ac5c  2**0
+ 21 .debug_aranges 00000234  00000000  00000000  0000a95a  2**0
                   CONTENTS, READONLY, DEBUGGING
- 22 .debug_str    0000119c  00000000  00000000  0000ae90  2**0
+ 22 .debug_str    0000112e  00000000  00000000  0000ab8e  2**0
                   CONTENTS, READONLY, DEBUGGING
- 23 .comment      00000011  00000000  00000000  0000c02c  2**0
+ 23 .comment      00000011  00000000  00000000  0000bcbc  2**0
                   CONTENTS, READONLY
 
 Disassembly of section .mlx4_flash:

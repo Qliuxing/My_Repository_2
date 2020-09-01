@@ -276,10 +276,10 @@ typedef struct
  * ****************************************************************************	*/
 #define CONFIGURATION_ID			(((uint16)('U'-'@')<<10u)|((uint16)('C'-'@')<<5u)|(uint16)('P'-'@'))	/* UniROM Basic 'P' (Sanhua 4-Phase Water-Valve) */
 #define MOTOR_FAMILY				MF_STEPPER
-#define MOTOR_POLE_PAIRS			6u
+#define MOTOR_POLE_PAIRS			12u
 #define MOTOR_PHASES				4u
-#define C_MOTOR_CONST_10MV_PER_RPS	30u											/* 0.46 Vpp/RPS-m */
-#define C_COIL_R					17u											/* 18R */
+#define C_MOTOR_CONST_10MV_PER_RPS	145u											/* 0.46 Vpp/RPS-m */
+#define C_COIL_R					23u											/* 18R */
 #define C_COILS_RTOT				C_COIL_R									/* BiPolar */
 
 #define MOTOR_STEP_PER_PHASE		1u
@@ -287,12 +287,12 @@ typedef struct
 #define C_TACHO_MODE				0u											/* 0: No tacho, 1: 60-deg commut, 2: 180-deg commut, 3: 180-deg mech-rotattion */
 #define MOTOR_DIR_INV				0u											/* Motor rotational direction inverse: 0=CW, 1=CCW */
 
-#define C_DEF_TRAVEL				3100u										/* Full-stroke:Geely 3240;GM:3100 */
-#define C_DEF_TRAVEL_TOLERANCE_HI	200u										/* Deviation: 180 degrees of electric rotation */
-#define C_DEF_TRAVEL_TOLERANCE_LO	200u
+#define C_DEF_TRAVEL				310u										/* Full-stroke:Geely 3240;GM:3100 */
+#define C_DEF_TRAVEL_TOLERANCE_HI	20u										/* Deviation: 180 degrees of electric rotation */
+#define C_DEF_TRAVEL_TOLERANCE_LO	20u
 #define C_DEF_EMRUN_POS				0x00u
 
-#define MOTOR_GEAR_BOX_RATIO		318u										/* Gear-box ratio: 1:5	0 */
+#define MOTOR_GEAR_BOX_RATIO		1u										/* Gear-box ratio: 1:5	0 */
 
 #define C_MOVAVG_SSZ				5u											/* Four commutation periods of 8 micro-steps:2^5=32micro steps */
 
@@ -304,17 +304,17 @@ typedef struct
 #define C_STALL_B_THRESHOLD			20u											/* Stall "B" threshold:[10mV/LSB] */
 #define C_STALL_B_DELAY				0u											/* Stall "B" delay: */
 #define C_STALL_SPEED_DEPENDED		0u											/* 0 = Fixed stall-threshold; 1 = Speed depended threshold */
-#define C_PID_HOLDING_CURR_LEVEL	100u										/* Motor holding current threshold [mA] */
-#define C_PID_RUNNING_CURR_LEVEL	400u										/* Motor running current threshold [mA] */
+#define C_PID_HOLDING_CURR_LEVEL	50u										/* Motor holding current threshold [mA] */
+#define C_PID_RUNNING_CURR_LEVEL	300u										/* Motor running current threshold [mA] */
 #define C_PID_BOOST_CURR_LEVEL		0u											/* Motor running current threshold in torque-boost mode [mA] */
 
 /* ***
  * Speed
  * ***/
-#define C_SPEED_MIN					 125u										/* Motor RPM min:50FPS */
-#define C_SPEED_0					 388u										/* Motor RPM's boost100%,155FPS */
+#define C_SPEED_MIN					 60u										/* Motor RPM min:50FPS */
+#define C_SPEED_0					 90u										/* Motor RPM's boost100%,155FPS */
 //#define C_SPEED_1					 950u										/* Motor RPM's,380FPS GM */
-#define C_SPEED_1					 950u										/* Motor RPM's,380FPS NEXT */
+#define C_SPEED_1					 120u										/* Motor RPM's,380FPS NEXT */
 #define C_SPEED_2					1250u										/* Motor RPM's */
 #define C_SPEED_3					1250u										/* Motor RPM's */
 #define C_SPEED_TORQUE_BOOST		1250u										/* Motor RPM's */
