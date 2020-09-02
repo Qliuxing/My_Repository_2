@@ -285,11 +285,11 @@ typedef struct
 #define MOTOR_STEP_PER_PHASE		1u
 #define MOTOR_MICROSTEPS			3u											/* 8 (1 << 3) steps per phase-step */
 #define C_TACHO_MODE				0u											/* 0: No tacho, 1: 60-deg commut, 2: 180-deg commut, 3: 180-deg mech-rotattion */
-#define MOTOR_DIR_INV				0u											/* Motor rotational direction inverse: 0=CW, 1=CCW */
+#define MOTOR_DIR_INV				1u											/* Motor rotational direction inverse: 0=CW, 1=CCW */
 
-#define C_DEF_TRAVEL				310u										/* Full-stroke:Geely 3240;GM:3100 */
-#define C_DEF_TRAVEL_TOLERANCE_HI	20u										/* Deviation: 180 degrees of electric rotation */
-#define C_DEF_TRAVEL_TOLERANCE_LO	20u
+#define C_DEF_TRAVEL				300u										/* Full-stroke:Geely 3240;GM:3100 */
+#define C_DEF_TRAVEL_TOLERANCE_HI	40u										/* Deviation: 180 degrees of electric rotation */
+#define C_DEF_TRAVEL_TOLERANCE_LO	40u
 #define C_DEF_EMRUN_POS				0x00u
 
 #define MOTOR_GEAR_BOX_RATIO		1u										/* Gear-box ratio: 1:5	0 */
@@ -318,8 +318,8 @@ typedef struct
 #define C_SPEED_2					1250u										/* Motor RPM's */
 #define C_SPEED_3					1250u										/* Motor RPM's */
 #define C_SPEED_TORQUE_BOOST		1250u										/* Motor RPM's */
-#define C_ACCELERATION_CONST		3250u										/* Max: 3000 RPM */
-#define C_ACCELERATION_POINTS		(32u - 1u)
+#define C_ACCELERATION_CONST		1500u										/* Max: 3000 RPM */
+#define C_ACCELERATION_POINTS		(2u - 1u)
 #define C_DECELERATION_STEPS		1u
 /*
  *	4-line/5-zone Current threshold vs. temperature curve.
