@@ -116,12 +116,17 @@ CV_RequestStructType s_CVRequestStruct = {
 uint8 l_u8AliveRollingCounter = 0u;
 uint8 l_u8ValueFaultFlag = 0;
 
-uint8 l_u8OBDValveStatusFault = C_STATUS_NO_FAULT;
+uint8 l_u8OBDValveStatusFault = 0;
 uint8 l_u8OBDValveStatusVolt = C_VOLT_OK;
-uint8 l_u8OBDValveStatusOverTempWarn = C_OVER_TMP_OK;
+uint8 l_u8OBDValveStatusOverTempWarn = 0;
 uint8 l_u8OBDValveStatusPosition = C_VALVE_RESPONSE_UNKONWNPOS;
 uint8 l_u8OBDValveStatusMove = C_STATUS_MOVE_IDLE;
-uint8 l_u8OBDValveStatusSpeedLevel = C_CTRL_TORQUE_NO;
+uint8 l_u8OBDValveStatusSpeedLevel = 0;
+
+uint16 targetPos = 0;
+uint8 CmdArr[8] = {0};
+uint8 ReqArr[8] = {0};
+
 
 #pragma space none
 
@@ -868,18 +873,18 @@ void handleSynchronizePosition(void)
 	{
 		if((l_u8OBDValveElectricError & (uint8)OBD_VALVE_ELECTRIC_PERM) == 0x01)
 		{
-			if(motor_status.Fault.SHORT != 0u)
-			{
-				l_u8OBDValveStatusFault = C_STATUS_FAULT_COIL_SHORT;
-			}
-			else if(motor_status.Fault.OPEN != 0u)
-			{
-				l_u8OBDValveStatusFault = C_STATUS_FAULT_COIL_OPEN;
-			}
-			else
-			{
-				l_u8OBDValveStatusFault = C_STATUS_NO_FAULT;
-			}
+//			if(motor_status.Fault.SHORT != 0u)
+//			{
+//				l_u8OBDValveStatusFault = C_STATUS_FAULT_COIL_SHORT;
+//			}
+//			else if(motor_status.Fault.OPEN != 0u)
+//			{
+//				l_u8OBDValveStatusFault = C_STATUS_FAULT_COIL_OPEN;
+//			}
+//			else
+//			{
+//				l_u8OBDValveStatusFault = C_STATUS_NO_FAULT;
+//			}
 		}
 		else
 		{
@@ -888,22 +893,22 @@ void handleSynchronizePosition(void)
 
 		if((l_u8OBDValveElectricError & (uint8)OBD_VALVE_ELECTRIC_PERM) != 0x01)
 		{
-			if(motor_status.Fault.TS != 0u)
-			{
-				l_u8OBDValveStatusFault = C_STATUS_FAULT_OVR_TMP_SHUTDOWN;
-			}
-			else if(l_u8ValueFaultFlag == OBD_VALVE_RANGE_BLOCK)
-			{
-				l_u8OBDValveStatusFault = C_STATUS_FAULT_STALL;
-			}
-			else if(l_u8ValueFaultFlag == OBD_VALVE_RANGE_BROKEN)
-			{
-				l_u8OBDValveStatusFault = C_STATUS_FAULT_STAT_INDET;
-			}
-			else
-			{
-				l_u8OBDValveStatusFault = C_STATUS_NO_FAULT;
-			}
+//			if(motor_status.Fault.TS != 0u)
+//			{
+//				l_u8OBDValveStatusFault = C_STATUS_FAULT_OVR_TMP_SHUTDOWN;
+//			}
+//			else if(l_u8ValueFaultFlag == OBD_VALVE_RANGE_BLOCK)
+//			{
+//				l_u8OBDValveStatusFault = C_STATUS_FAULT_STALL;
+//			}
+//			else if(l_u8ValueFaultFlag == OBD_VALVE_RANGE_BROKEN)
+//			{
+//				l_u8OBDValveStatusFault = C_STATUS_FAULT_STAT_INDET;
+//			}
+//			else
+//			{
+//				l_u8OBDValveStatusFault = C_STATUS_NO_FAULT;
+//			}
 		}
 		else
 		{
@@ -933,11 +938,11 @@ void handleSynchronizePosition(void)
 
 	if(motor_status.Fault.TW != 0u)
 	{
-		l_u8OBDValveStatusOverTempWarn = C_OVER_TMP_WARNING;
+//		l_u8OBDValveStatusOverTempWarn = C_OVER_TMP_WARNING;
 	}
 	else
 	{
-		l_u8OBDValveStatusOverTempWarn = C_OVER_TMP_OK;
+//		l_u8OBDValveStatusOverTempWarn = C_OVER_TMP_OK;
 	}
 
 	/* opening signal */
@@ -1094,19 +1099,28 @@ void Valve_GotoSleep(void)
 /* Event handler */
 void HandleActCfrCtrl(const ACT_CFR_CTRL *pCfrCtrl)
 {	
-//	uint16 u16Temp;
-	
+	uint16 u16TempPos;
+
 	/* move enable and torque defined transmit */
 //	if((pCfrCtrl->byMovEn == C_CTRL_MOVE_ENA) && (pCfrCtrl->byTorqueLevel >= C_CTRL_TORQUE_NOMINAL)
 //		&& (pCfrCtrl->byTorqueLevel <= C_CTRL_TORQUE_BOOST_100PCT))
-	if((pCfrCtrl->byMovEn == C_CTRL_MOVE_ENA) && (pCfrCtrl->byPosition <= C_VALVE_FULL_OPEN_LIN))	//torque is valid no matter which value qiang
+	u16TempPos = (uint16)((uint8)pCfrCtrl->PositionRequest_H * 256 + (uint8)pCfrCtrl->PositionRequest_L);
+	targetPos = u16TempPos;
+
+	CmdArr[0] = pCfrCtrl->PositionRequest_H;
+	CmdArr[1] = pCfrCtrl->PositionRequest_L;
+	CmdArr[2] = pCfrCtrl->EnableRequest;
+	CmdArr[3] = pCfrCtrl->InitRequest;
+	CmdArr[4] = pCfrCtrl->SleepRequest;
+
+	if((pCfrCtrl->EnableRequest == C_CTRL_MOVE_ENA) && (u16TempPos <= C_VALVE_FULL_OPEN_LIN))	//torque is valid no matter which value qiang
 	{
 		if((l_e8ValveState == C_STATE_UNINITIALIZED) || (l_e8ValveState == C_STATE_INITIALIZING))
 		{
 				s_CVRequestStruct.m_request = C_MOTOR_REQUEST_CALIBRATION;
-				s_CVRequestStruct.m_opening = pCfrCtrl->byPosition;
+				s_CVRequestStruct.m_opening = u16TempPos;
 //				s_CVRequestStruct.m_torque = ((uint16)pCfrCtrl->byTorqueLevel - 1u )* 10u;	/* convert signal to physical value offset = 1;increment=10% */
-//				u16Temp = ((uint16)pCfrCtrl->byTorqueLevel - 1u )* 10u;;
+//				u16Temp = ((uint16)pCfrCtrl->byTorqueLevel - 1u )* 10u;
 				/* speed adjustment not supported by current version,const speed used */
 //				s_CVRequestStruct.m_speed = NVRAM_SPEED1 - muldivU16_U16byU16byU16((NVRAM_SPEED1 - NVRAM_SPEED0),u16Temp,100);
 				s_CVRequestStruct.m_speed = NVRAM_SPEED1;		//speed is fixed
@@ -1115,7 +1129,7 @@ void HandleActCfrCtrl(const ACT_CFR_CTRL *pCfrCtrl)
 		{
 			/* spec :torque boost is used with in the whole range */
 			s_CVRequestStruct.m_request = C_MOTOR_REQUEST_START;
-			s_CVRequestStruct.m_opening = pCfrCtrl->byPosition;
+			s_CVRequestStruct.m_opening = u16TempPos;
 //			s_CVRequestStruct.m_torque = ((uint16)pCfrCtrl->byTorqueLevel - 1u )* 10u;
 //			u16Temp = ((uint16)pCfrCtrl->byTorqueLevel - 1u )* 10u;;
 //			s_CVRequestStruct.m_speed = NVRAM_SPEED1 - muldivU16_U16byU16byU16((NVRAM_SPEED1 - NVRAM_SPEED0),u16Temp,100);
@@ -1131,8 +1145,8 @@ void HandleActCfrCtrl(const ACT_CFR_CTRL *pCfrCtrl)
 		/* The actuator shall treat torque values of Not defined and Not used (0xC-0xF) the same way as No Torque Value Requested */
 		/* motor request stop */
 		s_CVRequestStruct.m_request = C_MOTOR_REQUEST_STOP;
-		s_CVRequestStruct.m_opening = pCfrCtrl->byPosition;
-		s_CVRequestStruct.m_torque = C_CTRL_TORQUE_NO;
+		s_CVRequestStruct.m_opening = u16TempPos;
+//		s_CVRequestStruct.m_torque = C_CTRL_TORQUE_NO;
 		s_CVRequestStruct.m_speed = NVRAM_SPEED1;
 	}
 }
@@ -1142,20 +1156,24 @@ void HandleActRfrSta(ACT_RFR_STA *pRfrSta)
 {
 
 	/* NEXT  fault signal  */
-	pRfrSta->byFaultState = l_u8OBDValveStatusFault;
+	pRfrSta->CurrentInitState = l_u8OBDValveStatusFault;
+	pRfrSta->RunState = l_u8OBDValveStatusMove;
 	pRfrSta->byVoltStat = l_u8OBDValveStatusVolt;
-	pRfrSta->byOverTempWarn = l_u8OBDValveStatusOverTempWarn;
-	pRfrSta->byActPosition = l_u8OBDValveStatusPosition;
-	pRfrSta->byMoveState = l_u8OBDValveStatusMove;
-	pRfrSta->byTorqueLevel = l_u8OBDValveStatusSpeedLevel;
 
+//	pRfrSta->byOverTempWarn = l_u8OBDValveStatusOverTempWarn;
+//	pRfrSta->byActPosition = l_u8OBDValveStatusPosition;
+//	pRfrSta->byTorqueLevel = l_u8OBDValveStatusSpeedLevel;
 	/* NEXT spec.unused byte padding with 0xFF */
-	pRfrSta->byReserved2_5 = 0xFF;
-	pRfrSta->byReserved4 = 0xFF;
-	pRfrSta->byReserved5 = 0xFF;
+//	pRfrSta->byReserved2_5 = 0xFF;
+
+	pRfrSta->byReserved1 = CmdArr[0];
+	pRfrSta->byReserved2 = CmdArr[1];
+	pRfrSta->byReserved3 = CmdArr[2];
+	pRfrSta->byReserved4 = CmdArr[3];
+	pRfrSta->byReserved5 = CmdArr[4];
 	pRfrSta->byReserved6 = 0xFF;
 	pRfrSta->byReserved7 = 0xFF;
-	pRfrSta->byReserved8 = 0xFF;
+
 }
 
 /* handle network management event:callback */

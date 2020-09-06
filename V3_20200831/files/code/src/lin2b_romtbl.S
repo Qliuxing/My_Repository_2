@@ -206,8 +206,8 @@ _PARAMtbl1:	;Page 0 and 1 - The ID configured in RAM are in page 0
 #endif
 #if LINPROT == LIN2X_VALVE_NEXT
 ; LIN 2.x, Actuator 2.2: LIN Msg-ID's 0x00-0x02
-	.byte 0x2B	;Index 00h : STATUS_ACTx - TX - 8 bytes - chk20 (Message-ID: 0x0000)
-	.byte 0x09	;Index 01h : CONTROL_ACTx - RX - 8 bytes - chk20 (Message-ID: 0x0001)
+	.byte 0x2F	;Index 00h : STATUS_ACTx - TX - 8 bytes - chk20 (Message-ID: 0x0000)
+	.byte 0x0F	;Index 01h : CONTROL_ACTx - RX - 8 bytes - chk20 (Message-ID: 0x0001)
 	.byte 0xA0	;Index 02h : discard
 #endif
 ; LIN Msg-ID's 0x03-0x0F

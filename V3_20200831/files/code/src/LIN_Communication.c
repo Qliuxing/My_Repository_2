@@ -449,7 +449,7 @@ void mlu_DataRequest( ml_MessageID MessageIndex)
 		/* Status AGS */
 		HandleActRfrSta(pRfrSta);
 		/* LIN communication error */
-		pRfrSta->byLinErr = l_u8ErrorCommunication;
+		pRfrSta->ResponseError = l_u8ErrorCommunication;
 		(void) ml_DataReady( ML_END_OF_TX_ENABLED);
 	}
 	else
