@@ -287,7 +287,10 @@ typedef struct
 #define C_TACHO_MODE				0u											/* 0: No tacho, 1: 60-deg commut, 2: 180-deg commut, 3: 180-deg mech-rotattion */
 #define MOTOR_DIR_INV				1u											/* Motor rotational direction inverse: 0=CW, 1=CCW */
 
-#define C_DEF_TRAVEL				300u										/* Full-stroke:Geely 3240;GM:3100 */
+#define C_DEF_TRAVEL_1				240U										/* Set default travel 1 */
+#define C_DEF_TRAVEL_2				336U										/* Set default travel 2 */
+
+#define C_DEF_TRAVEL				C_DEF_TRAVEL_1								/* Full-stroke: first:240FS; second:336FS */
 #define C_DEF_TRAVEL_TOLERANCE_HI	40u										/* Deviation: 180 degrees of electric rotation */
 #define C_DEF_TRAVEL_TOLERANCE_LO	40u
 #define C_DEF_EMRUN_POS				0x00u
@@ -314,7 +317,7 @@ typedef struct
 #define C_SPEED_MIN					 60u										/* Motor RPM min:50FPS */
 #define C_SPEED_0					 90u										/* Motor RPM's boost100%,155FPS */
 //#define C_SPEED_1					 950u										/* Motor RPM's,380FPS GM */
-#define C_SPEED_1					 120u										/* Motor RPM's,380FPS NEXT */
+#define C_SPEED_1					 300u										/* Motor RPM's,380FPS NEXT */
 #define C_SPEED_2					1250u										/* Motor RPM's */
 #define C_SPEED_3					1250u										/* Motor RPM's */
 #define C_SPEED_TORQUE_BOOST		1250u										/* Motor RPM's */

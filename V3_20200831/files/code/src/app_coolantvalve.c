@@ -244,7 +244,7 @@ void handleStartInitialize(void)
 	
 	if(s_CVRequestStruct.m_request == (uint16)C_MOTOR_REQUEST_CALIBRATION)
 	{
-		if(s_CVRequestStruct.m_opening <= C_VALVE_OPENING_100_PERCENT)
+		if(s_CVRequestStruct.m_opening <= C_VALVE_DEF_TRAVEL)
 		{
 			Timer_Start(FAULT_HOLD_TIMER,C_PI_TICKS_500MS);
 			l_e8CalibrationStep = (uint8)C_CALIB_START;
@@ -272,6 +272,8 @@ void handleInitiliazeProcess(void)
 	{
 		if(s_CVRequestStruct.m_request == (uint16)C_MOTOR_REQUEST_CALIBRATION)
         {
+			l_e8CalibrationStep = (uint8)C_CALIB_SETUP_LO_ENDPOS;
+#if 0
 			if(s_CVRequestStruct.m_opening <= C_VALVE_OPENING_50_PERCENT)
 			{
 				l_e8CalibrationStep = (uint8)C_CALIB_SETUP_HI_ENDPOS;		/* check for high end-stop */
@@ -286,6 +288,7 @@ void handleInitiliazeProcess(void)
 			{
 				/* unsupported initialize position request */
 			}
+#endif
 		}
 	}
 	
@@ -316,7 +319,7 @@ void handleInitiliazeProcess(void)
 			/* client-server:post message */
 			l_u8MotorControl = C_MOTOR_START;
 
-		    l_e8CalibrationStep = (uint8) C_CALIB_CHECK_LO_ENDPOS;		
+		    l_e8CalibrationStep = (uint8) C_CALIB_CHECK_LO_ENDPOS;
         }
 	}
 	else if(l_e8CalibrationStep == (uint8)C_CALIB_CHECK_HI_ENDPOS)
@@ -503,12 +506,12 @@ void handleInitiliazeProcess(void)
 #else
 		if(l_u16PhysicalActualPos == C_VALVE_ZERO_POS)
 		{
-			l_u8ValveInitEnds |= C_VALVE_INIT_END_LO;
-			if((l_u8ValveInitEnds & C_VALVE_INIT_END_HI) == 0)
-            {
-				l_e8CalibrationStep = (uint8)C_CALIB_SETUP_HI_ENDPOS;
-            }
-			else
+//			l_u8ValveInitEnds |= C_VALVE_INIT_END_LO;
+//			if((l_u8ValveInitEnds & C_VALVE_INIT_END_HI) == 0)
+//            {
+//				l_e8CalibrationStep = (uint8)C_CALIB_SETUP_HI_ENDPOS;
+//            }
+//			else
 			{
 				/* initialize finish */
 				l_e8CalibrationStep = (uint8)C_CALIB_END;
@@ -555,6 +558,7 @@ void handleInitiliazeProcess(void)
 		    s_CVRequestStruct.m_request = (uint16)C_MOTOR_REQUEST_NONE;
 		}
 #else
+        l_u8MotorControl = C_MOTOR_STOP;
 		l_e8CalibrationStep = (uint8)C_CALIB_DONE;
 #endif /* _SUPPORT_STALLDET */
 	}
@@ -671,7 +675,10 @@ void handleOpeningPosition(void)
 
 		}
 #else  /* _SUPPORT_ENDSTOP_DETECTION */
-		l_u16PhysicalTargetPos = divU16_U32byU16( mulU32_U16byU16( s_CVRequestStruct.m_opening, l_u16PhysicalCalibTravel) + C_VALVE_OPENING_100_PERCENT / 2, C_VALVE_OPENING_100_PERCENT) + C_VALVE_ZERO_POS;
+//		l_u16PhysicalTargetPos = divU16_U32byU16( mulU32_U16byU16( s_CVRequestStruct.m_opening, l_u16PhysicalCalibTravel) + C_VALVE_OPENING_100_PERCENT / 2, C_VALVE_OPENING_100_PERCENT) + C_VALVE_ZERO_POS;
+
+		l_u16PhysicalTargetPos = s_CVRequestStruct.m_opening + C_VALVE_ZERO_POS;
+
 		/* only update target position */
 		l_u8MotorControl = C_MOTOR_START_ONLY;
 #endif /* _SUPPORT_ENDSTOP_DETECTION */
@@ -1113,8 +1120,47 @@ void HandleActCfrCtrl(const ACT_CFR_CTRL *pCfrCtrl)
 	CmdArr[3] = pCfrCtrl->InitRequest;
 	CmdArr[4] = pCfrCtrl->SleepRequest;
 
-	if((pCfrCtrl->EnableRequest == C_CTRL_MOVE_ENA) && (u16TempPos <= C_VALVE_FULL_OPEN_LIN))	//torque is valid no matter which value qiang
+	if((pCfrCtrl->EnableRequest == C_CTRL_MOVE_ENA))	//torque is valid no matter which value qiang
 	{
+		if(u16TempPos <= C_VALVE_DEF_TRAVEL)	//position commend is valid;
+		{
+			if(pCfrCtrl->InitRequest == C_CTRL_INIT_ENA)
+			{
+				if((l_e8ValveState == C_STATE_UNINITIALIZED) || (l_e8ValveState == C_STATE_INITIALIZING))
+				{
+					s_CVRequestStruct.m_request = C_MOTOR_REQUEST_CALIBRATION;
+					s_CVRequestStruct.m_opening = 0;
+					s_CVRequestStruct.m_speed = NVRAM_SPEED1;		//speed is fixed
+				}
+				else
+				{
+					s_CVRequestStruct.m_request = C_MOTOR_REQUEST_START;
+					s_CVRequestStruct.m_opening = u16TempPos;
+					s_CVRequestStruct.m_speed = NVRAM_SPEED1;
+				}
+			}
+			else
+			{
+				if((l_e8ValveState == C_STATE_UNINITIALIZED) || (l_e8ValveState == C_STATE_INITIALIZING))
+				{
+					s_CVRequestStruct.m_request = C_MOTOR_REQUEST_STOP;
+					s_CVRequestStruct.m_opening = u16TempPos;
+					s_CVRequestStruct.m_speed = NVRAM_SPEED1;		//speed is fixed
+				}
+				else
+				{
+					s_CVRequestStruct.m_request = C_MOTOR_REQUEST_START;
+					s_CVRequestStruct.m_opening = u16TempPos;
+					s_CVRequestStruct.m_speed = NVRAM_SPEED1;
+				}
+			}
+		}
+		else
+		{
+			//position commend is invalid;
+		}
+
+#if 0
 		if((l_e8ValveState == C_STATE_UNINITIALIZED) || (l_e8ValveState == C_STATE_INITIALIZING))
 		{
 				s_CVRequestStruct.m_request = C_MOTOR_REQUEST_CALIBRATION;
@@ -1139,6 +1185,7 @@ void HandleActCfrCtrl(const ACT_CFR_CTRL *pCfrCtrl)
 		{
 			/* valve state not ready to accept command */
 		}
+#endif
 	}
 	else
 	{
@@ -1156,7 +1203,7 @@ void HandleActRfrSta(ACT_RFR_STA *pRfrSta)
 {
 
 	/* NEXT  fault signal  */
-	pRfrSta->CurrentInitState = l_u8OBDValveStatusFault;
+	pRfrSta->CurrentInitState = l_e8ValveState;
 	pRfrSta->RunState = l_u8OBDValveStatusMove;
 	pRfrSta->byVoltStat = l_u8OBDValveStatusVolt;
 
