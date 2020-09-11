@@ -285,12 +285,13 @@ typedef struct
 #define MOTOR_STEP_PER_PHASE		1u
 #define MOTOR_MICROSTEPS			3u											/* 8 (1 << 3) steps per phase-step */
 #define C_TACHO_MODE				0u											/* 0: No tacho, 1: 60-deg commut, 2: 180-deg commut, 3: 180-deg mech-rotattion */
-#define MOTOR_DIR_INV				1u											/* Motor rotational direction inverse: 0=CW, 1=CCW */
+#define MOTOR_DIR_INV				0u											/* Motor rotational direction inverse: 0=CW, 1=CCW */
 
 #define C_DEF_TRAVEL_1				240U										/* Set default travel 1 */
-#define C_DEF_TRAVEL_2				336U										/* Set default travel 2 */
+#define C_DEF_TRAVEL_2				288U										/* Set default travel 2 */
+#define C_DEF_TRAVEL_3				336U										/* Set default travel 3 */
 
-#define C_DEF_TRAVEL				C_DEF_TRAVEL_1								/* Full-stroke: first:240FS; second:336FS */
+#define C_DEF_TRAVEL				C_DEF_TRAVEL_2								/* Full-stroke: first:240FS; second:336FS */
 #define C_DEF_TRAVEL_TOLERANCE_HI	40u										/* Deviation: 180 degrees of electric rotation */
 #define C_DEF_TRAVEL_TOLERANCE_LO	40u
 #define C_DEF_EMRUN_POS				0x00u

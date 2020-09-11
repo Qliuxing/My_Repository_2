@@ -9,6 +9,8 @@
 #include "app_coolantvalve.h"
 #include "ErrorCodes.h"															/* Error logging support */
 
+#include "ADC.h"
+
 /* NVRAM saved data */
 typedef struct
 {
@@ -58,6 +60,9 @@ typedef struct
 #define OBD_VALVE_ELECTRIC_TEMP      	0x02u        	/* temperory error */
 #define OBD_VALVE_ELECTRIC_INDET     	0x80u	       	/* indeterminate */
 
+#define C_STATUS_NO_FAULT				0x00			/* motor coil ok */
+#define C_STATUS_FAULT_COIL_SHORT		0x01			/* motor coil short */
+#define C_STATUS_FAULT_COIL_OPEN		0x02			/* motor coil open */
 
 #define C_VALVE_SPEED_FPS               (320)
 /* Valve initialize mode:low->high,high->low */
@@ -880,18 +885,18 @@ void handleSynchronizePosition(void)
 	{
 		if((l_u8OBDValveElectricError & (uint8)OBD_VALVE_ELECTRIC_PERM) == 0x01)
 		{
-//			if(motor_status.Fault.SHORT != 0u)
-//			{
-//				l_u8OBDValveStatusFault = C_STATUS_FAULT_COIL_SHORT;
-//			}
-//			else if(motor_status.Fault.OPEN != 0u)
-//			{
-//				l_u8OBDValveStatusFault = C_STATUS_FAULT_COIL_OPEN;
-//			}
-//			else
-//			{
-//				l_u8OBDValveStatusFault = C_STATUS_NO_FAULT;
-//			}
+			if(motor_status.Fault.SHORT != 0u)
+			{
+				l_u8OBDValveStatusFault = C_STATUS_FAULT_COIL_SHORT;
+			}
+			else if(motor_status.Fault.OPEN != 0u)
+			{
+				l_u8OBDValveStatusFault = C_STATUS_FAULT_COIL_OPEN;
+			}
+			else
+			{
+				l_u8OBDValveStatusFault = C_STATUS_NO_FAULT;
+			}
 		}
 		else
 		{
@@ -1218,8 +1223,8 @@ void HandleActRfrSta(ACT_RFR_STA *pRfrSta)
 	pRfrSta->byReserved3 = CmdArr[2];
 	pRfrSta->byReserved4 = CmdArr[3];
 	pRfrSta->byReserved5 = CmdArr[4];
-	pRfrSta->byReserved6 = 0xFF;
-	pRfrSta->byReserved7 = 0xFF;
+	pRfrSta->byReserved6 = l_u8OBDValveStatusFault;
+	pRfrSta->byReserved7 = g_i16ChipTemperature;
 
 }
 
