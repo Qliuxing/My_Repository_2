@@ -5,8 +5,8 @@
 
 #if LINPROT == LIN21_VALVE_NEXT
 
-/* B sample,5th release */
-#define C_SW_VER							0x0B05
+/* C sample,4th release */
+#define C_SW_VER							0x0C04
 
 /* LIN communication baudrate:bps */
 #define LIN_BR					            19200U
