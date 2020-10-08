@@ -318,7 +318,7 @@ typedef struct
 #define C_SPEED_MIN					 60u										/* Motor RPM min:50FPS */
 #define C_SPEED_0					 90u										/* Motor RPM's boost100%,155FPS */
 //#define C_SPEED_1					 950u										/* Motor RPM's,380FPS GM */
-#define C_SPEED_1					 300u										/* Motor RPM's,380FPS NEXT */
+#define C_SPEED_1					 200u										/* Motor RPM's,380FPS NEXT */
 #define C_SPEED_2					1250u										/* Motor RPM's */
 #define C_SPEED_3					1250u										/* Motor RPM's */
 #define C_SPEED_TORQUE_BOOST		1250u										/* Motor RPM's */

@@ -128,6 +128,9 @@ uint8 l_u8OBDValveStatusPosition = C_VALVE_RESPONSE_UNKONWNPOS;
 uint8 l_u8OBDValveStatusMove = C_STATUS_MOVE_IDLE;
 uint8 l_u8OBDValveStatusSpeedLevel = 0;
 
+uint8 l_u8SavePosFlag = 0;
+uint16 l_u16RecoryPos = 0;
+
 uint16 targetPos = 0;
 uint8 CmdArr[8] = {0};
 uint8 ReqArr[8] = {0};
@@ -146,6 +149,8 @@ void handleEmergencyRunEvent(void);
 void handleSleepEvent(void);
 void Valve_GotoSleep(void);
 
+void SaveLastPosition(void);
+uint16 RecoryLastPosition(void);
 
 void App_CoolantValveSMInit(void)
 {
@@ -241,6 +246,7 @@ void App_CoolantValveSM(void)
 	handleEmergencyRunEvent();
 	/* goto sleep command */
 	handleSleepEvent();
+
 }
 
 void handleStartInitialize(void)
@@ -249,6 +255,11 @@ void handleStartInitialize(void)
 	
 	if(s_CVRequestStruct.m_request == (uint16)C_MOTOR_REQUEST_CALIBRATION)
 	{
+		if(l_e8ValveState == (uint8)C_STATE_UNINITIALIZED)
+		{
+			l_u16RecoryPos = RecoryLastPosition();
+		}
+
 		if(s_CVRequestStruct.m_opening <= C_VALVE_DEF_TRAVEL)
 		{
 			Timer_Start(FAULT_HOLD_TIMER,C_PI_TICKS_500MS);
@@ -319,7 +330,7 @@ void handleInitiliazeProcess(void)
 		{
             s_CVRequestStruct.m_request = (uint16)C_MOTOR_REQUEST_NONE;
             /* setup motor parameters and start motor */
-			l_u16PhysicalActualPos = C_VALVE_RANGE_MAX + C_VALVE_ZERO_POS;
+			l_u16PhysicalActualPos = l_u16RecoryPos + C_VALVE_ZERO_POS;
 			l_u16PhysicalTargetPos = C_VALVE_ZERO_POS;
 			/* client-server:post message */
 			l_u8MotorControl = C_MOTOR_START;
@@ -989,11 +1000,19 @@ void handleSynchronizePosition(void)
 		l_u8OBDValveStatusMove = C_STATUS_MOVE_ACTIVE;
 		/* torque signal */
 		l_u8OBDValveStatusSpeedLevel = (uint8)((s_CVRequestStruct.m_torque / 10u) + 1u);	/* convert physical value to signal */
+
+		l_u8SavePosFlag = 1;
 	}
 	else
 	{
 		l_u8OBDValveStatusMove = C_STATUS_MOVE_IDLE;
 //		l_u8OBDValveStatusSpeedLevel = C_CTRL_TORQUE_NO;
+
+		if(l_u8SavePosFlag == 1)
+		{
+			l_u8SavePosFlag = 0;
+			SaveLastPosition();
+		}
 	}
 }
 
@@ -1106,6 +1125,25 @@ void Valve_GotoSleep(void)
 #endif
 	/* stop MCU */
 	MLX315_GotoSleep();
+}
+
+/* save the last position when valve don't move */
+void SaveLastPosition(void)
+{
+	uint16 cv_nvm[1];
+
+	cv_nvm[0] = l_u16PhysicalActualPos - C_VALVE_ZERO_POS;
+	(void)NVRAM_Write( C_NVRAM_AREA2_ADDR, cv_nvm, 1 );
+}
+
+/* read the valve last position when response initialize command */
+uint16 RecoryLastPosition(void)
+{
+	uint16 cv_nvm[1];
+
+	(void)NVRAM_Read(C_NVRAM_AREA2_ADDR, cv_nvm, 1);
+
+	return cv_nvm[0];
 }
 
 /* Event handler */
@@ -1221,11 +1259,10 @@ void HandleActRfrSta(ACT_RFR_STA *pRfrSta)
 	pRfrSta->byReserved1 = CmdArr[0];
 	pRfrSta->byReserved2 = CmdArr[1];
 	pRfrSta->byReserved3 = CmdArr[2];
-	pRfrSta->byReserved4 = CmdArr[3];
-	pRfrSta->byReserved5 = CmdArr[4];
+	pRfrSta->byReserved4 = (uint8)(l_u16RecoryPos & 0xFF);
+	pRfrSta->byReserved5 = (uint8)((l_u16RecoryPos & 0xFF00) >> 8);
 	pRfrSta->byReserved6 = l_u8OBDValveStatusFault;
 	pRfrSta->byReserved7 = g_i16ChipTemperature;
-
 }
 
 /* handle network management event:callback */
