@@ -20,7 +20,7 @@
 
 /* function ID */
 #define C_WILDCARD_FUNCTION_ID				0xFFFFU
-#define C_NEXT_FUNCTION_ID					0x0013U
+#define C_NEXT_FUNCTION_ID					0x0016U
 #define C_MLX_FUNCTION_ID					((('V'-'@')<<10) | (('L'-'@')<<5) | ('V'-'@'))
 #define C_FUNCTION_ID						C_NEXT_FUNCTION_ID
 
@@ -37,12 +37,12 @@
 /* configuration:NAD(default) */
 #define C_DEFAULT_NAD                       0x16                                /* GM (Coolant) Valve */
 /* PIDs */
-#define mlxACT_CTRL							0xC4U				                /* Actuator CfrCtrl:0x04(0xC4) */
-#define mlxACT_STATUS						0x03U				                /* Actuator RfrSta: 0x03(0x03) */
+#define mlxACT_CTRL							0xC4U				                /* Actuator CfrCtrl ID:0x04(PID:0xC4) */
+#define mlxACT_STATUS						0x85U				                /* Actuator RfrSta ID: 0x05(PID:0x85) */
 /* variant */
 #define C_VARIANT			    		    255
 /* SVN version */
-#define C_SVN            					513
+#define C_SVN            					772
 /* version branch ID*/
 #define LIN_VERSION_BRANCH_ID       	    0x01U        					    /* product branch:4bit|0*/
 
@@ -72,9 +72,7 @@ typedef struct  _ACT_CFR_INI
 	uint8 InitRequest			:3;							/* Byte 2.[1:3] */
 #define C_CTRL_INIT_DIS			0U							/* Init disabled */
 #define C_CTRL_INIT_ENA			1U							/* Init enabled */
-	uint8 SleepRequest			:4;							/* Byte 2.[4:7] */
-#define	C_CTRL_SLEEP_DIS		0U							/* request sleep enable */
-#define	C_CTRL_SLEEP_ENA		1U							/* request sleep disable */
+
 
 //	uint8 Cmd_MicroStep			:3;							    /* Byte 2.[7:3] */
 //#define C_CTRL_FULL_STEP		0U								/* full step running */
@@ -84,36 +82,51 @@ typedef struct  _ACT_CFR_INI
 //#define C_CTRL_16MICRO_STEP		4U								/* 16microstep running */
 
 /************************************* reserved ************************************************/
-	uint16 byReserved3	        :8;
-	uint16 byReserved4	        :8;
-	uint16 byReserved5	        :8;
-	uint16 byReserved6	        :8;
-	uint16 byReserved7	        :8;
+	uint8 byReserved2_4	        :4;
+	uint8 byReserved3	        :8;
+	uint8 byReserved4	        :8;
+	uint8 byReserved5	        :8;
+	uint8 byReserved6	        :8;
+	uint8 byReserved7	        :8;
 
 } ACT_CFR_CTRL, *PACT_CFR_CTRL;
 
 typedef struct _ACT_RFR_STA
 {
-	uint16 ResponseError			  :1;							/* Byte 0.[0] */
+	uint8 ResponseError			  	  :1;							/* Byte 0.[0] */
 #define C_STATUS_LIN_OK							0U
 #define C_STATUS_LIN_ERR						1U
-	uint16 CurrentInitState			  :2;							/* Byte 0.[1:2] */
+	uint8 CurrentInitState			  :2;							/* Byte 0.[1:2] */
 #define C_STATUS_NO_INIT						0U
 #define C_STATUS_INIT_IN_PROCESS				1U
 #define C_STATUS_INIT_READY		                2U
 #define C_STATUS_INIT_ERROR						3U
-	uint16 RunState				 	  :1;							/* Byte 0.[3] */
+	uint8 RunState				 	  :1;							/* Byte 0.[3] */
 #define C_STATUS_MOVE_IDLE						0U
 #define C_STATUS_MOVE_ACTIVE					1U
-	uint16 byVoltStat                 :2;							/* Byte 0.[4:5] */
+	uint8 FaultState				  :4;
+#define C_FAULT_STATE_OK						0U
+#define C_FAULT_STATE_COIL_SHORT				1U
+#define C_FAULT_STATE_COIL_OPEN					2U
+#define C_FAULT_STATE_OVTEMP_SHUTDOWN			3U
+#define C_FAULT_STATE_BROKEN					4U
+#define C_FAULT_STATE_STALL						5U
+	uint8 byVoltStat                  :2;							/* Byte 0.[4:5] */
 #define C_VOLT_OK                               0U
 #define C_VOLT_OVER                             1U
 #define C_VOLT_UNDER                            2U
-	uint16 byReserved0	             :2;
+	uint8 OverTempWarning             :2;
+#define C_TEMPERATURE_OK			            0U
+#define C_TEMPERATURE_HIGH_WARNING				1U
+
+	uint16 byReserved1_4              :4;
+
+	uint8 PositionFbk_L				  :8;					/* Byte 0.[0] */
+	uint8 PositionFbk_H				  :8;					/* Byte 1.[0] */
+	#define C_MIN_POS							0x0000U
+	#define C_MAX_POS							0xFFFFU
 /******************************************** reserved **************************************/
-	uint16 byReserved1	             :8;
-	uint16 byReserved2	             :8;
-	uint16 byReserved3	             :8;
+
 	uint16 byReserved4	             :8;
 	uint16 byReserved5	             :8;
 	uint16 byReserved6	             :8;
