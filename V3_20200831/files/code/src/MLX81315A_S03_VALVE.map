@@ -195,7 +195,7 @@ END GROUP
                 0x0000001e                __ramfunc_size = (__ramfunc_end - __ramfunc_start)
                 0x000055c8                __ramfunc_load_start = LOADADDR (.ramfunc)
 
-.text           0x000055e8     0x4380
+.text           0x000055e8     0x4382
                 0x000055e8                _stext = .
  *(.text.start)
  .text.start    0x000055e8       0x22 /cygdrive/g/MyGitRepository/V3_20200831/files/code/mulan2_platform/lib/lib81315-sae-loader.a(startup.o)
@@ -572,162 +572,162 @@ END GROUP
                 0x000085f8       0x68 obj/Diagnostic.o
                 0x000085f8                _MotorDiagnosticOpenCheck
  .text.MotorDiagnosticVsupplyAndTemperature
-                0x00008660      0x1b2 obj/Diagnostic.o
+                0x00008660      0x1b4 obj/Diagnostic.o
                 0x00008660                _MotorDiagnosticVsupplyAndTemperature
  .text.ErrorLogInit
-                0x00008812       0x28 obj/ErrorCodes.o
-                0x00008812                _ErrorLogInit
+                0x00008814       0x28 obj/ErrorCodes.o
+                0x00008814                _ErrorLogInit
  .text.SetLastError
-                0x0000883a       0x36 obj/ErrorCodes.o
-                0x0000883a                _SetLastError
+                0x0000883c       0x36 obj/ErrorCodes.o
+                0x0000883c                _SetLastError
  .text.GetLastError
-                0x00008870       0x5e obj/ErrorCodes.o
-                0x00008870                _GetLastError
+                0x00008872       0x5e obj/ErrorCodes.o
+                0x00008872                _GetLastError
  .text.MotorDriverSetParams
-                0x000088ce       0x24 obj/MotorDriver.o
-                0x000088ce                _MotorDriverSetParams
+                0x000088d0       0x24 obj/MotorDriver.o
+                0x000088d0                _MotorDriverSetParams
  .text.MotorDriverGetStatus
-                0x000088f2       0x1c obj/MotorDriver.o
-                0x000088f2                _MotorDriverGetStatus
+                0x000088f4       0x1c obj/MotorDriver.o
+                0x000088f4                _MotorDriverGetStatus
  .text.MotorDriverClearFaultStatus
-                0x0000890e       0x20 obj/MotorDriver.o
-                0x0000890e                _MotorDriverClearFaultStatus
+                0x00008910       0x20 obj/MotorDriver.o
+                0x00008910                _MotorDriverClearFaultStatus
  .text.MotorDriver_4PhaseStepper
-                0x0000892e       0xc6 obj/MotorDriver.o
-                0x0000892e                _MotorDriver_4PhaseStepper
+                0x00008930       0xc6 obj/MotorDriver.o
+                0x00008930                _MotorDriver_4PhaseStepper
  .text.MotorDriverInit
-                0x000089f4      0x194 obj/MotorDriver.o
-                0x000089f4                _MotorDriverInit
+                0x000089f6      0x194 obj/MotorDriver.o
+                0x000089f6                _MotorDriverInit
  .text.MotorDriverCurrentMeasureInit
-                0x00008b88       0x32 obj/MotorDriver.o
-                0x00008b88                _MotorDriverCurrentMeasureInit
+                0x00008b8a       0x32 obj/MotorDriver.o
+                0x00008b8a                _MotorDriverCurrentMeasureInit
  .text.MotorDriver_InitialPwmDutyCycle
-                0x00008bba       0x74 obj/MotorDriver.o
-                0x00008bba                _MotorDriver_InitialPwmDutyCycle
+                0x00008bbc       0x74 obj/MotorDriver.o
+                0x00008bbc                _MotorDriver_InitialPwmDutyCycle
  .text.MotorDriverStart
-                0x00008c2e       0xb4 obj/MotorDriver.o
-                0x00008c2e                _MotorDriverStart
+                0x00008c30       0xb4 obj/MotorDriver.o
+                0x00008c30                _MotorDriverStart
  .text.MotorDriverStop
-                0x00008ce2       0xee obj/MotorDriver.o
-                0x00008ce2                _MotorDriverStop
+                0x00008ce4       0xee obj/MotorDriver.o
+                0x00008ce4                _MotorDriverStop
  .text.MotorDriver_MainFunction
-                0x00008dd0      0x1ae obj/MotorDriver.o
-                0x00008dd0                _MotorDriver_MainFunction
+                0x00008dd2      0x1ae obj/MotorDriver.o
+                0x00008dd2                _MotorDriver_MainFunction
  .text.MotorDriverCurrentMeasure
-                0x00008f7e       0x82 obj/MotorDriver.o
-                0x00008f7e                _MotorDriverCurrentMeasure
- .text.EXT0_IT  0x00009000      0x180 obj/MotorDriver.o
-                0x00009000                _EXT0_IT
+                0x00008f80       0x82 obj/MotorDriver.o
+                0x00008f80                _MotorDriverCurrentMeasure
+ .text.EXT0_IT  0x00009002      0x180 obj/MotorDriver.o
+                0x00009002                _EXT0_IT
  .text.NVRAM_CRC8
-                0x00009180       0x16 obj/NVRAM_UserPage.o
-                0x00009180                _NVRAM_CRC8
+                0x00009182       0x16 obj/NVRAM_UserPage.o
+                0x00009182                _NVRAM_CRC8
  .text.NVRAM_Init
-                0x00009196       0x7e obj/NVRAM_UserPage.o
-                0x00009196                _NVRAM_Init
+                0x00009198       0x7e obj/NVRAM_UserPage.o
+                0x00009198                _NVRAM_Init
  .text.NVRAM_Read
-                0x00009214       0x8c obj/NVRAM_UserPage.o
-                0x00009214                _NVRAM_Read
+                0x00009216       0x8c obj/NVRAM_UserPage.o
+                0x00009216                _NVRAM_Read
  .text.NVRAM_Write
-                0x000092a0      0x156 obj/NVRAM_UserPage.o
-                0x000092a0                _NVRAM_Write
+                0x000092a2      0x156 obj/NVRAM_UserPage.o
+                0x000092a2                _NVRAM_Write
  .text.NVRAM_Store
-                0x000093f6       0x7a obj/NVRAM_UserPage.o
-                0x000093f6                _NVRAM_Store
+                0x000093f8       0x7a obj/NVRAM_UserPage.o
+                0x000093f8                _NVRAM_Store
  .text.NVRAM_StorePatch
-                0x00009470        0x8 obj/NVRAM_UserPage.o
-                0x00009470                _NVRAM_StorePatch
+                0x00009472        0x8 obj/NVRAM_UserPage.o
+                0x00009472                _NVRAM_StorePatch
  .text.NVRAM_CountCRC8
-                0x00009478       0x44 obj/NVRAM_UserPage.o
-                0x00009478                _NVRAM_CountCRC8
+                0x0000947a       0x44 obj/NVRAM_UserPage.o
+                0x0000947a                _NVRAM_CountCRC8
  .text.PlaceError
-                0x000094bc       0x28 obj/NVRAM_UserPage.o
-                0x000094bc                _PlaceError
+                0x000094be       0x28 obj/NVRAM_UserPage.o
+                0x000094be                _PlaceError
  .text.NVRAM_LogError
-                0x000094e4       0x90 obj/NVRAM_UserPage.o
-                0x000094e4                _NVRAM_LogError
+                0x000094e6       0x90 obj/NVRAM_UserPage.o
+                0x000094e6                _NVRAM_LogError
  .text.NVRAM_GetLastError
-                0x00009574       0x34 obj/NVRAM_UserPage.o
-                0x00009574                _NVRAM_GetLastError
+                0x00009576       0x34 obj/NVRAM_UserPage.o
+                0x00009576                _NVRAM_GetLastError
  .text.NVRAM_ClearErrorLog
-                0x000095a8       0x2c obj/NVRAM_UserPage.o
-                0x000095a8                _NVRAM_ClearErrorLog
+                0x000095aa       0x2c obj/NVRAM_UserPage.o
+                0x000095aa                _NVRAM_ClearErrorLog
  .text.PID_Init
-                0x000095d4       0x84 obj/PID_Control.o
-                0x000095d4                _PID_Init
+                0x000095d6       0x84 obj/PID_Control.o
+                0x000095d6                _PID_Init
  .text.VoltageCorrection
-                0x00009658       0x4e obj/PID_Control.o
-                0x00009658                _VoltageCorrection
+                0x0000965a       0x4e obj/PID_Control.o
+                0x0000965a                _VoltageCorrection
  .text.PID_Control
-                0x000096a6       0xce obj/PID_Control.o
-                0x000096a6                _PID_Control
+                0x000096a8       0xce obj/PID_Control.o
+                0x000096a8                _PID_Control
  .text.ThresholdControl
-                0x00009774       0x78 obj/PID_Control.o
-                0x00009774                _ThresholdControl
+                0x00009776       0x78 obj/PID_Control.o
+                0x00009776                _ThresholdControl
  .text.Timer_Init
-                0x000097ec       0x14 obj/Timer.o
-                0x000097ec                _Timer_Init
+                0x000097ee       0x14 obj/Timer.o
+                0x000097ee                _Timer_Init
  .text.Timer_Start
-                0x00009800       0x12 obj/Timer.o
-                0x00009800                _Timer_Start
+                0x00009802       0x12 obj/Timer.o
+                0x00009802                _Timer_Start
  .text.Timer_IsExpired
-                0x00009812       0x14 obj/Timer.o
-                0x00009812                _Timer_IsExpired
+                0x00009814       0x14 obj/Timer.o
+                0x00009814                _Timer_IsExpired
  .text.Timer_SleepCompensation
-                0x00009826       0x3c obj/Timer.o
-                0x00009826                _Timer_SleepCompensation
+                0x00009828       0x3c obj/Timer.o
+                0x00009828                _Timer_SleepCompensation
  .text.TIMER_IT
-                0x00009862       0x24 obj/Timer.o
-                0x00009862                _TIMER_IT
+                0x00009864       0x24 obj/Timer.o
+                0x00009864                _TIMER_IT
  .text.SpiDebugWriteFirst
-                0x00009886       0x1e obj/SPI_Debug.o
-                0x00009886                _SpiDebugWriteFirst
+                0x00009888       0x1e obj/SPI_Debug.o
+                0x00009888                _SpiDebugWriteFirst
  .text.SpiDebugInit
-                0x000098a4       0x1c obj/SPI_Debug.o
-                0x000098a4                _SpiDebugInit
+                0x000098a6       0x1c obj/SPI_Debug.o
+                0x000098a6                _SpiDebugInit
  .text.SpiDebugWriteNext
-                0x000098c0        0x6 obj/SPI_Debug.o
-                0x000098c0                _SpiDebugWriteNext
+                0x000098c2        0x6 obj/SPI_Debug.o
+                0x000098c2                _SpiDebugWriteNext
  *(.rodata.*)
  .rodata.SBASE_INIT_4PH
-                0x000098c6        0xc obj/ADC.o
-                0x000098c6                _SBASE_INIT_4PH
+                0x000098c8        0xc obj/ADC.o
+                0x000098c8                _SBASE_INIT_4PH
  .rodata.SBASE_CURRENT
-                0x000098d2        0x4 obj/ADC.o
-                0x000098d2                _SBASE_CURRENT
+                0x000098d4        0x4 obj/ADC.o
+                0x000098d4                _SBASE_CURRENT
  .rodata.SBASE_MOTORVOLT
-                0x000098d6        0x4 obj/ADC.o
-                0x000098d6                _SBASE_MOTORVOLT
+                0x000098d8        0x4 obj/ADC.o
+                0x000098d8                _SBASE_MOTORVOLT
  .rodata.SBASE_SUPPLYVOLT
-                0x000098da        0x4 obj/ADC.o
-                0x000098da                _SBASE_SUPPLYVOLT
+                0x000098dc        0x4 obj/ADC.o
+                0x000098dc                _SBASE_SUPPLYVOLT
  .rodata.SBASE_TEMP
-                0x000098de        0x4 obj/ADC.o
-                0x000098de                _SBASE_TEMP
+                0x000098e0        0x4 obj/ADC.o
+                0x000098e0                _SBASE_TEMP
  .rodata.SBASE_CURROFF
-                0x000098e2        0x4 obj/ADC.o
-                0x000098e2                _SBASE_CURROFF
+                0x000098e4        0x4 obj/ADC.o
+                0x000098e4                _SBASE_CURROFF
  .rodata.SBASE_VREF_OFF
-                0x000098e6        0x4 obj/ADC.o
-                0x000098e6                _SBASE_VREF_OFF
+                0x000098e8        0x4 obj/ADC.o
+                0x000098e8                _SBASE_VREF_OFF
  .rodata.c_ai16MicroStepVector4PH
-                0x000098ea       0x50 obj/MotorDriverTables.o
-                0x000098ea                _c_ai16MicroStepVector4PH
+                0x000098ec       0x50 obj/MotorDriverTables.o
+                0x000098ec                _c_ai16MicroStepVector4PH
  .rodata.c_au8DrvCfgSelfTestB4
-                0x0000993a        0xa obj/MotorDriverTables.o
-                0x0000993a                _c_au8DrvCfgSelfTestB4
+                0x0000993c        0xa obj/MotorDriverTables.o
+                0x0000993c                _c_au8DrvCfgSelfTestB4
  .rodata.c_au16DrvAdcSelfTestA
-                0x00009944       0x10 obj/MotorDriverTables.o
-                0x00009944                _c_au16DrvAdcSelfTestA
+                0x00009946       0x10 obj/MotorDriverTables.o
+                0x00009946                _c_au16DrvAdcSelfTestA
  .rodata.c_au8DrvCfgSelfTestA
-                0x00009954        0x8 obj/MotorDriverTables.o
-                0x00009954                _c_au8DrvCfgSelfTestA
+                0x00009956        0x8 obj/MotorDriverTables.o
+                0x00009956                _c_au8DrvCfgSelfTestA
  .rodata.PageIntegerityDefault
-                0x0000995c        0x4 obj/NVRAM_UserPage.o
-                0x0000995c                _PageIntegerityDefault
+                0x0000995e        0x4 obj/NVRAM_UserPage.o
+                0x0000995e                _PageIntegerityDefault
  .rodata.READ_BY_ID_BC
-                0x00009960        0x8 /cygdrive/g/MyGitRepository/V3_20200831/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
-                0x00009968                . = ALIGN (0x2)
-                0x00009968                _etext = .
+                0x00009962        0x8 /cygdrive/g/MyGitRepository/V3_20200831/files/code/mulan2_platform/lib/lib81315-sae-loader.a(flashupload.o)
+                0x0000996a                . = ALIGN (0x2)
+                0x0000996a                _etext = .
 
 .shared_ram     0x00000000       0x10
  *(.special)
@@ -745,7 +745,7 @@ END GROUP
                 0x00000010        0x6 /cygdrive/g/MyGitRepository/V3_20200831/files/code/mulan2_platform/lib/lib81315-sae-loader.a(lin.o)
                 0x00000010                _stFixedRamNAD
 
-.dp.data        0x00000018       0x10 load address 0x00009968
+.dp.data        0x00000018       0x10 load address 0x0000996a
                 0x00000018                . = ALIGN (0x2)
                 0x00000018                __data_dp_start = .
  *(.dp.data)
@@ -767,9 +767,9 @@ END GROUP
  *fill*         0x00000027        0x1 
                 0x00000028                __data_dp_end = .
                 0x00000010                __data_dp_size = (__data_dp_end - __data_dp_start)
-                0x00009968                __data_load_start = LOADADDR (.dp.data)
+                0x0000996a                __data_load_start = LOADADDR (.dp.data)
 
-.dp             0x00000028       0x4a load address 0x00009978
+.dp             0x00000028       0x4a load address 0x0000997a
                 0x00000028                . = ALIGN (0x2)
                 0x00000028                __bss_dp_start = .
  *(.dp)
@@ -801,7 +801,7 @@ END GROUP
                 0x00000072                __bss_dp_end = .
                 0x0000004a                __bss_dp_size = (__bss_dp_end - __bss_dp_start)
 
-.dp.noinit      0x00000072        0x0 load address 0x00009978
+.dp.noinit      0x00000072        0x0 load address 0x0000997a
                 0x00000072                . = ALIGN (0x2)
                 0x00000072                __dp_noinit_start = .
  *(.dp.noinit)
@@ -809,7 +809,7 @@ END GROUP
                 0x00000072                __dp_noinit_end = .
                 0x00000000                __dp_noinit_size = (__dp_noinit_end - __dp_noinit_start)
 
-.data           0x00000072       0x76 load address 0x00009978
+.data           0x00000072       0x76 load address 0x0000997a
                 0x00000072                . = ALIGN (0x2)
                 0x00000072                __data_start = .
  *(.data)
@@ -1065,7 +1065,7 @@ END GROUP
                 0x000000e8                __data_end = .
                 0x00000076                __data_size = (__data_end - __data_start)
 
-.bss            0x000000e8       0xb6 load address 0x000099ee
+.bss            0x000000e8       0xb6 load address 0x000099f0
                 0x000000e8                . = ALIGN (0x2)
                 0x000000e8                __bss_start = .
  *(.bss)
@@ -1210,7 +1210,7 @@ END GROUP
                 0x0000019e                __bss_end = .
                 0x000000b6                __bss_size = (__bss_end - __bss_start)
 
-.noinit         0x0000019e        0x0 load address 0x000099ee
+.noinit         0x0000019e        0x0 load address 0x000099f0
                 0x0000019e                . = ALIGN (0x2)
                 0x0000019e                __noinit_start = .
  *(.noinit)
@@ -1218,7 +1218,7 @@ END GROUP
                 0x0000019e                __noinit_end = .
                 0x00000000                __noinit_size = (__noinit_end - __noinit_start)
 
-.bist_stat      0x0000019e        0x8 load address 0x000099ee
+.bist_stat      0x0000019e        0x8 load address 0x000099f0
                 0x0000019e                . = ALIGN (0x2)
                 0x0000019e                __bist_stat_start = .
  *(.bist_stat)

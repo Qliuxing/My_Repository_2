@@ -360,10 +360,10 @@ typedef struct
  * Application diagnostic levels
  * ***/
 #define C_APPL_UTEMP				-40											/* GM: 3.1 */
-#define C_APPL_OTEMP_WARN			130											/* GM: 3.1:over temperature warning */
+#define C_APPL_OTEMP_WARN			135											/* GM: 3.1:over temperature warning */
 #define C_APPL_OTEMP_SHUT			140											/* GM: 3.1:over temperature shutdown */
-#define C_APPL_UVOLT				((int16)(9.0 * 8.0))						/* GM: 6.6 */
-#define C_APPL_OVOLT				((int16)(19.0 * 8.0))						/* GM: 6.6 */
+#define C_APPL_UVOLT				((int16)(10.0 * 8.0))						/* GM: 6.6 */
+#define C_APPL_OVOLT				((int16)(16.0 * 8.0))						/* GM: 6.6 */
 /* ***
  * PID Control
  * ***/
