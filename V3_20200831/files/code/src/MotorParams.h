@@ -285,7 +285,7 @@ typedef struct
 #define MOTOR_STEP_PER_PHASE		1u
 #define MOTOR_MICROSTEPS			3u											/* 8 (1 << 3) steps per phase-step */
 #define C_TACHO_MODE				0u											/* 0: No tacho, 1: 60-deg commut, 2: 180-deg commut, 3: 180-deg mech-rotattion */
-#define MOTOR_DIR_INV				0u											/* Motor rotational direction inverse: 0=CW, 1=CCW */
+#define MOTOR_DIR_INV				1u											/* Motor rotational direction inverse: 0=CW, 1=CCW */
 
 #define C_DEF_TRAVEL_1				240U										/* Set default travel 1 */
 #define C_DEF_TRAVEL_2				288U										/* Set default travel 2 */
@@ -360,7 +360,7 @@ typedef struct
  * Application diagnostic levels
  * ***/
 #define C_APPL_UTEMP				-40											/* GM: 3.1 */
-#define C_APPL_OTEMP_WARN			135											/* GM: 3.1:over temperature warning */
+#define C_APPL_OTEMP_WARN			130											/* GM: 3.1:over temperature warning */
 #define C_APPL_OTEMP_SHUT			140											/* GM: 3.1:over temperature shutdown */
 #define C_APPL_UVOLT				((int16)(10.0 * 8.0))						/* GM: 6.6 */
 #define C_APPL_OVOLT				((int16)(16.0 * 8.0))						/* GM: 6.6 */

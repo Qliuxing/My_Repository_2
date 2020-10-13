@@ -2863,7 +2863,7 @@ Disassembly of section .mlx16_vectors:
     bfca:	640c      	lod	YL, #12
     bfcc:	76da 568e 	jmpf	0x568e <__fatal>
     bfd0:	54d3      	psup	#3
-    bfd2:	76da 9002 	jmpf	0x9002 <_EXT0_IT>
+    bfd2:	76da 9000 	jmpf	0x9000 <_EXT0_IT>
     bfd6:	0000      	nop
     bfd8:	54f0      	mov	UPr, #0
     bfda:	640e      	lod	YL, #14
@@ -7877,7 +7877,7 @@ int16 main( void)
 	DiagnosticsInit();							       	/* Initialize Diagnostic */
     6c32:	82db 8502 	callf	0x8502 <_DiagnosticsInit>
 	MotorDriverInit();							       	/*  Initialize Motor-driver */
-    6c36:	82db 89f6 	callf	0x89f6 <_MotorDriverInit>
+    6c36:	82db 89f4 	callf	0x89f4 <_MotorDriverInit>
 	PID_Init();										   	/* PID Control initialization */
     6c3a:	82db 95d6 	callf	0x95d6 <_PID_Init>
 	LIN_Init();											/* initialize LIN interface */
@@ -7888,7 +7888,7 @@ int16 main( void)
 	
 	/* system service */
 	ErrorLogInit();								       	/* Initialize Error-logging management */	
-    6c44:	82db 8814 	callf	0x8814 <_ErrorLogInit>
+    6c44:	82db 8812 	callf	0x8812 <_ErrorLogInit>
 	Timer_Init();								       	/* Initialize (Core) Timer */
     6c48:	82db 97ee 	callf	0x97ee <_Timer_Init>
 
@@ -7909,7 +7909,7 @@ int16 main( void)
 
 		/* driver and service */
 		MotorDriver_MainFunction();
-    6c52:	82db 8dd2 	callf	0x8dd2 <_MotorDriver_MainFunction>
+    6c52:	82db 8dd0 	callf	0x8dd0 <_MotorDriver_MainFunction>
 		LIN_MainFunction();
     6c56:	82db 7a14 	callf	0x7a14 <_LIN_MainFunction>
 		
@@ -7997,7 +7997,7 @@ void App_CoolantValveSMInit(void)
     6cb0:	54e6      	mov	Cx, #6
     6cb2:	54c6      	movsw	[X++], [Y++]
     6cb4:	1ffe      	djnz	Cx, 0x6cb2 <_App_CoolantValveSMInit+0x40>
-    6cb6:	82db 88d0 	callf	0x88d0 <_MotorDriverSetParams>
+    6cb6:	82db 88ce 	callf	0x88ce <_MotorDriverSetParams>
 	
 #if _SUPPORT_ENDSTOP_DETECTION
 	l_u8EndstopCheckLock = 0u; 		/* unlock endstop check when wake-up or power up  */
@@ -8390,7 +8390,7 @@ void handleStartInitialize(void)
     6e80:	42d8 00a3 	mov	0xa3 <_l_u8OBDValveElectricError>, AL
 			/* reset motor status */
 			MotorDriverClearFaultStatus();
-    6e84:	82db 8910 	callf	0x8910 <_MotorDriverClearFaultStatus>
+    6e84:	82db 890e 	callf	0x890e <_MotorDriverClearFaultStatus>
 			l_u8ValueFaultFlag = 0;
     6e88:	6000      	lod	AL, #0
     6e8a:	42d8 008f 	mov	0x8f <_l_u8ValueFaultFlag>, AL
@@ -8411,7 +8411,7 @@ void handleEndstopCheck(void)
 	MotorDriverGetStatus(&motor_status);
     6e94:	72ef      	lod	A, S
     6e96:	a0f4      	add	A, #-12
-    6e98:	82db 88f4 	callf	0x88f4 <_MotorDriverGetStatus>
+    6e98:	82db 88f2 	callf	0x88f2 <_MotorDriverGetStatus>
 
   	if(motor_status.Fault.ST != 0u)	/* stall found? */
     6e9c:	7209      	lod	A, [S-10]
@@ -8420,7 +8420,7 @@ void handleEndstopCheck(void)
     6ea4:	0054      	jmp	0x6f4e <_handleEndstopCheck+0xbc>
   	{
 		MotorDriverClearFaultStatus();		/* clear motor stall and stop motor */
-    6ea6:	82db 8910 	callf	0x8910 <_MotorDriverClearFaultStatus>
+    6ea6:	82db 890e 	callf	0x890e <_MotorDriverClearFaultStatus>
 		l_u8MotorControl = C_MOTOR_STOP_ONLY;
     6eaa:	6002      	lod	AL, #2
     6eac:	42d8 009a 	mov	0x9a <_l_u8MotorControl>, AL
@@ -8567,7 +8567,7 @@ void handleSleepEvent(void)
 		MotorDriverGetStatus(&motor_status);
     6f60:	72ef      	lod	A, S
     6f62:	a0f6      	add	A, #-10
-    6f64:	82db 88f4 	callf	0x88f4 <_MotorDriverGetStatus>
+    6f64:	82db 88f2 	callf	0x88f2 <_MotorDriverGetStatus>
 		/* conditions:
 		  * 1) target position equals current position(motor stop/degrade) 
 		  * 2) sleep request
@@ -8611,7 +8611,7 @@ void handleEmergencyRunEvent(void)
 		MotorDriverGetStatus(&motor_status);
     6f82:	72ef      	lod	A, S
     6f84:	a0ea      	add	A, #-22
-    6f86:	82db 88f4 	callf	0x88f4 <_MotorDriverGetStatus>
+    6f86:	82db 88f2 	callf	0x88f2 <_MotorDriverGetStatus>
 		l_u8MotorControl = C_MOTOR_STOP_ONLY;
     6f8a:	6002      	lod	AL, #2
     6f8c:	42d8 009a 	mov	0x9a <_l_u8MotorControl>, AL
@@ -8748,7 +8748,7 @@ void handleSynchronizePosition(void)
     7024:	54e6      	mov	Cx, #6
     7026:	54c6      	movsw	[X++], [Y++]
     7028:	1ffe      	djnz	Cx, 0x7026 <_handleSynchronizePosition+0x64>
-    702a:	82db 88d0 	callf	0x88d0 <_MotorDriverSetParams>
+    702a:	82db 88ce 	callf	0x88ce <_MotorDriverSetParams>
     702e:	5c0b      	dec	S, #12
 	}
 	else
@@ -8763,7 +8763,7 @@ void handleSynchronizePosition(void)
 	MotorDriverGetStatus(&motor_status);
     7036:	72ef      	lod	A, S
     7038:	a0e4      	add	A, #-28
-    703a:	82db 88f4 	callf	0x88f4 <_MotorDriverGetStatus>
+    703a:	82db 88f2 	callf	0x88f2 <_MotorDriverGetStatus>
 
 	/* position */
 	l_u16PhysicalActualPos = motor_status.ActPos;
@@ -9021,7 +9021,7 @@ void handleSynchronizePosition(void)
 	MotorDriverGetStatus(&motor_status);
     7168:	72ef      	lod	A, S
     716a:	a0e4      	add	A, #-28
-    716c:	82db 88f4 	callf	0x88f4 <_MotorDriverGetStatus>
+    716c:	82db 88f2 	callf	0x88f2 <_MotorDriverGetStatus>
 	/* move in process signal */
 	if(motor_status.Mode != (uint8)MSM_STOP)
     7170:	621b      	lod	AL, [S-28]
@@ -9713,7 +9713,7 @@ uint16 FlashBackgroundTest( uint16 u16Size)
 			{
 				SetLastError( (uint8) C_ERR_FLASH_BG);
     751a:	72da 00f9 	lod	A, #249
-    751e:	82db 883c 	callf	0x883c <_SetLastError>
+    751e:	82db 883a 	callf	0x883a <_SetLastError>
 				MLX4_RESET();													/* Reset the Mlx4   */
     7522:	62d8 2000 	lod	AL, 0x2000 <__ep__+0x1000>
     7526:	94fe      	and	AL, #-2
@@ -9770,7 +9770,7 @@ uint16 FlashBackgroundTest( uint16 u16Size)
 		}
 		SetLastError( (uint8) C_ERR_IOREG);
     7560:	72da 00fc 	lod	A, #252
-    7564:	82db 883c 	callf	0x883c <_SetLastError>
+    7564:	82db 883a 	callf	0x883a <_SetLastError>
 	}
 	/* Check: Administrative timer disabled */
 	if ( (TIMER & TMR_EN) == 0u )							
@@ -9783,7 +9783,7 @@ uint16 FlashBackgroundTest( uint16 u16Size)
     7572:	5286      	mov	io:0x6 <_LinMess2>, A
 		SetLastError( (uint8) C_ERR_IOREG);
     7574:	72da 00fc 	lod	A, #252
-    7578:	82db 883c 	callf	0x883c <_SetLastError>
+    7578:	82db 883a 	callf	0x883a <_SetLastError>
 	}
 	/* Check: IRQ-Mask (Respectively: Diagnostics, Timer1, CoreTimer and LIN-Communication */
 	if ( (MASK & (EN_EXT4_IT | EN_EXT0_IT | EN_TIMER_IT | EN_M4_SHE_IT)) != (EN_EXT4_IT | EN_EXT0_IT | EN_TIMER_IT | EN_M4_SHE_IT) )
@@ -9801,7 +9801,7 @@ uint16 FlashBackgroundTest( uint16 u16Size)
     759a:	52d8 2006 	mov	0x2006 <__ep__+0x1006>, A
 		SetLastError( (uint8) C_ERR_IOREG);
     759e:	72da 00fc 	lod	A, #252
-    75a2:	82db 883c 	callf	0x883c <_SetLastError>
+    75a2:	82db 883a 	callf	0x883a <_SetLastError>
 	}
 	/* Check: IRQ-priority (Respectively: Diagnostics, Timer1, CoreTimer) */
 	if ( (PRIO & (((uint16)3u << 14u) | ((uint16)3u << 6u) | ((uint16)3u << 0u))) != 
@@ -9821,7 +9821,7 @@ uint16 FlashBackgroundTest( uint16 u16Size)
     75c4:	52d8 2004 	mov	0x2004 <__ep__+0x1004>, A
 		SetLastError( (uint8) C_ERR_IOREG);
     75c8:	72da 00fc 	lod	A, #252
-    75cc:	82db 883c 	callf	0x883c <_SetLastError>
+    75cc:	82db 883a 	callf	0x883a <_SetLastError>
 	}
 	/* Check: 2nd level IRQ Timer1 */
 	if ( (XI0_MASK & EN_T1_INT4) == 0u )
@@ -9836,7 +9836,7 @@ uint16 FlashBackgroundTest( uint16 u16Size)
     75de:	52d8 202a 	mov	0x202a <__ep__+0x102a>, A
 		SetLastError( (uint8) C_ERR_IOREG);
     75e2:	72da 00fc 	lod	A, #252
-    75e6:	82db 883c 	callf	0x883c <_SetLastError>
+    75e6:	82db 883a 	callf	0x883a <_SetLastError>
 	}
 	/* Check: 2nd level IRQ Diagnostics */
 	if ( (XI4_MASK & (XI4_OVT | XI4_UV | XI4_OV | XI4_OC_DRV)) != C_DIAG_MASK )
@@ -9852,7 +9852,7 @@ uint16 FlashBackgroundTest( uint16 u16Size)
     7600:	52d8 2032 	mov	0x2032 <__ep__+0x1032>, A
 		SetLastError( (uint8) C_ERR_IOREG);
     7604:	72da 00fc 	lod	A, #252
-    7608:	82db 883c 	callf	0x883c <_SetLastError>
+    7608:	82db 883a 	callf	0x883a <_SetLastError>
 	}
 	/* Check:driver check */
 	if ( (g_u8MotorStartupMode != (uint8)MSM_STOP) && ((DRVCFG & (DRV_CFG_T|DRV_CFG_W|DRV_CFG_V|DRV_CFG_U)) == 0u) )
@@ -9865,7 +9865,7 @@ uint16 FlashBackgroundTest( uint16 u16Size)
 		/* Driver have been disabled */
 		SetLastError( (uint8) C_ERR_IOREG);
     761a:	72da 00fc 	lod	A, #252
-    761e:	82db 883c 	callf	0x883c <_SetLastError>
+    761e:	82db 883a 	callf	0x883a <_SetLastError>
     7622:	5401      	ret
 
 00007624 <_handleNetworkManagement>:
@@ -10212,7 +10212,7 @@ void LIN_Init(void)
 				{
 					SetLastError( (uint8) C_ERR_MLX4_RESTART);
     7802:	72da 00fa 	lod	A, #250
-    7806:	82db 883c 	callf	0x883c <_SetLastError>
+    7806:	82db 883a 	callf	0x883a <_SetLastError>
 				}
 				LIN_Init();										/* Re-initialise LIN interface w/o changing position */
     780a:	1762      	call	0x76d0 <_LIN_Init>
@@ -10474,7 +10474,7 @@ void mlu_ErrorDetected( ml_LinError Error)
 	SetLastError( (uint8) C_ERR_LIN_COMM | ((uint8)Error & 0x1Fu));
     790c:	a6da 0080 	or	A, #128
     7910:	b6da 009f 	and	A, #159
-    7914:	82db 883c 	callf	0x883c <_SetLastError>
+    7914:	82db 883a 	callf	0x883a <_SetLastError>
 #if ((LINPROT & LINXX) == LIN2J)
      LIN2J_ErrorHandling(Error);
 #endif
@@ -10516,7 +10516,7 @@ void mlu_ErrorDetected( ml_LinError Error)
     7936:	42d8 00af 	mov	0xaf <_l_u8NMEventPending>, AL
         SetLastError( (uint8) C_ERR_LIN_BUS_TIMEOUT);
     793a:	72da 00bf 	lod	A, #191
-    793e:	82db 883c 	callf	0x883c <_SetLastError>
+    793e:	82db 883a 	callf	0x883a <_SetLastError>
     7942:	5401      	ret
 
 00007944 <_mlu_MessageReceived>:
@@ -12018,19 +12018,19 @@ void handleWriteByIdentifier(const DFR_DIAG *pDiag)
     7f8c:	60ec      	lod	AL, #-20
     7f8e:	4132      	mov	dp:0x32 <_g_DiagResponse+0x2>, AL
 	g_DiagResponse.byD1 = GetLastError();													/* Oldest Error-code */
-    7f90:	82db 8872 	callf	0x8872 <_GetLastError>
+    7f90:	82db 8870 	callf	0x8870 <_GetLastError>
     7f94:	4133      	mov	dp:0x33 <_g_DiagResponse+0x3>, AL
 	g_DiagResponse.byD2 = GetLastError();
-    7f96:	82db 8872 	callf	0x8872 <_GetLastError>
+    7f96:	82db 8870 	callf	0x8870 <_GetLastError>
     7f9a:	4134      	mov	dp:0x34 <_g_DiagResponse+0x4>, AL
 	g_DiagResponse.byD3 = GetLastError();
-    7f9c:	82db 8872 	callf	0x8872 <_GetLastError>
+    7f9c:	82db 8870 	callf	0x8870 <_GetLastError>
     7fa0:	4135      	mov	dp:0x35 <_g_DiagResponse+0x5>, AL
 	g_DiagResponse.byD4 = GetLastError();
-    7fa2:	82db 8872 	callf	0x8872 <_GetLastError>
+    7fa2:	82db 8870 	callf	0x8870 <_GetLastError>
     7fa6:	4136      	mov	dp:0x36 <_g_DiagResponse+0x6>, AL
 	g_DiagResponse.byD5 = GetLastError();
-    7fa8:	82db 8872 	callf	0x8872 <_GetLastError>
+    7fa8:	82db 8870 	callf	0x8870 <_GetLastError>
     7fac:	4137      	mov	dp:0x37 <_g_DiagResponse+0x7>, AL
 
 	g_u8BufferOutID = (uint8) QR_RFR_DIAG;													/* LIN Output buffer is valid (RFR_DIAG) */
@@ -13179,7 +13179,7 @@ void HandleDiagnosticEvent( uint16 u16Event)
     84c4:	411c      	mov	dp:0x1c <_g_sMotorFault>, AL
 				SetLastError( (uint8) C_ERR_DIAG_OVER_CURRENT);
     84c6:	72da 00d0 	lod	A, #208
-    84ca:	11b8      	call	0x883c <_SetLastError>
+    84ca:	11b7      	call	0x883a <_SetLastError>
 			}
 		}
 #endif /* _SUPPORT_DIAG_OC */
@@ -13202,7 +13202,7 @@ void HandleDiagnosticEvent( uint16 u16Event)
     84ee:	411c      	mov	dp:0x1c <_g_sMotorFault>, AL
 			SetLastError( (uint8) C_ERR_DIAG_OVER_TEMP);
     84f0:	72da 00d1 	lod	A, #209
-    84f4:	11a3      	call	0x883c <_SetLastError>
+    84f4:	11a2      	call	0x883a <_SetLastError>
 
 			ResetChipTemperature();
     84f6:	171e      	call	0x8334 <_ResetChipTemperature>
@@ -13449,7 +13449,7 @@ uint8  MotorDiagnosticOpenCheck(void)
     864a:	411c      	mov	dp:0x1c <_g_sMotorFault>, AL
 			SetLastError( (uint8) C_ERR_COIL_ZERO_CURRENT);
     864c:	72da 00e6 	lod	A, #230
-    8650:	10f5      	call	0x883c <_SetLastError>
+    8650:	10f4      	call	0x883a <_SetLastError>
 			return 1;
     8652:	7001      	lod	A, #1
     8654:	5401      	ret
@@ -13677,7 +13677,7 @@ uint8  MotorDiagnosticOpenCheck(void)
     875e:	411c      	mov	dp:0x1c <_g_sMotorFault>, AL
 				SetLastError( (uint8) C_ERR_APPL_OVER_TEMP);
     8760:	72da 00a1 	lod	A, #161
-    8764:	106b      	call	0x883c <_SetLastError>
+    8764:	106a      	call	0x883a <_SetLastError>
     8766:	001d      	jmp	0x87a2 <_MotorDiagnosticVsupplyAndTemperature+0x142>
 			}
 		}
@@ -13725,7 +13725,7 @@ uint8  MotorDiagnosticOpenCheck(void)
 	/* Thermal Warning */
 	if ( g_i16ChipTemperature > NVRAM_APPL_OTEMP_WARN )
     87a2:	72d8 00b6 	lod	A, 0xb6 <__bss_size>
-    87a6:	aeda 0087 	cmp	A, #135
+    87a6:	aeda 0082 	cmp	A, #130
     87aa:	1b16      	jsle	0x87d8 <_MotorDiagnosticVsupplyAndTemperature+0x178>
     {
 		if ( (l_e8ErrorDebounceFilter & (uint8) C_DEBFLT_ERR_OVT) == 0x00 )
@@ -13738,7 +13738,7 @@ uint8  MotorDiagnosticOpenCheck(void)
 			l_e8ErrorDebounceFilter |= (uint8) C_DEBFLT_ERR_OVT;
     87b6:	62e8      	lod	AL, YL
     87b8:	8402      	or	AL, #2
-    87ba:	0018      	jmp	0x87ec <_MotorDiagnosticVsupplyAndTemperature+0x18c>
+    87ba:	0017      	jmp	0x87ea <_MotorDiagnosticVsupplyAndTemperature+0x18a>
 			l_u8OverTemperatureWarnCount = 0u;
 		}
 		else
@@ -13749,7 +13749,7 @@ uint8  MotorDiagnosticOpenCheck(void)
     87c2:	42d8 00cb 	mov	0xcb <_l_u8OverTemperatureWarnCount>, AL
 			if ( l_u8OverTemperatureWarnCount >= (uint8) C_OVT_DEBOUNCE_THR )
     87c6:	8c05      	cmp	AL, #5
-    87c8:	1a24      	jule	0x8812 <_MotorDiagnosticVsupplyAndTemperature+0x1b2>
+    87c8:	1a23      	jule	0x8810 <_MotorDiagnosticVsupplyAndTemperature+0x1b0>
 			{
 				l_u8OverTemperatureWarnCount = C_OVT_DEBOUNCE_THR;
     87ca:	6006      	lod	AL, #6
@@ -13763,1878 +13763,1878 @@ uint8  MotorDiagnosticOpenCheck(void)
 		}
 	}
 	else if ( g_i16ChipTemperature < (int16) (NVRAM_APPL_OTEMP_WARN - C_TEMPERATURE_HYS) )
-    87d8:	aeda 0081 	cmp	A, #129
-    87dc:	1f1a      	jsg	0x8812 <_MotorDiagnosticVsupplyAndTemperature+0x1b2>
+    87d8:	ac7c      	cmp	A, #124
+    87da:	1f1a      	jsg	0x8810 <_MotorDiagnosticVsupplyAndTemperature+0x1b0>
 	{
 		if(l_e8ErrorDebounceFilter & (uint8) C_DEBFLT_ERR_OVT)
-    87de:	66d8 00cd 	lod	YL, 0xcd <_l_e8ErrorDebounceFilter>
-    87e2:	72e6      	lod	A, Y
-    87e4:	b402      	and	A, #2
-    87e6:	1908      	je	0x87f8 <_MotorDiagnosticVsupplyAndTemperature+0x198>
+    87dc:	66d8 00cd 	lod	YL, 0xcd <_l_e8ErrorDebounceFilter>
+    87e0:	72e6      	lod	A, Y
+    87e2:	b402      	and	A, #2
+    87e4:	1908      	je	0x87f6 <_MotorDiagnosticVsupplyAndTemperature+0x196>
 		{
 			l_e8ErrorDebounceFilter &= (uint8) ~C_DEBFLT_ERR_OVT;
-    87e8:	62e8      	lod	AL, YL
-    87ea:	94fd      	and	AL, #-3
-    87ec:	42d8 00cd 	mov	0xcd <_l_e8ErrorDebounceFilter>, AL
+    87e6:	62e8      	lod	AL, YL
+    87e8:	94fd      	and	AL, #-3
+    87ea:	42d8 00cd 	mov	0xcd <_l_e8ErrorDebounceFilter>, AL
 			l_u8OverTemperatureWarnCount = 0u;
-    87f0:	6000      	lod	AL, #0
-    87f2:	42d8 00cb 	mov	0xcb <_l_u8OverTemperatureWarnCount>, AL
-    87f6:	5401      	ret
+    87ee:	6000      	lod	AL, #0
+    87f0:	42d8 00cb 	mov	0xcb <_l_u8OverTemperatureWarnCount>, AL
+    87f4:	5401      	ret
 		}
 		else
 		{
 			l_u8OverTemperatureWarnCount++;
-    87f8:	62d8 00cb 	lod	AL, 0xcb <_l_u8OverTemperatureWarnCount>
-    87fc:	8001      	add	AL, #1
-    87fe:	42d8 00cb 	mov	0xcb <_l_u8OverTemperatureWarnCount>, AL
+    87f6:	62d8 00cb 	lod	AL, 0xcb <_l_u8OverTemperatureWarnCount>
+    87fa:	8001      	add	AL, #1
+    87fc:	42d8 00cb 	mov	0xcb <_l_u8OverTemperatureWarnCount>, AL
 			if(l_u8OverTemperatureWarnCount >= C_OVT_DEBOUNCE_THR)
-    8802:	8c05      	cmp	AL, #5
-    8804:	1a06      	jule	0x8812 <_MotorDiagnosticVsupplyAndTemperature+0x1b2>
+    8800:	8c05      	cmp	AL, #5
+    8802:	1a06      	jule	0x8810 <_MotorDiagnosticVsupplyAndTemperature+0x1b0>
 			{
 				l_u8OverTemperatureWarnCount = C_OVT_DEBOUNCE_THR;
-    8806:	6006      	lod	AL, #6
-    8808:	42d8 00cb 	mov	0xcb <_l_u8OverTemperatureWarnCount>, AL
+    8804:	6006      	lod	AL, #6
+    8806:	42d8 00cb 	mov	0xcb <_l_u8OverTemperatureWarnCount>, AL
 				g_sMotorFault.TW = 0u;
-    880c:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
-    880e:	94ef      	and	AL, #-17
-    8810:	411c      	mov	dp:0x1c <_g_sMotorFault>, AL
-    8812:	5401      	ret
+    880a:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
+    880c:	94ef      	and	AL, #-17
+    880e:	411c      	mov	dp:0x1c <_g_sMotorFault>, AL
+    8810:	5401      	ret
 
-00008814 <_ErrorLogInit>:
+00008812 <_ErrorLogInit>:
  *
  *	Comments:	Clear Error-FiFo-buffer, in case watchdog reset occurred, 
  *				otherwise leave untouched.
  * ****************************************************************************	*/
 void ErrorLogInit( void)
 {
-    8814:	5803      	inc	S, #4
+    8812:	5803      	inc	S, #4
 	if ( (AWD_CTRL & AWD_RST) != 0u )
-    8816:	729a      	lod	A, io:0x1a <_g_u8ControlFrameID>
-    8818:	ac00      	cmp	A, #0
-    881a:	1e8f      	jsge	0x883a <_ErrorLogInit+0x26>
+    8814:	729a      	lod	A, io:0x1a <_g_u8ControlFrameID>
+    8816:	ac00      	cmp	A, #0
+    8818:	1e8f      	jsge	0x8838 <_ErrorLogInit+0x26>
 	{
 		uint16 i;
 		for ( i = 0u; i < C_ERR_LOG_SZ; i++ )
-    881c:	7000      	lod	A, #0
-    881e:	780a      	lod	Y, #10
-    8820:	5a01      	mov	[S-2], Y
+    881a:	7000      	lod	A, #0
+    881c:	780a      	lod	Y, #10
+    881e:	5a01      	mov	[S-2], Y
 		{
 			l_au8FiFoErrorLog[i] = (uint8)C_ERR_NONE;
-    8822:	7ee2      	lod	X, A
-    8824:	22da 00fa 	add	X, #250
-    8828:	6400      	lod	YL, #0
-    882a:	46f8      	mov	[X], YL
+    8820:	7ee2      	lod	X, A
+    8822:	22da 00fa 	add	X, #250
+    8826:	6400      	lod	YL, #0
+    8828:	46f8      	mov	[X], YL
 void ErrorLogInit( void)
 {
 	if ( (AWD_CTRL & AWD_RST) != 0u )
 	{
 		uint16 i;
 		for ( i = 0u; i < C_ERR_LOG_SZ; i++ )
-    882c:	a001      	add	A, #1
-    882e:	7e01      	lod	X, [S-2]
-    8830:	20ff      	add	X, #-1
-    8832:	5e01      	mov	[S-2], X
-    8834:	1d76      	jne	0x8822 <_ErrorLogInit+0xe>
+    882a:	a001      	add	A, #1
+    882c:	7e01      	lod	X, [S-2]
+    882e:	20ff      	add	X, #-1
+    8830:	5e01      	mov	[S-2], X
+    8832:	1d76      	jne	0x8820 <_ErrorLogInit+0xe>
 		{
 			l_au8FiFoErrorLog[i] = (uint8)C_ERR_NONE;
 		}
 		l_u8ErrorLogIdx = 0u;
-    8836:	46d8 00d4 	mov	0xd4 <_l_u8ErrorLogIdx>, YL
-    883a:	5405      	ret	#6
+    8834:	46d8 00d4 	mov	0xd4 <_l_u8ErrorLogIdx>, YL
+    8838:	5405      	ret	#6
 
-0000883c <_SetLastError>:
+0000883a <_SetLastError>:
  *
  *	Comments:	Save error-code in Error-FiFo-buffer, unless last error is the 
  *				same as error posted.
  * ****************************************************************************	*/
 void SetLastError( uint8 u8ErrorCode)
 {
-    883c:	5803      	inc	S, #4
-    883e:	5203      	mov	[S-4], A
+    883a:	5803      	inc	S, #4
+    883c:	5203      	mov	[S-4], A
 	if ( (l_u8ErrorLogIdx == 0u) || (l_au8FiFoErrorLog[l_u8ErrorLogIdx - 1u] != u8ErrorCode) )
-    8840:	62d8 00d4 	lod	AL, 0xd4 <_l_u8ErrorLogIdx>
-    8844:	4201      	mov	[S-2], AL
-    8846:	1907      	je	0x8856 <_SetLastError+0x1a>
-    8848:	5cf2      	usex	A
-    884a:	7ae2      	lod	Y, A
-    884c:	e2da 00f9 	add	Y, #249
-    8850:	62f0      	lod	AL, [Y]
-    8852:	8e03      	cmp	AL, [S-4]
-    8854:	190d      	je	0x8870 <_SetLastError+0x34>
+    883e:	62d8 00d4 	lod	AL, 0xd4 <_l_u8ErrorLogIdx>
+    8842:	4201      	mov	[S-2], AL
+    8844:	1907      	je	0x8854 <_SetLastError+0x1a>
+    8846:	5cf2      	usex	A
+    8848:	7ae2      	lod	Y, A
+    884a:	e2da 00f9 	add	Y, #249
+    884e:	62f0      	lod	AL, [Y]
+    8850:	8e03      	cmp	AL, [S-4]
+    8852:	190d      	je	0x886e <_SetLastError+0x34>
 	{
 		/* Don't log the same error over and over again */
 		l_au8FiFoErrorLog[l_u8ErrorLogIdx] = u8ErrorCode;
-    8856:	6201      	lod	AL, [S-2]
-    8858:	5cf2      	usex	A
-    885a:	7ae2      	lod	Y, A
-    885c:	e2da 00fa 	add	Y, #250
-    8860:	6203      	lod	AL, [S-4]
-    8862:	42f0      	mov	[Y], AL
+    8854:	6201      	lod	AL, [S-2]
+    8856:	5cf2      	usex	A
+    8858:	7ae2      	lod	Y, A
+    885a:	e2da 00fa 	add	Y, #250
+    885e:	6203      	lod	AL, [S-4]
+    8860:	42f0      	mov	[Y], AL
 		if ( l_u8ErrorLogIdx < (C_ERR_LOG_SZ - 1u) )
-    8864:	6201      	lod	AL, [S-2]
-    8866:	8c08      	cmp	AL, #8
-    8868:	1e03      	jug	0x8870 <_SetLastError+0x34>
+    8862:	6201      	lod	AL, [S-2]
+    8864:	8c08      	cmp	AL, #8
+    8866:	1e03      	jug	0x886e <_SetLastError+0x34>
 		{
 			l_u8ErrorLogIdx++;
-    886a:	8001      	add	AL, #1
-    886c:	42d8 00d4 	mov	0xd4 <_l_u8ErrorLogIdx>, AL
-    8870:	5405      	ret	#6
+    8868:	8001      	add	AL, #1
+    886a:	42d8 00d4 	mov	0xd4 <_l_u8ErrorLogIdx>, AL
+    886e:	5405      	ret	#6
 
-00008872 <_GetLastError>:
+00008870 <_GetLastError>:
 #endif
 	}
 } /* End of SetLastError() */
 
 uint8 GetLastError( void)
 {
-    8872:	5809      	inc	S, #10
+    8870:	5809      	inc	S, #10
 	uint8 u8Reply = l_au8FiFoErrorLog[0];
-    8874:	62d8 00fa 	lod	AL, 0xfa <_l_au8FiFoErrorLog>
-    8878:	5cf2      	usex	A
-    887a:	5209      	mov	[S-10], A
+    8872:	62d8 00fa 	lod	AL, 0xfa <_l_au8FiFoErrorLog>
+    8876:	5cf2      	usex	A
+    8878:	5209      	mov	[S-10], A
 	if ( l_u8ErrorLogIdx != 0u )
-    887c:	62d8 00d4 	lod	AL, 0xd4 <_l_u8ErrorLogIdx>
-    8880:	4207      	mov	[S-8], AL
-    8882:	1924      	je	0x88cc <_GetLastError+0x5a>
+    887a:	62d8 00d4 	lod	AL, 0xd4 <_l_u8ErrorLogIdx>
+    887e:	4207      	mov	[S-8], AL
+    8880:	1924      	je	0x88ca <_GetLastError+0x5a>
  */
 static INLINE uint16 SYS_getCpuStatus (void)
 {
     uint16 status;
 
     __asm__ __volatile__ (
-    8884:	72e3      	lod	A, M
-    8886:	5203      	mov	[S-4], A
+    8882:	72e3      	lod	A, M
+    8884:	5203      	mov	[S-4], A
 	{
 		uint16 i;
 		ATOMIC_CODE
-    8888:	4407      	mov	R, #0
-    888a:	500c      	call	fp0:0x60
-    888c:	54f0      	mov	UPr, #0
-    888e:	7001      	lod	A, #1
-    8890:	5205      	mov	[S-6], A
-    8892:	6207      	lod	AL, [S-8]
-    8894:	5cf2      	usex	A
-    8896:	5201      	mov	[S-2], A
-    8898:	7001      	lod	A, #1
-    889a:	ae01      	cmp	A, [S-2]
-    889c:	1c0b      	jnc	0x88b4 <_GetLastError+0x42>
-    889e:	7a05      	lod	Y, [S-6]
-    88a0:	e2da 00fa 	add	Y, #250
-    88a4:	7ee6      	lod	X, Y
-    88a6:	20ff      	add	X, #-1
-    88a8:	62f0      	lod	AL, [Y]
-    88aa:	42f8      	mov	[X], AL
-    88ac:	7205      	lod	A, [S-6]
-    88ae:	a001      	add	A, #1
-    88b0:	5205      	mov	[S-6], A
-    88b2:	07f3      	jmp	0x889a <_GetLastError+0x28>
-    88b4:	6207      	lod	AL, [S-8]
-    88b6:	80ff      	add	AL, #-1
-    88b8:	42d8 00d4 	mov	0xd4 <_l_u8ErrorLogIdx>, AL
-    88bc:	5cf2      	usex	A
-    88be:	7ae2      	lod	Y, A
-    88c0:	e2da 00fa 	add	Y, #250
-    88c4:	6000      	lod	AL, #0
-    88c6:	42f0      	mov	[Y], AL
+    8886:	4407      	mov	R, #0
+    8888:	500c      	call	fp0:0x60
+    888a:	54f0      	mov	UPr, #0
+    888c:	7001      	lod	A, #1
+    888e:	5205      	mov	[S-6], A
+    8890:	6207      	lod	AL, [S-8]
+    8892:	5cf2      	usex	A
+    8894:	5201      	mov	[S-2], A
+    8896:	7001      	lod	A, #1
+    8898:	ae01      	cmp	A, [S-2]
+    889a:	1c0b      	jnc	0x88b2 <_GetLastError+0x42>
+    889c:	7a05      	lod	Y, [S-6]
+    889e:	e2da 00fa 	add	Y, #250
+    88a2:	7ee6      	lod	X, Y
+    88a4:	20ff      	add	X, #-1
+    88a6:	62f0      	lod	AL, [Y]
+    88a8:	42f8      	mov	[X], AL
+    88aa:	7205      	lod	A, [S-6]
+    88ac:	a001      	add	A, #1
+    88ae:	5205      	mov	[S-6], A
+    88b0:	07f3      	jmp	0x8898 <_GetLastError+0x28>
+    88b2:	6207      	lod	AL, [S-8]
+    88b4:	80ff      	add	AL, #-1
+    88b6:	42d8 00d4 	mov	0xd4 <_l_u8ErrorLogIdx>, AL
+    88ba:	5cf2      	usex	A
+    88bc:	7ae2      	lod	Y, A
+    88be:	e2da 00fa 	add	Y, #250
+    88c2:	6000      	lod	AL, #0
+    88c4:	42f0      	mov	[Y], AL
 /*
  * Set M register value
  */
 static INLINE void SYS_setCpuStatus (uint16 status)
 {
     __asm__ __volatile__ (
-    88c8:	7203      	lod	A, [S-4]
-    88ca:	52e3      	mov	M, A
+    88c6:	7203      	lod	A, [S-4]
+    88c8:	52e3      	mov	M, A
 			l_u8ErrorLogIdx--;
 			l_au8FiFoErrorLog[l_u8ErrorLogIdx] = C_ERR_NONE;
 		);
 	}
 	return ( u8Reply );
 } /* End of GetLastError() */
-    88cc:	7209      	lod	A, [S-10]
-    88ce:	540b      	ret	#12
+    88ca:	7209      	lod	A, [S-10]
+    88cc:	540b      	ret	#12
 
-000088d0 <_MotorDriverSetParams>:
+000088ce <_MotorDriverSetParams>:
 
 /* public functions implementation */
 
 void MotorDriverSetParams(Motor_ControlParams params)
 {
 	l_u8MotorRequest = params.MotorCtrl;
-    88d0:	7aef      	lod	Y, S
-    88d2:	e0f2      	add	Y, #-14
-    88d4:	72f0      	lod	A, [Y]
-    88d6:	42d8 00d5 	mov	0xd5 <_l_u8MotorRequest>, AL
+    88ce:	7aef      	lod	Y, S
+    88d0:	e0f2      	add	Y, #-14
+    88d2:	72f0      	lod	A, [Y]
+    88d4:	42d8 00d5 	mov	0xd5 <_l_u8MotorRequest>, AL
 	if( params.TgtPos != 0xFFFFu )
-    88da:	72f2      	lod	A, [Y+2]
-    88dc:	acff      	cmp	A, #-1
-    88de:	1901      	je	0x88e2 <_MotorDriverSetParams+0x12>
+    88d8:	72f2      	lod	A, [Y+2]
+    88da:	acff      	cmp	A, #-1
+    88dc:	1901      	je	0x88e0 <_MotorDriverSetParams+0x12>
 	{
 		l_u16ActuatorBufferedTgtPos = params.TgtPos;
-    88e0:	514c      	mov	dp:0x4c <_l_u16ActuatorBufferedTgtPos>, A
+    88de:	514c      	mov	dp:0x4c <_l_u16ActuatorBufferedTgtPos>, A
 	}
 	/* argument check:actuator actual position should not be invalid  */
 	if( params.ActPos != 0xFFFFu )
-    88e2:	72f4      	lod	A, [Y+4]
-    88e4:	acff      	cmp	A, #-1
-    88e6:	1901      	je	0x88ea <_MotorDriverSetParams+0x1a>
+    88e0:	72f4      	lod	A, [Y+4]
+    88e2:	acff      	cmp	A, #-1
+    88e4:	1901      	je	0x88e8 <_MotorDriverSetParams+0x1a>
 	{
 		g_u16ActuatorActPos = params.ActPos;
-    88e8:	5146      	mov	dp:0x46 <_g_u16ActuatorActPos>, A
+    88e6:	5146      	mov	dp:0x46 <_g_u16ActuatorActPos>, A
 	}
 
 	/* update target speed */
 	if( params.SpdRPM != 0xFFFFu )
-    88ea:	7203      	lod	A, [S-4]
-    88ec:	acff      	cmp	A, #-1
-    88ee:	1901      	je	0x88f2 <_MotorDriverSetParams+0x22>
+    88e8:	7203      	lod	A, [S-4]
+    88ea:	acff      	cmp	A, #-1
+    88ec:	1901      	je	0x88f0 <_MotorDriverSetParams+0x22>
 	{
 		l_u16ActuatorBufferedSpdRPM = params.SpdRPM;
-    88f0:	514e      	mov	dp:0x4e <_l_u16ActuatorBufferedSpdRPM>, A
-    88f2:	5401      	ret
+    88ee:	514e      	mov	dp:0x4e <_l_u16ActuatorBufferedSpdRPM>, A
+    88f0:	5401      	ret
 
-000088f4 <_MotorDriverGetStatus>:
+000088f2 <_MotorDriverGetStatus>:
 	}
 }
 
 void MotorDriverGetStatus(Motor_RuntimeStatus *pstatus)
 {
-    88f4:	7ae2      	lod	Y, A
+    88f2:	7ae2      	lod	Y, A
 	pstatus->Mode = g_u8MotorStartupMode;
-    88f6:	62d8 00db 	lod	AL, 0xdb <_g_u8MotorStartupMode>
-    88fa:	42f0      	mov	[Y], AL
+    88f4:	62d8 00db 	lod	AL, 0xdb <_g_u8MotorStartupMode>
+    88f8:	42f0      	mov	[Y], AL
 	pstatus->ActPos = g_u16ActuatorActPos;
-    88fc:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
-    88fe:	52f4      	mov	[Y+4], A
+    88fa:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
+    88fc:	52f4      	mov	[Y+4], A
 	pstatus->TgtPos = g_u16ActuatorTgtPos;
-    8900:	7148      	lod	A, dp:0x48 <_g_u16ActuatorTgtPos>
-    8902:	52f6      	mov	[Y+6], A
+    88fe:	7148      	lod	A, dp:0x48 <_g_u16ActuatorTgtPos>
+    8900:	52f6      	mov	[Y+6], A
 	pstatus->Fault = g_sMotorFault;
-    8904:	711c      	lod	A, dp:0x1c <_g_sMotorFault>
-    8906:	52f2      	mov	[Y+2], A
+    8902:	711c      	lod	A, dp:0x1c <_g_sMotorFault>
+    8904:	52f2      	mov	[Y+2], A
 	pstatus->Direction = g_e8MotorDirectionCCW;
-    8908:	e008      	add	Y, #8
-    890a:	6144      	lod	AL, dp:0x44 <_g_e8MotorDirectionCCW>
-    890c:	42f0      	mov	[Y], AL
-    890e:	5401      	ret
+    8906:	e008      	add	Y, #8
+    8908:	6144      	lod	AL, dp:0x44 <_g_e8MotorDirectionCCW>
+    890a:	42f0      	mov	[Y], AL
+    890c:	5401      	ret
 
-00008910 <_MotorDriverClearFaultStatus>:
+0000890e <_MotorDriverClearFaultStatus>:
 }
 
 void MotorDriverClearFaultStatus(void)
 {
 	/* clear permanent mechanical or eletric error,latched */
 	g_sMotorFault.DRIFT = 0;
-    8910:	611d      	lod	AL, dp:0x1d <_g_sMotorFault+0x1>
-    8912:	94fb      	and	AL, #-5
-    8914:	411d      	mov	dp:0x1d <_g_sMotorFault+0x1>, AL
+    890e:	611d      	lod	AL, dp:0x1d <_g_sMotorFault+0x1>
+    8910:	94fb      	and	AL, #-5
+    8912:	411d      	mov	dp:0x1d <_g_sMotorFault+0x1>, AL
 	g_sMotorFault.ST = 0;
-    8916:	711c      	lod	A, dp:0x1c <_g_sMotorFault>
-    8918:	b6da fc3f 	and	A, #64575
-    891c:	511c      	mov	dp:0x1c <_g_sMotorFault>, A
+    8914:	711c      	lod	A, dp:0x1c <_g_sMotorFault>
+    8916:	b6da fc3f 	and	A, #64575
+    891a:	511c      	mov	dp:0x1c <_g_sMotorFault>, A
 	g_sMotorFault.SHORT = 0;
-    891e:	7ada 001c 	lod	Y, #28
-    8922:	62f0      	lod	AL, [Y]
-    8924:	94f7      	and	AL, #-9
-    8926:	42f0      	mov	[Y], AL
+    891c:	7ada 001c 	lod	Y, #28
+    8920:	62f0      	lod	AL, [Y]
+    8922:	94f7      	and	AL, #-9
+    8924:	42f0      	mov	[Y], AL
 	g_sMotorFault.OPEN = 0;
-    8928:	62f0      	lod	AL, [Y]
-    892a:	94fb      	and	AL, #-5
-    892c:	42f0      	mov	[Y], AL
-    892e:	5401      	ret
+    8926:	62f0      	lod	AL, [Y]
+    8928:	94fb      	and	AL, #-5
+    892a:	42f0      	mov	[Y], AL
+    892c:	5401      	ret
 
-00008930 <_MotorDriver_4PhaseStepper>:
+0000892e <_MotorDriver_4PhaseStepper>:
  * Performance: 13.5us @ 28MHz (BIPOLAR_PWM_SINGLE_INDEPENDED_GND)
  *
  * Based on a 32-step c_ai16MicroStepVector4PH-table!!
  * ****************************************************************************	*/
 void MotorDriver_4PhaseStepper( void)
 {
-    8930:	5805      	inc	S, #6
+    892e:	5805      	inc	S, #6
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) */
 
 #if (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_INDEPENDED_GND)					/* MMP150515-1 */
 	/* EMC CE/RE reduction */
 	int16 iPwm1, iPwm2;
 	const int16 *pi16Vector = &c_ai16MicroStepVector4PH[g_u16MicroStepIdx];
-    8932:	713a      	lod	A, dp:0x3a <_g_u16MicroStepIdx>
-    8934:	5203      	mov	[S-4], A
-    8936:	487a 0002 	muls	Y, A, #2
-    893a:	7ee6      	lod	X, Y
-    893c:	22da 98ec 	add	X, #39148
+    8930:	713a      	lod	A, dp:0x3a <_g_u16MicroStepIdx>
+    8932:	5203      	mov	[S-4], A
+    8934:	487a 0002 	muls	Y, A, #2
+    8938:	7ee6      	lod	X, Y
+    893a:	22da 98ec 	add	X, #39148
     return result;
 } /* End of muldivU16_U16byU16byU16() */
 
 static __inline__ int16 mulI16_I16byI16Shft4(int16 a, int16 b) __attribute__ ((always_inline));
 static __inline__ int16 mulI16_I16byI16Shft4(int16 a, int16 b)
 {
-    8940:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
+    893e:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
     int16 result;  /*lint -e530 */
     int16 result2; /*lint -e529 */												/* clobbering of the register */
 
     __asm__ __volatile__ (
-    8942:	7af8      	lod	Y, [X]
-    8944:	4831      	muls	YA, A, Y
-    8946:	48b3      	asr	YA, #4
-    8948:	5a01      	mov	[S-2], Y
+    8940:	7af8      	lod	Y, [X]
+    8942:	4831      	muls	YA, A, Y
+    8944:	48b3      	asr	YA, #4
+    8946:	5a01      	mov	[S-2], Y
     return result;
 } /* End of muldivU16_U16byU16byU16() */
 
 static __inline__ int16 mulI16_I16byI16Shft4(int16 a, int16 b) __attribute__ ((always_inline));
 static __inline__ int16 mulI16_I16byI16Shft4(int16 a, int16 b)
 {
-    894a:	5a05      	mov	[S-6], Y
+    8948:	5a05      	mov	[S-6], Y
 	iPwm1 = (int16) (mulI32_I16byU16( *pi16Vector, g_u16CorrectionRatio) >> (20 + PWM_PRESCALER_N));
 	pi16Vector += C_MICROSTEP_PER_FULLSTEP;
 	iPwm2 = (int16) (mulI32_I16byU16( *pi16Vector, g_u16CorrectionRatio) >> (20 + PWM_PRESCALER_N));
 #elif (PWM_PRESCALER_N == 0U)
 	iPwm1 = mulI16_I16byI16Shft4( *pi16Vector, (int16) g_u16CorrectionRatio);	/* U */
 	pi16Vector += C_MICROSTEP_PER_FULLSTEP;
-    894c:	2010      	add	X, #16
-    894e:	7af8      	lod	Y, [X]
-    8950:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
+    894a:	2010      	add	X, #16
+    894c:	7af8      	lod	Y, [X]
+    894e:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
     int16 result;  /*lint -e530 */
     int16 result2; /*lint -e529 */												/* clobbering of the register */
 
     __asm__ __volatile__ (
-    8952:	4831      	muls	YA, A, Y
-    8954:	48b3      	asr	YA, #4
+    8950:	4831      	muls	YA, A, Y
+    8952:	48b3      	asr	YA, #4
 #else
 	i16PwmU = (int16) (mulI16_I16byI16( *pi16Vector, (int16) g_u16CorrectionRatio) >> (4 + PWM_PRESCALER_N));	/* U */
 	pi16Vector += C_MICROSTEP_PER_FULLSTEP;
 	i16PwmV = (int16) (mulI16_I16byI16( *pi16Vector, (int16) g_u16CorrectionRatio) >> (4 + PWM_PRESCALER_N));	/* V */
 #endif
 	if ( (g_u16MicroStepIdx & (2u*C_MICROSTEP_PER_FULLSTEP)) != 0u )
-    8956:	7203      	lod	A, [S-4]
-    8958:	b410      	and	A, #16
-    895a:	1913      	je	0x8982 <_MotorDriver_4PhaseStepper+0x52>
+    8954:	7203      	lod	A, [S-4]
+    8956:	b410      	and	A, #16
+    8958:	1913      	je	0x8980 <_MotorDriver_4PhaseStepper+0x52>
 	{
 		/* 3rd and 4th Quadrant (Pwm1) */
 		iPwm1 = (int16)PWM_SCALE_OFFSET + iPwm1;
-    895c:	7205      	lod	A, [S-6]
-    895e:	a2da 02bb 	add	A, #699
-    8962:	5205      	mov	[S-6], A
+    895a:	7205      	lod	A, [S-6]
+    895c:	a2da 02bb 	add	A, #699
+    8960:	5205      	mov	[S-6], A
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 		/* U = PWM */
 		PWM4_LT =  (uint16)iPwm1;
-    8964:	52d8 286c 	mov	0x286c <__io__+0x6c>, A
+    8962:	52d8 286c 	mov	0x286c <__io__+0x6c>, A
 		PWM4_HT =  (uint16)PWM_REG_PERIOD - (uint16)iPwm1;
-    8968:	72da 0576 	lod	A, #1398
-    896c:	aa05      	sub	A, [S-6]
-    896e:	52d8 286e 	mov	0x286e <__io__+0x6e>, A
+    8966:	72da 0576 	lod	A, #1398
+    896a:	aa05      	sub	A, [S-6]
+    896c:	52d8 286e 	mov	0x286e <__io__+0x6e>, A
 		PWM3_LT = (uint16) iPwm1;
 		PWM3_HT = (uint16) (PWM_REG_PERIOD - iPwm1);
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 
 		/* W = LOW */
 		PWM2_HT = 0U;
-    8972:	7000      	lod	A, #0
-    8974:	52d8 285a 	mov	0x285a <__io__+0x5a>, A
+    8970:	7000      	lod	A, #0
+    8972:	52d8 285a 	mov	0x285a <__io__+0x5a>, A
 		PWM2_LT = (uint16)PWM_REG_PERIOD + 1U;											/* MMP150603-1 */;
-    8978:	72da 0577 	lod	A, #1399
-    897c:	52d8 2858 	mov	0x2858 <__io__+0x58>, A
-    8980:	0012      	jmp	0x89a6 <_MotorDriver_4PhaseStepper+0x76>
+    8976:	72da 0577 	lod	A, #1399
+    897a:	52d8 2858 	mov	0x2858 <__io__+0x58>, A
+    897e:	0012      	jmp	0x89a4 <_MotorDriver_4PhaseStepper+0x76>
 	}
 	else
 	{
 		/* 1st and 2nd Quadrant (Pwm1)*/
 		/* W = PWM */
 		iPwm1 = ((int16) PWM_SCALE_OFFSET - iPwm1);
-    8982:	72da 02bb 	lod	A, #699
-    8986:	aa01      	sub	A, [S-2]
-    8988:	5205      	mov	[S-6], A
+    8980:	72da 02bb 	lod	A, #699
+    8984:	aa01      	sub	A, [S-2]
+    8986:	5205      	mov	[S-6], A
 		PWM2_LT = (uint16) iPwm1;
-    898a:	52d8 2858 	mov	0x2858 <__io__+0x58>, A
+    8988:	52d8 2858 	mov	0x2858 <__io__+0x58>, A
 		PWM2_HT = (uint16)PWM_REG_PERIOD - (uint16)iPwm1;
-    898e:	72da 0576 	lod	A, #1398
-    8992:	aa05      	sub	A, [S-6]
-    8994:	52d8 285a 	mov	0x285a <__io__+0x5a>, A
+    898c:	72da 0576 	lod	A, #1398
+    8990:	aa05      	sub	A, [S-6]
+    8992:	52d8 285a 	mov	0x285a <__io__+0x5a>, A
 
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 		/* U = LOW */
 		PWM4_HT = 0U;
-    8998:	7000      	lod	A, #0
-    899a:	52d8 286e 	mov	0x286e <__io__+0x6e>, A
+    8996:	7000      	lod	A, #0
+    8998:	52d8 286e 	mov	0x286e <__io__+0x6e>, A
 		PWM4_LT = (uint16)PWM_REG_PERIOD + 1U;											/* MMP150603-1 */
-    899e:	72da 0577 	lod	A, #1399
-    89a2:	52d8 286c 	mov	0x286c <__io__+0x6c>, A
+    899c:	72da 0577 	lod	A, #1399
+    89a0:	52d8 286c 	mov	0x286c <__io__+0x6c>, A
 		PWM3_LT = PWM_REG_PERIOD + 1;											/* MMP150603-1 */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 	}
 
 	{
 		uint16 u16Quad = g_u16MicroStepIdx & (3u * C_MICROSTEP_PER_FULLSTEP);
-    89a6:	713a      	lod	A, dp:0x3a <_g_u16MicroStepIdx>
-    89a8:	b418      	and	A, #24
+    89a4:	713a      	lod	A, dp:0x3a <_g_u16MicroStepIdx>
+    89a6:	b418      	and	A, #24
 		if ( (u16Quad == 0u) || (u16Quad == (3u * C_MICROSTEP_PER_FULLSTEP)) )
-    89aa:	1902      	je	0x89b0 <_MotorDriver_4PhaseStepper+0x80>
-    89ac:	ac18      	cmp	A, #24
-    89ae:	1d0f      	jne	0x89ce <_MotorDriver_4PhaseStepper+0x9e>
+    89a8:	1902      	je	0x89ae <_MotorDriver_4PhaseStepper+0x80>
+    89aa:	ac18      	cmp	A, #24
+    89ac:	1d0f      	jne	0x89cc <_MotorDriver_4PhaseStepper+0x9e>
 		{
 			/* 1st and 4th Quadrant (Pwm2) */
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 			/* T = PWM */
 			PWM5_HT = (uint16) iPwm2;
-    89b0:	5ad8 2878 	mov	0x2878 <__io__+0x78>, Y
+    89ae:	5ad8 2878 	mov	0x2878 <__io__+0x78>, Y
 			PWM5_LT = (uint16)PWM_REG_PERIOD - (uint16)iPwm2;
-    89b4:	72da 0576 	lod	A, #1398
-    89b8:	aae6      	sub	A, Y
-    89ba:	52d8 2876 	mov	0x2876 <__io__+0x76>, A
+    89b2:	72da 0576 	lod	A, #1398
+    89b6:	aae6      	sub	A, Y
+    89b8:	52d8 2876 	mov	0x2876 <__io__+0x76>, A
 
 			/* V = LOW */
 			PWM3_HT = 0U;
-    89be:	7800      	lod	Y, #0
-    89c0:	5ad8 2864 	mov	0x2864 <__io__+0x64>, Y
+    89bc:	7800      	lod	Y, #0
+    89be:	5ad8 2864 	mov	0x2864 <__io__+0x64>, Y
 			PWM3_LT = (uint16)PWM_REG_PERIOD + 1U;										/* MMP150603-1 */
-    89c4:	72da 0577 	lod	A, #1399
-    89c8:	52d8 2862 	mov	0x2862 <__io__+0x62>, A
-    89cc:	000f      	jmp	0x89ec <_MotorDriver_4PhaseStepper+0xbc>
+    89c2:	72da 0577 	lod	A, #1399
+    89c6:	52d8 2862 	mov	0x2862 <__io__+0x62>, A
+    89ca:	000f      	jmp	0x89ea <_MotorDriver_4PhaseStepper+0xbc>
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 		}
 		else
 		{
 			/* 3rd Quadrant (Pwm2) */
 			iPwm2 = (0 - iPwm2);
-    89ce:	5cc6      	neg	Y
+    89cc:	5cc6      	neg	Y
 #if (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UW_VT)
 			/* V = PWM */
 			PWM3_HT = (uint16) iPwm2;
-    89d0:	5ad8 2864 	mov	0x2864 <__io__+0x64>, Y
+    89ce:	5ad8 2864 	mov	0x2864 <__io__+0x64>, Y
 			PWM3_LT = (uint16)PWM_REG_PERIOD - (uint16)iPwm2;
-    89d4:	72da 0576 	lod	A, #1398
-    89d8:	aae6      	sub	A, Y
-    89da:	52d8 2862 	mov	0x2862 <__io__+0x62>, A
+    89d2:	72da 0576 	lod	A, #1398
+    89d6:	aae6      	sub	A, Y
+    89d8:	52d8 2862 	mov	0x2862 <__io__+0x62>, A
 
 			/* T = LOW */
 			PWM5_HT = 0U;
-    89de:	7800      	lod	Y, #0
-    89e0:	5ad8 2878 	mov	0x2878 <__io__+0x78>, Y
+    89dc:	7800      	lod	Y, #0
+    89de:	5ad8 2878 	mov	0x2878 <__io__+0x78>, Y
 			PWM5_LT = (uint16)PWM_REG_PERIOD + 1U;										/* MMP150603-1 */
-    89e4:	72da 0577 	lod	A, #1399
-    89e8:	52d8 2876 	mov	0x2876 <__io__+0x76>, A
+    89e2:	72da 0577 	lod	A, #1399
+    89e6:	52d8 2876 	mov	0x2876 <__io__+0x76>, A
 		PWM4_LT = (uint16) (0 - iPwm);						/* U = PWM */
 #endif /* (_SUPPORT_BIPOLAR_MODE == BIPOLAR_MODE_UT_VW) */
 	}
 #endif /* (_SUPPORT_PWM_MODE == BIPOLAR_PWM_SINGLE_MIRRORSPECIAL) */
 
 	PWM1_LT = (uint16)PWM_SCALE_OFFSET;													/* Master must be modified at last (value is not important) */
-    89ec:	7ada 02bb 	lod	Y, #699
-    89f0:	5ad8 284e 	mov	0x284e <__io__+0x4e>, Y
-    89f4:	5407      	ret	#8
+    89ea:	7ada 02bb 	lod	Y, #699
+    89ee:	5ad8 284e 	mov	0x284e <__io__+0x4e>, Y
+    89f2:	5407      	ret	#8
 
-000089f6 <_MotorDriverInit>:
+000089f4 <_MotorDriverInit>:
  * MotorDriverInit()
  *
  * Initialise Motor Driver
  * ****************************************************************************	*/
 void MotorDriverInit( void)
 {
-    89f6:	5815      	inc	S, #22
-    89f8:	7808      	lod	Y, #8
-    89fa:	7004      	lod	A, #4
+    89f4:	5815      	inc	S, #22
+    89f6:	7808      	lod	Y, #8
+    89f8:	7004      	lod	A, #4
     uint32 result;
 
     __asm__ __volatile__ (
-    89fc:	4801      	mulu	D, A, Y
-    89fe:	7eef      	lod	X, S
-    8a00:	20f8      	add	X, #-8
-    8a02:	4c87      	mov	[X], D
+    89fa:	4801      	mulu	D, A, Y
+    89fc:	7eef      	lod	X, S
+    89fe:	20f8      	add	X, #-8
+    8a00:	4c87      	mov	[X], D
  *
  * Example:
  *   uint32 result = ((uint32) a) * b
  */
 static __inline__ uint32 mulU32_U16byU16(uint16 a, uint16 b)
 {
-    8a04:	7207      	lod	A, [S-8]
-    8a06:	52d8 0106 	mov	0x106 <_g_u16MotorMicroStepsPerElecRotation>, A
+    8a02:	7207      	lod	A, [S-8]
+    8a04:	52d8 0106 	mov	0x106 <_g_u16MotorMicroStepsPerElecRotation>, A
     uint32 result;
 
     __asm__ __volatile__ (
-    8a0a:	700c      	lod	A, #12
-    8a0c:	7a07      	lod	Y, [S-8]
-    8a0e:	4801      	mulu	D, A, Y
-    8a10:	72ee      	lod	A, X
-    8a12:	4cf3      	swap	YA
-    8a14:	4c85      	mov	[Y], D
+    8a08:	700c      	lod	A, #12
+    8a0a:	7a07      	lod	Y, [S-8]
+    8a0c:	4801      	mulu	D, A, Y
+    8a0e:	72ee      	lod	A, X
+    8a10:	4cf3      	swap	YA
+    8a12:	4c85      	mov	[Y], D
  *
  * Example:
  *   uint32 result = ((uint32) a) * b
  */
 static __inline__ uint32 mulU32_U16byU16(uint16 a, uint16 b)
 {
-    8a16:	7a07      	lod	Y, [S-8]
-    8a18:	5ad8 0108 	mov	0x108 <_g_u16MotorMicroStepsPerMechRotation>, Y
+    8a14:	7a07      	lod	Y, [S-8]
+    8a16:	5ad8 0108 	mov	0x108 <_g_u16MotorMicroStepsPerMechRotation>, Y
 	g_u16MotorMicroStepsPerMechRotation = (uint16) mulU32_U16byU16( NVRAM_POLE_PAIRS, g_u16MotorMicroStepsPerElecRotation);
 	{
 		uint16 u16ConstAccelaration = NVRAM_ACCELERATION_CONST;
 		if ( u16ConstAccelaration != 0u )
 		{
 			u32Temp = divU32_U32byU16( (TIMER_CLOCK * 60u), g_u16MotorMicroStepsPerMechRotation);
-    8a1c:	5adf      	push	Y
-    8a1e:	4ce2 2c40 	mov	YA, #105000000
-    8a22:	0642 
-    8a24:	82db 6bfa 	callf	0x6bfa <_divU32_U32byU16>
-    8a28:	4cc0      	mov	D, YA
+    8a1a:	5adf      	push	Y
+    8a1c:	4ce2 2c40 	mov	YA, #105000000
+    8a20:	0642 
+    8a22:	82db 6bfa 	callf	0x6bfa <_divU32_U32byU16>
+    8a26:	4cc0      	mov	D, YA
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8a2a:	5c01      	dec	S, #2
+    8a28:	5c01      	dec	S, #2
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
-    8a2c:	7c3c      	lod	X, #60
+    8a2a:	7c3c      	lod	X, #60
+    8a2c:	4c63      	divu	YA, X
     8a2e:	4c63      	divu	YA, X
-    8a30:	4c63      	divu	YA, X
-    8a32:	5203      	mov	[S-4], A
+    8a30:	5203      	mov	[S-4], A
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8a34:	a0ff      	add	A, #-1
-    8a36:	52d8 0118 	mov	0x118 <_g_au16MotorSpeedCommutTimerPeriod+0xe>, A
-    8a3a:	52d8 010a 	mov	0x10a <_g_au16MotorSpeedCommutTimerPeriod>, A
+    8a32:	a0ff      	add	A, #-1
+    8a34:	52d8 0118 	mov	0x118 <_g_au16MotorSpeedCommutTimerPeriod+0xe>, A
+    8a38:	52d8 010a 	mov	0x10a <_g_au16MotorSpeedCommutTimerPeriod>, A
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
-    8a3e:	4c80      	mov	YA, D
-    8a40:	7eda 04e2 	lod	X, #1250
+    8a3c:	4c80      	mov	YA, D
+    8a3e:	7eda 04e2 	lod	X, #1250
+    8a42:	4c63      	divu	YA, X
     8a44:	4c63      	divu	YA, X
-    8a46:	4c63      	divu	YA, X
-    8a48:	5203      	mov	[S-4], A
+    8a46:	5203      	mov	[S-4], A
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8a4a:	a0ff      	add	A, #-1
-    8a4c:	52d8 0116 	mov	0x116 <_g_au16MotorSpeedCommutTimerPeriod+0xc>, A
-    8a50:	52d8 010c 	mov	0x10c <_g_au16MotorSpeedCommutTimerPeriod+0x2>, A
+    8a48:	a0ff      	add	A, #-1
+    8a4a:	52d8 0116 	mov	0x116 <_g_au16MotorSpeedCommutTimerPeriod+0xc>, A
+    8a4e:	52d8 010c 	mov	0x10c <_g_au16MotorSpeedCommutTimerPeriod+0x2>, A
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
-    8a54:	4c80      	mov	YA, D
-    8a56:	7c5a      	lod	X, #90
+    8a52:	4c80      	mov	YA, D
+    8a54:	7c5a      	lod	X, #90
+    8a56:	4c63      	divu	YA, X
     8a58:	4c63      	divu	YA, X
-    8a5a:	4c63      	divu	YA, X
-    8a5c:	5203      	mov	[S-4], A
+    8a5a:	5203      	mov	[S-4], A
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8a5e:	a0ff      	add	A, #-1
-    8a60:	513c      	mov	dp:0x3c <_g_u16CommutTimerPeriod>, A
-    8a62:	52d8 010e 	mov	0x10e <_g_au16MotorSpeedCommutTimerPeriod+0x4>, A
+    8a5c:	a0ff      	add	A, #-1
+    8a5e:	513c      	mov	dp:0x3c <_g_u16CommutTimerPeriod>, A
+    8a60:	52d8 010e 	mov	0x10e <_g_au16MotorSpeedCommutTimerPeriod+0x4>, A
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
-    8a66:	4c80      	mov	YA, D
-    8a68:	7eda 00c8 	lod	X, #200
+    8a64:	4c80      	mov	YA, D
+    8a66:	7eda 00c8 	lod	X, #200
+    8a6a:	4c63      	divu	YA, X
     8a6c:	4c63      	divu	YA, X
-    8a6e:	4c63      	divu	YA, X
-    8a70:	5203      	mov	[S-4], A
+    8a6e:	5203      	mov	[S-4], A
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8a72:	7ee2      	lod	X, A
-    8a74:	20ff      	add	X, #-1
-    8a76:	5ed8 0110 	mov	0x110 <_g_au16MotorSpeedCommutTimerPeriod+0x6>, X
+    8a70:	7ee2      	lod	X, A
+    8a72:	20ff      	add	X, #-1
+    8a74:	5ed8 0110 	mov	0x110 <_g_au16MotorSpeedCommutTimerPeriod+0x6>, X
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
-    8a7a:	4c80      	mov	YA, D
-    8a7c:	7eda 04e2 	lod	X, #1250
+    8a78:	4c80      	mov	YA, D
+    8a7a:	7eda 04e2 	lod	X, #1250
+    8a7e:	4c63      	divu	YA, X
     8a80:	4c63      	divu	YA, X
-    8a82:	4c63      	divu	YA, X
-    8a84:	5203      	mov	[S-4], A
+    8a82:	5203      	mov	[S-4], A
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8a86:	7ee2      	lod	X, A
-    8a88:	20ff      	add	X, #-1
-    8a8a:	5ed8 0112 	mov	0x112 <_g_au16MotorSpeedCommutTimerPeriod+0x8>, X
+    8a84:	7ee2      	lod	X, A
+    8a86:	20ff      	add	X, #-1
+    8a88:	5ed8 0112 	mov	0x112 <_g_au16MotorSpeedCommutTimerPeriod+0x8>, X
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
-    8a8e:	4c80      	mov	YA, D
-    8a90:	7eda 04e2 	lod	X, #1250
+    8a8c:	4c80      	mov	YA, D
+    8a8e:	7eda 04e2 	lod	X, #1250
+    8a92:	4c63      	divu	YA, X
     8a94:	4c63      	divu	YA, X
-    8a96:	4c63      	divu	YA, X
-    8a98:	5207      	mov	[S-8], A
+    8a96:	5207      	mov	[S-8], A
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8a9a:	a0ff      	add	A, #-1
-    8a9c:	52d8 0114 	mov	0x114 <_g_au16MotorSpeedCommutTimerPeriod+0xa>, A
+    8a98:	a0ff      	add	A, #-1
+    8a9a:	52d8 0114 	mov	0x114 <_g_au16MotorSpeedCommutTimerPeriod+0xa>, A
 			g_au16MotorSpeedCommutTimerPeriod[3] = divU16_U32byU16( u32Temp, NVRAM_SPEED1) - 1u;
 			g_au16MotorSpeedCommutTimerPeriod[4] = divU16_U32byU16( u32Temp, NVRAM_SPEED2) - 1u;
 			g_au16MotorSpeedCommutTimerPeriod[5] = divU16_U32byU16( u32Temp, NVRAM_SPEED3) - 1u;
 			g_au16MotorSpeedCommutTimerPeriod[6] = g_au16MotorSpeedCommutTimerPeriod[1];
 			g_au16MotorSpeedCommutTimerPeriod[7] = g_au16MotorSpeedCommutTimerPeriod[0];
 			g_u16TargetCommutTimerPeriod = g_au16MotorSpeedCommutTimerPeriod[2];	/* Target commutation timer period (target speed) */
-    8aa0:	793c      	lod	Y, dp:0x3c <_g_u16CommutTimerPeriod>
-    8aa2:	593e      	mov	dp:0x3e <_g_u16TargetCommutTimerPeriod>, Y
-    8aa4:	4cca 005a 	movu	D, #90
+    8a9e:	793c      	lod	Y, dp:0x3c <_g_u16CommutTimerPeriod>
+    8aa0:	593e      	mov	dp:0x3e <_g_u16TargetCommutTimerPeriod>, Y
+    8aa2:	4cca 005a 	movu	D, #90
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
-    8aa8:	4c80      	mov	YA, D
-    8aaa:	7c3c      	lod	X, #60
+    8aa6:	4c80      	mov	YA, D
+    8aa8:	7c3c      	lod	X, #60
+    8aaa:	4c63      	divu	YA, X
     8aac:	4c63      	divu	YA, X
-    8aae:	4c63      	divu	YA, X
-    8ab0:	520b      	mov	[S-12], A
+    8aae:	520b      	mov	[S-12], A
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8ab2:	52d8 011a 	mov	0x11a <_g_au16MotorSpeedRPS>, A
-    8ab6:	4cca 0500 	movu	D, #1280
+    8ab0:	52d8 011a 	mov	0x11a <_g_au16MotorSpeedRPS>, A
+    8ab4:	4cca 0500 	movu	D, #1280
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
-    8aba:	4c80      	mov	YA, D
+    8ab8:	4c80      	mov	YA, D
+    8aba:	4c63      	divu	YA, X
     8abc:	4c63      	divu	YA, X
-    8abe:	4c63      	divu	YA, X
-    8ac0:	5209      	mov	[S-10], A
+    8abe:	5209      	mov	[S-10], A
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8ac2:	52d8 011c 	mov	0x11c <_g_au16MotorSpeedRPS+0x2>, A
-    8ac6:	4cea 0078 	movu	YA, #120
+    8ac0:	52d8 011c 	mov	0x11c <_g_au16MotorSpeedRPS+0x2>, A
+    8ac4:	4cea 0078 	movu	YA, #120
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
+    8ac8:	4c63      	divu	YA, X
     8aca:	4c63      	divu	YA, X
-    8acc:	4c63      	divu	YA, X
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8ace:	52d8 011e 	mov	0x11e <_g_au16MotorSpeedRPS+0x4>, A
-    8ad2:	4cea 00e6 	movu	YA, #230
+    8acc:	52d8 011e 	mov	0x11e <_g_au16MotorSpeedRPS+0x4>, A
+    8ad0:	4cea 00e6 	movu	YA, #230
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
+    8ad4:	4c63      	divu	YA, X
     8ad6:	4c63      	divu	YA, X
-    8ad8:	4c63      	divu	YA, X
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8ada:	52d8 0120 	mov	0x120 <_g_au16MotorSpeedRPS+0x6>, A
+    8ad8:	52d8 0120 	mov	0x120 <_g_au16MotorSpeedRPS+0x6>, A
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
-    8ade:	4c80      	mov	YA, D
+    8adc:	4c80      	mov	YA, D
+    8ade:	4c63      	divu	YA, X
     8ae0:	4c63      	divu	YA, X
-    8ae2:	4c63      	divu	YA, X
-    8ae4:	5207      	mov	[S-8], A
+    8ae2:	5207      	mov	[S-8], A
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8ae6:	52d8 0122 	mov	0x122 <_g_au16MotorSpeedRPS+0x8>, A
+    8ae4:	52d8 0122 	mov	0x122 <_g_au16MotorSpeedRPS+0x8>, A
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
-    8aea:	4c80      	mov	YA, D
+    8ae8:	4c80      	mov	YA, D
+    8aea:	4c63      	divu	YA, X
     8aec:	4c63      	divu	YA, X
-    8aee:	4c63      	divu	YA, X
-    8af0:	5207      	mov	[S-8], A
+    8aee:	5207      	mov	[S-8], A
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8af2:	52d8 0124 	mov	0x124 <_g_au16MotorSpeedRPS+0xa>, A
+    8af0:	52d8 0124 	mov	0x124 <_g_au16MotorSpeedRPS+0xa>, A
 			g_au16MotorSpeedRPS[1] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED3 + 30U), 60U);
 			g_au16MotorSpeedRPS[2] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED0 + 30U), 60U);
 			g_au16MotorSpeedRPS[3] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED1 + 30U), 60U);
 			g_au16MotorSpeedRPS[4] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED2 + 30U), 60U);
 			g_au16MotorSpeedRPS[5] = divU16_U32byU16( (uint32)(uint16)(NVRAM_SPEED3 + 30U), 60U);
 			g_au16MotorSpeedRPS[6] = g_au16MotorSpeedRPS[1];
-    8af6:	7a09      	lod	Y, [S-10]
-    8af8:	5ad8 0126 	mov	0x126 <_g_au16MotorSpeedRPS+0xc>, Y
+    8af4:	7a09      	lod	Y, [S-10]
+    8af6:	5ad8 0126 	mov	0x126 <_g_au16MotorSpeedRPS+0xc>, Y
 			g_au16MotorSpeedRPS[7] = g_au16MotorSpeedRPS[0];
-    8afc:	7e0b      	lod	X, [S-12]
-    8afe:	5ed8 0128 	mov	0x128 <_g_au16MotorSpeedRPS+0xe>, X
+    8afa:	7e0b      	lod	X, [S-12]
+    8afc:	5ed8 0128 	mov	0x128 <_g_au16MotorSpeedRPS+0xe>, X
 		}
 	}
 
 	g_u16CorrectionRatio = NVRAM_MIN_CORR_RATIO;
-    8b02:	72da 08df 	lod	A, #2271
-    8b06:	5138      	mov	dp:0x38 <_g_u16CorrectionRatio>, A
+    8b00:	72da 08df 	lod	A, #2271
+    8b04:	5138      	mov	dp:0x38 <_g_u16CorrectionRatio>, A
 
 	/* BLDC motor Commutation/Stepper timer */
 	g_u16MicroStepIdx = 0u;
-    8b08:	7800      	lod	Y, #0
-    8b0a:	593a      	mov	dp:0x3a <_g_u16MicroStepIdx>, Y
+    8b06:	7800      	lod	Y, #0
+    8b08:	593a      	mov	dp:0x3a <_g_u16MicroStepIdx>, Y
 
 	TMR1_CTRL = C_TMRx_CTRL_MODE0;												/* Timer mode 0 */
-    8b0c:	7eda 4001 	lod	X, #16385
-    8b10:	5eaa      	mov	io:0x2a <__data_dp_end+0x2>, X
+    8b0a:	7eda 4001 	lod	X, #16385
+    8b0e:	5eaa      	mov	io:0x2a <__data_dp_end+0x2>, X
 	TMR1_REGB = 0u;																/* Will be overwritten by MotorDriverStart() */
-    8b12:	5aac      	mov	io:0x2c <__data_dp_end+0x4>, Y
+    8b10:	5aac      	mov	io:0x2c <__data_dp_end+0x4>, Y
 
 	/* Setup Motor PWM */	
 	PWM1_CTRL = 0u;																/* Disable master */
-    8b14:	6000      	lod	AL, #0
-    8b16:	42d8 284a 	mov	0x284a <__io__+0x4a>, AL
+    8b12:	6000      	lod	AL, #0
+    8b14:	42d8 284a 	mov	0x284a <__io__+0x4a>, AL
 	PWM2_CTRL = 0u;																/* Disable Slave 1 */
-    8b1a:	42d8 2854 	mov	0x2854 <__io__+0x54>, AL
+    8b18:	42d8 2854 	mov	0x2854 <__io__+0x54>, AL
 	PWM3_CTRL = 0u;																/* Disable Slave 2 */
-    8b1e:	42d8 285e 	mov	0x285e <__io__+0x5e>, AL
+    8b1c:	42d8 285e 	mov	0x285e <__io__+0x5e>, AL
 	PWM4_CTRL = 0u;																/* Disable Slave 3 */
-    8b22:	42d8 2868 	mov	0x2868 <__io__+0x68>, AL
+    8b20:	42d8 2868 	mov	0x2868 <__io__+0x68>, AL
 	PWM5_CTRL = 0u;																/* Disable Slave 4 */
-    8b26:	42d8 2872 	mov	0x2872 <__io__+0x72>, AL
+    8b24:	42d8 2872 	mov	0x2872 <__io__+0x72>, AL
 	PWM1_PSCL = (uint8)PWM_PRESCALER;											/* Initialise the master pre-scaler ratio (Fck/8) */
-    8b2a:	42d8 284b 	mov	0x284b <__io__+0x4b>, AL
+    8b28:	42d8 284b 	mov	0x284b <__io__+0x4b>, AL
 	PWM1_PER = (uint16)PWM_REG_PERIOD;
-    8b2e:	7ada 0576 	lod	Y, #1398
-    8b32:	5ad8 284c 	mov	0x284c <__io__+0x4c>, Y
+    8b2c:	7ada 0576 	lod	Y, #1398
+    8b30:	5ad8 284c 	mov	0x284c <__io__+0x4c>, Y
 	PWM2_PER = (uint16)PWM_REG_PERIOD;											/* -=#=- Probably not needed to set slave period too */
-    8b36:	5ad8 2856 	mov	0x2856 <__io__+0x56>, Y
+    8b34:	5ad8 2856 	mov	0x2856 <__io__+0x56>, Y
 	PWM3_PER = (uint16)PWM_REG_PERIOD;											/* -=#=- Probably not needed to set slave period too */
-    8b3a:	5ad8 2860 	mov	0x2860 <__io__+0x60>, Y
+    8b38:	5ad8 2860 	mov	0x2860 <__io__+0x60>, Y
 	PWM4_PER = (uint16)PWM_REG_PERIOD;											/* -=#=- Probably not needed to set slave period too */
-    8b3e:	5ad8 286a 	mov	0x286a <__io__+0x6a>, Y
+    8b3c:	5ad8 286a 	mov	0x286a <__io__+0x6a>, Y
 	PWM5_PER = (uint16)PWM_REG_PERIOD;											/* -=#=- Probably not needed to set slave period too */
-    8b42:	5ad8 2874 	mov	0x2874 <__io__+0x74>, Y
+    8b40:	5ad8 2874 	mov	0x2874 <__io__+0x74>, Y
 	PWM5_CMP = (((83L * PWM_REG_PERIOD) + 50)/100); 	/*	7.0us */			/* 83% of period */
 #else  /* _SUPPORT_PHASE_SHORT_DET */
 	/* (Single PWM) 17% 		33% 		50% 		75% 		100%		(7.0us/ADC-conversion)
 	 * MF_STEPPER:	Temperature Vs-filt 	Imotor1 	Vsm-unfilt	Imotor2
 	 */
 	PWM1_CMP = (uint16)(((17UL * PWM_REG_PERIOD) + 50U)/100U); 	/*	7.0us */			/* 17% of period */
-    8b46:	7eda 00ee 	lod	X, #238
-    8b4a:	5ed8 2852 	mov	0x2852 <__io__+0x52>, X
+    8b44:	7eda 00ee 	lod	X, #238
+    8b48:	5ed8 2852 	mov	0x2852 <__io__+0x52>, X
 	PWM2_CMP = (uint16)(((33UL * PWM_REG_PERIOD) + 50U)/100U); 	/*	7.0us */			/* 33% of period */
-    8b4e:	72da 01cd 	lod	A, #461
-    8b52:	52d8 285c 	mov	0x285c <__io__+0x5c>, A
+    8b4c:	72da 01cd 	lod	A, #461
+    8b50:	52d8 285c 	mov	0x285c <__io__+0x5c>, A
 	PWM3_CMP = (uint16)(((50UL * PWM_REG_PERIOD) + 50U)/100U); 	/*	10.5us */			/* 50% of period */
-    8b56:	7ada 02bb 	lod	Y, #699
-    8b5a:	5ad8 2866 	mov	0x2866 <__io__+0x66>, Y
+    8b54:	7ada 02bb 	lod	Y, #699
+    8b58:	5ad8 2866 	mov	0x2866 <__io__+0x66>, Y
 	PWM4_CMP = (uint16)(((75UL * PWM_REG_PERIOD) + 50U)/100U); 	/*	10.5us */			/* 75% of period */
-    8b5e:	7eda 0419 	lod	X, #1049
-    8b62:	5ed8 2870 	mov	0x2870 <__io__+0x70>, X
+    8b5c:	7eda 0419 	lod	X, #1049
+    8b60:	5ed8 2870 	mov	0x2870 <__io__+0x70>, X
 	PWM3_CTRL = (MODE | ECI | EXT | EBLK);										/* initialise the slave 2 control register - CMPI enabled */
 	PWM4_CTRL = (MODE | ECI | EXT | EBLK);										/* initialise the slave 3 control register - CMPI enabled */
 	PWM5_CTRL = (MODE | EXT | EBLK);											/* Initialise the slave 4 control register - CMPI disabled */
 #else  /* (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) && (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_INDEPENDED_GND) */
 	/* In-depended mode */
 	PWM1_CTRL = (EBLK | ECI | EPI); 											/* Initialise the master control register - CMPI and PWMI enabled */
-    8b66:	6019      	lod	AL, #25
-    8b68:	42d8 284a 	mov	0x284a <__io__+0x4a>, AL
+    8b64:	6019      	lod	AL, #25
+    8b66:	42d8 284a 	mov	0x284a <__io__+0x4a>, AL
 	PWM2_CTRL = (ECI | EXT | EBLK); 											/* Initialise the slave 1 control register - CMPI enabled */
-    8b6c:	6013      	lod	AL, #19
-    8b6e:	42d8 2854 	mov	0x2854 <__io__+0x54>, AL
+    8b6a:	6013      	lod	AL, #19
+    8b6c:	42d8 2854 	mov	0x2854 <__io__+0x54>, AL
 	PWM3_CTRL = (ECI | EXT | EBLK); 											/* Initialise the slave 2 control register - CMPI enabled */
-    8b72:	42d8 285e 	mov	0x285e <__io__+0x5e>, AL
+    8b70:	42d8 285e 	mov	0x285e <__io__+0x5e>, AL
 	PWM4_CTRL = (ECI | EXT | EBLK); 											/* Initialise the slave 3 control register - CMPI enabled */
-    8b76:	42d8 2868 	mov	0x2868 <__io__+0x68>, AL
+    8b74:	42d8 2868 	mov	0x2868 <__io__+0x68>, AL
 	PWM5_CTRL = (ECI | EXT | EBLK); 											/* Initialise the slave 4 control register - CMPI enabled */
-    8b7a:	42d8 2872 	mov	0x2872 <__io__+0x72>, AL
+    8b78:	42d8 2872 	mov	0x2872 <__io__+0x72>, AL
 #endif /* (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_INDEPENDED_VSM) && (_SUPPORT_PWM_MODE != BIPOLAR_PWM_SINGLE_INDEPENDED_GND) */
 	PWM1_CTRL |= EBLK;															/* Start PWM in application mode */
-    8b7e:	62d8 284a 	lod	AL, 0x284a <__io__+0x4a>
-    8b82:	8401      	or	AL, #1
-    8b84:	42d8 284a 	mov	0x284a <__io__+0x4a>, AL
-    8b88:	5417      	ret	#24
+    8b7c:	62d8 284a 	lod	AL, 0x284a <__io__+0x4a>
+    8b80:	8401      	or	AL, #1
+    8b82:	42d8 284a 	mov	0x284a <__io__+0x4a>, AL
+    8b86:	5417      	ret	#24
 
-00008b8a <_MotorDriverCurrentMeasureInit>:
+00008b88 <_MotorDriverCurrentMeasureInit>:
  * Performance: <10us
  * ****************************************************************************	*/
 void MotorDriverCurrentMeasureInit( void)
 {
 	uint16 u16Count;															/* MMP140331-2 - Begin */
 	l_u16StartupDelayInit = 64u * NVRAM_ACCELERATION_POINTS;					/* Calculate the startup-delay, based on acceleration steps */
-    8b8a:	7040      	lod	A, #64
-    8b8c:	52d8 00d8 	mov	0xd8 <_l_u16StartupDelayInit>, A
+    8b88:	7040      	lod	A, #64
+    8b8a:	52d8 00d8 	mov	0xd8 <_l_u16StartupDelayInit>, A
  */
 static INLINE uint16 SYS_getCpuStatus (void)
 {
     uint16 status;
 
     __asm__ __volatile__ (
-    8b90:	72e3      	lod	A, M
+    8b8e:	72e3      	lod	A, M
 	}																			/* MMP140331-2 - End */
 	else
 	{
 		
 	}
 	ATOMIC_CODE
-    8b92:	4407      	mov	R, #0
-    8b94:	500c      	call	fp0:0x60
-    8b96:	54f0      	mov	UPr, #0
-    8b98:	7ad8 00d8 	lod	Y, 0xd8 <_l_u16StartupDelayInit>
-    8b9c:	5920      	mov	dp:0x20 <_g_u16StartupDelay>, Y
-    8b9e:	7800      	lod	Y, #0
-    8ba0:	5942      	mov	dp:0x42 <_g_u16MotorCurrentLPFx64>, Y
-    8ba2:	5ad8 012a 	mov	0x12a <_l_u16MotorCurrentRawIdx>, Y
-    8ba6:	5940      	mov	dp:0x40 <_g_u16MotorCurrentMovAvgxN>, Y
-    8ba8:	5ad8 012c 	mov	0x12c <_l_au16MotorCurrentRaw>, Y
+    8b90:	4407      	mov	R, #0
+    8b92:	500c      	call	fp0:0x60
+    8b94:	54f0      	mov	UPr, #0
+    8b96:	7ad8 00d8 	lod	Y, 0xd8 <_l_u16StartupDelayInit>
+    8b9a:	5920      	mov	dp:0x20 <_g_u16StartupDelay>, Y
+    8b9c:	7800      	lod	Y, #0
+    8b9e:	5942      	mov	dp:0x42 <_g_u16MotorCurrentLPFx64>, Y
+    8ba0:	5ad8 012a 	mov	0x12a <_l_u16MotorCurrentRawIdx>, Y
+    8ba4:	5940      	mov	dp:0x40 <_g_u16MotorCurrentMovAvgxN>, Y
+    8ba6:	5ad8 012c 	mov	0x12c <_l_au16MotorCurrentRaw>, Y
 /*
  * Set M register value
  */
 static INLINE void SYS_setCpuStatus (uint16 status)
 {
     __asm__ __volatile__ (
-    8bac:	52e3      	mov	M, A
+    8baa:	52e3      	mov	M, A
 		l_u16MotorCurrentRawIdx = 0u;											/* Raw current moving average index */
 		g_u16MotorCurrentMovAvgxN = 0u;											/* Moving average motor-current (x 4..16) */
 		l_au16MotorCurrentRaw[0] = 0u;
 	);
 	{
 		uint16 *pStallCurrentRaw = &l_au16MotorCurrentRaw[1];
-    8bae:	7ada 012e 	lod	Y, #302
-    8bb2:	7c1f      	lod	X, #31
+    8bac:	7ada 012e 	lod	Y, #302
+    8bb0:	7c1f      	lod	X, #31
 		for ( u16Count = 1u; u16Count < (uint16)C_MOVAVG_SZ; u16Count++ )
 		{
 			*pStallCurrentRaw = 0u;
-    8bb4:	7000      	lod	A, #0
-    8bb6:	52d6      	mov	[Y++], A
-    8bb8:	1bfd      	djnz	X, 0x8bb4 <_MotorDriverCurrentMeasureInit+0x2a>
+    8bb2:	7000      	lod	A, #0
+    8bb4:	52d6      	mov	[Y++], A
+    8bb6:	1bfd      	djnz	X, 0x8bb2 <_MotorDriverCurrentMeasureInit+0x2a>
 		g_u16MotorCurrentMovAvgxN = 0u;											/* Moving average motor-current (x 4..16) */
 		l_au16MotorCurrentRaw[0] = 0u;
 	);
 	{
 		uint16 *pStallCurrentRaw = &l_au16MotorCurrentRaw[1];
 		for ( u16Count = 1u; u16Count < (uint16)C_MOVAVG_SZ; u16Count++ )
-    8bba:	5401      	ret
+    8bb8:	5401      	ret
 
-00008bbc <_MotorDriver_InitialPwmDutyCycle>:
+00008bba <_MotorDriver_InitialPwmDutyCycle>:
  * MotorDriver_InitialPwmDutyCycle()
  *
  * Calculate Motor PWM (initial) Duty-cycle, based on current threshold level and speed
  * ****************************************************************************	*/
 void MotorDriver_InitialPwmDutyCycle( uint16 u16CurrentLevel, uint16 u16MotorSpeed)
 {
-    8bbc:	5803      	inc	S, #4
-    8bbe:	7e07      	lod	X, [S-8]
-    8bc0:	4872 0019 	muls	A, A, #25
-    8bc4:	7ad8 00b8 	lod	Y, 0xb8 <_g_i16MotorVoltage>
-    8bc8:	5a03      	mov	[S-4], Y
+    8bba:	5803      	inc	S, #4
+    8bbc:	7e07      	lod	X, [S-8]
+    8bbe:	4872 0019 	muls	A, A, #25
+    8bc2:	7ad8 00b8 	lod	Y, 0xb8 <_g_i16MotorVoltage>
+    8bc6:	5a03      	mov	[S-4], Y
 	if ( u16MotorSpeed == 0u )														/* MMP140228-1 - Begin */
-    8bca:	2c00      	cmp	X, #0
-    8bcc:	1d04      	jne	0x8bd6 <_MotorDriver_InitialPwmDutyCycle+0x1a>
+    8bc8:	2c00      	cmp	X, #0
+    8bca:	1d04      	jne	0x8bd4 <_MotorDriver_InitialPwmDutyCycle+0x1a>
 	{
 		g_u16CorrectionRatio  = ((NVRAM_MOTOR_COIL_RTOT + (2u * C_FETS_RTOT)) * u16CurrentLevel);
-    8bce:	5138      	mov	dp:0x38 <_g_u16CorrectionRatio>, A
+    8bcc:	5138      	mov	dp:0x38 <_g_u16CorrectionRatio>, A
 		g_u16CorrectionRatio /= 4u;
-    8bd0:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
-    8bd2:	44b2      	lsr	A, #2
-    8bd4:	000d      	jmp	0x8bf0 <_MotorDriver_InitialPwmDutyCycle+0x34>
+    8bce:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
+    8bd0:	44b2      	lsr	A, #2
+    8bd2:	000d      	jmp	0x8bee <_MotorDriver_InitialPwmDutyCycle+0x34>
 	}																				/* MMP140228-1 - End */
 	else
 	{
 		/* Ohmic losses: Ur-losses = (0.5 * R[ohm] * I[mA])/10 [10mV] = (R[ohm] * I[mA])/20 [10mV]
 		 * FET losses: Ufet-losses = (Rfet * I[mA])/10 [10mV] = (2 * Rfet * I[mA])/20 [10mV]*/
 		g_u16CorrectionRatio  = ((NVRAM_MOTOR_COIL_RTOT + (2u * C_FETS_RTOT)) * u16CurrentLevel);
-    8bd6:	5138      	mov	dp:0x38 <_g_u16CorrectionRatio>, A
+    8bd4:	5138      	mov	dp:0x38 <_g_u16CorrectionRatio>, A
 		g_u16CorrectionRatio /= 20u;													/* Divided by 20 */
-    8bd8:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
-    8bda:	4822 cccd 	mulu	YA, A, #52429
-    8bde:	72e6      	lod	A, Y
+    8bd6:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
+    8bd8:	4822 cccd 	mulu	YA, A, #52429
+    8bdc:	72e6      	lod	A, Y
+    8bde:	44b2      	lsr	A, #2
     8be0:	44b2      	lsr	A, #2
-    8be2:	44b2      	lsr	A, #2
-    8be4:	5138      	mov	dp:0x38 <_g_u16CorrectionRatio>, A
+    8be2:	5138      	mov	dp:0x38 <_g_u16CorrectionRatio>, A
 		g_u16CorrectionRatio += (NVRAM_MOTOR_CONSTANT * u16MotorSpeed);				/* BEMF = Kmotor[10mV/RPS] * Speed[RPS] */
-    8be6:	72ee      	lod	A, X
-    8be8:	487a 0091 	muls	Y, A, #145
-    8bec:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
-    8bee:	a2e6      	add	A, Y
-    8bf0:	5138      	mov	dp:0x38 <_g_u16CorrectionRatio>, A
+    8be4:	72ee      	lod	A, X
+    8be6:	487a 0091 	muls	Y, A, #145
+    8bea:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
+    8bec:	a2e6      	add	A, Y
+    8bee:	5138      	mov	dp:0x38 <_g_u16CorrectionRatio>, A
     return result;
 } /* End of muldivI16_I16byI16byI16() */
 
 static __inline__ uint16 muldivU16_U16byU16byU16(uint16 a, uint16 b, uint16 c) __attribute__ ((always_inline));
 static __inline__ uint16 muldivU16_U16byU16byU16(uint16 a, uint16 b, uint16 c)
 {
-    8bf2:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
-    8bf4:	44a2      	asl	A, #2
-    8bf6:	4422      	asl	A
-    8bf8:	7eda 0546 	lod	X, #1350
+    8bf0:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
+    8bf2:	44a2      	asl	A, #2
+    8bf4:	4422      	asl	A
+    8bf6:	7eda 0546 	lod	X, #1350
     int16 result;  /*lint -e530 */
     int16 result2; /*lint -e529 */												/* clobbering of the register */
 
     __asm__ __volatile__ (
-    8bfc:	7ada 0aec 	lod	Y, #2796
-    8c00:	4821      	mulu	YA, A, Y
+    8bfa:	7ada 0aec 	lod	Y, #2796
+    8bfe:	4821      	mulu	YA, A, Y
+    8c00:	4c63      	divu	YA, X
     8c02:	4c63      	divu	YA, X
-    8c04:	4c63      	divu	YA, X
     return result;
 } /* End of muldivI16_I16byI16byI16() */
 
 static __inline__ uint16 muldivU16_U16byU16byU16(uint16 a, uint16 b, uint16 c) __attribute__ ((always_inline));
 static __inline__ uint16 muldivU16_U16byU16byU16(uint16 a, uint16 b, uint16 c)
 {
-    8c06:	52d8 0176 	mov	0x176 <_g_u16PidCtrlRatio>, A
+    8c04:	52d8 0176 	mov	0x176 <_g_u16PidCtrlRatio>, A
 	}
 	g_u16PidCtrlRatio =  muldivU16_U16byU16byU16( g_u16CorrectionRatio << 3u, (uint16)PWM_REG_PERIOD << (1u + PWM_PRESCALER_N), NVRAM_VSUP_REF);
 	g_u16PID_I = g_u16PidCtrlRatio;
-    8c0a:	5150      	mov	dp:0x50 <_g_u16PID_I>, A
+    8c08:	5150      	mov	dp:0x50 <_g_u16PID_I>, A
 	if ( g_i16MotorVoltage > 0 )
-    8c0c:	7e03      	lod	X, [S-4]
-    8c0e:	2c00      	cmp	X, #0
-    8c10:	1b08      	jsle	0x8c22 <_MotorDriver_InitialPwmDutyCycle+0x66>
-    8c12:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
-    8c14:	44a2      	asl	A, #2
-    8c16:	4422      	asl	A
+    8c0a:	7e03      	lod	X, [S-4]
+    8c0c:	2c00      	cmp	X, #0
+    8c0e:	1b08      	jsle	0x8c20 <_MotorDriver_InitialPwmDutyCycle+0x66>
+    8c10:	7138      	lod	A, dp:0x38 <_g_u16CorrectionRatio>
+    8c12:	44a2      	asl	A, #2
+    8c14:	4422      	asl	A
     int16 result;  /*lint -e530 */
     int16 result2; /*lint -e529 */												/* clobbering of the register */
 
     __asm__ __volatile__ (
-    8c18:	7ada 0aec 	lod	Y, #2796
-    8c1c:	4821      	mulu	YA, A, Y
+    8c16:	7ada 0aec 	lod	Y, #2796
+    8c1a:	4821      	mulu	YA, A, Y
+    8c1c:	4c63      	divu	YA, X
     8c1e:	4c63      	divu	YA, X
-    8c20:	4c63      	divu	YA, X
 	{
 		g_u16CorrectionRatio = muldivU16_U16byU16byU16( g_u16CorrectionRatio << 3u, (uint16)PWM_REG_PERIOD << (1u + PWM_PRESCALER_N), (uint16) g_i16MotorVoltage);
 	}
 	else
 	{
 		g_u16CorrectionRatio = g_u16PidCtrlRatio;
-    8c22:	5138      	mov	dp:0x38 <_g_u16CorrectionRatio>, A
+    8c20:	5138      	mov	dp:0x38 <_g_u16CorrectionRatio>, A
 	}
 	g_i16PID_D = 0;
-    8c24:	7c00      	lod	X, #0
-    8c26:	5ed8 00e2 	mov	0xe2 <_g_i16PID_D>, X
+    8c22:	7c00      	lod	X, #0
+    8c24:	5ed8 00e2 	mov	0xe2 <_g_i16PID_D>, X
 	g_i16PID_E = 0;
-    8c2a:	5ed8 00e0 	mov	0xe0 <_g_i16PID_E>, X
-    8c2e:	5405      	ret	#6
+    8c28:	5ed8 00e0 	mov	0xe0 <_g_i16PID_E>, X
+    8c2c:	5405      	ret	#6
 
-00008c30 <_MotorDriverStart>:
+00008c2e <_MotorDriverStart>:
  * MotorDriverStart()
  *
  * Start Motor Driver
  * ****************************************************************************	*/
 void MotorDriverStart( void)
 {
-    8c30:	5801      	inc	S, #2
+    8c2e:	5801      	inc	S, #2
 	/* 1)stop, 2)no error,3)target position not equals actual position */
 	if( g_u8MotorStartupMode == (uint8)MSM_STOP )
-    8c32:	62d8 00db 	lod	AL, 0xdb <_g_u8MotorStartupMode>
-    8c36:	1901      	je	0x8c3a <_MotorDriverStart+0xa>
-    8c38:	0054      	jmp	0x8ce2 <_MotorDriverStart+0xb2>
+    8c30:	62d8 00db 	lod	AL, 0xdb <_g_u8MotorStartupMode>
+    8c34:	1901      	je	0x8c38 <_MotorDriverStart+0xa>
+    8c36:	0054      	jmp	0x8ce0 <_MotorDriverStart+0xb2>
 	{
 #if USE_MULTI_PURPOSE_BUFFER
 		/* Fill multi-purpose buffer with acceleration-data */
 		{
 			l_u16SpeedRPM = NVRAM_MIN_SPEED;
-    8c3a:	703c      	lod	A, #60
-    8c3c:	52d8 016c 	mov	0x16c <_l_u16SpeedRPM>, A
+    8c38:	703c      	lod	A, #60
+    8c3a:	52d8 016c 	mov	0x16c <_l_u16SpeedRPM>, A
 			l_u32Temp = divU32_U32byU16( (TIMER_CLOCK * 60U), g_u16MotorMicroStepsPerMechRotation);
-    8c40:	72d8 0108 	lod	A, 0x108 <_g_u16MotorMicroStepsPerMechRotation>
-    8c44:	52df      	push	A
-    8c46:	4ce2 2c40 	mov	YA, #105000000
-    8c4a:	0642 
-    8c4c:	82db 6bfa 	callf	0x6bfa <_divU32_U32byU16>
-    8c50:	52d8 016e 	mov	0x16e <_l_u32Temp>, A
-    8c54:	5ad8 0170 	mov	0x170 <_l_u32Temp+0x2>, Y
-    8c58:	5c01      	dec	S, #2
-    8c5a:	7ed8 016c 	lod	X, 0x16c <_l_u16SpeedRPM>
+    8c3e:	72d8 0108 	lod	A, 0x108 <_g_u16MotorMicroStepsPerMechRotation>
+    8c42:	52df      	push	A
+    8c44:	4ce2 2c40 	mov	YA, #105000000
+    8c48:	0642 
+    8c4a:	82db 6bfa 	callf	0x6bfa <_divU32_U32byU16>
+    8c4e:	52d8 016e 	mov	0x16e <_l_u32Temp>, A
+    8c52:	5ad8 0170 	mov	0x170 <_l_u32Temp+0x2>, Y
+    8c56:	5c01      	dec	S, #2
+    8c58:	7ed8 016c 	lod	X, 0x16c <_l_u16SpeedRPM>
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
+    8c5c:	4c63      	divu	YA, X
     8c5e:	4c63      	divu	YA, X
-    8c60:	4c63      	divu	YA, X
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8c62:	a0ff      	add	A, #-1
-    8c64:	52d8 0172 	mov	0x172 <_l_u16LowSpeedPeriod>, A
+    8c60:	a0ff      	add	A, #-1
+    8c62:	52d8 0172 	mov	0x172 <_l_u16LowSpeedPeriod>, A
 			l_u16LowSpeedPeriod = divU16_U32byU16( l_u32Temp, l_u16SpeedRPM) - 1U;
 		}
 #endif /* USE_MULTI_PURPOSE_BUFFER */
 
 		/* Clear motor-driver current measurement */
 		MotorDriverCurrentMeasureInit();
-    8c68:	1790      	call	0x8b8a <_MotorDriverCurrentMeasureInit>
+    8c66:	1790      	call	0x8b88 <_MotorDriverCurrentMeasureInit>
 #endif /* _SUPPORT_STALLDET_O */
 #if _SUPPORT_STALLDET_H
 		MotorStallInitH();
 #endif /* _SUPPORT_STALLDET_H */
 
 		MotorDiagnosticCheckInit();													/* initialize diagnostic */
-    8c6a:	14bd      	call	0x85e6 <_MotorDiagnosticCheckInit>
+    8c68:	14be      	call	0x85e6 <_MotorDiagnosticCheckInit>
 #endif /* _DEBUG_VOLTAGE_COMPENSATION */
 
 		/* Connect drivers */
 		/* Stepper 4-phase/32-steps */
 		{
 			MotorDriver_InitialPwmDutyCycle( g_u16PidRunningThreshold, g_au16MotorSpeedRPS[1]);	/* MMP140822-1 - Begin */
-    8c6c:	72d8 011c 	lod	A, 0x11c <_g_au16MotorSpeedRPS+0x2>
-    8c70:	52df      	push	A
-    8c72:	72d8 0178 	lod	A, 0x178 <_g_u16PidRunningThreshold>
-    8c76:	17a2      	call	0x8bbc <_MotorDriver_InitialPwmDutyCycle>
+    8c6a:	72d8 011c 	lod	A, 0x11c <_g_au16MotorSpeedRPS+0x2>
+    8c6e:	52df      	push	A
+    8c70:	72d8 0178 	lod	A, 0x178 <_g_u16PidRunningThreshold>
+    8c74:	17a2      	call	0x8bba <_MotorDriver_InitialPwmDutyCycle>
 		}
 		MotorDriver_4PhaseStepper();
-    8c78:	165b      	call	0x8930 <_MotorDriver_4PhaseStepper>
+    8c76:	165b      	call	0x892e <_MotorDriver_4PhaseStepper>
 
 #if (_SUPPORT_PWM_DC_RAMPUP == FALSE)												/* MMP140903-2 - Begin */
 		if ( g_u16MotorSpeedRPS > g_au16MotorSpeedRPS[1] )
-    8c7a:	72d8 0104 	lod	A, 0x104 <_g_u16MotorSpeedRPS>
-    8c7e:	5c01      	dec	S, #2
-    8c80:	aed8 011c 	cmp	A, 0x11c <_g_au16MotorSpeedRPS+0x2>
-    8c84:	1a05      	jule	0x8c90 <_MotorDriverStart+0x60>
+    8c78:	72d8 0104 	lod	A, 0x104 <_g_u16MotorSpeedRPS>
+    8c7c:	5c01      	dec	S, #2
+    8c7e:	aed8 011c 	cmp	A, 0x11c <_g_au16MotorSpeedRPS+0x2>
+    8c82:	1a05      	jule	0x8c8e <_MotorDriverStart+0x60>
 		{
 			MotorDriver_InitialPwmDutyCycle( g_u16PidRunningThreshold, g_u16MotorSpeedRPS);
-    8c86:	52df      	push	A
-    8c88:	72d8 0178 	lod	A, 0x178 <_g_u16PidRunningThreshold>
-    8c8c:	1797      	call	0x8bbc <_MotorDriver_InitialPwmDutyCycle>
-    8c8e:	5c01      	dec	S, #2
+    8c84:	52df      	push	A
+    8c86:	72d8 0178 	lod	A, 0x178 <_g_u16PidRunningThreshold>
+    8c8a:	1797      	call	0x8bba <_MotorDriver_InitialPwmDutyCycle>
+    8c8c:	5c01      	dec	S, #2
 		}																			/* MMP140822-1 - End */
 #endif /* (_SUPPORT_PWM_DC_RAMPUP == FALSE) */										/* MMP140903-2 - End */
 		DRVCFG_PWM_UVWT();															/* Enable the driver and the PWM phase W, V, U and T */
-    8c90:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
-    8c94:	b6da fe00 	and	A, #65024
-    8c98:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
-    8c9c:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
-    8ca0:	a455      	or	A, #85
-    8ca2:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
+    8c8e:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
+    8c92:	b6da fe00 	and	A, #65024
+    8c96:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
+    8c9a:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
+    8c9e:	a455      	or	A, #85
+    8ca0:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
 
 		/* Setup ADC for Motor Temperature/Current/Voltage measurements */
 		ADC_Start();
-    8ca6:	82db 8270 	callf	0x8270 <_ADC_Start>
+    8ca4:	82db 8270 	callf	0x8270 <_ADC_Start>
 
 		g_u8MotorStartupMode = (uint8) MSM_STEPPER_A;								/* Start-up in Acceleration stepper mode */
-    8caa:	6001      	lod	AL, #1
-    8cac:	42d8 00db 	mov	0xdb <_g_u8MotorStartupMode>, AL
+    8ca8:	6001      	lod	AL, #1
+    8caa:	42d8 00db 	mov	0xdb <_g_u8MotorStartupMode>, AL
 		l_u8VTIdx = 0;
-    8cb0:	6000      	lod	AL, #0
-    8cb2:	4122      	mov	dp:0x22 <_l_u8VTIdx>, AL
+    8cae:	6000      	lod	AL, #0
+    8cb0:	4122      	mov	dp:0x22 <_l_u8VTIdx>, AL
 		if ( g_u8MotorStartupMode == (uint8) MSM_STEPPER_A )
 		{
 			if ( g_u16TargetCommutTimerPeriod < l_u16LowSpeedPeriod )
-    8cb4:	793e      	lod	Y, dp:0x3e <_g_u16TargetCommutTimerPeriod>
-    8cb6:	72d8 0172 	lod	A, 0x172 <_l_u16LowSpeedPeriod>
-    8cba:	eee2      	cmp	Y, A
-    8cbc:	1c02      	jnc	0x8cc2 <_MotorDriverStart+0x92>
+    8cb2:	793e      	lod	Y, dp:0x3e <_g_u16TargetCommutTimerPeriod>
+    8cb4:	72d8 0172 	lod	A, 0x172 <_l_u16LowSpeedPeriod>
+    8cb8:	eee2      	cmp	Y, A
+    8cba:	1c02      	jnc	0x8cc0 <_MotorDriverStart+0x92>
 			{
 				/* Target speed too fast for motor to start-up with */
 				g_u16CommutTimerPeriod = l_u16LowSpeedPeriod;						/* Initial start-up speed */
-    8cbe:	513c      	mov	dp:0x3c <_g_u16CommutTimerPeriod>, A
-    8cc0:	0001      	jmp	0x8cc4 <_MotorDriverStart+0x94>
+    8cbc:	513c      	mov	dp:0x3c <_g_u16CommutTimerPeriod>, A
+    8cbe:	0001      	jmp	0x8cc2 <_MotorDriverStart+0x94>
 			}
 			else
 			{
 				/* Target speed is slower than maximum motor start-up speed */
 				g_u16CommutTimerPeriod = g_u16TargetCommutTimerPeriod;
-    8cc2:	593c      	mov	dp:0x3c <_g_u16CommutTimerPeriod>, Y
+    8cc0:	593c      	mov	dp:0x3c <_g_u16CommutTimerPeriod>, Y
 			}
 		}
 		/* motor running direction */
 		g_e8MotorDirectionCCW = (g_u16ActuatorTgtPos < g_u16ActuatorActPos) ? C_MOTOR_DIR_CCW : C_MOTOR_DIR_CW;
-    8cc4:	6000      	lod	AL, #0
-    8cc6:	4201      	mov	[S-2], AL
-    8cc8:	7948      	lod	Y, dp:0x48 <_g_u16ActuatorTgtPos>
-    8cca:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
-    8ccc:	eee2      	cmp	Y, A
-    8cce:	1c02      	jnc	0x8cd4 <_MotorDriverStart+0xa4>
-    8cd0:	6001      	lod	AL, #1
-    8cd2:	4201      	mov	[S-2], AL
-    8cd4:	6201      	lod	AL, [S-2]
-    8cd6:	4144      	mov	dp:0x44 <_g_e8MotorDirectionCCW>, AL
+    8cc2:	6000      	lod	AL, #0
+    8cc4:	4201      	mov	[S-2], AL
+    8cc6:	7948      	lod	Y, dp:0x48 <_g_u16ActuatorTgtPos>
+    8cc8:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
+    8cca:	eee2      	cmp	Y, A
+    8ccc:	1c02      	jnc	0x8cd2 <_MotorDriverStart+0xa4>
+    8cce:	6001      	lod	AL, #1
+    8cd0:	4201      	mov	[S-2], AL
+    8cd2:	6201      	lod	AL, [S-2]
+    8cd4:	4144      	mov	dp:0x44 <_g_e8MotorDirectionCCW>, AL
 		/* start commutation timer */
 		TMR1_REGB = g_u16CommutTimerPeriod;
-    8cd8:	713c      	lod	A, dp:0x3c <_g_u16CommutTimerPeriod>
-    8cda:	52ac      	mov	io:0x2c <__data_dp_end+0x4>, A
+    8cd6:	713c      	lod	A, dp:0x3c <_g_u16CommutTimerPeriod>
+    8cd8:	52ac      	mov	io:0x2c <__data_dp_end+0x4>, A
 		TMR1_CTRL = C_TMRx_CTRL_MODE0 | TMRx_START;									/* Start Timer mode 0 */
-    8cdc:	72da 4003 	lod	A, #16387
-    8ce0:	52aa      	mov	io:0x2a <__data_dp_end+0x2>, A
-    8ce2:	5403      	ret	#4
+    8cda:	72da 4003 	lod	A, #16387
+    8cde:	52aa      	mov	io:0x2a <__data_dp_end+0x2>, A
+    8ce0:	5403      	ret	#4
 
-00008ce4 <_MotorDriverStop>:
+00008ce2 <_MotorDriverStop>:
  *						C_STOP_EMERGENCY : Immediate stop (without ramp-down) + delay
  *
  * Stop Motor Driver
  * ****************************************************************************	*/
 void MotorDriverStop( uint16 u16Immediate )
 {
-    8ce4:	5805      	inc	S, #6
-    8ce6:	5205      	mov	[S-6], A
+    8ce2:	5805      	inc	S, #6
+    8ce4:	5205      	mov	[S-6], A
 	if(g_u8MotorStartupMode != (uint8) MSM_STOP)
-    8ce8:	62d8 00db 	lod	AL, 0xdb <_g_u8MotorStartupMode>
-    8cec:	1d01      	jne	0x8cf0 <_MotorDriverStop+0xc>
-    8cee:	0070      	jmp	0x8dd0 <_MotorDriverStop+0xec>
+    8ce6:	62d8 00db 	lod	AL, 0xdb <_g_u8MotorStartupMode>
+    8cea:	1d01      	jne	0x8cee <_MotorDriverStop+0xc>
+    8cec:	0070      	jmp	0x8dce <_MotorDriverStop+0xec>
 	{
 		if(u16Immediate == (uint16) C_STOP_RAMPDOWN) /*lint !e845 */	/* MMP150922-1 */
-    8cf0:	7205      	lod	A, [S-6]
-    8cf2:	1d22      	jne	0x8d38 <_MotorDriverStop+0x54>
+    8cee:	7205      	lod	A, [S-6]
+    8cf0:	1d22      	jne	0x8d36 <_MotorDriverStop+0x54>
 		{
 			if(l_u8VTIdx > 1u)
-    8cf4:	6122      	lod	AL, dp:0x22 <_l_u8VTIdx>
-    8cf6:	4203      	mov	[S-4], AL
-    8cf8:	8c01      	cmp	AL, #1
-    8cfa:	1a1e      	jule	0x8d38 <_MotorDriverStop+0x54>
+    8cf2:	6122      	lod	AL, dp:0x22 <_l_u8VTIdx>
+    8cf4:	4203      	mov	[S-4], AL
+    8cf6:	8c01      	cmp	AL, #1
+    8cf8:	1a1e      	jule	0x8d36 <_MotorDriverStop+0x54>
 			{
 				TMR1_CTRL = C_TMRx_CTRL_MODE0 | TMRx_START;							/* Start timer mode 0 */
-    8cfc:	72da 4003 	lod	A, #16387
-    8d00:	52aa      	mov	io:0x2a <__data_dp_end+0x2>, A
+    8cfa:	72da 4003 	lod	A, #16387
+    8cfe:	52aa      	mov	io:0x2a <__data_dp_end+0x2>, A
 				
 				/* Set TargetPos near CurrentPos, including ramp-down */
 				if ( g_u16ActuatorActPos > g_u16ActuatorTgtPos )
-    8d02:	7946      	lod	Y, dp:0x46 <_g_u16ActuatorActPos>
-    8d04:	7148      	lod	A, dp:0x48 <_g_u16ActuatorTgtPos>
-    8d06:	5201      	mov	[S-2], A
-    8d08:	6203      	lod	AL, [S-4]
-    8d0a:	5cf2      	usex	A
-    8d0c:	7ee2      	lod	X, A
-    8d0e:	ee01      	cmp	Y, [S-2]
-    8d10:	1a09      	jule	0x8d24 <_MotorDriverStop+0x40>
+    8d00:	7946      	lod	Y, dp:0x46 <_g_u16ActuatorActPos>
+    8d02:	7148      	lod	A, dp:0x48 <_g_u16ActuatorTgtPos>
+    8d04:	5201      	mov	[S-2], A
+    8d06:	6203      	lod	AL, [S-4]
+    8d08:	5cf2      	usex	A
+    8d0a:	7ee2      	lod	X, A
+    8d0c:	ee01      	cmp	Y, [S-2]
+    8d0e:	1a09      	jule	0x8d22 <_MotorDriverStop+0x40>
 				{
 					uint16 u16DeltaPos = g_u16ActuatorActPos - g_u16ActuatorTgtPos;
-    8d12:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
-    8d14:	7948      	lod	Y, dp:0x48 <_g_u16ActuatorTgtPos>
-    8d16:	aae6      	sub	A, Y
+    8d10:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
+    8d12:	7948      	lod	Y, dp:0x48 <_g_u16ActuatorTgtPos>
+    8d14:	aae6      	sub	A, Y
 					if ( u16DeltaPos > l_u8VTIdx )
-    8d18:	aeee      	cmp	A, X
-    8d1a:	1e01      	jug	0x8d1e <_MotorDriverStop+0x3a>
-    8d1c:	0059      	jmp	0x8dd0 <_MotorDriverStop+0xec>
+    8d16:	aeee      	cmp	A, X
+    8d18:	1e01      	jug	0x8d1c <_MotorDriverStop+0x3a>
+    8d1a:	0059      	jmp	0x8dce <_MotorDriverStop+0xec>
 					{
 						g_u16ActuatorTgtPos = g_u16ActuatorActPos - l_u8VTIdx;
-    8d1e:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
-    8d20:	aaee      	sub	A, X
-    8d22:	0008      	jmp	0x8d34 <_MotorDriverStop+0x50>
+    8d1c:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
+    8d1e:	aaee      	sub	A, X
+    8d20:	0008      	jmp	0x8d32 <_MotorDriverStop+0x50>
 					}
 				}
 				else
 				{
 					uint16 u16DeltaPos = g_u16ActuatorTgtPos - g_u16ActuatorActPos;
-    8d24:	7148      	lod	A, dp:0x48 <_g_u16ActuatorTgtPos>
-    8d26:	7946      	lod	Y, dp:0x46 <_g_u16ActuatorActPos>
-    8d28:	aae6      	sub	A, Y
+    8d22:	7148      	lod	A, dp:0x48 <_g_u16ActuatorTgtPos>
+    8d24:	7946      	lod	Y, dp:0x46 <_g_u16ActuatorActPos>
+    8d26:	aae6      	sub	A, Y
 					if ( u16DeltaPos > l_u8VTIdx )
-    8d2a:	aeee      	cmp	A, X
-    8d2c:	1e01      	jug	0x8d30 <_MotorDriverStop+0x4c>
-    8d2e:	0050      	jmp	0x8dd0 <_MotorDriverStop+0xec>
+    8d28:	aeee      	cmp	A, X
+    8d2a:	1e01      	jug	0x8d2e <_MotorDriverStop+0x4c>
+    8d2c:	0050      	jmp	0x8dce <_MotorDriverStop+0xec>
 					{
 						g_u16ActuatorTgtPos = g_u16ActuatorActPos + l_u8VTIdx;
-    8d30:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
-    8d32:	a2ee      	add	A, X
-    8d34:	5148      	mov	dp:0x48 <_g_u16ActuatorTgtPos>, A
+    8d2e:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
+    8d30:	a2ee      	add	A, X
+    8d32:	5148      	mov	dp:0x48 <_g_u16ActuatorTgtPos>, A
 					}
 				}
 				
 				return;
-    8d36:	5407      	ret	#8
+    8d34:	5407      	ret	#8
 			}
 		}
 		/* 1.First stop ADC, before stopping motor (trigger-event) */
 		ADC_Stop();
-    8d38:	82db 81ea 	callf	0x81ea <_ADC_Stop>
+    8d36:	82db 81ea 	callf	0x81ea <_ADC_Stop>
 		g_u8MotorStartupMode = (uint8) MSM_STOP;								/* Stop mode */
-    8d3c:	6000      	lod	AL, #0
-    8d3e:	42d8 00db 	mov	0xdb <_g_u8MotorStartupMode>, AL
+    8d3a:	6000      	lod	AL, #0
+    8d3c:	42d8 00db 	mov	0xdb <_g_u8MotorStartupMode>, AL
 		g_u8MotorStatusSpeed = (uint8) C_MOTOR_SPEED_STOP;						/* Stop */
-    8d42:	42d8 00d7 	mov	0xd7 <_g_u8MotorStatusSpeed>, AL
+    8d40:	42d8 00d7 	mov	0xd7 <_g_u8MotorStatusSpeed>, AL
 		/* 3.deal with specific stop request */
 		/* in case stop with holding current:not supported yet */
 		if(u16Immediate == (uint16) C_STOP_HOLD)
-    8d46:	7205      	lod	A, [S-6]
-    8d48:	ac01      	cmp	A, #1
-    8d4a:	1d1b      	jne	0x8d82 <_MotorDriverStop+0x9e>
+    8d44:	7205      	lod	A, [S-6]
+    8d46:	ac01      	cmp	A, #1
+    8d48:	1d1b      	jne	0x8d80 <_MotorDriverStop+0x9e>
 		{
 			/* Keep Motor driver active with a specified amount of current (unless permanent electric error) */
 			MotorDriver_InitialPwmDutyCycle( g_u16PidHoldingThreshold, 0);
-    8d4c:	54ca 0000 	pushw	#0
-    8d50:	72d8 017c 	lod	A, 0x17c <_g_u16PidHoldingThreshold>
-    8d54:	1733      	call	0x8bbc <_MotorDriver_InitialPwmDutyCycle>
+    8d4a:	54ca 0000 	pushw	#0
+    8d4e:	72d8 017c 	lod	A, 0x17c <_g_u16PidHoldingThreshold>
+    8d52:	1733      	call	0x8bba <_MotorDriver_InitialPwmDutyCycle>
 	
 			MotorDriver_4PhaseStepper();
-    8d56:	15ec      	call	0x8930 <_MotorDriver_4PhaseStepper>
+    8d54:	15ec      	call	0x892e <_MotorDriver_4PhaseStepper>
 			DRVCFG_PWM_UVWT();	
-    8d58:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
-    8d5c:	b6da fe00 	and	A, #65024
-    8d60:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
-    8d64:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
-    8d68:	a455      	or	A, #85
-    8d6a:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
+    8d56:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
+    8d5a:	b6da fe00 	and	A, #65024
+    8d5e:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
+    8d62:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
+    8d66:	a455      	or	A, #85
+    8d68:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
 			g_u16MotorCurrentLPFx64 = (g_u16PidHoldingThreshold << 6u);				/* Low-pass Filtered motor-current (x 64) */
-    8d6e:	72d8 017c 	lod	A, 0x17c <_g_u16PidHoldingThreshold>
+    8d6c:	72d8 017c 	lod	A, 0x17c <_g_u16PidHoldingThreshold>
+    8d70:	44a2      	asl	A, #2
     8d72:	44a2      	asl	A, #2
     8d74:	44a2      	asl	A, #2
-    8d76:	44a2      	asl	A, #2
-    8d78:	5142      	mov	dp:0x42 <_g_u16MotorCurrentLPFx64>, A
+    8d76:	5142      	mov	dp:0x42 <_g_u16MotorCurrentLPFx64>, A
 
 			ADC_Start();															/* Start measuring motor current */
-    8d7a:	82db 8270 	callf	0x8270 <_ADC_Start>
-    8d7e:	5c01      	dec	S, #2
-    8d80:	001d      	jmp	0x8dbc <_MotorDriverStop+0xd8>
+    8d78:	82db 8270 	callf	0x8270 <_ADC_Start>
+    8d7c:	5c01      	dec	S, #2
+    8d7e:	001d      	jmp	0x8dba <_MotorDriverStop+0xd8>
 
 		}
 		/* in case stop with immediately */
 		if(u16Immediate == (uint16) C_STOP_IMMEDIATE)
-    8d82:	7205      	lod	A, [S-6]
-    8d84:	ac02      	cmp	A, #2
-    8d86:	1d0b      	jne	0x8d9e <_MotorDriverStop+0xba>
+    8d80:	7205      	lod	A, [S-6]
+    8d82:	ac02      	cmp	A, #2
+    8d84:	1d0b      	jne	0x8d9c <_MotorDriverStop+0xba>
 		{
 			DRVCFG_GND_UVWT();														/* Make Low-side active, for a short time (recycle current) */
-    8d88:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
-    8d8c:	b6da fe00 	and	A, #65024
-    8d90:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
-    8d94:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
-    8d98:	a6da 00aa 	or	A, #170
-    8d9c:	000d      	jmp	0x8db8 <_MotorDriverStop+0xd4>
+    8d86:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
+    8d8a:	b6da fe00 	and	A, #65024
+    8d8e:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
+    8d92:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
+    8d96:	a6da 00aa 	or	A, #170
+    8d9a:	000d      	jmp	0x8db6 <_MotorDriverStop+0xd4>
 		}
 		/* In case of a permanent error, don't connect drivers anymore */
 		if(u16Immediate == (uint16)C_STOP_EMERGENCY)
-    8d9e:	7205      	lod	A, [S-6]
-    8da0:	ac03      	cmp	A, #3
-    8da2:	1d0c      	jne	0x8dbc <_MotorDriverStop+0xd8>
+    8d9c:	7205      	lod	A, [S-6]
+    8d9e:	ac03      	cmp	A, #3
+    8da0:	1d0c      	jne	0x8dba <_MotorDriverStop+0xd8>
 		{
 			DRVCFG_DIS_UVWT();
-    8da4:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
-    8da8:	b6da fe00 	and	A, #65024
-    8dac:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
+    8da2:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
+    8da6:	b6da fe00 	and	A, #65024
+    8daa:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
 			DRVCFG_DIS();															/* MMP140903-1 */		
-    8db0:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
-    8db4:	a6da 0100 	or	A, #256
-    8db8:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
+    8dae:	72d8 28c6 	lod	A, 0x28c6 <__io__+0xc6>
+    8db2:	a6da 0100 	or	A, #256
+    8db6:	52d8 28c6 	mov	0x28c6 <__io__+0xc6>, A
 																					/* MMP130919-1 - End */
 		}
 		/* 4.stop commutation timer */
 		TMR1_CTRL &= ~TMRx_START;													/* Stop "commutation timer" */
-    8dbc:	72aa      	lod	A, io:0x2a <__data_dp_end+0x2>
-    8dbe:	b4fd      	and	A, #-3
-    8dc0:	52aa      	mov	io:0x2a <__data_dp_end+0x2>, A
+    8dba:	72aa      	lod	A, io:0x2a <__data_dp_end+0x2>
+    8dbc:	b4fd      	and	A, #-3
+    8dbe:	52aa      	mov	io:0x2a <__data_dp_end+0x2>, A
 		XI0_PEND = CLR_T1_INT4;														/* Clear (potentially pending) Timer1 second level interrupts (T1_INT4) */
-    8dc2:	7040      	lod	A, #64
-    8dc4:	52d8 2034 	mov	0x2034 <__ep__+0x1034>, A
+    8dc0:	7040      	lod	A, #64
+    8dc2:	52d8 2034 	mov	0x2034 <__ep__+0x1034>, A
 		PEND = CLR_EXT0_IT;															/* ... and first level interrupt */
-    8dc8:	72da 0100 	lod	A, #256
-    8dcc:	52d8 2008 	mov	0x2008 <__ep__+0x1008>, A
-    8dd0:	5407      	ret	#8
+    8dc6:	72da 0100 	lod	A, #256
+    8dca:	52d8 2008 	mov	0x2008 <__ep__+0x1008>, A
+    8dce:	5407      	ret	#8
 
-00008dd2 <_MotorDriver_MainFunction>:
+00008dd0 <_MotorDriver_MainFunction>:
 	g_sMotorFault.SHORT = 0;
 	g_sMotorFault.OPEN = 0;
 }
 
 void MotorDriver_MainFunction(void)
 {
-    8dd2:	5807      	inc	S, #8
+    8dd0:	5807      	inc	S, #8
 	/* Diagnostic */
 	MotorDiagnosticVsupplyAndTemperature();
-    8dd4:	1445      	call	0x8660 <_MotorDiagnosticVsupplyAndTemperature>
+    8dd2:	1446      	call	0x8660 <_MotorDiagnosticVsupplyAndTemperature>
 
 	/* Diagnostic protection:motor transfer to degrade mode */
 	if((g_sMotorFault.UV != 0u) || (g_sMotorFault.OV != 0u) || 
-    8dd6:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
-    8dd8:	9401      	and	AL, #1
-    8dda:	1d13      	jne	0x8e02 <_MotorDriver_MainFunction+0x30>
-    8ddc:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
-    8dde:	9402      	and	AL, #2
-    8de0:	1d10      	jne	0x8e02 <_MotorDriver_MainFunction+0x30>
-    8de2:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
-    8de4:	9404      	and	AL, #4
-    8de6:	1d0d      	jne	0x8e02 <_MotorDriver_MainFunction+0x30>
-    8de8:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
-    8dea:	9408      	and	AL, #8
-    8dec:	1d0a      	jne	0x8e02 <_MotorDriver_MainFunction+0x30>
-    8dee:	711c      	lod	A, dp:0x1c <_g_sMotorFault>
-    8df0:	b6da 03c0 	and	A, #960
-    8df4:	1d06      	jne	0x8e02 <_MotorDriver_MainFunction+0x30>
-    8df6:	611d      	lod	AL, dp:0x1d <_g_sMotorFault+0x1>
-    8df8:	9404      	and	AL, #4
-    8dfa:	1d03      	jne	0x8e02 <_MotorDriver_MainFunction+0x30>
-    8dfc:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
-    8dfe:	9420      	and	AL, #32
-    8e00:	1905      	je	0x8e0c <_MotorDriver_MainFunction+0x3a>
+    8dd4:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
+    8dd6:	9401      	and	AL, #1
+    8dd8:	1d13      	jne	0x8e00 <_MotorDriver_MainFunction+0x30>
+    8dda:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
+    8ddc:	9402      	and	AL, #2
+    8dde:	1d10      	jne	0x8e00 <_MotorDriver_MainFunction+0x30>
+    8de0:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
+    8de2:	9404      	and	AL, #4
+    8de4:	1d0d      	jne	0x8e00 <_MotorDriver_MainFunction+0x30>
+    8de6:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
+    8de8:	9408      	and	AL, #8
+    8dea:	1d0a      	jne	0x8e00 <_MotorDriver_MainFunction+0x30>
+    8dec:	711c      	lod	A, dp:0x1c <_g_sMotorFault>
+    8dee:	b6da 03c0 	and	A, #960
+    8df2:	1d06      	jne	0x8e00 <_MotorDriver_MainFunction+0x30>
+    8df4:	611d      	lod	AL, dp:0x1d <_g_sMotorFault+0x1>
+    8df6:	9404      	and	AL, #4
+    8df8:	1d03      	jne	0x8e00 <_MotorDriver_MainFunction+0x30>
+    8dfa:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
+    8dfc:	9420      	and	AL, #32
+    8dfe:	1905      	je	0x8e0a <_MotorDriver_MainFunction+0x3a>
 		(g_sMotorFault.OPEN != 0u) || (g_sMotorFault.SHORT != 0u) ||
 		(g_sMotorFault.ST != 0u) || (g_sMotorFault.DRIFT != 0u) || (g_sMotorFault.TS != 0u))
 	{
 		l_u8MotorStatus = C_MOTOR_STATUS_DEGRADED;
-    8e02:	6080      	lod	AL, #-128
-    8e04:	42d8 00d6 	mov	0xd6 <_l_u8MotorStatus>, AL
+    8e00:	6080      	lod	AL, #-128
+    8e02:	42d8 00d6 	mov	0xd6 <_l_u8MotorStatus>, AL
 		MotorDriverStop(C_STOP_EMERGENCY);
-    8e08:	7003      	lod	A, #3
-    8e0a:	176c      	call	0x8ce4 <_MotorDriverStop>
+    8e06:	7003      	lod	A, #3
+    8e08:	176c      	call	0x8ce2 <_MotorDriverStop>
 	}
 
 	/* Stepper Motor State Machine */
 	switch( l_u8MotorStatus )
-    8e0c:	62d8 00d6 	lod	AL, 0xd6 <_l_u8MotorStatus>
-    8e10:	5cf2      	usex	A
-    8e12:	ac01      	cmp	A, #1
-    8e14:	190e      	je	0x8e32 <_MotorDriver_MainFunction+0x60>
-    8e16:	1f04      	jsg	0x8e20 <_MotorDriver_MainFunction+0x4e>
-    8e18:	ac00      	cmp	A, #0
-    8e1a:	1d01      	jne	0x8e1e <_MotorDriver_MainFunction+0x4c>
-    8e1c:	0055      	jmp	0x8ec8 <_MotorDriver_MainFunction+0xf6>
-    8e1e:	00ac      	jmp	0x8f78 <_MotorDriver_MainFunction+0x1a6>
-    8e20:	ac04      	cmp	A, #4
-    8e22:	1905      	je	0x8e2e <_MotorDriver_MainFunction+0x5c>
-    8e24:	aeda 0080 	cmp	A, #128
-    8e28:	1d01      	jne	0x8e2c <_MotorDriver_MainFunction+0x5a>
-    8e2a:	0083      	jmp	0x8f32 <_MotorDriver_MainFunction+0x160>
-    8e2c:	00a5      	jmp	0x8f78 <_MotorDriver_MainFunction+0x1a6>
+    8e0a:	62d8 00d6 	lod	AL, 0xd6 <_l_u8MotorStatus>
+    8e0e:	5cf2      	usex	A
+    8e10:	ac01      	cmp	A, #1
+    8e12:	190e      	je	0x8e30 <_MotorDriver_MainFunction+0x60>
+    8e14:	1f04      	jsg	0x8e1e <_MotorDriver_MainFunction+0x4e>
+    8e16:	ac00      	cmp	A, #0
+    8e18:	1d01      	jne	0x8e1c <_MotorDriver_MainFunction+0x4c>
+    8e1a:	0055      	jmp	0x8ec6 <_MotorDriver_MainFunction+0xf6>
+    8e1c:	00ac      	jmp	0x8f76 <_MotorDriver_MainFunction+0x1a6>
+    8e1e:	ac04      	cmp	A, #4
+    8e20:	1905      	je	0x8e2c <_MotorDriver_MainFunction+0x5c>
+    8e22:	aeda 0080 	cmp	A, #128
+    8e26:	1d01      	jne	0x8e2a <_MotorDriver_MainFunction+0x5a>
+    8e28:	0083      	jmp	0x8f30 <_MotorDriver_MainFunction+0x160>
+    8e2a:	00a5      	jmp	0x8f76 <_MotorDriver_MainFunction+0x1a6>
 	{
 		case C_MOTOR_STATUS_SELFTEST:
 			l_u8MotorStatus = C_MOTOR_STATUS_STOP;
-    8e2e:	6000      	lod	AL, #0
-    8e30:	007b      	jmp	0x8f28 <_MotorDriver_MainFunction+0x156>
+    8e2c:	6000      	lod	AL, #0
+    8e2e:	007b      	jmp	0x8f26 <_MotorDriver_MainFunction+0x156>
 			break;
 		case C_MOTOR_STATUS_RUNNING:
 			/* runtime current PID control  */
 			if( Timer_IsExpired(PID_CTRL_TIMER) == TRUE )
-    8e32:	7004      	lod	A, #4
-    8e34:	82db 9814 	callf	0x9814 <_Timer_IsExpired>
-    8e38:	8c01      	cmp	AL, #1
-    8e3a:	1d08      	jne	0x8e4c <_MotorDriver_MainFunction+0x7a>
+    8e30:	7004      	lod	A, #4
+    8e32:	82db 9814 	callf	0x9814 <_Timer_IsExpired>
+    8e36:	8c01      	cmp	AL, #1
+    8e38:	1d08      	jne	0x8e4a <_MotorDriver_MainFunction+0x7a>
 			{
 				PID_Control();													/* PID-control (Current) */
-    8e3c:	82db 96a8 	callf	0x96a8 <_PID_Control>
+    8e3a:	82db 96a8 	callf	0x96a8 <_PID_Control>
 				Timer_Start(PID_CTRL_TIMER,(uint16)NVRAM_PID_RUNNINGCTRL_PER);
-    8e40:	54ca 000a 	pushw	#10
-    8e44:	7004      	lod	A, #4
-    8e46:	82db 9802 	callf	0x9802 <_Timer_Start>
-    8e4a:	5c01      	dec	S, #2
+    8e3e:	54ca 000a 	pushw	#10
+    8e42:	7004      	lod	A, #4
+    8e44:	82db 9802 	callf	0x9802 <_Timer_Start>
+    8e48:	5c01      	dec	S, #2
 			}
 			/* update target speed,may be overwitten by ISR */
 			{
 				uint32 u32Temp;
 				
 				u32Temp = divU32_U32byU16( (TIMER_CLOCK * 60U), g_u16MotorMicroStepsPerMechRotation);
-    8e4c:	7ad8 0108 	lod	Y, 0x108 <_g_u16MotorMicroStepsPerMechRotation>
-    8e50:	5adf      	push	Y
-    8e52:	4ce2 2c40 	mov	YA, #105000000
-    8e56:	0642 
-    8e58:	82db 6bfa 	callf	0x6bfa <_divU32_U32byU16>
-    8e5c:	4cc0      	mov	D, YA
-    8e5e:	5c01      	dec	S, #2
-    8e60:	714e      	lod	A, dp:0x4e <_l_u16ActuatorBufferedSpdRPM>
-    8e62:	5207      	mov	[S-8], A
-    8e64:	a01e      	add	A, #30
-    8e66:	4cf2      	usex	YA
-    8e68:	7c3c      	lod	X, #60
+    8e4a:	7ad8 0108 	lod	Y, 0x108 <_g_u16MotorMicroStepsPerMechRotation>
+    8e4e:	5adf      	push	Y
+    8e50:	4ce2 2c40 	mov	YA, #105000000
+    8e54:	0642 
+    8e56:	82db 6bfa 	callf	0x6bfa <_divU32_U32byU16>
+    8e5a:	4cc0      	mov	D, YA
+    8e5c:	5c01      	dec	S, #2
+    8e5e:	714e      	lod	A, dp:0x4e <_l_u16ActuatorBufferedSpdRPM>
+    8e60:	5207      	mov	[S-8], A
+    8e62:	a01e      	add	A, #30
+    8e64:	4cf2      	usex	YA
+    8e66:	7c3c      	lod	X, #60
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
+    8e68:	4c63      	divu	YA, X
     8e6a:	4c63      	divu	YA, X
-    8e6c:	4c63      	divu	YA, X
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8e6e:	52d8 0104 	mov	0x104 <_g_u16MotorSpeedRPS>, A
+    8e6c:	52d8 0104 	mov	0x104 <_g_u16MotorSpeedRPS>, A
     uint16 result;
     uint16 result2;    /* clobbering of the register */
 
     __asm__ __volatile__ (
-    8e72:	4c80      	mov	YA, D
-    8e74:	7e07      	lod	X, [S-8]
+    8e70:	4c80      	mov	YA, D
+    8e72:	7e07      	lod	X, [S-8]
+    8e74:	4c63      	divu	YA, X
     8e76:	4c63      	divu	YA, X
-    8e78:	4c63      	divu	YA, X
-    8e7a:	5203      	mov	[S-4], A
+    8e78:	5203      	mov	[S-4], A
  *
  * Output :
  *      result      unsigned 16-bit quotient
  */
 static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 {
-    8e7c:	a0ff      	add	A, #-1
-    8e7e:	513e      	mov	dp:0x3e <_g_u16TargetCommutTimerPeriod>, A
+    8e7a:	a0ff      	add	A, #-1
+    8e7c:	513e      	mov	dp:0x3e <_g_u16TargetCommutTimerPeriod>, A
 				g_u16MotorSpeedRPS = divU16_U32byU16( (uint32)(uint16)(l_u16ActuatorBufferedSpdRPM + 30U), 60U);
 				g_u16TargetCommutTimerPeriod = divU16_U32byU16( u32Temp, l_u16ActuatorBufferedSpdRPM) - 1U;	
 			}
 			/* need change new direction? */
 			if(l_u8MotorRequest == C_MOTOR_CTRL_START)
-    8e80:	62d8 00d5 	lod	AL, 0xd5 <_l_u8MotorRequest>
-    8e84:	8c01      	cmp	AL, #1
-    8e86:	1d10      	jne	0x8ea8 <_MotorDriver_MainFunction+0xd6>
+    8e7e:	62d8 00d5 	lod	AL, 0xd5 <_l_u8MotorRequest>
+    8e82:	8c01      	cmp	AL, #1
+    8e84:	1d10      	jne	0x8ea6 <_MotorDriver_MainFunction+0xd6>
 			{
 				uint8 u8NewMotorDirectionCCW;
 				
 				u8NewMotorDirectionCCW = (l_u16ActuatorBufferedTgtPos < g_u16ActuatorActPos) ? C_MOTOR_DIR_CCW : C_MOTOR_DIR_CW;
-    8e88:	7c00      	lod	X, #0
-    8e8a:	794c      	lod	Y, dp:0x4c <_l_u16ActuatorBufferedTgtPos>
-    8e8c:	5a01      	mov	[S-2], Y
-    8e8e:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
-    8e90:	eee2      	cmp	Y, A
-    8e92:	1c01      	jnc	0x8e96 <_MotorDriver_MainFunction+0xc4>
-    8e94:	7c01      	lod	X, #1
+    8e86:	7c00      	lod	X, #0
+    8e88:	794c      	lod	Y, dp:0x4c <_l_u16ActuatorBufferedTgtPos>
+    8e8a:	5a01      	mov	[S-2], Y
+    8e8c:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
+    8e8e:	eee2      	cmp	Y, A
+    8e90:	1c01      	jnc	0x8e94 <_MotorDriver_MainFunction+0xc4>
+    8e92:	7c01      	lod	X, #1
 				/* update new target position:commutation if direction inversed with current direction */
 				if ( u8NewMotorDirectionCCW != g_e8MotorDirectionCCW )
-    8e96:	6144      	lod	AL, dp:0x44 <_g_e8MotorDirectionCCW>
-    8e98:	7aee      	lod	Y, X
-    8e9a:	8ee8      	cmp	AL, YL
-    8e9c:	1903      	je	0x8ea4 <_MotorDriver_MainFunction+0xd2>
+    8e94:	6144      	lod	AL, dp:0x44 <_g_e8MotorDirectionCCW>
+    8e96:	7aee      	lod	Y, X
+    8e98:	8ee8      	cmp	AL, YL
+    8e9a:	1903      	je	0x8ea2 <_MotorDriver_MainFunction+0xd2>
 		     	{
 		        	/* Changing direction; Stop motor first before starting in opposite direction */
 		        	MotorDriverStop( (uint16) C_STOP_RAMPDOWN);					/* Change of direction */
-    8e9e:	7000      	lod	A, #0
-    8ea0:	1721      	call	0x8ce4 <_MotorDriverStop>
-    8ea2:	0002      	jmp	0x8ea8 <_MotorDriver_MainFunction+0xd6>
+    8e9c:	7000      	lod	A, #0
+    8e9e:	1721      	call	0x8ce2 <_MotorDriverStop>
+    8ea0:	0002      	jmp	0x8ea6 <_MotorDriver_MainFunction+0xd6>
 		       	}
 				else
 				{
 					/* only update target position */
 					g_u16ActuatorTgtPos = l_u16ActuatorBufferedTgtPos;
-    8ea4:	7e01      	lod	X, [S-2]
-    8ea6:	5d48      	mov	dp:0x48 <_g_u16ActuatorTgtPos>, X
+    8ea2:	7e01      	lod	X, [S-2]
+    8ea4:	5d48      	mov	dp:0x48 <_g_u16ActuatorTgtPos>, X
 				}
 			}
 			/* Motor request stop */
 			if(l_u8MotorRequest == C_MOTOR_CTRL_STOP)
-    8ea8:	62d8 00d5 	lod	AL, 0xd5 <_l_u8MotorRequest>
-    8eac:	1d05      	jne	0x8eb8 <_MotorDriver_MainFunction+0xe6>
+    8ea6:	62d8 00d5 	lod	AL, 0xd5 <_l_u8MotorRequest>
+    8eaa:	1d05      	jne	0x8eb6 <_MotorDriver_MainFunction+0xe6>
 			{
 				MotorDriverStop( (uint16) C_STOP_IMMEDIATE);
-    8eae:	7002      	lod	A, #2
-    8eb0:	1719      	call	0x8ce4 <_MotorDriverStop>
+    8eac:	7002      	lod	A, #2
+    8eae:	1719      	call	0x8ce2 <_MotorDriverStop>
 				l_u8MotorStatus = C_MOTOR_STATUS_STOP;
-    8eb2:	6000      	lod	AL, #0
-    8eb4:	42d8 00d6 	mov	0xd6 <_l_u8MotorStatus>, AL
+    8eb0:	6000      	lod	AL, #0
+    8eb2:	42d8 00d6 	mov	0xd6 <_l_u8MotorStatus>, AL
 			}
 			/* Motor reach target position,stop by commutation ISR */
 			if(g_u8MotorStartupMode == (uint8)MSM_STOP)
-    8eb8:	62d8 00db 	lod	AL, 0xdb <_g_u8MotorStartupMode>
-    8ebc:	1901      	je	0x8ec0 <_MotorDriver_MainFunction+0xee>
-    8ebe:	005f      	jmp	0x8f7e <_MotorDriver_MainFunction+0x1ac>
+    8eb6:	62d8 00db 	lod	AL, 0xdb <_g_u8MotorStartupMode>
+    8eba:	1901      	je	0x8ebe <_MotorDriver_MainFunction+0xee>
+    8ebc:	005f      	jmp	0x8f7c <_MotorDriver_MainFunction+0x1ac>
 			{
 				l_u8MotorStatus = C_MOTOR_STATUS_STOP;
-    8ec0:	6400      	lod	YL, #0
-    8ec2:	46d8 00d6 	mov	0xd6 <_l_u8MotorStatus>, YL
+    8ebe:	6400      	lod	YL, #0
+    8ec0:	46d8 00d6 	mov	0xd6 <_l_u8MotorStatus>, YL
 			}
 			break;
-    8ec6:	5409      	ret	#10
+    8ec4:	5409      	ret	#10
 		case C_MOTOR_STATUS_STOP:
 			/* ********************************************************** */
 			/* *** l. Threshold control (Stepper: Current-threshold) 			   *** */
 			/* ********************************************************** */
 			if(Timer_IsExpired(PID_THRSHLD_CTRL_TIMER) == TRUE)
-    8ec8:	7005      	lod	A, #5
-    8eca:	82db 9814 	callf	0x9814 <_Timer_IsExpired>
-    8ece:	8c01      	cmp	AL, #1
-    8ed0:	1d08      	jne	0x8ee2 <_MotorDriver_MainFunction+0x110>
+    8ec6:	7005      	lod	A, #5
+    8ec8:	82db 9814 	callf	0x9814 <_Timer_IsExpired>
+    8ecc:	8c01      	cmp	AL, #1
+    8ece:	1d08      	jne	0x8ee0 <_MotorDriver_MainFunction+0x110>
 			{
 				ThresholdControl();
-    8ed2:	82db 9776 	callf	0x9776 <_ThresholdControl>
+    8ed0:	82db 9776 	callf	0x9776 <_ThresholdControl>
 				Timer_Start(PID_THRSHLD_CTRL_TIMER,(uint16)NVRAM_PID_THRSHLDCTRL_PER);
-    8ed6:	54ca 0800 	pushw	#2048
-    8eda:	7005      	lod	A, #5
-    8edc:	82db 9802 	callf	0x9802 <_Timer_Start>
-    8ee0:	5c01      	dec	S, #2
+    8ed4:	54ca 0800 	pushw	#2048
+    8ed8:	7005      	lod	A, #5
+    8eda:	82db 9802 	callf	0x9802 <_Timer_Start>
+    8ede:	5c01      	dec	S, #2
 			}
 
 			/* Stop-mode & holding-current required:not support */
 			if(g_u8MotorHoldingCurrState == TRUE)
-    8ee2:	62d8 00da 	lod	AL, 0xda <_g_u8MotorHoldingCurrState>
-    8ee6:	8c01      	cmp	AL, #1
-    8ee8:	1d0d      	jne	0x8f04 <_MotorDriver_MainFunction+0x132>
+    8ee0:	62d8 00da 	lod	AL, 0xda <_g_u8MotorHoldingCurrState>
+    8ee4:	8c01      	cmp	AL, #1
+    8ee6:	1d0d      	jne	0x8f02 <_MotorDriver_MainFunction+0x132>
 			{
 				/* holding current */
 				if( Timer_IsExpired(PID_CTRL_TIMER) == TRUE)
-    8eea:	7004      	lod	A, #4
-    8eec:	82db 9814 	callf	0x9814 <_Timer_IsExpired>
-    8ef0:	8c01      	cmp	AL, #1
-    8ef2:	1d08      	jne	0x8f04 <_MotorDriver_MainFunction+0x132>
+    8ee8:	7004      	lod	A, #4
+    8eea:	82db 9814 	callf	0x9814 <_Timer_IsExpired>
+    8eee:	8c01      	cmp	AL, #1
+    8ef0:	1d08      	jne	0x8f02 <_MotorDriver_MainFunction+0x132>
 				{
 					Timer_Start(PID_CTRL_TIMER,(uint16)NVRAM_PID_HOLDINGCTRL_PER);
-    8ef4:	54ca 0064 	pushw	#100
-    8ef8:	7004      	lod	A, #4
-    8efa:	82db 9802 	callf	0x9802 <_Timer_Start>
+    8ef2:	54ca 0064 	pushw	#100
+    8ef6:	7004      	lod	A, #4
+    8ef8:	82db 9802 	callf	0x9802 <_Timer_Start>
 					PID_Control();
-    8efe:	13d4      	call	0x96a8 <_PID_Control>
+    8efc:	13d5      	call	0x96a8 <_PID_Control>
 					MotorDriver_4PhaseStepper();
-    8f00:	1517      	call	0x8930 <_MotorDriver_4PhaseStepper>
-    8f02:	5c01      	dec	S, #2
+    8efe:	1517      	call	0x892e <_MotorDriver_4PhaseStepper>
+    8f00:	5c01      	dec	S, #2
 				}
 			}
 			/* start request and motor target position not equals actual position */
 			if( (l_u8MotorRequest == C_MOTOR_CTRL_START) && (l_u16ActuatorBufferedTgtPos != g_u16ActuatorActPos) )
-    8f04:	62d8 00d5 	lod	AL, 0xd5 <_l_u8MotorRequest>
-    8f08:	8c01      	cmp	AL, #1
-    8f0a:	1d11      	jne	0x8f2e <_MotorDriver_MainFunction+0x15c>
-    8f0c:	794c      	lod	Y, dp:0x4c <_l_u16ActuatorBufferedTgtPos>
-    8f0e:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
-    8f10:	eee2      	cmp	Y, A
-    8f12:	190d      	je	0x8f2e <_MotorDriver_MainFunction+0x15c>
+    8f02:	62d8 00d5 	lod	AL, 0xd5 <_l_u8MotorRequest>
+    8f06:	8c01      	cmp	AL, #1
+    8f08:	1d11      	jne	0x8f2c <_MotorDriver_MainFunction+0x15c>
+    8f0a:	794c      	lod	Y, dp:0x4c <_l_u16ActuatorBufferedTgtPos>
+    8f0c:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
+    8f0e:	eee2      	cmp	Y, A
+    8f10:	190d      	je	0x8f2c <_MotorDriver_MainFunction+0x15c>
 			{
 				g_u16ActuatorTgtPos = l_u16ActuatorBufferedTgtPos;
-    8f14:	5948      	mov	dp:0x48 <_g_u16ActuatorTgtPos>, Y
+    8f12:	5948      	mov	dp:0x48 <_g_u16ActuatorTgtPos>, Y
 				
 				if(Timer_IsExpired(MOTOR_START_DELAY_TIMER) == TRUE)
-    8f16:	7002      	lod	A, #2
-    8f18:	82db 9814 	callf	0x9814 <_Timer_IsExpired>
-    8f1c:	4205      	mov	[S-6], AL
-    8f1e:	8c01      	cmp	AL, #1
-    8f20:	1901      	je	0x8f24 <_MotorDriver_MainFunction+0x152>
-    8f22:	002d      	jmp	0x8f7e <_MotorDriver_MainFunction+0x1ac>
+    8f14:	7002      	lod	A, #2
+    8f16:	82db 9814 	callf	0x9814 <_Timer_IsExpired>
+    8f1a:	4205      	mov	[S-6], AL
+    8f1c:	8c01      	cmp	AL, #1
+    8f1e:	1901      	je	0x8f22 <_MotorDriver_MainFunction+0x152>
+    8f20:	002d      	jmp	0x8f7c <_MotorDriver_MainFunction+0x1ac>
 				{			
 					MotorDriverStart();
-    8f24:	1685      	call	0x8c30 <_MotorDriverStart>
+    8f22:	1685      	call	0x8c2e <_MotorDriverStart>
 					l_u8MotorStatus = C_MOTOR_STATUS_RUNNING;
-    8f26:	6205      	lod	AL, [S-6]
-    8f28:	42d8 00d6 	mov	0xd6 <_l_u8MotorStatus>, AL
-    8f2c:	5409      	ret	#10
+    8f24:	6205      	lod	AL, [S-6]
+    8f26:	42d8 00d6 	mov	0xd6 <_l_u8MotorStatus>, AL
+    8f2a:	5409      	ret	#10
 				}
 			}
 			else
 			{
 				MotorDriverStop(C_STOP_IMMEDIATE);
-    8f2e:	7002      	lod	A, #2
-    8f30:	0017      	jmp	0x8f60 <_MotorDriver_MainFunction+0x18e>
+    8f2c:	7002      	lod	A, #2
+    8f2e:	0017      	jmp	0x8f5e <_MotorDriver_MainFunction+0x18e>
 			}
 			break;
 		case C_MOTOR_STATUS_DEGRADED:
 			/* Diagnostic shutdown protection */
 			if((g_sMotorFault.UV != 0u) || (g_sMotorFault.OV != 0u) || 
-    8f32:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
-    8f34:	9401      	and	AL, #1
-    8f36:	1d13      	jne	0x8f5e <_MotorDriver_MainFunction+0x18c>
-    8f38:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
-    8f3a:	9402      	and	AL, #2
-    8f3c:	1d10      	jne	0x8f5e <_MotorDriver_MainFunction+0x18c>
-    8f3e:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
-    8f40:	9404      	and	AL, #4
-    8f42:	1d0d      	jne	0x8f5e <_MotorDriver_MainFunction+0x18c>
-    8f44:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
-    8f46:	9408      	and	AL, #8
-    8f48:	1d0a      	jne	0x8f5e <_MotorDriver_MainFunction+0x18c>
-    8f4a:	711c      	lod	A, dp:0x1c <_g_sMotorFault>
-    8f4c:	b6da 03c0 	and	A, #960
-    8f50:	1d06      	jne	0x8f5e <_MotorDriver_MainFunction+0x18c>
-    8f52:	611d      	lod	AL, dp:0x1d <_g_sMotorFault+0x1>
-    8f54:	9404      	and	AL, #4
-    8f56:	1d03      	jne	0x8f5e <_MotorDriver_MainFunction+0x18c>
-    8f58:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
-    8f5a:	9420      	and	AL, #32
-    8f5c:	1903      	je	0x8f64 <_MotorDriver_MainFunction+0x192>
+    8f30:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
+    8f32:	9401      	and	AL, #1
+    8f34:	1d13      	jne	0x8f5c <_MotorDriver_MainFunction+0x18c>
+    8f36:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
+    8f38:	9402      	and	AL, #2
+    8f3a:	1d10      	jne	0x8f5c <_MotorDriver_MainFunction+0x18c>
+    8f3c:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
+    8f3e:	9404      	and	AL, #4
+    8f40:	1d0d      	jne	0x8f5c <_MotorDriver_MainFunction+0x18c>
+    8f42:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
+    8f44:	9408      	and	AL, #8
+    8f46:	1d0a      	jne	0x8f5c <_MotorDriver_MainFunction+0x18c>
+    8f48:	711c      	lod	A, dp:0x1c <_g_sMotorFault>
+    8f4a:	b6da 03c0 	and	A, #960
+    8f4e:	1d06      	jne	0x8f5c <_MotorDriver_MainFunction+0x18c>
+    8f50:	611d      	lod	AL, dp:0x1d <_g_sMotorFault+0x1>
+    8f52:	9404      	and	AL, #4
+    8f54:	1d03      	jne	0x8f5c <_MotorDriver_MainFunction+0x18c>
+    8f56:	611c      	lod	AL, dp:0x1c <_g_sMotorFault>
+    8f58:	9420      	and	AL, #32
+    8f5a:	1903      	je	0x8f62 <_MotorDriver_MainFunction+0x192>
 				(g_sMotorFault.OPEN != 0u) || (g_sMotorFault.SHORT != 0u) ||
 				(g_sMotorFault.ST != 0u) || (g_sMotorFault.DRIFT != 0u) || (g_sMotorFault.TS != 0u))
 			{
 				MotorDriverStop(C_STOP_EMERGENCY);
-    8f5e:	7003      	lod	A, #3
-    8f60:	16c1      	call	0x8ce4 <_MotorDriverStop>
-    8f62:	5409      	ret	#10
+    8f5c:	7003      	lod	A, #3
+    8f5e:	16c1      	call	0x8ce2 <_MotorDriverStop>
+    8f60:	5409      	ret	#10
 			}
 			else
 			{
 				/* degrade mode removed,delay before motor re-start */
 				l_u8MotorStatus = C_MOTOR_STATUS_STOP;
-    8f64:	6400      	lod	YL, #0
-    8f66:	46d8 00d6 	mov	0xd6 <_l_u8MotorStatus>, YL
+    8f62:	6400      	lod	YL, #0
+    8f64:	46d8 00d6 	mov	0xd6 <_l_u8MotorStatus>, YL
 				Timer_Start(MOTOR_START_DELAY_TIMER,C_PI_TICKS_20MS);
-    8f6a:	54ca 0028 	pushw	#40
-    8f6e:	7002      	lod	A, #2
-    8f70:	82db 9802 	callf	0x9802 <_Timer_Start>
-    8f74:	5c01      	dec	S, #2
+    8f68:	54ca 0028 	pushw	#40
+    8f6c:	7002      	lod	A, #2
+    8f6e:	82db 9802 	callf	0x9802 <_Timer_Start>
+    8f72:	5c01      	dec	S, #2
 			}
 			break;
-    8f76:	5409      	ret	#10
+    8f74:	5409      	ret	#10
 		default:
 			l_u8MotorStatus = C_MOTOR_STATUS_STOP;
-    8f78:	6000      	lod	AL, #0
-    8f7a:	42d8 00d6 	mov	0xd6 <_l_u8MotorStatus>, AL
-    8f7e:	5409      	ret	#10
+    8f76:	6000      	lod	AL, #0
+    8f78:	42d8 00d6 	mov	0xd6 <_l_u8MotorStatus>, AL
+    8f7c:	5409      	ret	#10
 
-00008f80 <_MotorDriverCurrentMeasure>:
+00008f7e <_MotorDriverCurrentMeasure>:
  *
  * Measure a average motor current, based on ADC current's
  * Performance: Approximate: 10us at 20MHz
  * ****************************************************************************	*/
 void MotorDriverCurrentMeasure( void)
 {
-    8f80:	5803      	inc	S, #4
+    8f7e:	5803      	inc	S, #4
 	uint16 u16MotorCurrentAcc;
 	uint16 u16MicroStepMotorCurrent = GetRawMotorDriverCurrent();
-    8f82:	82db 83be 	callf	0x83be <_GetRawMotorDriverCurrent>
-    8f86:	7ee2      	lod	X, A
+    8f80:	82db 83be 	callf	0x83be <_GetRawMotorDriverCurrent>
+    8f84:	7ee2      	lod	X, A
 	SpiDebugWriteFirst(g_u16PidRunningThreshold|0x8000u);
 	SpiDebugWriteNext(g_u16MotorCurrentMovAvgxN);
 #endif /* _DEBUG_SPI */
 
 	/* Moving average (sum) of motor-driver current */
 	uint16 *pu16MotorCurrentElement = &l_au16MotorCurrentRaw[l_u16MotorCurrentRawIdx];
-    8f88:	72d8 012a 	lod	A, 0x12a <_l_u16MotorCurrentRawIdx>
-    8f8c:	487a 0002 	muls	Y, A, #2
-    8f90:	e2da 012c 	add	Y, #300
-    8f94:	5a03      	mov	[S-4], Y
+    8f86:	72d8 012a 	lod	A, 0x12a <_l_u16MotorCurrentRawIdx>
+    8f8a:	487a 0002 	muls	Y, A, #2
+    8f8e:	e2da 012c 	add	Y, #300
+    8f92:	5a03      	mov	[S-4], Y
 	uint16 u16PrevMotorCurrent = *pu16MotorCurrentElement;
-    8f96:	7af0      	lod	Y, [Y]
-    8f98:	5a01      	mov	[S-2], Y
+    8f94:	7af0      	lod	Y, [Y]
+    8f96:	5a01      	mov	[S-2], Y
 
 	l_u16MotorCurrentRawIdx = (l_u16MotorCurrentRawIdx + 1u) & (C_MOVAVG_SZ - 1u);
-    8f9a:	a001      	add	A, #1
-    8f9c:	b41f      	and	A, #31
-    8f9e:	52d8 012a 	mov	0x12a <_l_u16MotorCurrentRawIdx>, A
+    8f98:	a001      	add	A, #1
+    8f9a:	b41f      	and	A, #31
+    8f9c:	52d8 012a 	mov	0x12a <_l_u16MotorCurrentRawIdx>, A
 	if ( (g_u16StartupDelay != 0u) || (u16MicroStepMotorCurrent < (u16PrevMotorCurrent << 1u)) )	/* Check for valid motor-driver current (at least smaller than 2x previous current)  */
-    8fa2:	7120      	lod	A, dp:0x20 <_g_u16StartupDelay>
-    8fa4:	1d04      	jne	0x8fae <_MotorDriverCurrentMeasure+0x2e>
-    8fa6:	72e6      	lod	A, Y
-    8fa8:	4422      	asl	A
-    8faa:	2ee2      	cmp	X, A
-    8fac:	1c06      	jnc	0x8fba <_MotorDriverCurrentMeasure+0x3a>
+    8fa0:	7120      	lod	A, dp:0x20 <_g_u16StartupDelay>
+    8fa2:	1d04      	jne	0x8fac <_MotorDriverCurrentMeasure+0x2e>
+    8fa4:	72e6      	lod	A, Y
+    8fa6:	4422      	asl	A
+    8fa8:	2ee2      	cmp	X, A
+    8faa:	1c06      	jnc	0x8fb8 <_MotorDriverCurrentMeasure+0x3a>
 	{
 		g_u16MotorCurrentMovAvgxN -= u16PrevMotorCurrent;						/* Subtract oldest raw motor-driver current */
-    8fae:	7140      	lod	A, dp:0x40 <_g_u16MotorCurrentMovAvgxN>
-    8fb0:	aa01      	sub	A, [S-2]
+    8fac:	7140      	lod	A, dp:0x40 <_g_u16MotorCurrentMovAvgxN>
+    8fae:	aa01      	sub	A, [S-2]
 		g_u16MotorCurrentMovAvgxN += u16MicroStepMotorCurrent;					/* Add newest raw motor-driver current */
-    8fb2:	a2ee      	add	A, X
-    8fb4:	5140      	mov	dp:0x40 <_g_u16MotorCurrentMovAvgxN>, A
+    8fb0:	a2ee      	add	A, X
+    8fb2:	5140      	mov	dp:0x40 <_g_u16MotorCurrentMovAvgxN>, A
 		*pu16MotorCurrentElement = u16MicroStepMotorCurrent;					/* Overwrite oldest with newest motor-driver current */
-    8fb6:	7a03      	lod	Y, [S-4]
-    8fb8:	5ef0      	mov	[Y], X
+    8fb4:	7a03      	lod	Y, [S-4]
+    8fb6:	5ef0      	mov	[Y], X
 	}
 
 	/* During twice the moving-average-buffer size and during acceleration of the motor, LPF should follow
 	   lowest value of LPF or Motor-current. As the speed is increasing so also is the BEMF also increasing,
 	   which causes the current to decrease. Otherwise a first order (IIR-1) LPF is used. */
 	u16MotorCurrentAcc = (g_u16MotorCurrentMovAvgxN << (6u - C_MOVAVG_SSZ));
-    8fba:	7d40      	lod	X, dp:0x40 <_g_u16MotorCurrentMovAvgxN>
-    8fbc:	442e      	asl	X
+    8fb8:	7d40      	lod	X, dp:0x40 <_g_u16MotorCurrentMovAvgxN>
+    8fba:	442e      	asl	X
 	if ( (g_u16StartupDelay > (l_u16StartupDelayInit - (2u * C_MOVAVG_SZ))) || 
-    8fbe:	72d8 00d8 	lod	A, 0xd8 <_l_u16StartupDelayInit>
-    8fc2:	a0c0      	add	A, #-64
-    8fc4:	ad20      	cmp	A, dp:0x20 <_g_u16StartupDelay>
-    8fc6:	1808      	jc	0x8fd8 <_MotorDriverCurrentMeasure+0x58>
-    8fc8:	62d8 00db 	lod	AL, 0xdb <_g_u8MotorStartupMode>
-    8fcc:	8c02      	cmp	AL, #2
-    8fce:	1904      	je	0x8fd8 <_MotorDriverCurrentMeasure+0x58>
-    8fd0:	8c01      	cmp	AL, #1
-    8fd2:	1d04      	jne	0x8fdc <_MotorDriverCurrentMeasure+0x5c>
-    8fd4:	2d42      	cmp	X, dp:0x42 <_g_u16MotorCurrentLPFx64>
-    8fd6:	1c02      	jnc	0x8fdc <_MotorDriverCurrentMeasure+0x5c>
+    8fbc:	72d8 00d8 	lod	A, 0xd8 <_l_u16StartupDelayInit>
+    8fc0:	a0c0      	add	A, #-64
+    8fc2:	ad20      	cmp	A, dp:0x20 <_g_u16StartupDelay>
+    8fc4:	1808      	jc	0x8fd6 <_MotorDriverCurrentMeasure+0x58>
+    8fc6:	62d8 00db 	lod	AL, 0xdb <_g_u8MotorStartupMode>
+    8fca:	8c02      	cmp	AL, #2
+    8fcc:	1904      	je	0x8fd6 <_MotorDriverCurrentMeasure+0x58>
+    8fce:	8c01      	cmp	AL, #1
+    8fd0:	1d04      	jne	0x8fda <_MotorDriverCurrentMeasure+0x5c>
+    8fd2:	2d42      	cmp	X, dp:0x42 <_g_u16MotorCurrentLPFx64>
+    8fd4:	1c02      	jnc	0x8fda <_MotorDriverCurrentMeasure+0x5c>
 		(g_u8MotorStartupMode == (uint8) MSM_STEPPER_D) || 
 		((g_u8MotorStartupMode == (uint8) MSM_STEPPER_A) && (u16MotorCurrentAcc < g_u16MotorCurrentLPFx64)) )
 	{
 		g_u16MotorCurrentLPFx64 = u16MotorCurrentAcc;
-    8fd8:	5d42      	mov	dp:0x42 <_g_u16MotorCurrentLPFx64>, X
-    8fda:	000e      	jmp	0x8ff8 <_MotorDriverCurrentMeasure+0x78>
+    8fd6:	5d42      	mov	dp:0x42 <_g_u16MotorCurrentLPFx64>, X
+    8fd8:	000e      	jmp	0x8ff6 <_MotorDriverCurrentMeasure+0x78>
 #if (MOTOR_MICROSTEPS < 3)
 		/* LPF_B: IIR of 0.9921875 (127/128) & 0.0078125 (1/128) */
 		g_u16MotorCurrentLPFx64 = (g_u16MotorCurrentLPFx64 - ((g_u16MotorCurrentLPFx64 + 63u) >> 7u)) + ((u16MotorCurrentAcc + 63u) >> 7u);
 #else  /* (MOTOR_MICROSTEPS < 3) */
 		/* LPF_B: IIR of 0.99609375 (255/256) & 0.00390625 (1/256) */
 		g_u16MotorCurrentLPFx64 = (g_u16MotorCurrentLPFx64 - ((g_u16MotorCurrentLPFx64 + 128u) >> 8u)) + ((u16MotorCurrentAcc + 128u) >> 8u);
-    8fdc:	7142      	lod	A, dp:0x42 <_g_u16MotorCurrentLPFx64>
-    8fde:	7ae2      	lod	Y, A
-    8fe0:	e2da 0080 	add	Y, #128
-    8fe4:	6400      	lod	YL, #0
-    8fe6:	7ae8      	swap	Y
-    8fe8:	aae6      	sub	A, Y
-    8fea:	7aee      	lod	Y, X
-    8fec:	e2da 0080 	add	Y, #128
-    8ff0:	6400      	lod	YL, #0
-    8ff2:	7ae8      	swap	Y
-    8ff4:	a2e6      	add	A, Y
-    8ff6:	5142      	mov	dp:0x42 <_g_u16MotorCurrentLPFx64>, A
+    8fda:	7142      	lod	A, dp:0x42 <_g_u16MotorCurrentLPFx64>
+    8fdc:	7ae2      	lod	Y, A
+    8fde:	e2da 0080 	add	Y, #128
+    8fe2:	6400      	lod	YL, #0
+    8fe4:	7ae8      	swap	Y
+    8fe6:	aae6      	sub	A, Y
+    8fe8:	7aee      	lod	Y, X
+    8fea:	e2da 0080 	add	Y, #128
+    8fee:	6400      	lod	YL, #0
+    8ff0:	7ae8      	swap	Y
+    8ff2:	a2e6      	add	A, Y
+    8ff4:	5142      	mov	dp:0x42 <_g_u16MotorCurrentLPFx64>, A
 #endif /* (MOTOR_MICROSTEPS < 3) */
 	}
 
 	/* startup delay decrement every current meassure(msp) */
 	if ( g_u16StartupDelay > 0u )
-    8ff8:	7120      	lod	A, dp:0x20 <_g_u16StartupDelay>
-    8ffa:	1902      	je	0x9000 <_MotorDriverCurrentMeasure+0x80>
+    8ff6:	7120      	lod	A, dp:0x20 <_g_u16StartupDelay>
+    8ff8:	1902      	je	0x8ffe <_MotorDriverCurrentMeasure+0x80>
 	{
 		g_u16StartupDelay--;
-    8ffc:	a0ff      	add	A, #-1
-    8ffe:	5120      	mov	dp:0x20 <_g_u16StartupDelay>, A
-    9000:	5405      	ret	#6
+    8ffa:	a0ff      	add	A, #-1
+    8ffc:	5120      	mov	dp:0x20 <_g_u16StartupDelay>, A
+    8ffe:	5405      	ret	#6
 
-00009002 <_EXT0_IT>:
+00009000 <_EXT0_IT>:
  * Note: The Commutation_ISR() not be interrupted by LIN communication, also not by LIN status request.
  * The g_u8StallOcc flags can be set in this Commutation_ISR(), but cleared in the MotorDriverStop(),
  * before it is communicated back to the ECU/Master.
  * ****************************************************************************	*/
 __interrupt__ void EXT0_IT(void)
 {
-    9002:	52df      	push	A
-    9004:	5edf      	push	X
-    9006:	5adf      	push	Y
-    9008:	4c83      	push	D
-    900a:	580b      	inc	S, #12
+    9000:	52df      	push	A
+    9002:	5edf      	push	X
+    9004:	5adf      	push	Y
+    9006:	4c83      	push	D
+    9008:	580b      	inc	S, #12
 #if (_DEBUG_COMMUT_ISR != FALSE)
 	DEBUG_SET_IO_B();
 #endif /* (_DEBUG_COMMUT_ISR != FALSE) && (_DEBUG_HALLLATCH_ISR == FALSE) */
 
 	uint16 pending = XI0_PEND & XI0_MASK;										/* Copy interrupt requests which are not masked   */
-    900c:	7ad8 2034 	lod	Y, 0x2034 <__ep__+0x1034>
-    9010:	72d8 202a 	lod	A, 0x202a <__ep__+0x102a>
-    9014:	f6e2      	and	Y, A
+    900a:	7ad8 2034 	lod	Y, 0x2034 <__ep__+0x1034>
+    900e:	72d8 202a 	lod	A, 0x202a <__ep__+0x102a>
+    9012:	f6e2      	and	Y, A
 	do
 	{
 		XI0_PEND = pending;														/* Clear requests which are going to be processed */
-    9016:	5ad8 2034 	mov	0x2034 <__ep__+0x1034>, Y
+    9014:	5ad8 2034 	mov	0x2034 <__ep__+0x1034>, Y
 	} while ((XI0_PEND & pending) != 0u);
-    901a:	72d8 2034 	lod	A, 0x2034 <__ep__+0x1034>
-    901e:	b6e6      	and	A, Y
-    9020:	1d7a      	jne	0x9016 <_EXT0_IT+0x14>
+    9018:	72d8 2034 	lod	A, 0x2034 <__ep__+0x1034>
+    901c:	b6e6      	and	A, Y
+    901e:	1d7a      	jne	0x9014 <_EXT0_IT+0x14>
 
 	if ( g_u8MotorStartupMode == (uint8) MSM_STOP )
-    9022:	62d8 00db 	lod	AL, 0xdb <_g_u8MotorStartupMode>
-    9026:	1d01      	jne	0x902a <_EXT0_IT+0x28>
-    9028:	00a4      	jmp	0x9172 <_EXT0_IT+0x170>
+    9020:	62d8 00db 	lod	AL, 0xdb <_g_u8MotorStartupMode>
+    9024:	1d01      	jne	0x9028 <_EXT0_IT+0x28>
+    9026:	00a5      	jmp	0x9172 <_EXT0_IT+0x172>
 	{
 		return;		/* Used for CPU wake-up */
 	}
 
 	if ( g_e8MotorDirectionCCW == C_MOTOR_DIR_CCW)												/* Motor direction counter clockwise is true? */
-    902a:	6144      	lod	AL, dp:0x44 <_g_e8MotorDirectionCCW>
-    902c:	8c01      	cmp	AL, #1
-    902e:	1d03      	jne	0x9036 <_EXT0_IT+0x34>
+    9028:	6144      	lod	AL, dp:0x44 <_g_e8MotorDirectionCCW>
+    902a:	8c01      	cmp	AL, #1
+    902c:	1d03      	jne	0x9034 <_EXT0_IT+0x34>
 	{
 		g_u16ActuatorActPos--;													/* Closing */
-    9030:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
-    9032:	a0ff      	add	A, #-1
-    9034:	0002      	jmp	0x903a <_EXT0_IT+0x38>
+    902e:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
+    9030:	a0ff      	add	A, #-1
+    9032:	0002      	jmp	0x9038 <_EXT0_IT+0x38>
 	}
 	else
 	{
 		g_u16ActuatorActPos++;													/* Opening */
-    9036:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
-    9038:	a001      	add	A, #1
-    903a:	5146      	mov	dp:0x46 <_g_u16ActuatorActPos>, A
+    9034:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
+    9036:	a001      	add	A, #1
+    9038:	5146      	mov	dp:0x46 <_g_u16ActuatorActPos>, A
 	}
 
 	{
 		int32 i32DeltaPosition = (int32)g_u16ActuatorActPos - (int32)g_u16ActuatorTgtPos;
-    903c:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
-    903e:	4cc8      	movu	D, A
-    9040:	7148      	lod	A, dp:0x48 <_g_u16ActuatorTgtPos>
-    9042:	4cf2      	usex	YA
-    9044:	4c10      	sub	D, YA
+    903a:	7146      	lod	A, dp:0x46 <_g_u16ActuatorActPos>
+    903c:	4cc8      	movu	D, A
+    903e:	7148      	lod	A, dp:0x48 <_g_u16ActuatorTgtPos>
+    9040:	4cf2      	usex	YA
+    9042:	4c10      	sub	D, YA
 		if ( i32DeltaPosition == 0 )
-    9046:	4cba 0000 	cmps	D, #0
-    904a:	1d0a      	jne	0x9060 <_EXT0_IT+0x5e>
+    9044:	4cba 0000 	cmps	D, #0
+    9048:	1d0a      	jne	0x905e <_EXT0_IT+0x5e>
 		{
 			MotorDriverStop( (uint16) C_STOP_IMMEDIATE);
-    904c:	7002      	lod	A, #2
-    904e:	164a      	call	0x8ce4 <_MotorDriverStop>
+    904a:	7002      	lod	A, #2
+    904c:	164a      	call	0x8ce2 <_MotorDriverStop>
 			return;
-    9050:	5c0b      	dec	S, #12
-    9052:	4cc3      	pop	D
-    9054:	7acf      	pop	Y
-    9056:	7ecf      	pop	X
-    9058:	72cf      	pop	A
-    905a:	4407      	mov	R, #0
-    905c:	72cb      	pop	M
-    905e:	5401      	ret
+    904e:	5c0b      	dec	S, #12
+    9050:	4cc3      	pop	D
+    9052:	7acf      	pop	Y
+    9054:	7ecf      	pop	X
+    9056:	72cf      	pop	A
+    9058:	4407      	mov	R, #0
+    905a:	72cb      	pop	M
+    905c:	5401      	ret
 		}
 		if ( i32DeltaPosition < 0 )
-    9060:	4cba 0000 	cmps	D, #0
-    9064:	1e81      	jsge	0x9068 <_EXT0_IT+0x66>
+    905e:	4cba 0000 	cmps	D, #0
+    9062:	1e81      	jsge	0x9066 <_EXT0_IT+0x66>
 		{
 			i32DeltaPosition = -i32DeltaPosition;
-    9066:	4cd0      	neg	D
+    9064:	4cd0      	neg	D
 		}
 		if ( i32DeltaPosition <= (int16) l_u8VTIdx )
-    9068:	6122      	lod	AL, dp:0x22 <_l_u8VTIdx>
-    906a:	5cf2      	usex	A
-    906c:	5207      	mov	[S-8], A
-    906e:	7800      	lod	Y, #0
-    9070:	4c90      	cmp	D, YA
-    9072:	1f05      	jsg	0x907e <_EXT0_IT+0x7c>
+    9066:	6122      	lod	AL, dp:0x22 <_l_u8VTIdx>
+    9068:	5cf2      	usex	A
+    906a:	5207      	mov	[S-8], A
+    906c:	7800      	lod	Y, #0
+    906e:	4c90      	cmp	D, YA
+    9070:	1f05      	jsg	0x907c <_EXT0_IT+0x7c>
 		{
 			/* Decelerate motor speed (almost at target-position) */
 			g_u16StartupDelay = (uint16) i32DeltaPosition;
-    9074:	4c89      	mov	Y, DL
-    9076:	5920      	mov	dp:0x20 <_g_u16StartupDelay>, Y
+    9072:	4c89      	mov	Y, DL
+    9074:	5920      	mov	dp:0x20 <_g_u16StartupDelay>, Y
 			g_u16TargetCommutTimerPeriod = l_u16LowSpeedPeriod;
-    9078:	7ed8 0172 	lod	X, 0x172 <_l_u16LowSpeedPeriod>
-    907c:	5d3e      	mov	dp:0x3e <_g_u16TargetCommutTimerPeriod>, X
+    9076:	7ed8 0172 	lod	X, 0x172 <_l_u16LowSpeedPeriod>
+    907a:	5d3e      	mov	dp:0x3e <_g_u16TargetCommutTimerPeriod>, X
 		}
 	}
 
 	/* Current measurement used for Stall-detector "A" and current control (PID) */
 	MotorDriverCurrentMeasure();
-    907e:	1780      	call	0x8f80 <_MotorDriverCurrentMeasure>
+    907c:	1780      	call	0x8f7e <_MotorDriverCurrentMeasure>
 
 	/* open coil detection */
 	(void)MotorDiagnosticOpenCheck();
-    9080:	82db 85f8 	callf	0x85f8 <_MotorDiagnosticOpenCheck>
-				}	
-			}
-		}
-		else
+    907e:	82db 85f8 	callf	0x85f8 <_MotorDiagnosticOpenCheck>
+	/* Update micro-step index */
+	{
+		/* Motor Direction Inverse */
+		if(NVRAM_MOTOR_DIR_INV != 0u)
 		{
 			if ( g_e8MotorDirectionCCW == C_MOTOR_DIR_CCW )
-    9084:	6144      	lod	AL, dp:0x44 <_g_e8MotorDirectionCCW>
-    9086:	793e      	lod	Y, dp:0x3e <_g_u16TargetCommutTimerPeriod>
-    9088:	5a09      	mov	[S-10], Y
-    908a:	793a      	lod	Y, dp:0x3a <_g_u16MicroStepIdx>
-    908c:	7d3c      	lod	X, dp:0x3c <_g_u16CommutTimerPeriod>
-    908e:	8c01      	cmp	AL, #1
-    9090:	1d08      	jne	0x90a2 <_EXT0_IT+0xa0>
-			{
-				/* Clock-wise (Opening) */
-				g_u16MicroStepIdx++;													/* Increment the PWM vectors pointer */
-    9092:	72e6      	lod	A, Y
-    9094:	a001      	add	A, #1
-    9096:	513a      	mov	dp:0x3a <_g_u16MicroStepIdx>, A
-				if ( g_u16MicroStepIdx >= g_u16MotorMicroStepsPerElecRotation )			/* Test the PWM vectors pointer: 48 usteps per electrical period */
-    9098:	aed8 0106 	cmp	A, 0x106 <_g_u16MotorMicroStepsPerElecRotation>
-    909c:	180a      	jc	0x90b2 <_EXT0_IT+0xb0>
-				{
-					g_u16MicroStepIdx = 0u;												/* Re-initialise the PWM vectors pointer to 0 */
-    909e:	7000      	lod	A, #0
-    90a0:	0007      	jmp	0x90b0 <_EXT0_IT+0xae>
-				}	
-			}
-			else
+    9082:	6144      	lod	AL, dp:0x44 <_g_e8MotorDirectionCCW>
+    9084:	793e      	lod	Y, dp:0x3e <_g_u16TargetCommutTimerPeriod>
+    9086:	5a09      	mov	[S-10], Y
+    9088:	793a      	lod	Y, dp:0x3a <_g_u16MicroStepIdx>
+    908a:	7d3c      	lod	X, dp:0x3c <_g_u16CommutTimerPeriod>
+    908c:	8c01      	cmp	AL, #1
+    908e:	1d09      	jne	0x90a2 <_EXT0_IT+0xa2>
 			{
 				/* Counter Clock-wise (Closing) */
 				if ( g_u16MicroStepIdx == 0u )
-    90a2:	ec00      	cmp	Y, #0
-    90a4:	1d03      	jne	0x90ac <_EXT0_IT+0xaa>
+    9090:	ec00      	cmp	Y, #0
+    9092:	1d03      	jne	0x909a <_EXT0_IT+0x9a>
 				{
 					g_u16MicroStepIdx = g_u16MotorMicroStepsPerElecRotation;
-    90a6:	7ad8 0106 	lod	Y, 0x106 <_g_u16MotorMicroStepsPerElecRotation>
-    90aa:	593a      	mov	dp:0x3a <_g_u16MicroStepIdx>, Y
+    9094:	72d8 0106 	lod	A, 0x106 <_g_u16MotorMicroStepsPerElecRotation>
+    9098:	513a      	mov	dp:0x3a <_g_u16MicroStepIdx>, A
 				}
 				g_u16MicroStepIdx--;													/* Decrement the PWM vector pointer */
-    90ac:	713a      	lod	A, dp:0x3a <_g_u16MicroStepIdx>
-    90ae:	a0ff      	add	A, #-1
-    90b0:	513a      	mov	dp:0x3a <_g_u16MicroStepIdx>, A
+    909a:	713a      	lod	A, dp:0x3a <_g_u16MicroStepIdx>
+    909c:	a0ff      	add	A, #-1
+    909e:	513a      	mov	dp:0x3a <_g_u16MicroStepIdx>, A
+    90a0:	0008      	jmp	0x90b2 <_EXT0_IT+0xb2>
+			}
+			else
+			{
+				/* Clock-wise (Opening) */
+				g_u16MicroStepIdx++;													/* Increment the PWM vectors pointer */
+    90a2:	72e6      	lod	A, Y
+    90a4:	a001      	add	A, #1
+    90a6:	513a      	mov	dp:0x3a <_g_u16MicroStepIdx>, A
+				if ( g_u16MicroStepIdx >= g_u16MotorMicroStepsPerElecRotation )			/* Test the PWM vectors pointer: 48 usteps per electrical period */
+    90a8:	aed8 0106 	cmp	A, 0x106 <_g_u16MotorMicroStepsPerElecRotation>
+    90ac:	1802      	jc	0x90b2 <_EXT0_IT+0xb2>
+				{
+					g_u16MicroStepIdx = 0u;												/* Re-initialise the PWM vectors pointer to 0 */
+    90ae:	7800      	lod	Y, #0
+    90b0:	593a      	mov	dp:0x3a <_g_u16MicroStepIdx>, Y
 			}
 		}
 	}
@@ -15642,12 +15642,12 @@ __interrupt__ void EXT0_IT(void)
 	/* Check for speed update required */
 	if ( g_u16CommutTimerPeriod == g_u16TargetCommutTimerPeriod )
     90b2:	2e09      	cmp	X, [S-10]
-    90b4:	1d04      	jne	0x90be <_EXT0_IT+0xbc>
+    90b4:	1d04      	jne	0x90be <_EXT0_IT+0xbe>
 	{
 		g_u8MotorStartupMode = (uint8) MSM_STEPPER_C;
     90b6:	6003      	lod	AL, #3
     90b8:	42d8 00db 	mov	0xdb <_g_u8MotorStartupMode>, AL
-    90bc:	0057      	jmp	0x916c <_EXT0_IT+0x16a>
+    90bc:	0057      	jmp	0x916c <_EXT0_IT+0x16c>
 	}
 	else
 	{
@@ -15657,7 +15657,7 @@ __interrupt__ void EXT0_IT(void)
     90c2:	520b      	mov	[S-12], A
 		if ( g_u16CommutTimerPeriod < g_u16TargetCommutTimerPeriod )
     90c4:	2e09      	cmp	X, [S-10]
-    90c6:	1c2f      	jnc	0x9126 <_EXT0_IT+0x124>
+    90c6:	1c2f      	jnc	0x9126 <_EXT0_IT+0x126>
 		{
 			/* Deceleration per micro-step */
 			g_u8MotorStartupMode = (uint8) MSM_STEPPER_D;					/* Too fast, decelerate */
@@ -15706,7 +15706,7 @@ static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 			if ( g_u16StartupDelay < l_u8VTIdx )
     90f8:	5cf2      	usex	A
     90fa:	ad20      	cmp	A, dp:0x20 <_g_u16StartupDelay>
-    90fc:	1a03      	jule	0x9104 <_EXT0_IT+0x102>
+    90fc:	1a03      	jule	0x9104 <_EXT0_IT+0x104>
 			{
 				g_u16StartupDelay = l_u16StartupDelayInit;						/* MMP130627-1/MMP140331-2: Speed reduction, stall detection post-poned */
     90fe:	72d8 00d8 	lod	A, 0xd8 <_l_u16StartupDelayInit>
@@ -15714,7 +15714,7 @@ static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
 			}
 			if ( g_u16CommutTimerPeriod > g_u16TargetCommutTimerPeriod )
     9104:	ee09      	cmp	Y, [S-10]
-    9106:	1a02      	jule	0x910c <_EXT0_IT+0x10a>
+    9106:	1a02      	jule	0x910c <_EXT0_IT+0x10c>
 			{
 				g_u16CommutTimerPeriod = g_u16TargetCommutTimerPeriod;
     9108:	7a09      	lod	Y, [S-10]
@@ -15750,17 +15750,17 @@ static __inline__ uint16 muldivU16_U16byU16byU16(uint16 a, uint16 b, uint16 c)
 			g_u16PidCtrlRatio = muldivU16_U16byU16byU16( g_u16PidCtrlRatio, l_u16SpeedRPM, u16Compensation);	/* MMP160606-2 */
 			g_u16PID_I = g_u16PidCtrlRatio;
     9122:	5150      	mov	dp:0x50 <_g_u16PID_I>, A
-    9124:	0023      	jmp	0x916c <_EXT0_IT+0x16a>
+    9124:	0023      	jmp	0x916c <_EXT0_IT+0x16c>
 #endif /* (_SUPPORT_PWM_DC_RAMPDOWN != FALSE) */								/* MMP140903-2 - Begin */
 
 		}
 		else if ( (g_u16MicroStepIdx == 0u) || ((g_u16MicroStepIdx > NVRAM_ACCELERATION_POINTS) && ((g_u16MicroStepIdx & NVRAM_ACCELERATION_POINTS) == 0u)) )
     9126:	713a      	lod	A, dp:0x3a <_g_u16MicroStepIdx>
-    9128:	1904      	je	0x9132 <_EXT0_IT+0x130>
+    9128:	1904      	je	0x9132 <_EXT0_IT+0x132>
     912a:	ac01      	cmp	A, #1
-    912c:	1a1f      	jule	0x916c <_EXT0_IT+0x16a>
+    912c:	1a1f      	jule	0x916c <_EXT0_IT+0x16c>
     912e:	b401      	and	A, #1
-    9130:	1d1d      	jne	0x916c <_EXT0_IT+0x16a>
+    9130:	1d1d      	jne	0x916c <_EXT0_IT+0x16c>
 		{
 			/* Acceleration per acceleration_points ((multiple) full-step) */
 			g_u8MotorStartupMode = (uint8) MSM_STEPPER_A;						/* Too slow, accelerate */
@@ -15807,7 +15807,7 @@ static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
     915e:	4122      	mov	dp:0x22 <_l_u8VTIdx>, AL
 			if ( g_u16CommutTimerPeriod < g_u16TargetCommutTimerPeriod )		/* MMP150923-1 */
     9160:	ee09      	cmp	Y, [S-10]
-    9162:	1c02      	jnc	0x9168 <_EXT0_IT+0x166>
+    9162:	1c02      	jnc	0x9168 <_EXT0_IT+0x168>
 			{
 				g_u16CommutTimerPeriod = g_u16TargetCommutTimerPeriod;
     9164:	7209      	lod	A, [S-10]
@@ -15825,7 +15825,7 @@ static __inline__ uint16 divU16_U32byU16(uint32 a, uint16 b)
     916c:	1276      	call	0x965a <_VoltageCorrection>
 
 	MotorDriver_4PhaseStepper();
-    916e:	82db 8930 	callf	0x8930 <_MotorDriver_4PhaseStepper>
+    916e:	82db 892e 	callf	0x892e <_MotorDriver_4PhaseStepper>
     9172:	5c0b      	dec	S, #12
     9174:	4cc3      	pop	D
     9176:	7acf      	pop	Y
