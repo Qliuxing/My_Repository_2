@@ -116,7 +116,9 @@ uint8 g_u8MotorStatusSpeed = (uint8) C_MOTOR_SPEED_STOP;						/* (Status) Actual
 uint8 l_u8MotorStatus = C_MOTOR_STATUS_STOP;
 uint8 l_u8MotorRequest = C_MOTOR_CTRL_STOP;
 
-    
+uint16 g_u16falg = 0;
+uint16 g_u16PosFlag = 0;
+
 #if (USE_MULTI_PURPOSE_BUFFER == FALSE)
 uint16 l_au16VelocityTimer[VT_BUF_SZ];
 #endif /* (USE_MULTI_PURPOSE_BUFFER == FALSE) */

@@ -276,18 +276,18 @@
 #define _SUPPORT_STALLDET_A                 FALSE								/* stall detect based on current amplitude */
 #define _SUPPORT_STALLDET_B					FALSE								/* stall detect based on bemf */
 #define _SUPPORT_STALLDET_O					FALSE								/* Stall detector based on current oscillations */
-#define _SUPPORT_STALLDET_H					FALSE 								/* Stall detector based on hall-sensor info (See also: _SUPPORT_HALL_SENSOR) (MMP160420-1) */
-#define _SUPPORT_STALLDET                   FALSE
+#define _SUPPORT_STALLDET_H					TRUE 								/* Stall detector based on hall-sensor info (See also: _SUPPORT_HALL_SENSOR) (MMP160420-1) */
+#define _SUPPORT_STALLDET                   TRUE
 /* diagnostic:drift check */
-#define _SUPPORT_DRIFT_CHECK				TRUE								/* drift detect based on hall-sensor */
+#define _SUPPORT_DRIFT_CHECK				FALSE								/* drift detect based on hall-sensor */
 /* diagnostic:system */	
 #define _SUPPORT_IOREG_CHECK				TRUE								/* FALSE: No critical IO-Register check; TRUE: Critical IO-register check */
 
 /* functions */
 #define _SUPPORT_SPEED_AUTO					FALSE								/* FALSE: No auto-speed support; Auto speed supported based on voltage and temperature */
 #define _SUPPORT_AUTO_CALIBRATION			FALSE								/* FALSE: No POR calibration; TRUE: Calibration at POR */
-#define _SUPPORT_HALL_SENSOR				FALSE								/* FALSE: Sensor-less; TRUE: Hall-sensor for stall (See also: _SUPPORT_STALLDET_H) (MMP160420-1) */
-#define _SUPPORT_ENDSTOP_DETECTION			FALSE
+#define _SUPPORT_HALL_SENSOR				TRUE								/* FALSE: Sensor-less; TRUE: Hall-sensor for stall (See also: _SUPPORT_STALLDET_H) (MMP160420-1) */
+#define _SUPPORT_ENDSTOP_DETECTION			TRUE   
 #define _SUPPORT_BUSTIMEOUT_SLEEP			TRUE								/* FALSE: Only EmRun (if enabled), TRUE: EmRun (if enabled) followed by SLEEP (GM: 6.5.1) */
 #define _SUPPORT_BUSTIMEOUT					TRUE								/* FALSE: Do not move to emergency position after bus-timeout; TRUE: Move to emergency position after bus-timeout */
 

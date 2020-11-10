@@ -262,7 +262,7 @@ __interrupt__ void EXT4_IT(void)
 
 void MotorDiagnosticCheckInit(void)
 {
-	l_u16CoilCurrentStartDelay = 2u * C_MOVAVG_SZ;
+	l_u16CoilCurrentStartDelay = C_MOVAVG_SZ;
 	l_u16CoilZeroCurrCountA = 0u;
 	l_u16CoilZeroCurrCountB = 0u;
 }

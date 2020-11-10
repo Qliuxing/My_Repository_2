@@ -287,9 +287,9 @@ enum TACHO_MODES
 #define C_MICROSTEP_PER_FULLSTEP			NVRAM_MICRO_STEPS						   /* Number of micro-steps per full-step (1, 2, 4 , 8 or 16) */
 
 /* HALL stall configuration */
-#define C_MOTOR_HALL_STALLDET_STEP	    	(24u * C_MICROSTEP_PER_FULLSTEP)   		   /* 24 full steps for hall stall detection */
-#define C_MOTOR_HALL_REBOUND_STEP_MIN		(4u * C_MICROSTEP_PER_FULLSTEP)
-#define C_MOTOR_HALL_REBOUND_STEO_MAX		(8u * C_MICROSTEP_PER_FULLSTEP)
+#define C_MOTOR_HALL_STALLDET_STEP	    	(12u * C_MICROSTEP_PER_FULLSTEP)   		   /* 24 full steps for hall stall detection */
+#define C_MOTOR_HALL_REBOUND_STEP_MIN		(1u * C_MICROSTEP_PER_FULLSTEP)
+#define C_MOTOR_HALL_REBOUND_STEO_MAX		(3u * C_MICROSTEP_PER_FULLSTEP)
 
 /* Motor running average filter length:4FS */
 #define C_MOVAVG_SZ							((uint16)1u << C_MOVAVG_SSZ)		
@@ -363,6 +363,9 @@ extern uint16 l_au16MotorCurrentRaw[C_MOVAVG_SZ];
 extern uint8 g_u8MotorStartupMode;
 
 extern uint8 g_u8MotorStatusSpeed;						/* (Status) Actual motor-speed */
+
+extern uint16 g_u16falg;
+extern uint16 g_u16PosFlag;
 
 /* debug motor current filter */
 #if _DEBUG_MOTOR_CURRENT_FLT

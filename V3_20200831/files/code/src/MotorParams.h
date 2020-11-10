@@ -291,7 +291,7 @@ typedef struct
 #define C_DEF_TRAVEL_2				288U										/* Set default travel 2 */
 #define C_DEF_TRAVEL_3				336U										/* Set default travel 3 */
 
-#define C_DEF_TRAVEL				C_DEF_TRAVEL_2								/* Full-stroke: first:240FS; second:336FS */
+#define C_DEF_TRAVEL				C_DEF_TRAVEL_1								/* Full-stroke: first:240FS; second:336FS */
 #define C_DEF_TRAVEL_TOLERANCE_HI	40u										/* Deviation: 180 degrees of electric rotation */
 #define C_DEF_TRAVEL_TOLERANCE_LO	40u
 #define C_DEF_EMRUN_POS				0x00u
@@ -316,7 +316,7 @@ typedef struct
  * Speed
  * ***/
 #define C_SPEED_MIN					 60u										/* Motor RPM min:50FPS */
-#define C_SPEED_0					 90u										/* Motor RPM's boost100%,155FPS */
+#define C_SPEED_0					 100u										/* Motor RPM's boost100%,155FPS */
 //#define C_SPEED_1					 950u										/* Motor RPM's,380FPS GM */
 #define C_SPEED_1					 200u										/* Motor RPM's,380FPS NEXT */
 #define C_SPEED_2					1250u										/* Motor RPM's */

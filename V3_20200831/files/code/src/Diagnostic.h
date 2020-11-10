@@ -43,7 +43,7 @@
 
 /* coil open debounce */
 #define C_MIN_COIL_CURRENT					10U									/* ADC-LSB */
-#define C_COIL_ZERO_CURRENT_COUNT			32U									/* 32 micro-steps */
+#define C_COIL_ZERO_CURRENT_COUNT			16U									/* 32 micro-steps */
 #define C_COIL_OVER_CURRENT_COUNT			32U									/* 32 micro-steps */
 #define C_COIL_CURRENT_START_DELAY			128U
 

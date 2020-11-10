@@ -318,6 +318,7 @@ uint16 MotorStallCheckH( void)
 		}
 		if(u16DeltaPosition > l_u16HallMicroStepThrshld)
 		{
+			g_u16falg += 5;
 			l_u8StallCountH++;
 			if ( l_u8StallCountH >= 1u )
 			{
@@ -343,10 +344,11 @@ uint16 MotorStallCheckH( void)
 				u16DeltaPosition = l_u16HallMicroStepIdxPre - g_u16HallMicroStepIdx;
 			}
 			/* Normal 6 full steps for one hall signal. */
-			if((u16DeltaPosition < ((uint16)C_MOTOR_HALL_REBOUND_STEP_MIN)) || (u16DeltaPosition > ((uint16)C_MOTOR_HALL_REBOUND_STEO_MAX)))
+			if((u16DeltaPosition <= ((uint16)11)) || (u16DeltaPosition >= ((uint16)21)))
 			{
+				g_u16falg += 1;
 				l_u8StallCountReboundH++;
-				if ( l_u8StallCountReboundH >= 5u )  
+				if ( l_u8StallCountReboundH >= 4u )
 				{
 					l_u8StallCountReboundH = 0u;
 					return ( C_STALL_FOUND );
