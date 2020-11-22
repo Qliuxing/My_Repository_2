@@ -78,25 +78,6 @@ uint16 l_u16CoilCurrentStartDelay = 0u;
 void HandleDiagnosticEvent( uint16 u16Event);
 
 
-void MotorDiagnosticDrift(void)
-{
-	if ( g_u8MotorStartupMode == (uint8) MSM_STOP ) 
-	{
-		l_u8DriftCheckCount++;
-		if (l_u8DriftCheckCount >= C_DRIFT_DEBOUNCE_THR)
-		{
-			l_u8DriftCheckCount = 0u;
-			g_sMotorFault.DRIFT = 1u;
-		}
-	}
-    else
-    {
-		l_u8DriftCheckCount = 0u;
-    }
-
-}
-
-
 /* ****************************************************************************	*
  * Diagnostic initialisation
  *
@@ -250,10 +231,6 @@ __interrupt__ void EXT4_IT(void)
 				/* IO[0] is low; Set IRQ-event on rising-edge */
 				IO_CFG &= ~FRB_IO5;
 			}
-
-#if _SUPPORT_DRIFT_CHECK
-			MotorDiagnosticDrift();	
-#endif	/* _SUPPORT_DRIFT_CHECK */
 
 			g_u16HallMicroStepIdx = g_u16ActuatorActPos;
 		}

@@ -150,32 +150,7 @@ void App_CoolantValveSMInit(void)
 {
 	uint16 cv_nvm[3];
 	Motor_ControlParams motor_params;
-	
-	/* Check wake-up from SLEEP (MMP160613-2) */
-//	if ( (ANA_INB & WAKEUP_LIN) != 0u )
-	if(0)
-	{
-		(void)NVRAM_Read(C_NVRAM_AREA2_ADDR, cv_nvm, 3);
-		/* load real time info from nvram to ram */
-		if(cv_nvm[0] == (uint16)C_STATE_INITIALIZED)
-		{
-			l_u16PhysicalActualPos = cv_nvm[1];
-			l_u16PhysicalTargetPos = cv_nvm[1];
-			l_u16PhysicalCalibTravel = cv_nvm[2];
-			l_e8ValveState = (uint8)C_STATE_INITIALIZED;
-			l_e8CalibrationStep = (uint8)C_CALIB_DONE;	
-		}
-		else
-		{
-			/* uninitialized,use default value */
-			l_u16PhysicalActualPos = C_VALVE_ZERO_POS;
-			l_u16PhysicalTargetPos = C_VALVE_ZERO_POS;	
-			l_u16PhysicalCalibTravel = C_VALVE_DEF_TRAVEL;
-			l_e8ValveState = (uint8)C_STATE_UNINITIALIZED;
-			l_e8CalibrationStep = (uint8)C_CALIB_NONE;	
-		}
-	}
-	else
+
 	{
 		/* unnitialized,use default value */
 		l_u16PhysicalActualPos = C_VALVE_ZERO_POS;
@@ -278,43 +253,8 @@ void handleInitiliazeProcess(void)
 		if(s_CVRequestStruct.m_request == (uint16)C_MOTOR_REQUEST_CALIBRATION)
         {
 			l_e8CalibrationStep = (uint8)C_CALIB_SETUP_LO_ENDPOS;
-#if 0
-			if(s_CVRequestStruct.m_opening <= C_VALVE_OPENING_50_PERCENT)
-			{
-				l_e8CalibrationStep = (uint8)C_CALIB_SETUP_HI_ENDPOS;		/* check for high end-stop */
-//				l_e8GmcvInitDirection = C_GMCV_INIT_DIR_OPEN_FIRST;
-			}
-			else if((s_CVRequestStruct.m_opening > C_VALVE_OPENING_50_PERCENT) && (s_CVRequestStruct.m_opening <= C_VALVE_OPENING_100_PERCENT))
-			{
-				l_e8CalibrationStep = (uint8)C_CALIB_SETUP_LO_ENDPOS;		/* check for high end-stop */
-//				l_e8GmcvInitDirection = C_GMCV_INIT_DIR_CLOSE_FIRST;
-			}
-			else
-			{
-				/* unsupported initialize position request */
-			}
-#endif
 		}
 	}
-
-#if 0
-	if(l_e8CalibrationStep == (uint8)C_CALIB_SETUP_HI_ENDPOS)
-	{
-		/* setup high endstop */
-		if(s_CVRequestStruct.m_request == (uint16)C_MOTOR_REQUEST_CALIBRATION)
-		{
-            s_CVRequestStruct.m_request = (uint16)C_MOTOR_REQUEST_NONE;
-            /* eg.setup motor parameters and start motor */
-			l_u16PhysicalActualPos = C_VALVE_ZERO_POS;
-			l_u16PhysicalTargetPos = C_VALVE_RANGE_MAX + C_VALVE_ZERO_POS;
-			/* client-server:post message */
-			l_u8MotorControl = C_MOTOR_START;
-
-		    l_e8CalibrationStep = (uint8)C_CALIB_CHECK_HI_ENDPOS;		/* check for high end-stop */
-        }
-	}
-	else if( l_e8CalibrationStep == (uint8)C_CALIB_SETUP_LO_ENDPOS )
-#endif
 
 	if( l_e8CalibrationStep == (uint8)C_CALIB_SETUP_LO_ENDPOS )
 	{
@@ -332,109 +272,6 @@ void handleInitiliazeProcess(void)
         }
 	}
 
-#if 0
-	else if(l_e8CalibrationStep == (uint8)C_CALIB_CHECK_HI_ENDPOS)
-	{
-		/* deal with motor error?  */
-		/* deal with motor stop? */
-#if _SUPPORT_STALLDET
-		/* hall stall shall always be detected */
-		if ( l_u8StallOcc == TRUE)   /* stall found, and motor enter degrade mode? */
-		{
-			l_u8StallOcc = FALSE;
-			MotorDriverClearFaultStatus();
-			l_u8ValveInitEnds |= C_VALVE_INIT_END_HI;
-			range_temp = l_u16PhysicalActualPos - C_VALVE_ZERO_POS;
-			if((l_u8ValveInitEnds & C_VALVE_INIT_END_LO) == 0u)    /* step:close not complete */
-            {
-				/* (valve range ok->finish,)or continue next step  */
-				if(range_temp > C_VALVE_RANGE_MIN)
-				{
-					l_u16PhysicalCalibTravel = range_temp;
-					l_u16PhysicalActualPos = l_u16PhysicalCalibTravel + C_VALVE_ZERO_POS;
-					l_u16PhysicalTargetPos = l_u16PhysicalCalibTravel + C_VALVE_ZERO_POS;
-					l_e8CalibrationStep = (uint8)C_CALIB_END;
-				}
-				else
-				{
-					l_u8MotorControl = C_MOTOR_STOP_ONLY;
-					l_e8CalibrationStep = (uint8)C_CALIB_SETUP_LO_ENDPOS;
-					s_CVRequestStruct.m_request = (uint16)C_MOTOR_REQUEST_CALIBRATION;
-				}
-            }
-			else
-			{
-				/* low endstop check complete */
-				/* initialize close->open, second step finished with stall cause of range insufficient */
-				if(range_temp > C_VALVE_RANGE_MIN)
-				{
-					l_u16PhysicalCalibTravel = range_temp;
-					l_u16PhysicalActualPos = l_u16PhysicalCalibTravel + C_VALVE_ZERO_POS;
-					l_u16PhysicalTargetPos = l_u16PhysicalCalibTravel + C_VALVE_ZERO_POS;
-				}
-				else
-				{
-					l_u8OBDValveMechanicalError = (uint8)OBD_VALVE_RANGE_BLOCK;
-					l_u8ValueFaultFlag = (uint8)OBD_VALVE_RANGE_BLOCK;
-				}
-				l_e8CalibrationStep = (uint8)C_CALIB_END;
-			}
-		}
-		else
-		{
-			/* stall not found,or the valve over range detected,valve broken */
-			if(l_u16PhysicalActualPos == (C_VALVE_RANGE_MAX + C_VALVE_ZERO_POS))
-			{
-				l_u8OBDValveMechanicalError = (uint8)OBD_VALVE_RANGE_BROKEN;
-				l_u8ValueFaultFlag = (uint8)OBD_VALVE_RANGE_BROKEN;
-				l_e8CalibrationStep = (uint8)C_CALIB_END;
-			}
-			else
-			{
-				/* GM spec. cancel current open process,to close process? */
-//				if((s_CVRequestStruct.m_request == (uint16)C_MOTOR_REQUEST_CALIBRATION) && (s_CVRequestStruct.m_opening == C_VALVE_OPENING_0_PERCENT))
-//				{
-					/* stop stepper motor:immediate */
-//					l_u8MotorControl = C_MOTOR_STOP_ONLY;
-//					l_e8CalibrationStep = (uint8)C_CALIB_SETUP_LO_ENDPOS;
-
-//				}
-//				else if(s_CVRequestStruct.m_request == (uint16)C_MOTOR_REQUEST_STOP)
-				if(s_CVRequestStruct.m_request == (uint16)C_MOTOR_REQUEST_STOP)
-				{
-					/* stop stepper motor:immediate */
-					l_u8MotorControl = C_MOTOR_STOP_ONLY;
-					/* re-start calibration */
-				}
-				else if(s_CVRequestStruct.m_request == C_MOTOR_REQUEST_CALIBRATION)
-				{
-					l_u8MotorControl = C_MOTOR_START_ONLY;
-				}
-				else
-				{
-					
-				}
-			}
-		}
-#else	/* _SUPPORT_STALLDET */
-		if(l_u16PhysicalActualPos == C_VALVE_RANGE_MAX + C_VALVE_ZERO_POS)
-		{
-			if((l_u8ValveInitEnds & (uint8)C_VALVE_INIT_END_LO) == 0u)
-            {
-			   l_u8ValveInitEnds |= (uint8)C_VALVE_INIT_END_HI;
-			   l_e8CalibrationStep = (uint8)C_CALIB_SETUP_LO_ENDPOS;
-            }
-			else
-			{
-            	/* initialize finish */
-				l_e8CalibrationStep = (uint8)C_CALIB_END;
-			}
-		}
-#endif /* _SUPPORT_STALLDET */
-	}
-	else if(l_e8CalibrationStep == (uint8)C_CALIB_CHECK_LO_ENDPOS)
-#endif
-
 	if(l_e8CalibrationStep == (uint8)C_CALIB_CHECK_LO_ENDPOS)
 	{
 #if _SUPPORT_STALLDET
@@ -444,13 +281,7 @@ void handleInitiliazeProcess(void)
 			l_u8StallOcc = FALSE;
 			MotorDriverClearFaultStatus();
 			l_u8ValveInitEnds |= (uint8)C_VALVE_INIT_END_LO;
-//			range_temp = C_VALVE_RANGE_MAX + C_VALVE_ZERO_POS - l_u16PhysicalActualPos;
-//			if((l_u8ValveInitEnds & C_VALVE_INIT_END_HI) == 0u)
             {
-				/* GM spec.report real position */ 
-				/* (Valve already in the range),for the next calibration step */
-				/* (valve range ok->finish,)or continue next step  */
-//				if(range_temp > C_VALVE_RANGE_MIN)
 				{
 //					l_u16PhysicalCalibTravel = range_temp;
 					l_u16PhysicalActualPos = C_VALVE_ZERO_POS;
@@ -458,10 +289,7 @@ void handleInitiliazeProcess(void)
 					l_e8CalibrationStep = (uint8)C_CALIB_END;
 				}
             }
-//			else
-//			{
-//
-//			}
+
 		}
         /* or the valve os over range */
 		else
@@ -474,14 +302,6 @@ void handleInitiliazeProcess(void)
 			}
 			else
 			{
-				/* GM spec. cancel current close process,to open process? */
-//				if((s_CVRequestStruct.m_request == C_MOTOR_REQUEST_CALIBRATION) && (s_CVRequestStruct.m_opening == C_VALVE_OPENING_100_PERCENT))
-//				{
-					/* stop stepper motor:immediate */
-//					l_u8MotorControl = C_MOTOR_STOP_ONLY;
-//					l_e8CalibrationStep = (uint8)C_CALIB_SETUP_HI_ENDPOS;
-//				}
-//				else if(s_CVRequestStruct.m_request == C_MOTOR_REQUEST_STOP)
 				if(s_CVRequestStruct.m_request == C_MOTOR_REQUEST_STOP)
 				{
 					/* stop stepper motor:immediate */
@@ -499,25 +319,6 @@ void handleInitiliazeProcess(void)
 			}
 		}
 #else
-		if(l_u16PhysicalActualPos == C_VALVE_ZERO_POS)
-		{
-//			l_u8ValveInitEnds |= C_VALVE_INIT_END_LO;
-//			if((l_u8ValveInitEnds & C_VALVE_INIT_END_HI) == 0)
-//            {
-//				l_e8CalibrationStep = (uint8)C_CALIB_SETUP_HI_ENDPOS;
-//            }
-//			else
-			{
-				/* initialize finish */
-				l_e8CalibrationStep = (uint8)C_CALIB_END;
-			}
-		}
-		else if(l_u16PhysicalActualPos < (C_VALVE_ZERO_POS - C_VALVE_TOLERANCE_UP))
-		{
-			l_u8OBDValveMechanicalError = OBD_VALVE_RANGE_BROKEN;
-			l_u8ValueFaultFlag = (uint8)OBD_VALVE_RANGE_BROKEN;
-			l_e8CalibrationStep = (uint8)C_CALIB_NONE;
-		}
 
 #endif /* _SUPPORT_STALLDET */
 	}
@@ -537,21 +338,7 @@ void handleInitiliazeProcess(void)
 			/* client-server:post message */
 			l_u8MotorControl = C_MOTOR_STOP;
 		    l_e8CalibrationStep = (uint8)C_CALIB_DONE;
-//#if _SUPPORT_ENDSTOP_DETECTION
-//			/* endstop check lock if calibration has been done  */
-//			/* lock low endstop if calibrated by zero */
-//			if(l_u16PhysicalActualPos == C_VALVE_ZERO_POS)
-//			{
-//				l_u16PhysicalEndstopPos = C_VALVE_ZERO_POS;
-//				l_u8EndstopCheckLock = (uint8)C_ENDSTOP_CHECK_LOCK_LO;
-//			}
-//			else
-//			{
-//				l_u16PhysicalEndstopPos = C_VALVE_ZERO_POS + l_u16PhysicalCalibTravel;
-//				l_u8EndstopCheckLock = (uint8)C_ENDSTOP_CHECK_LOCK_HI;
-//			}
-//#endif
-//			s_CVRequestStruct.m_request = C_MOTOR_REQUEST_START;
+
         }
 		else
 		{
@@ -636,38 +423,10 @@ void handleOpeningPosition(void)
 		/* when endstop detection is enabled,target position is set to make sure the maximun valve range 
 		  * may be reached,for the endstop function to operates normally.
 		  */
-//		if(s_CVRequestStruct.m_opening == C_VALVE_OPENING_0_PERCENT)
-//		{
-//			l_u16PhysicalTargetPos = C_VALVE_ZERO_POS - (C_VALVE_RANGE_MAX - C_VALVE_RANGE_MIN);
-//		}
-//		else if(s_CVRequestStruct.m_opening == C_VALVE_OPENING_100_PERCENT)
-//		{
-//			l_u16PhysicalTargetPos = C_VALVE_ZERO_POS + C_VALVE_RANGE_MAX;
-//		}
-//		else
 		{
 			/* opening to target position */
 			l_u16PhysicalTargetPos = s_CVRequestStruct.m_opening + C_VALVE_ZERO_POS;
 		}
-		/* endstop check unlock process[2]:1)stop request;2)ignore further moving request */
-//		if(l_u8EndstopCheckLock == (uint8)C_ENDSTOP_CHECK_LOCK_HI)
-//		{
-//			if(l_u16PhysicalTargetPos < l_u16PhysicalEndstopPos)
-//			{
-//				l_u8EndstopCheckLock = 0;
-//			}
-//		}
-//		else if(l_u8EndstopCheckLock == (uint8)C_ENDSTOP_CHECK_LOCK_LO)
-//		{
-//			if(l_u16PhysicalTargetPos > l_u16PhysicalEndstopPos)
-//			{
-//				l_u8EndstopCheckLock = 0u;
-//			}
-//		}
-//		else
-//		{
-//			l_u8EndstopCheckLock = 0u;
-//		}
 
 		/* unlock endstop check,need position already gone compensation? */
 		/* still lock for endstop check? */
@@ -700,7 +459,6 @@ void handleOpeningPosition(void)
 	{
 		/* other event ,deal with specific event handler */
 	}
-
 }
 
 /* stall detection and endstop check */
@@ -732,17 +490,11 @@ void handleEndstopCheck(void)
 				l_u16PhysicalTargetPos = C_VALVE_ZERO_POS;
 				/* client-server:post message */
 				l_u8MotorControl = C_MOTOR_STOP;
-//				l_u16PhysicalEndstopPos = C_VALVE_ZERO_POS;
-//				l_u8EndstopCheckLock = (uint8)C_ENDSTOP_CHECK_LOCK_LO;
+
 				l_u8OBDValveMechanicalError = (uint8)OBD_VALVE_MECHANICAL_OK;
 			}
 			else
 			{
-				/* record endstop check position */
-//				l_u16PhysicalEndstopPos = l_u16PhysicalActualPos;
-//				l_u8EndstopCheckLock = (uint8)C_ENDSTOP_CHECK_LOCK_LO;
-//				l_u8OBDValveMechanicalError = (uint8)OBD_VALVE_MECHANICAL_OK;
-
 				l_u8OBDValveMechanicalError = OBD_VALVE_RANGE_BROKEN;
 				l_u8ValueFaultFlag = (uint8)OBD_VALVE_RANGE_BROKEN;
 			}
@@ -762,17 +514,11 @@ void handleEndstopCheck(void)
 				l_u16PhysicalTargetPos = C_VALVE_ZERO_POS + C_VALVE_DEF_TRAVEL;
 				/* client-server:post message */
 				l_u8MotorControl = C_MOTOR_STOP;
-//				l_u16PhysicalEndstopPos = C_VALVE_ZERO_POS + l_u16PhysicalCalibTravel;
-//				l_u8EndstopCheckLock = (uint8)C_ENDSTOP_CHECK_LOCK_HI;
+
 				l_u8OBDValveMechanicalError = (uint8)OBD_VALVE_MECHANICAL_OK;
 			}
 			else
 			{
-				/* record endstop check position */
-//				l_u16PhysicalEndstopPos = l_u16PhysicalActualPos;
-//				l_u8EndstopCheckLock = C_ENDSTOP_CHECK_LOCK_HI;
-//				l_u8OBDValveMechanicalError = OBD_VALVE_MECHANICAL_OK;
-
 				l_u8OBDValveMechanicalError = OBD_VALVE_RANGE_BROKEN;
 				l_u8ValueFaultFlag = (uint8)OBD_VALVE_RANGE_BROKEN;
 			}
@@ -786,12 +532,6 @@ void handleEndstopCheck(void)
 	{
 #if _SUPPORT_ENDSTOP_DETECTION
 		/* no stall detected while expected,valve range broken */
-//		if((l_u16PhysicalActualPos == (C_VALVE_ZERO_POS + C_VALVE_RANGE_MAX)) ||
-//			(l_u16PhysicalActualPos == (C_VALVE_ZERO_POS + C_VALVE_RANGE_MIN - C_VALVE_RANGE_MAX)))
-//		{
-//			l_u8OBDValveMechanicalError = OBD_VALVE_RANGE_BROKEN;
-//			l_u8ValueFaultFlag = (uint8)OBD_VALVE_RANGE_BROKEN;
-//		}
 #endif
 	}
 }
@@ -878,12 +618,7 @@ void handleSynchronizePosition(void)
 	{
 		l_u8StallOcc = FALSE;
 	}
-/*
-	if(motor_status.Fault.DRIFT != 0u)
-	{
-		l_u8OBDValveMechanicalError = (uint8)OBD_VALVE_GEAR_DRIFT;
-	}
-*/
+
 	uint16 temp;
 	uint8 wait = Timer_IsExpired(FAULT_HOLD_TIMER);
 	/* fault signal */
@@ -1012,43 +747,6 @@ void handleEmergencyRunEvent(void)
 	
 	if(s_CVRequestStruct.m_request == C_MOTOR_REQUEST_EMRUN)
 	{
-		/* emergency run is triggered only after initialized */
-//		if(l_e8ValveState == C_STATE_INITIALIZED)
-		if(0)
-		{
-			/* handling opening,no endstop check */
-#if _SUPPORT_ENDSTOP_DETECTION
-			/* when endstop detection is enabled,target position is set to make sure the maximun valve range 
-			  * may be reached,for the endstop function to operates normally.
-			  */
-			if(C_VALVE_EMRUN_OPENING == C_VALVE_OPENING_0_PERCENT)
-			{
-				l_u16PhysicalTargetPos = C_VALVE_ZERO_POS - (C_VALVE_RANGE_MAX - C_VALVE_RANGE_MIN);
-			}
-			else if(C_VALVE_EMRUN_OPENING == C_VALVE_OPENING_100_PERCENT)
-			{
-				l_u16PhysicalTargetPos = C_VALVE_ZERO_POS + C_VALVE_RANGE_MAX;
-			}
-			else
-			{
-				l_u16PhysicalTargetPos = divU16_U32byU16( mulU32_U16byU16( C_VALVE_EMRUN_OPENING, l_u16PhysicalCalibTravel) + (C_VALVE_OPENING_100_PERCENT / 2u), C_VALVE_OPENING_100_PERCENT) + C_VALVE_ZERO_POS;
-			}
-#else  /* _SUPPORT_ENDSTOP_DETECTION */
-			l_u16PhysicalTargetPos = divU16_U32byU16( mulU32_U16byU16( C_VALVE_EMRUN_OPENING, l_u16PhysicalCalibTravel) + (C_VALVE_OPENING_100_PERCENT / 2u), C_VALVE_OPENING_100_PERCENT) + C_VALVE_ZERO_POS;
-#endif /* _SUPPORT_ENDSTOP_DETECTION */
-			if(l_u8EmrunStatus == 0u)
-			{
-				/* emergency run should be triggered only once,emgency run in process */
-				l_u8EmrunStatus = 1u;
-				/* only update target position-emergency run position */
-				l_u8MotorControl = C_MOTOR_START_ONLY;
-			}
-		}
-//		else
-//		{
-			/* stop motor first if not initialized in case the motor is  running:immediate */
-//			l_u8MotorControl = C_MOTOR_STOP_ONLY;
-//		}
 #if _SUPPORT_BUSTIMEOUT_SLEEP
 		/* query motor state */
 		MotorDriverGetStatus(&motor_status);
@@ -1057,7 +755,6 @@ void handleEmergencyRunEvent(void)
 		{
 			Valve_GotoSleep();
 		}
-
 #endif
 	}
 	else
@@ -1087,31 +784,12 @@ void handleSleepEvent(void)
 		{
 			Valve_GotoSleep();
 		}
-
 	}
 }
 
 void Valve_GotoSleep(void)
 {
 	uint16 cv_nvm[3];
-#if 0
-	if(l_e8ValveState == C_STATE_INITIALIZED)
-	{
-		/* save application real time info:actual position,travel,init state */
-		cv_nvm[0] = C_STATE_INITIALIZED;
-		cv_nvm[1] = l_u16PhysicalActualPos;
-		cv_nvm[2] = l_u16PhysicalCalibTravel;
-		(void)NVRAM_Write( C_NVRAM_AREA2_ADDR, cv_nvm, 3 );	/* MISRA C:2012 Rule-17.7:The value returned by a function having non-void return type shall be used */
-	}
-	else
-	{
-		/* overwritten history record with default values , or the history data may be used when wake-up */
-		cv_nvm[0] = C_STATE_UNINITIALIZED;
-		cv_nvm[1] = 0u;
-		cv_nvm[2] = C_VALVE_DEF_TRAVEL;
-		(void)NVRAM_Write( C_NVRAM_AREA2_ADDR, cv_nvm, 3 );
-	}
-#endif
 	/* stop MCU */
 	MLX315_GotoSleep();
 }
@@ -1122,11 +800,8 @@ void HandleActCfrCtrl(const ACT_CFR_CTRL *pCfrCtrl)
 	uint16 u16TempPos;
 
 	/* move enable and torque defined transmit */
-//	if((pCfrCtrl->byMovEn == C_CTRL_MOVE_ENA) && (pCfrCtrl->byTorqueLevel >= C_CTRL_TORQUE_NOMINAL)
-//		&& (pCfrCtrl->byTorqueLevel <= C_CTRL_TORQUE_BOOST_100PCT))
 	u16TempPos = (uint16)((uint8)pCfrCtrl->PositionRequest_H * 256 + (uint8)pCfrCtrl->PositionRequest_L);
 	targetPos = u16TempPos;
-
 
 	if((pCfrCtrl->EnableRequest == C_CTRL_MOVE_ENA))	//torque is valid no matter which value qiang
 	{
@@ -1138,7 +813,7 @@ void HandleActCfrCtrl(const ACT_CFR_CTRL *pCfrCtrl)
 				{
 					s_CVRequestStruct.m_request = C_MOTOR_REQUEST_CALIBRATION;
 					s_CVRequestStruct.m_opening = 0;
-					s_CVRequestStruct.m_speed = NVRAM_SPEED0;		//speed is fixed
+					s_CVRequestStruct.m_speed = NVRAM_SPEED1;		//speed is fixed
 				}
 				else
 				{
@@ -1219,7 +894,3 @@ void HandleNMReq(uint8 reason)
 		/* reason not recognized */
 	}
 }
-
-
-
-

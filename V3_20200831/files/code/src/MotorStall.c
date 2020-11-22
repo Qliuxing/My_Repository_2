@@ -344,11 +344,11 @@ uint16 MotorStallCheckH( void)
 				u16DeltaPosition = l_u16HallMicroStepIdxPre - g_u16HallMicroStepIdx;
 			}
 			/* Normal 6 full steps for one hall signal. */
-			if((u16DeltaPosition <= ((uint16)11)) || (u16DeltaPosition >= ((uint16)21)))
+			if((u16DeltaPosition <= ((uint16)10)) || (u16DeltaPosition >= ((uint16)22)))
 			{
 				g_u16falg += 1;
 				l_u8StallCountReboundH++;
-				if ( l_u8StallCountReboundH >= 4u )
+				if ( l_u8StallCountReboundH >= 5u )
 				{
 					l_u8StallCountReboundH = 0u;
 					return ( C_STALL_FOUND );
