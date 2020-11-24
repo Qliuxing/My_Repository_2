@@ -361,7 +361,7 @@ extern uint16 g_au16MotorSpeedRPS[];
 extern uint16 l_u16MotorCurrentRawIdx;
 extern uint16 l_au16MotorCurrentRaw[C_MOVAVG_SZ];
 extern uint8 g_u8MotorStartupMode;
-
+extern uint8 g_u8ValveInitState;
 extern uint8 g_u8MotorStatusSpeed;						/* (Status) Actual motor-speed */
 
 extern uint16 g_u16falg;

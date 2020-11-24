@@ -116,6 +116,8 @@ uint8 g_u8MotorStatusSpeed = (uint8) C_MOTOR_SPEED_STOP;						/* (Status) Actual
 uint8 l_u8MotorStatus = C_MOTOR_STATUS_STOP;
 uint8 l_u8MotorRequest = C_MOTOR_CTRL_STOP;
 
+uint8 g_u8ValveInitState = 0;
+
 uint16 g_u16falg = 0;
 uint16 g_u16PosFlag = 0;
 

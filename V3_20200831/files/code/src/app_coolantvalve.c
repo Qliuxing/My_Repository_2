@@ -44,7 +44,7 @@ typedef struct
 #define C_VALVE_OPENING_50_PERCENT		0x32u	// NEXT calibration position boundary
 #define C_VALVE_OPENING_100_PERCENT		0x64u
 
-#define C_VALVE_RESPONSE_UNKONWNPOS		0xFFu
+#define C_VALVE_RESPONSE_UNKONWNPOS		0x00u
 
 /* valve OBD mechanical state */
 #define OBD_VALVE_MECHANICAL_OK         0x00u
@@ -408,6 +408,7 @@ void handleStateTransition(void)
 //			Timer_Start(CALIB_PAUSE_TIMER,C_PI_TICKS_500MS);
 		}
 	}
+	g_u8ValveInitState = l_e8ValveState;
 	
 }
 

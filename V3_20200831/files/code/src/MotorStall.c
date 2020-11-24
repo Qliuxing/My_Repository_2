@@ -348,11 +348,27 @@ uint16 MotorStallCheckH( void)
 			{
 				g_u16falg += 1;
 				l_u8StallCountReboundH++;
-				if ( l_u8StallCountReboundH >= 5u )
+				if(g_u8ValveInitState == 2)
 				{
-					l_u8StallCountReboundH = 0u;
-					return ( C_STALL_FOUND );
+					if ( l_u8StallCountReboundH >= 15u )
+					{
+						l_u8StallCountReboundH = 0u;
+						return ( C_STALL_FOUND );
+					}
+//					else if(l_u8StallCountReboundH)
+//					{
+//						l_u8StallCountReboundH--;
+//					}
 				}
+				else
+				{
+					if ( l_u8StallCountReboundH >= 5u )
+					{
+						l_u8StallCountReboundH = 0u;
+						return ( C_STALL_FOUND );
+					}
+				}
+
 			}
 
 			/* GM spec:rebounding stall accumulator should not be cleared  */
